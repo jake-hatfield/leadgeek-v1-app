@@ -14,10 +14,10 @@ const User = require('../../models/User');
 router.get('/', auth, async (req, res) => {
 	try {
 		const user = await User.findById(req.user.id).select('-password');
-		res.json(user);
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).send('Server error');
+		return res.json(user);
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).send('Server error');
 	}
 });
 
@@ -37,7 +37,7 @@ router.post(
 			// there was a validation error, return the array to display in UI
 			return res.status(400).json({ errors: errors.array() });
 		}
-		// destructure name, email and pw out of the body
+		// destructure email and pw out of the body
 		const { email, password } = req.body;
 
 		try {
@@ -54,7 +54,7 @@ router.post(
 			if (!isMatch) {
 				return res
 					.status(400)
-					.json({ erorrs: [{ msg: 'Invalid credentials' }] });
+					.json({ errors: [{ msg: 'Invalid credentials' }] });
 			}
 
 			// return the JWT
