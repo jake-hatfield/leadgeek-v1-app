@@ -20,7 +20,8 @@
 		"uuid": "^8.3.1"
 	},
 	"scripts": {
-		"start": "react-scripts start",
+		"build:style": "tailwind build src/assets/App.css -o src/assets/tailwind.css",
+		"start": "npm run build:style && react-scripts start",
 		"build": "react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject"
@@ -40,5 +41,10 @@
 			"last 1 safari version"
 		]
 	},
-	"proxy": "http://localhost:5000"
+	"proxy": "http://localhost:5000",
+	"devDependencies": {
+		"autoprefixer": "^10.0.1",
+		"postcss-cli": "^8.1.0",
+		"tailwindcss": "^1.9.5"
+	}
 }

@@ -22,7 +22,9 @@ const Login = ({ login, isAuthenticated }) => {
 	}
 	return (
 		<Fragment>
-			<h1 className='large text-primary'>Sign In</h1>
+			<h1 className='text-3xl font-black text-purple-600'>
+				Sign into LeadGeek
+			</h1>
 			<p className='lead'>
 				<i className='fas fa-user'></i> Sign Into Your Account
 			</p>
