@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-.body {
-	font-family: 'Inter';
+html {
+	@apply text-gray-500;
+}
+
+.app-container {
+	@apply w-full mx-8;
+}
+
+.active {
+	@apply bg-gray-900;
+}
+
+.link {
+	@apply underline font-semibold;
+	text-decoration-color: #9fb3c8;
+	text-decoration-thickness: 0.1rem;
+}
+
+.link:hover {
+	text-decoration-color: #5d55fa;
 }
