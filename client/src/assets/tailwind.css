@@ -36896,6 +36896,29 @@ html {
           text-decoration-color: #5d55fa;
 }
 
+#leads,
+table thead,
+table tbody {
+  border-radius: 0.5rem !important;
+}
+
+table thead tr th:first-child {
+  border-top-left-radius: 0.5rem !important;
+}
+
+table thead tr th:last-child {
+  border-top-right-radius: 0.5rem !important;
+}
+
+table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 0.5rem !important;
+  /* border-bottom-left-radius: 10px; */
+}
+
+table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 0.5rem !important;
+}
+
 @media (min-width: 640px) {
   .sm\:space-y-0 > :not(template) ~ :not(template) {
     --space-y-reverse: 0;

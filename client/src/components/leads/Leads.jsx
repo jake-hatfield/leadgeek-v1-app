@@ -63,7 +63,7 @@ const Leads = () => {
 				</p>
 				<h1 className='text-4xl font-black text-gray-900'>Arbitrage Leads</h1>
 			</header>
-			<div>
+			<article>
 				<div className='flex items-end justify-between'>
 					<nav className='flex items-start'>
 						{primaryLinks.map((link, i) => (
@@ -104,7 +104,7 @@ const Leads = () => {
 						</div>
 					))}
 				</nav>
-			</div>
+			</article>
 			<LeadTable />
 		</section>
 	);

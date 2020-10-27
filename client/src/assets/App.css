@@ -23,3 +23,26 @@ html {
 .link:hover {
 	text-decoration-color: #5d55fa;
 }
+
+#leads,
+table thead,
+table tbody {
+	@apply rounded-lg !important;
+}
+
+table thead tr th:first-child {
+	@apply rounded-tl-lg !important;
+}
+
+table thead tr th:last-child {
+	@apply rounded-tr-lg !important;
+}
+
+table tbody tr:last-child td:first-child {
+	@apply rounded-bl-lg !important;
+	/* border-bottom-left-radius: 10px; */
+}
+
+table tbody tr:last-child td:last-child {
+	@apply rounded-br-lg !important;
+}

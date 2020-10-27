@@ -4,47 +4,54 @@ const LeadTable = () => {
 	const [favorite, setFavorite] = useState(false);
 	return (
 		<section className='mt-8'>
-			<table className='w-full table-auto shadow-sm'>
-				<tr className='bg-gray-100 text-gray-400 text-xs text-left uppercase leading-loose whitespace-no-wrap'>
-					<th className='py-2 px-6'>Product Name</th>
-					<th className='py-2 px-6'>Category</th>
-					<th className='py-2 px-6'>Net Profit</th>
-					<th className='py-2 px-6'>Net ROI</th>
-					<th className='py-2 px-6 text-right'>Current BSR</th>
-					<th className='p-2 text-right'>Sales / Mo</th>
-					<th className='py-2 px-6' />
-					<th className='py-2 px-6' />
-				</tr>
+			<table className='w-full table-auto shadow-md' id='leads'>
+				<thead>
+					<tr className='bg-gray-100 text-gray-400 text-xs text-left uppercase tracking-widest whitespace-no-wrap'>
+						<th className='px-2' />
+						<th className='py-3 pr-6'>Product Name</th>
+						<th className='px-6'>Category</th>
+						<th className='px-6 text-right'>Net Profit</th>
+						<th className='px-6 text-right'>Net ROI</th>
+						<th className='px-2 text-right'>Current BSR</th>
+						<th className='px-2 text-right'>Sales / Mo</th>
+						<th className='px-6' />
+						<th className='px-6' />
+					</tr>
+				</thead>
 				<tbody className='text-sm text-gray-500 font-medium whitespace-no-wrap'>
-					<tr className='border-b-2 border-gray-100'>
-						<td className='py-6 pl-6'>Disney Princess Finger Puppets</td>
-						<td className='p-6'>Toys & Games</td>
-						<td className='p-6 text-gray-600 font-black'>
+					<tr className='first:border-none border-t-2 border-gray-100'>
+						<td className='py-6 pl-6'>
+							<span className='p-1 h-3 w-3 flex items-center justify-center bg-teal-200 rounded-full font-bold text-teal-500' />
+						</td>
+						<td className='py-6'>Disney Princess Finger Puppets</td>
+						<td className='p-6'>Beauty & Personal Care</td>
+						<td className='p-6 text-gray-600 font-black text-right'>
 							<span>$</span>5.76
 							<span className='ml-1 text-gray-400 font-semibold uppercase'>
 								USD
 							</span>
 						</td>
-						<td className='p-6'>
-							65<span>%</span>
+						<td className='p-6 text-gray-600 font-black text-right'>
+							65<span className='ml-1 text-gray-400 font-semibold'>%</span>
 						</td>
-						<td className='p-6'>
+						<td className='px-2 text-gray-600 font-black text-right'>
 							22,116
-							<span>
-								(0.008)<span>%</span>
+							<span className='ml-1 text-gray-400 font-normal'>
+								(0.008)
+								<span className='ml-1 text-gray-400 font-semibold'>%</span>
 							</span>
 						</td>
-						<td className='px-2 text-right'>180</td>
-						<td className='p-2'>
+						<td className='px-2 text-gray-600 font-black text-right'>180</td>
+						<td className='py-2 px-4 text-center text-gray-400'>
 							<button
 								onClick={() => setFavorite(!favorite)}
-								className='focus:outline-none'
+								className='focus:outline-none align-middle'
 							>
 								<svg
 									xmlns='http://www.w3.org/2000/svg'
-									fill={`${favorite ? '#5d55fa' : 'none'}`}
+									fill={`${favorite ? '#9FB3C8' : 'none'}`}
 									viewBox='0 0 24 24'
-									stroke={`${favorite ? '#5d55fa' : 'currentColor'}`}
+									stroke={`${favorite ? '#9FB3C8' : 'currentColor'}`}
 									className='h-5 w-5'
 								>
 									<path
@@ -56,7 +63,9 @@ const LeadTable = () => {
 								</svg>
 							</button>
 						</td>
-						<td className='p-6'>Details</td>
+						<td className='pr-6'>
+							<button className='text-purple-600 font-semibold'>Details</button>
+						</td>
 					</tr>
 				</tbody>
 			</table>
