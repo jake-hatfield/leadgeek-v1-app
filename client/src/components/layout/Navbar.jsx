@@ -36,7 +36,7 @@ const Navbar = ({ auth: { isAuthenticated }, notifications, logout }) => {
 	return (
 		<Fragment>
 			{isAuthenticated && (
-				<nav className='md:w-48 lg:w-56 flex-none bg-gray-800 text-gray-400'>
+				<nav className='md:w-56 lg:w-64 flex-none bg-gray-800 text-gray-400'>
 					<div>
 						<div className='bg-gray-700'>
 							<div className='py-6 px-3 flex items-center text-gray-200'>
@@ -47,13 +47,16 @@ const Navbar = ({ auth: { isAuthenticated }, notifications, logout }) => {
 										<h4 className='text-sm'>
 											<Link
 												to='/profile'
-												className='hover:underline transition-all duration-100 ease-in-out'
+												className='rounded-md focus:outline-none focus:shadow-outline hover:underline transition-all duration-100 ease-in-out'
 											>
 												Jake Hatfield
 											</Link>
 										</h4>
 									</div>
-									<button className='mt-1' onClick={logout} href='#'>
+									<button
+										onClick={logout}
+										className='mt-1 rounded-md focus:outline-none focus:shadow-outline'
+									>
 										<svg
 											xmlns='http://www.w3.org/2000/svg'
 											fill='none'
@@ -77,7 +80,7 @@ const Navbar = ({ auth: { isAuthenticated }, notifications, logout }) => {
 								<NavLink
 									exact
 									to={link.link}
-									className='mt-1 py-1 px-2 flex items-center font-medium rounded-md hover:bg-gray-900 transition-colors duration-100 ease-in-out'
+									className='mt-1 py-1 px-2 flex items-center font-medium rounded-md hover:bg-gray-900 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 									activeClassName='active'
 									key={i}
 								>

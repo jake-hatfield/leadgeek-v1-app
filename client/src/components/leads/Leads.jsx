@@ -55,6 +55,7 @@ const Leads = () => {
 			),
 		},
 	];
+
 	return (
 		<section className='my-6 app-container'>
 			<header>
@@ -88,8 +89,8 @@ const Leads = () => {
 				<nav className='mt-6 flex items-end'>
 					{tools.map((tool, i) => (
 						<div v-for='item in items' className='first:pl-0 pl-6' key={i}>
-							<button className='py-2 pl-3 pr-5 flex items-center rounded-md hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'>
-								<span>
+							<button className='py-2 pl-3 pr-5 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'>
+								<span className='text-center'>
 									<svg
 										xmlns='http://www.w3.org/2000/svg'
 										viewBox='0 0 24 24'
@@ -99,7 +100,7 @@ const Leads = () => {
 										{tool.path}
 									</svg>
 								</span>
-								<span className='ml-2 leading-3'>{tool.title}</span>
+								<span className='ml-2'>{tool.title}</span>
 							</button>
 						</div>
 					))}
