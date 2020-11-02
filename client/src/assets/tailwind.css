@@ -624,7 +624,7 @@ video {
 
 @media (min-width: 1280px) {
   .container {
-    max-width: 1140px;
+    max-width: 1600px;
     padding-left: 2rem;
     padding-right: 2rem;
   }
@@ -11992,6 +11992,146 @@ video {
 }
 
 .border-none {
+  border-style: none;
+}
+
+.first\:border-solid:first-child {
+  border-style: solid;
+}
+
+.first\:border-dashed:first-child {
+  border-style: dashed;
+}
+
+.first\:border-dotted:first-child {
+  border-style: dotted;
+}
+
+.first\:border-double:first-child {
+  border-style: double;
+}
+
+.first\:border-none:first-child {
+  border-style: none;
+}
+
+.last\:border-solid:last-child {
+  border-style: solid;
+}
+
+.last\:border-dashed:last-child {
+  border-style: dashed;
+}
+
+.last\:border-dotted:last-child {
+  border-style: dotted;
+}
+
+.last\:border-double:last-child {
+  border-style: double;
+}
+
+.last\:border-none:last-child {
+  border-style: none;
+}
+
+.even\:border-solid:nth-child(even) {
+  border-style: solid;
+}
+
+.even\:border-dashed:nth-child(even) {
+  border-style: dashed;
+}
+
+.even\:border-dotted:nth-child(even) {
+  border-style: dotted;
+}
+
+.even\:border-double:nth-child(even) {
+  border-style: double;
+}
+
+.even\:border-none:nth-child(even) {
+  border-style: none;
+}
+
+.odd\:border-solid:nth-child(odd) {
+  border-style: solid;
+}
+
+.odd\:border-dashed:nth-child(odd) {
+  border-style: dashed;
+}
+
+.odd\:border-dotted:nth-child(odd) {
+  border-style: dotted;
+}
+
+.odd\:border-double:nth-child(odd) {
+  border-style: double;
+}
+
+.odd\:border-none:nth-child(odd) {
+  border-style: none;
+}
+
+.hover\:border-solid:hover {
+  border-style: solid;
+}
+
+.hover\:border-dashed:hover {
+  border-style: dashed;
+}
+
+.hover\:border-dotted:hover {
+  border-style: dotted;
+}
+
+.hover\:border-double:hover {
+  border-style: double;
+}
+
+.hover\:border-none:hover {
+  border-style: none;
+}
+
+.group:hover .group-hover\:border-solid {
+  border-style: solid;
+}
+
+.group:hover .group-hover\:border-dashed {
+  border-style: dashed;
+}
+
+.group:hover .group-hover\:border-dotted {
+  border-style: dotted;
+}
+
+.group:hover .group-hover\:border-double {
+  border-style: double;
+}
+
+.group:hover .group-hover\:border-none {
+  border-style: none;
+}
+
+.focus\:border-solid:focus {
+  border-style: solid;
+}
+
+.focus\:border-dashed:focus {
+  border-style: dashed;
+}
+
+.focus\:border-dotted:focus {
+  border-style: dotted;
+}
+
+.focus\:border-double:focus {
+  border-style: double;
+}
+
+.focus\:border-none:focus {
   border-style: none;
 }
 
@@ -36904,18 +37044,22 @@ table tbody {
 
 table thead tr th:first-child {
   border-top-left-radius: 0.5rem !important;
+  border-bottom-left-radius: 0.5rem !important;
 }
 
 table thead tr th:last-child {
   border-top-right-radius: 0.5rem !important;
+  border-bottom-right-radius: 0.5rem !important;
 }
 
-table tbody tr:last-child td:first-child {
+table tbody tr td:first-child {
+  border-top-left-radius: 0.5rem !important;
   border-bottom-left-radius: 0.5rem !important;
   /* border-bottom-left-radius: 10px; */
 }
 
-table tbody tr:last-child td:last-child {
+table tbody tr td:last-child {
+  border-top-right-radius: 0.5rem !important;
   border-bottom-right-radius: 0.5rem !important;
 }
 
@@ -48282,6 +48426,146 @@ table tbody tr:last-child td:last-child {
   }
 
   .sm\:border-none {
+    border-style: none;
+  }
+
+  .sm\:first\:border-solid:first-child {
+    border-style: solid;
+  }
+
+  .sm\:first\:border-dashed:first-child {
+    border-style: dashed;
+  }
+
+  .sm\:first\:border-dotted:first-child {
+    border-style: dotted;
+  }
+
+  .sm\:first\:border-double:first-child {
+    border-style: double;
+  }
+
+  .sm\:first\:border-none:first-child {
+    border-style: none;
+  }
+
+  .sm\:last\:border-solid:last-child {
+    border-style: solid;
+  }
+
+  .sm\:last\:border-dashed:last-child {
+    border-style: dashed;
+  }
+
+  .sm\:last\:border-dotted:last-child {
+    border-style: dotted;
+  }
+
+  .sm\:last\:border-double:last-child {
+    border-style: double;
+  }
+
+  .sm\:last\:border-none:last-child {
+    border-style: none;
+  }
+
+  .sm\:even\:border-solid:nth-child(even) {
+    border-style: solid;
+  }
+
+  .sm\:even\:border-dashed:nth-child(even) {
+    border-style: dashed;
+  }
+
+  .sm\:even\:border-dotted:nth-child(even) {
+    border-style: dotted;
+  }
+
+  .sm\:even\:border-double:nth-child(even) {
+    border-style: double;
+  }
+
+  .sm\:even\:border-none:nth-child(even) {
+    border-style: none;
+  }
+
+  .sm\:odd\:border-solid:nth-child(odd) {
+    border-style: solid;
+  }
+
+  .sm\:odd\:border-dashed:nth-child(odd) {
+    border-style: dashed;
+  }
+
+  .sm\:odd\:border-dotted:nth-child(odd) {
+    border-style: dotted;
+  }
+
+  .sm\:odd\:border-double:nth-child(odd) {
+    border-style: double;
+  }
+
+  .sm\:odd\:border-none:nth-child(odd) {
+    border-style: none;
+  }
+
+  .sm\:hover\:border-solid:hover {
+    border-style: solid;
+  }
+
+  .sm\:hover\:border-dashed:hover {
+    border-style: dashed;
+  }
+
+  .sm\:hover\:border-dotted:hover {
+    border-style: dotted;
+  }
+
+  .sm\:hover\:border-double:hover {
+    border-style: double;
+  }
+
+  .sm\:hover\:border-none:hover {
+    border-style: none;
+  }
+
+  .group:hover .sm\:group-hover\:border-solid {
+    border-style: solid;
+  }
+
+  .group:hover .sm\:group-hover\:border-dashed {
+    border-style: dashed;
+  }
+
+  .group:hover .sm\:group-hover\:border-dotted {
+    border-style: dotted;
+  }
+
+  .group:hover .sm\:group-hover\:border-double {
+    border-style: double;
+  }
+
+  .group:hover .sm\:group-hover\:border-none {
+    border-style: none;
+  }
+
+  .sm\:focus\:border-solid:focus {
+    border-style: solid;
+  }
+
+  .sm\:focus\:border-dashed:focus {
+    border-style: dashed;
+  }
+
+  .sm\:focus\:border-dotted:focus {
+    border-style: dotted;
+  }
+
+  .sm\:focus\:border-double:focus {
+    border-style: double;
+  }
+
+  .sm\:focus\:border-none:focus {
     border-style: none;
   }
 
@@ -84456,6 +84740,146 @@ table tbody tr:last-child td:last-child {
     border-style: none;
   }
 
+  .md\:first\:border-solid:first-child {
+    border-style: solid;
+  }
+
+  .md\:first\:border-dashed:first-child {
+    border-style: dashed;
+  }
+
+  .md\:first\:border-dotted:first-child {
+    border-style: dotted;
+  }
+
+  .md\:first\:border-double:first-child {
+    border-style: double;
+  }
+
+  .md\:first\:border-none:first-child {
+    border-style: none;
+  }
+
+  .md\:last\:border-solid:last-child {
+    border-style: solid;
+  }
+
+  .md\:last\:border-dashed:last-child {
+    border-style: dashed;
+  }
+
+  .md\:last\:border-dotted:last-child {
+    border-style: dotted;
+  }
+
+  .md\:last\:border-double:last-child {
+    border-style: double;
+  }
+
+  .md\:last\:border-none:last-child {
+    border-style: none;
+  }
+
+  .md\:even\:border-solid:nth-child(even) {
+    border-style: solid;
+  }
+
+  .md\:even\:border-dashed:nth-child(even) {
+    border-style: dashed;
+  }
+
+  .md\:even\:border-dotted:nth-child(even) {
+    border-style: dotted;
+  }
+
+  .md\:even\:border-double:nth-child(even) {
+    border-style: double;
+  }
+
+  .md\:even\:border-none:nth-child(even) {
+    border-style: none;
+  }
+
+  .md\:odd\:border-solid:nth-child(odd) {
+    border-style: solid;
+  }
+
+  .md\:odd\:border-dashed:nth-child(odd) {
+    border-style: dashed;
+  }
+
+  .md\:odd\:border-dotted:nth-child(odd) {
+    border-style: dotted;
+  }
+
+  .md\:odd\:border-double:nth-child(odd) {
+    border-style: double;
+  }
+
+  .md\:odd\:border-none:nth-child(odd) {
+    border-style: none;
+  }
+
+  .md\:hover\:border-solid:hover {
+    border-style: solid;
+  }
+
+  .md\:hover\:border-dashed:hover {
+    border-style: dashed;
+  }
+
+  .md\:hover\:border-dotted:hover {
+    border-style: dotted;
+  }
+
+  .md\:hover\:border-double:hover {
+    border-style: double;
+  }
+
+  .md\:hover\:border-none:hover {
+    border-style: none;
+  }
+
+  .group:hover .md\:group-hover\:border-solid {
+    border-style: solid;
+  }
+
+  .group:hover .md\:group-hover\:border-dashed {
+    border-style: dashed;
+  }
+
+  .group:hover .md\:group-hover\:border-dotted {
+    border-style: dotted;
+  }
+
+  .group:hover .md\:group-hover\:border-double {
+    border-style: double;
+  }
+
+  .group:hover .md\:group-hover\:border-none {
+    border-style: none;
+  }
+
+  .md\:focus\:border-solid:focus {
+    border-style: solid;
+  }
+
+  .md\:focus\:border-dashed:focus {
+    border-style: dashed;
+  }
+
+  .md\:focus\:border-dotted:focus {
+    border-style: dotted;
+  }
+
+  .md\:focus\:border-double:focus {
+    border-style: double;
+  }
+
+  .md\:focus\:border-none:focus {
+    border-style: none;
+  }
+
   .md\:border-0 {
     border-width: 0;
   }
@@ -120627,6 +121051,146 @@ table tbody tr:last-child td:last-child {
     border-style: none;
   }
 
+  .lg\:first\:border-solid:first-child {
+    border-style: solid;
+  }
+
+  .lg\:first\:border-dashed:first-child {
+    border-style: dashed;
+  }
+
+  .lg\:first\:border-dotted:first-child {
+    border-style: dotted;
+  }
+
+  .lg\:first\:border-double:first-child {
+    border-style: double;
+  }
+
+  .lg\:first\:border-none:first-child {
+    border-style: none;
+  }
+
+  .lg\:last\:border-solid:last-child {
+    border-style: solid;
+  }
+
+  .lg\:last\:border-dashed:last-child {
+    border-style: dashed;
+  }
+
+  .lg\:last\:border-dotted:last-child {
+    border-style: dotted;
+  }
+
+  .lg\:last\:border-double:last-child {
+    border-style: double;
+  }
+
+  .lg\:last\:border-none:last-child {
+    border-style: none;
+  }
+
+  .lg\:even\:border-solid:nth-child(even) {
+    border-style: solid;
+  }
+
+  .lg\:even\:border-dashed:nth-child(even) {
+    border-style: dashed;
+  }
+
+  .lg\:even\:border-dotted:nth-child(even) {
+    border-style: dotted;
+  }
+
+  .lg\:even\:border-double:nth-child(even) {
+    border-style: double;
+  }
+
+  .lg\:even\:border-none:nth-child(even) {
+    border-style: none;
+  }
+
+  .lg\:odd\:border-solid:nth-child(odd) {
+    border-style: solid;
+  }
+
+  .lg\:odd\:border-dashed:nth-child(odd) {
+    border-style: dashed;
+  }
+
+  .lg\:odd\:border-dotted:nth-child(odd) {
+    border-style: dotted;
+  }
+
+  .lg\:odd\:border-double:nth-child(odd) {
+    border-style: double;
+  }
+
+  .lg\:odd\:border-none:nth-child(odd) {
+    border-style: none;
+  }
+
+  .lg\:hover\:border-solid:hover {
+    border-style: solid;
+  }
+
+  .lg\:hover\:border-dashed:hover {
+    border-style: dashed;
+  }
+
+  .lg\:hover\:border-dotted:hover {
+    border-style: dotted;
+  }
+
+  .lg\:hover\:border-double:hover {
+    border-style: double;
+  }
+
+  .lg\:hover\:border-none:hover {
+    border-style: none;
+  }
+
+  .group:hover .lg\:group-hover\:border-solid {
+    border-style: solid;
+  }
+
+  .group:hover .lg\:group-hover\:border-dashed {
+    border-style: dashed;
+  }
+
+  .group:hover .lg\:group-hover\:border-dotted {
+    border-style: dotted;
+  }
+
+  .group:hover .lg\:group-hover\:border-double {
+    border-style: double;
+  }
+
+  .group:hover .lg\:group-hover\:border-none {
+    border-style: none;
+  }
+
+  .lg\:focus\:border-solid:focus {
+    border-style: solid;
+  }
+
+  .lg\:focus\:border-dashed:focus {
+    border-style: dashed;
+  }
+
+  .lg\:focus\:border-dotted:focus {
+    border-style: dotted;
+  }
+
+  .lg\:focus\:border-double:focus {
+    border-style: double;
+  }
+
+  .lg\:focus\:border-none:focus {
+    border-style: none;
+  }
+
   .lg\:border-0 {
     border-width: 0;
   }
@@ -156795,6 +157359,146 @@ table tbody tr:last-child td:last-child {
   }
 
   .xl\:border-none {
+    border-style: none;
+  }
+
+  .xl\:first\:border-solid:first-child {
+    border-style: solid;
+  }
+
+  .xl\:first\:border-dashed:first-child {
+    border-style: dashed;
+  }
+
+  .xl\:first\:border-dotted:first-child {
+    border-style: dotted;
+  }
+
+  .xl\:first\:border-double:first-child {
+    border-style: double;
+  }
+
+  .xl\:first\:border-none:first-child {
+    border-style: none;
+  }
+
+  .xl\:last\:border-solid:last-child {
+    border-style: solid;
+  }
+
+  .xl\:last\:border-dashed:last-child {
+    border-style: dashed;
+  }
+
+  .xl\:last\:border-dotted:last-child {
+    border-style: dotted;
+  }
+
+  .xl\:last\:border-double:last-child {
+    border-style: double;
+  }
+
+  .xl\:last\:border-none:last-child {
+    border-style: none;
+  }
+
+  .xl\:even\:border-solid:nth-child(even) {
+    border-style: solid;
+  }
+
+  .xl\:even\:border-dashed:nth-child(even) {
+    border-style: dashed;
+  }
+
+  .xl\:even\:border-dotted:nth-child(even) {
+    border-style: dotted;
+  }
+
+  .xl\:even\:border-double:nth-child(even) {
+    border-style: double;
+  }
+
+  .xl\:even\:border-none:nth-child(even) {
+    border-style: none;
+  }
+
+  .xl\:odd\:border-solid:nth-child(odd) {
+    border-style: solid;
+  }
+
+  .xl\:odd\:border-dashed:nth-child(odd) {
+    border-style: dashed;
+  }
+
+  .xl\:odd\:border-dotted:nth-child(odd) {
+    border-style: dotted;
+  }
+
+  .xl\:odd\:border-double:nth-child(odd) {
+    border-style: double;
+  }
+
+  .xl\:odd\:border-none:nth-child(odd) {
+    border-style: none;
+  }
+
+  .xl\:hover\:border-solid:hover {
+    border-style: solid;
+  }
+
+  .xl\:hover\:border-dashed:hover {
+    border-style: dashed;
+  }
+
+  .xl\:hover\:border-dotted:hover {
+    border-style: dotted;
+  }
+
+  .xl\:hover\:border-double:hover {
+    border-style: double;
+  }
+
+  .xl\:hover\:border-none:hover {
+    border-style: none;
+  }
+
+  .group:hover .xl\:group-hover\:border-solid {
+    border-style: solid;
+  }
+
+  .group:hover .xl\:group-hover\:border-dashed {
+    border-style: dashed;
+  }
+
+  .group:hover .xl\:group-hover\:border-dotted {
+    border-style: dotted;
+  }
+
+  .group:hover .xl\:group-hover\:border-double {
+    border-style: double;
+  }
+
+  .group:hover .xl\:group-hover\:border-none {
+    border-style: none;
+  }
+
+  .xl\:focus\:border-solid:focus {
+    border-style: solid;
+  }
+
+  .xl\:focus\:border-dashed:focus {
+    border-style: dashed;
+  }
+
+  .xl\:focus\:border-dotted:focus {
+    border-style: dotted;
+  }
+
+  .xl\:focus\:border-double:focus {
+    border-style: double;
+  }
+
+  .xl\:focus\:border-none:focus {
     border-style: none;
   }
 

@@ -2,9 +2,9 @@ import React, { Fragment } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { logout } from '../../actions/auth';
+import { logout } from '../../redux/actions/auth';
 
-const Navbar = ({ auth: { isAuthenticated }, notifications, logout }) => {
+const Navbar = ({ auth: { isAuthenticated }, leads, logout }) => {
 	const primaryLinks = [
 		{
 			title: 'Dashboard',
@@ -29,16 +29,43 @@ const Navbar = ({ auth: { isAuthenticated }, notifications, logout }) => {
 					d='M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
 				/>
 			),
-			notifications: notifications,
+			notifications: leads.length,
 		},
 	];
 
 	return (
 		<Fragment>
 			{isAuthenticated && (
-				<nav className='md:w-56 lg:w-64 flex-none bg-gray-800 text-gray-400'>
-					<div>
-						<div className='bg-gray-700'>
+				<nav className='bg-gray-800 text-gray-400'>
+					<div className='py-6 lg:py-3 container flex items-center justify-between'>
+						<div className='flex flex-row items-end'>
+							{primaryLinks.map((link, i) => (
+								<NavLink
+									exact
+									to={link.link}
+									className='mt-1 py-1 px-2 flex items-center font-medium rounded-md hover:bg-gray-900 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+									activeClassName='active'
+									key={i}
+								>
+									<svg
+										xmlns='http://www.w3.org/2000/svg'
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'
+										className='h-5 w-5'
+									>
+										{link.path}
+									</svg>
+									<aside className='w-full flex items-center justify-between'>
+										<span className='ml-2'>{link.title}</span>
+										<span className='px-2 bg-purple-600 rounded-full text-white text-xs'>
+											{link.notifications}
+										</span>
+									</aside>
+								</NavLink>
+							))}
+						</div>
+						{/* <div className='bg-gray-700'>
 							<div className='py-6 px-3 flex items-center text-gray-200'>
 								<span className='py-2 px-4 bg-gray-600 rounded-md'>J</span>
 								<div className='ml-2 w-full flex justify-between'>
@@ -74,34 +101,7 @@ const Navbar = ({ auth: { isAuthenticated }, notifications, logout }) => {
 									</button>
 								</div>
 							</div>
-						</div>
-						<div className='mt-6 px-1'>
-							{primaryLinks.map((link, i) => (
-								<NavLink
-									exact
-									to={link.link}
-									className='mt-1 py-1 px-2 flex items-center font-medium rounded-md hover:bg-gray-900 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-									activeClassName='active'
-									key={i}
-								>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										fill='none'
-										viewBox='0 0 24 24'
-										stroke='currentColor'
-										className='h-5 w-5'
-									>
-										{link.path}
-									</svg>
-									<aside className='w-full flex items-center justify-between'>
-										<span className='ml-2'>{link.title}</span>
-										<span className='px-2 bg-purple-600 rounded-full text-white text-xs'>
-											{link.notifications}
-										</span>
-									</aside>
-								</NavLink>
-							))}
-						</div>
+						</div> */}
 					</div>
 				</nav>
 			)}
@@ -116,7 +116,7 @@ Navbar.propTypes = {
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
-	notifications: 16,
+	leads: state.leads.leads,
 });
 
 export default connect(mapStateToProps, { logout })(Navbar);

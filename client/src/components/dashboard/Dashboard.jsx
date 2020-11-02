@@ -2,7 +2,7 @@ import React, { useEffect, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getCurrentProfile } from '../../actions/profile';
+import { getCurrentProfile } from '../../redux/actions/profile';
 import DashboardActions from './DashboardActions';
 import Spinner from '../layout/Spinner';
 
@@ -18,7 +18,7 @@ const Dashboard = ({
 	}, [loading, getCurrentProfile]);
 	return (
 		<Fragment>
-			<section>
+			<section className='container'>
 				<h1 className='large text-primary'>Dashboard</h1>
 				{loading ? (
 					<Spinner />

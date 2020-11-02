@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { login } from '../../actions/auth';
+import { login } from '../../redux/actions/auth';
 import LoginImage from '../layout/LoginImage';
 import { ReactComponent as LeadGeekLogo } from '../../assets/images/svgs/leadgeek-logo-light.svg';
 import FormField from './formField/FormField';

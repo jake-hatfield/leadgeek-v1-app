@@ -78,6 +78,16 @@ module.exports = {
 			'group-hover',
 			'focus',
 		],
+		borderStyle: [
+			'responsive',
+			'first',
+			'last',
+			'even',
+			'odd',
+			'hover',
+			'group-hover',
+			'focus',
+		],
 		flexDirection: ['responsive', 'first', 'last', 'even', 'odd'],
 	},
 	corePlugins: {
@@ -108,7 +118,7 @@ module.exports = {
 						paddingRight: '1.5rem',
 					},
 					'@screen xl': {
-						maxWidth: '1140px',
+						maxWidth: '1600px',
 						paddingLeft: '2rem',
 						paddingRight: '2rem',
 					},

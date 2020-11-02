@@ -27,22 +27,22 @@ html {
 #leads,
 table thead,
 table tbody {
-	@apply rounded-lg !important;
+	@apply rounded-md !important;
 }
 
 table thead tr th:first-child {
-	@apply rounded-tl-lg !important;
+	@apply rounded-l-md !important;
 }
 
 table thead tr th:last-child {
-	@apply rounded-tr-lg !important;
+	@apply rounded-r-md !important;
 }
 
-table tbody tr:last-child td:first-child {
-	@apply rounded-bl-lg !important;
+table tbody tr td:first-child {
+	@apply rounded-l-md !important;
 	/* border-bottom-left-radius: 10px; */
 }
 
-table tbody tr:last-child td:last-child {
-	@apply rounded-br-lg !important;
+table tbody tr td:last-child {
+	@apply rounded-r-md !important;
 }

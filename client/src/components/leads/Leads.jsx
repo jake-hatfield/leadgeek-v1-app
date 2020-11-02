@@ -1,20 +1,41 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { getLeads } from '../../redux/actions/leads';
 
 import LeadTable from './LeadTable';
 
-const Leads = () => {
+const Leads = ({ auth: { loading }, leads, getLeads }) => {
 	const primaryLinks = [
 		{
 			title: 'Feed',
 			link: '/',
+			initiallyActive: true,
+			notifications: leads.length,
+			path: (
+				<path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
+			),
 		},
 		{
 			title: 'Liked',
 			link: '/leads',
+			path: (
+				<path
+					fillRule='evenodd'
+					d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
+					clipRule='evenodd'
+				/>
+			),
 		},
 		{
 			title: 'Compare',
 			link: '/leads',
+			path: (
+				<path
+					fillRule='evenodd'
+					d='M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1zm-5 8.274l-.818 2.552c.25.112.526.174.818.174.292 0 .569-.062.818-.174L5 10.274zm10 0l-.818 2.552c.25.112.526.174.818.174.292 0 .569-.062.818-.174L15 10.274z'
+					clipRule='evenodd'
+				/>
+			),
 		},
 	];
 	const tools = [
@@ -30,20 +51,6 @@ const Leads = () => {
 			),
 		},
 		{
-			title: 'Averages',
-			link: '/leads',
-			path: (
-				<g>
-					<path d='M9 2a1 1 0 000 2h2a1 1 0 100-2H9z' />
-					<path
-						fillRule='evenodd'
-						d='M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z'
-						clipRule='evenodd'
-					/>
-				</g>
-			),
-		},
-		{
 			title: 'Inventory',
 			link: '/leads',
 			path: (
@@ -55,60 +62,239 @@ const Leads = () => {
 			),
 		},
 	];
+	const averages = [
+		{
+			title: 'Net Profit',
+			average: '$24',
+			path: (
+				<g>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						strokeWidth={2}
+						d='M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z'
+					/>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						strokeWidth={2}
+						d='M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z'
+					/>
+				</g>
+			),
+		},
+		{
+			title: 'Net ROI',
+			average: '88%',
+			path: (
+				<g>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						strokeWidth={2}
+						d='M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z'
+					/>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						strokeWidth={2}
+						d='M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z'
+					/>
+				</g>
+			),
+		},
+		{
+			title: 'Sales / mo',
+			average: '658',
+			path: (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'
+				/>
+			),
+		},
+		{
+			title: 'BSR',
+			average: '0.65%',
+			path: (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M13 10V3L4 14h7v7l9-11h-7z'
+				/>
+			),
+		},
+	];
 
 	return (
-		<section className='my-6 app-container'>
-			<header>
-				<p>
-					<span className='font-bold'>16</span> new leads to view
-				</p>
-				<h1 className='text-4xl font-black text-gray-900'>Arbitrage Leads</h1>
-			</header>
-			<article>
-				<div className='flex items-end justify-between'>
-					<nav className='flex items-start'>
-						{primaryLinks.map((link, i) => (
-							<div
-								v-for='item in items'
-								className='first:pl-3 pl-12 leading-4'
-								key={i}
+		<section className='my-6 lg:my-10 container flex'>
+			<div className='pr-8 w-1/5'>
+				<header className='pb-8 border-b-2 border-gray-100'>
+					<div className='flex items-center'>
+						<span>
+							<svg
+								xmlns='http://www.w3.org/2000/svg'
+								fill='none'
+								viewBox='0 0 24 24'
+								stroke='currentColor'
+								className='h-5 w-5 text-gray-300'
 							>
-								<button className='rounded-md focus:outline-none hover:text-purple-600 transition-colors duration-100 ease-in-out'>
-									<h3 className='text-xl font-medium'>{link.title}</h3>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth={2}
+									d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+								/>
+							</svg>
+						</span>
+						<p className='ml-1 text-sm text-gray-400'>
+							Last updated Nov. 2 @ 7:58 am CST
+						</p>
+					</div>
+
+					<div className='flex items-center'>
+						<h1 className='text-4xl font-black text-gray-900'>Leads</h1>{' '}
+						<span className='ml-2 w-full border border-gray-100' />
+					</div>
+					<aside className='pt-4'>
+						{primaryLinks.map((link, i) => (
+							<div v-for='item in items' className='first:mt-2 mt-1' key={i}>
+								<button className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'>
+									<span className='flex items-center'>
+										<span className='text-center text-gray-300'>
+											<svg
+												xmlns='http://www.w3.org/2000/svg'
+												viewBox='0 0 24 24'
+												fill='currentColor'
+												className='h-6 w-6'
+											>
+												{link.path}
+											</svg>
+										</span>
+										<span className='ml-2'>{link.title}</span>
+									</span>
+									<span className='px-2 bg-purple-600 rounded-full text-white text-xs'>
+										{link.notifications ? link.notifications : ''}
+									</span>
+								</button>
+							</div>
+						))}
+					</aside>
+				</header>
+				<article>
+					<nav className='mt-6 flex flex-col'>
+						<h4 className='mb-4 text-gray-400 font-bold text-sm uppercase tracking-widest'>
+							Tools
+						</h4>
+						{tools.map((tool, i) => (
+							<div v-for='item in items' className='first:mt-2 mt-1' key={i}>
+								<button className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'>
+									<span className='flex items-center'>
+										<span className='text-center text-gray-300'>
+											<svg
+												xmlns='http://www.w3.org/2000/svg'
+												viewBox='0 0 24 24'
+												fill='currentColor'
+												className='h-6 w-6'
+											>
+												{tool.path}
+											</svg>
+										</span>
+										<span className='ml-2'>{tool.title}</span>
+									</span>
+									<span>
+										<svg
+											xmlns='http://www.w3.org/2000/svg'
+											viewBox='0 0 20 20'
+											fill='currentColor'
+											className='h-4 w-4 text-gray-300'
+										>
+											<path
+												fillRule='evenodd'
+												d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
+												clipRule='evenodd'
+											/>
+										</svg>
+									</span>
 								</button>
 							</div>
 						))}
 					</nav>
-					<div>
-						<button className='py-2 lg:py-3 px-3 lg:px-5 block md:inline-block shadow-sm rounded-md bg-purple-100 text-purple-600 text-sm font-semibold hover:bg-purple-200 transition duration-100 focus:outline-none focus:shadow-outline'>
-							Export to CSV
+				</article>
+			</div>
+			<section className='w-4/5'>
+				<header className='flex items-center justify-between'>
+					<input
+						type='text'
+						placeholder='Search by name, ASIN, store, or any other keyword'
+						className='py-3 px-6 w-5/6 rounded-md bg-gray-100 focus:outline-none focus:shadow-outline'
+					/>
+					<div className='w-1/6 flex justify-end'>
+						<button className='py-3 px-4 flex items-center rounded-md text-sm font-semibold focus:outline-none focus:shadow-outline'>
+							<svg
+								xmlns='http://www.w3.org/2000/svg'
+								viewBox='0 0 20 20'
+								fill='currentColor'
+								className='h-4 w-4'
+							>
+								<path
+									fillRule='evenodd'
+									d='M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
+									clipRule='evenodd'
+								/>
+							</svg>
+							<span className='ml-2'>Export</span>
 						</button>
 					</div>
-				</div>
-				<hr className='mt-3 w-full border-b-2 border-gray-100' />
-				<nav className='mt-6 flex items-end'>
-					{tools.map((tool, i) => (
-						<div v-for='item in items' className='first:pl-0 pl-6' key={i}>
-							<button className='py-2 pl-3 pr-5 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'>
-								<span className='text-center'>
+				</header>
+				<div className='mt-6'>
+					<div className='flex items-center'>
+						<h4 className='flex-none text-gray-400 font-bold text-sm uppercase tracking-widest'>
+							Product Averages
+						</h4>
+						<span className='ml-2 w-full border border-gray-100' />
+					</div>
+					<article className='mt-4 flex justify-between'>
+						{averages.map((item) => (
+							<div className={`inline-block w-1/5 rounded-md shadow-md`}>
+								<div className='pt-4 pb-6 px-6 flex items-center'>
 									<svg
 										xmlns='http://www.w3.org/2000/svg'
+										fill='none'
 										viewBox='0 0 24 24'
-										fill='currentColor'
-										className='h-6 w-6'
+										stroke='currentColor'
+										className='p-2 h-10 w-10 flex-shrink-0 rounded-md bg-purple-600 text-white'
 									>
-										{tool.path}
+										{item.path}
 									</svg>
-								</span>
-								<span className='ml-2'>{tool.title}</span>
-							</button>
-						</div>
-					))}
-				</nav>
-			</article>
-			<LeadTable />
+									<div className='ml-4'>
+										<div className='flex items-center'>
+											<h5 className='flex-none text-gray-400 font-bold text-xs uppercase tracking-widest'>
+												{item.title}
+											</h5>
+										</div>
+										<p className='text-gray-800 font-black text-xl'>
+											{item.average}
+										</p>
+									</div>
+								</div>
+							</div>
+						))}
+					</article>
+				</div>
+
+				<LeadTable leads={leads} loading={loading} getLeads={getLeads} />
+			</section>
 		</section>
 	);
 };
 
-export default Leads;
+const mapStateToProps = (state) => ({
+	auth: state.auth,
+	leads: state.leads.leads,
+});
+
+export default connect(mapStateToProps, { getLeads })(Leads);

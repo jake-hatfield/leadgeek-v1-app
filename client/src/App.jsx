@@ -15,12 +15,12 @@ import Leads from './components/leads/Leads';
 // utils
 import PrivateRoute from './components/routing/PrivateRoute';
 import Alert from './components/layout/Alert';
-import { LOGOUT } from './actions/types';
+import { LOGOUT } from './redux/actions/types';
 
 // redux
 import { Provider } from 'react-redux';
 import store from './store';
-import { loadUser } from './actions/auth';
+import { loadUser } from './redux/actions/auth';
 import setAuthToken from './utils/setAuthToken';
 
 // styles & fonts
@@ -40,23 +40,22 @@ const App = () => {
 			if (!localStorage.token) store.dispatch({ type: LOGOUT });
 		});
 	}, []);
+
 	return (
 		<Provider store={store}>
 			<Router>
 				<Fragment>
 					<Navbar />
-					<Route exact path='/' component={Landing} />
 					<Alert />
 					<Switch>
-						<Route exact path='/register' component={Register} />
 						<Route exact path='/login' component={Login} />
-						<PrivateRoute exact path='/dashboard' component={Dashboard} />
+						<PrivateRoute exact path='/' component={Dashboard} />
+						<PrivateRoute exact path='/leads' component={Leads} />
 						<PrivateRoute
 							exact
 							path='/create-profile'
 							component={CreateProfile}
 						/>
-						<PrivateRoute exact path='/leads' component={Leads} />
 						<PrivateRoute exact path='/edit-profile' component={EditProfile} />
 						<PrivateRoute
 							exact
