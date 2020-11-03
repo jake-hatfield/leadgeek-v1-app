@@ -1,27 +1,36 @@
 import React, { Fragment, useState } from 'react';
+import PropTypes from 'prop-types';
 
-const LeadRow = ({ lead }) => {
+// redux
+import { connect } from 'react-redux';
+import { likeLead, unlikeLead } from '../../redux/actions/leads';
+
+const LeadRow = ({ lead, likeLead, unlikeLead }) => {
 	const [favorite, setFavorite] = useState(false);
-	// show/hide additional details
 	const [detailedView, setDetailedView] = useState(false);
 
-	const handleShowDetails = ({ leads }) => {
+	const handleShowDetails = () => {
 		setDetailedView(!detailedView);
 	};
 
 	function numberWithCommas(x) {
 		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 	}
+
+	const handleFavorite = (leadId) => {
+		setFavorite(!favorite);
+		favorite ? unlikeLead(leadId) : likeLead(leadId);
+	};
 	return (
 		<Fragment>
 			<tr
 				className='rounded-md last:border-none border-b-2 border-gray-100 hover:bg-gray-100 hover:shadow-sm transition-all duration-200 cursor-pointer'
-				onClick={handleShowDetails}
+				// onClick={handleShowDetails}
 			>
 				<td className='py-2 px-4 text-center text-gray-400'>
 					<button
-						onClick={() => setFavorite(!favorite)}
-						className='rounded-md focus:outline-none align-middle'
+						onClick={() => handleFavorite(lead.id)}
+						className='rounded-md focus:outline-none focus:shadow-outline align-middle'
 					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
@@ -39,7 +48,7 @@ const LeadRow = ({ lead }) => {
 						</svg>
 					</button>
 				</td>
-				<td className='py-6'>{lead.name}</td>
+				<td className='py-6'>{lead.title}</td>
 				<td className='pl-6'>{lead.category}</td>
 				<td className='pl-6 text-gray-600 font-bold text-right'>
 					<span>$</span>
@@ -64,7 +73,7 @@ const LeadRow = ({ lead }) => {
 				</td>
 			</tr>
 			{detailedView && (
-				<div className='px-6 w-full inline-block'>
+				<div className='px-6 w-full absolute right-0 text-right inline-block'>
 					{numberWithCommas(lead.monthlySales)}
 				</div>
 			)}
@@ -72,4 +81,9 @@ const LeadRow = ({ lead }) => {
 	);
 };
 
-export default LeadRow;
+LeadRow.propTypes = {
+	likeLead: PropTypes.func.isRequired,
+	unlikeLead: PropTypes.func.isRequired,
+};
+
+export default connect(null, { likeLead, unlikeLead })(LeadRow);

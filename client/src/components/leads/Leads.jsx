@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { getLeads } from '../../redux/actions/leads';
+import { getLeads, likeLead } from '../../redux/actions/leads';
 
 import LeadTable from './LeadTable';
 import Tool from './Tools';
 
-const Leads = ({ auth: { loading }, leads, getLeads }) => {
+const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 	const primaryLinks = [
 		{
 			title: 'Feed',
 			link: '/',
 			initiallyActive: true,
-			notifications: leads.length,
+			notifications: feed.length,
 			path: (
 				<path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
 			),
@@ -19,6 +19,7 @@ const Leads = ({ auth: { loading }, leads, getLeads }) => {
 		{
 			title: 'Liked',
 			link: '/leads',
+			notifications: liked.length,
 			path: (
 				<path
 					fillRule='evenodd'
@@ -130,6 +131,13 @@ const Leads = ({ auth: { loading }, leads, getLeads }) => {
 		},
 	];
 
+	const [search, setSearch] = useState('');
+	const onSearchChange = (e) => {
+		setSearch(e.target.value);
+	};
+	const filteredLeads = feed.filter((lead) => {
+		return lead.title.toLowerCase().includes(search.toLowerCase());
+	});
 	return (
 		<section className='my-6 lg:my-10 container flex'>
 			<div className='pr-8 w-1/5'>
@@ -155,8 +163,7 @@ const Leads = ({ auth: { loading }, leads, getLeads }) => {
 							Last updated Nov. 2 @ 7:58 am CST
 						</p>
 					</div>
-
-					<div className='flex items-center'>
+					<div className='mt-1 flex items-center'>
 						<h1 className='text-4xl font-black text-gray-900'>Leads</h1>{' '}
 						<span className='ml-2 w-full border border-gray-100' />
 					</div>
@@ -199,6 +206,7 @@ const Leads = ({ auth: { loading }, leads, getLeads }) => {
 			<section className='w-4/5'>
 				<header className='flex items-center justify-between'>
 					<input
+						onChange={(e) => onSearchChange(e)}
 						type='text'
 						placeholder='Search by name, ASIN, store, or any other keyword'
 						className='py-3 px-6 w-5/6 rounded-md bg-gray-100 focus:outline-none focus:shadow-outline'
@@ -259,8 +267,11 @@ const Leads = ({ auth: { loading }, leads, getLeads }) => {
 						))}
 					</article>
 				</div>
-
-				<LeadTable leads={leads} loading={loading} getLeads={getLeads} />
+				<LeadTable
+					leads={filteredLeads}
+					loading={loading}
+					getLeads={getLeads}
+				/>
 			</section>
 		</section>
 	);
@@ -268,7 +279,8 @@ const Leads = ({ auth: { loading }, leads, getLeads }) => {
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
-	leads: state.leads.leads,
+	feed: state.leads.feed,
+	liked: state.leads.liked,
 });
 
 export default connect(mapStateToProps, { getLeads })(Leads);

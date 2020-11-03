@@ -16,4 +16,7 @@ export const UPDATE_PROFILE = 'UPDATE_PROFILE';
 export const CLEAR_PROFILE = 'CLEAR_PROFILE';
 // leads types
 export const GET_LEADS = 'GET_LEADS';
+export const UPDATE_LEADS = 'UPDATE_LEADS';
+export const LIKE_LEAD = 'LIKE_LEAD';
+export const UNLIKE_LEAD = 'UNLIKE_LEAD';
 export const REMOVE_LEADS = 'REMOVE_LEADS';

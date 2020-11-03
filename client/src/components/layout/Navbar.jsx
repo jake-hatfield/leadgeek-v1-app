@@ -116,7 +116,7 @@ Navbar.propTypes = {
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
-	leads: state.leads.leads,
+	leads: state.leads.feed,
 });
 
 export default connect(mapStateToProps, { logout })(Navbar);
