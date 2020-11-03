@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { getLeads } from '../../redux/actions/leads';
 
 import LeadTable from './LeadTable';
+import Tool from './Tools';
 
 const Leads = ({ auth: { loading }, leads, getLeads }) => {
 	const primaryLinks = [
@@ -190,37 +191,7 @@ const Leads = ({ auth: { loading }, leads, getLeads }) => {
 							Tools
 						</h4>
 						{tools.map((tool, i) => (
-							<div v-for='item in items' className='first:mt-2 mt-1' key={i}>
-								<button className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'>
-									<span className='flex items-center'>
-										<span className='text-center text-gray-300'>
-											<svg
-												xmlns='http://www.w3.org/2000/svg'
-												viewBox='0 0 24 24'
-												fill='currentColor'
-												className='h-6 w-6'
-											>
-												{tool.path}
-											</svg>
-										</span>
-										<span className='ml-2'>{tool.title}</span>
-									</span>
-									<span>
-										<svg
-											xmlns='http://www.w3.org/2000/svg'
-											viewBox='0 0 20 20'
-											fill='currentColor'
-											className='h-4 w-4 text-gray-300'
-										>
-											<path
-												fillRule='evenodd'
-												d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
-												clipRule='evenodd'
-											/>
-										</svg>
-									</span>
-								</button>
-							</div>
+							<Tool key={i} tool={tool} />
 						))}
 					</nav>
 				</article>
@@ -258,8 +229,11 @@ const Leads = ({ auth: { loading }, leads, getLeads }) => {
 						<span className='ml-2 w-full border border-gray-100' />
 					</div>
 					<article className='mt-4 flex justify-between'>
-						{averages.map((item) => (
-							<div className={`inline-block w-1/5 rounded-md shadow-md`}>
+						{averages.map((item, i) => (
+							<div
+								key={i}
+								className={`inline-block w-1/5 rounded-md shadow-md`}
+							>
 								<div className='pt-4 pb-6 px-6 flex items-center'>
 									<svg
 										xmlns='http://www.w3.org/2000/svg'
