@@ -36,7 +36,7 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 		},
 		{
 			title: 'Compare',
-			link: '/leads',k
+			link: '/leads',
 			path: (
 				<path
 					fillRule='evenodd'
