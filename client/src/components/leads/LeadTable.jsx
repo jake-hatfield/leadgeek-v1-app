@@ -14,7 +14,7 @@ const LeadTable = ({ loading, getLeads, leads }) => {
 				<thead>
 					<tr className='bg-gray-100 text-gray-400 text-xs text-left uppercase tracking-widest whitespace-no-wrap'>
 						<th className='pl-6' />
-						<th className='py-3'>Product Name</th>
+						<th className='py-3'>Title</th>
 						<th className='pl-6'>Category</th>
 						<th className='pl-6 text-right'>Net Profit</th>
 						<th className='pl-6 text-right'>Net ROI</th>

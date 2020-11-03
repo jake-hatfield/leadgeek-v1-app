@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { getLeads, likeLead } from '../../redux/actions/leads';
+import { getLeads } from '../../redux/actions/leads';
 
 import LeadTable from './LeadTable';
 import Tool from './Tools';
@@ -29,8 +29,14 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 			),
 		},
 		{
-			title: 'Compare',
+			title: 'Archived',
 			link: '/leads',
+			notifications: liked.length,
+			path: <path d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z' />,
+		},
+		{
+			title: 'Compare',
+			link: '/leads',k
 			path: (
 				<path
 					fillRule='evenodd'
@@ -40,6 +46,7 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 			),
 		},
 	];
+
 	const tools = [
 		{
 			title: 'Filters',
@@ -64,10 +71,16 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 			),
 		},
 	];
+
+	const average = (total, array) => total / array.length;
+	const totalProfit = feed.reduce((a, { netProfit }) => a + netProfit, 0);
+	const totalROI = feed.reduce((a, { roi }) => a + roi, 0);
+	const totalSales = feed.reduce((a, { monthlySales }) => a + monthlySales, 0);
+	const totalBSR = feed.reduce((a, { currentBSR }) => a + currentBSR, 0);
 	const averages = [
 		{
 			title: 'Net Profit',
-			average: '$24',
+			average: `$${parseFloat(average(totalProfit, feed)).toFixed(2)}`,
 			path: (
 				<g>
 					<path
@@ -87,7 +100,7 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 		},
 		{
 			title: 'Net ROI',
-			average: '88%',
+			average: `${parseFloat(average(totalROI, feed)).toFixed(0)}%`,
 			path: (
 				<g>
 					<path
@@ -107,7 +120,7 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 		},
 		{
 			title: 'Sales / mo',
-			average: '658',
+			average: `${parseFloat(average(totalSales, feed)).toFixed(0)}`,
 			path: (
 				<path
 					strokeLinecap='round'
@@ -119,7 +132,7 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 		},
 		{
 			title: 'BSR',
-			average: '0.65%',
+			average: `${parseFloat(average(totalBSR, feed)).toFixed(0)}%`,
 			path: (
 				<path
 					strokeLinecap='round'
@@ -184,7 +197,13 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 										</span>
 										<span className='ml-2'>{link.title}</span>
 									</span>
-									<span className='px-2 bg-purple-600 rounded-full text-white text-xs'>
+									<span
+										className={`px-2 ${
+											link.title === 'Feed' || link.title === 'Liked'
+												? `bg-purple-600 text-white`
+												: `bg-gray-100 text-gray-500`
+										}  rounded-full text-xs font-semibold`}
+									>
 										{link.notifications ? link.notifications : ''}
 									</span>
 								</button>
@@ -258,9 +277,11 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 												{item.title}
 											</h5>
 										</div>
-										<p className='text-gray-800 font-black text-xl'>
-											{item.average}
-										</p>
+										{item.average && (
+											<p className='text-gray-800 font-black text-xl'>
+												{item.average}
+											</p>
+										)}
 									</div>
 								</div>
 							</div>
