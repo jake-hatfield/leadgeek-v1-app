@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { getLeads } from '../../redux/actions/leads';
 
 import LeadTable from './LeadTable';
+import Averages from './Averages';
 import Tool from './Tools';
 
-const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
+const Leads = ({ auth: { loading }, feed, liked, archived, getLeads }) => {
+	const [activeLeadNav, setActiveLeadNav] = useState('Feed');
 	const primaryLinks = [
 		{
 			title: 'Feed',
 			link: '/',
-			initiallyActive: true,
 			notifications: feed.length,
 			path: (
 				<path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
@@ -31,7 +31,6 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 		{
 			title: 'Archived',
 			link: '/leads',
-			notifications: liked.length,
 			path: <path d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z' />,
 		},
 		{
@@ -46,7 +45,9 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 			),
 		},
 	];
-
+	const handleLeadNav = (link) => {
+		setActiveLeadNav(link);
+	};
 	const tools = [
 		{
 			title: 'Filters',
@@ -71,16 +72,44 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 			),
 		},
 	];
-
-	const average = (total, array) => total / array.length;
-	const totalProfit = feed.reduce((a, { netProfit }) => a + netProfit, 0);
-	const totalROI = feed.reduce((a, { roi }) => a + roi, 0);
-	const totalSales = feed.reduce((a, { monthlySales }) => a + monthlySales, 0);
-	const totalBSR = feed.reduce((a, { currentBSR }) => a + currentBSR, 0);
+	// search helpers
+	const [search, setSearch] = useState('');
+	const onSearchChange = (e) => {
+		setSearch(e.target.value);
+	};
+	// array helpers
+	const filteredLeads = (array) =>
+		array.filter((lead) => {
+			return lead.title.toLowerCase().includes(search.toLowerCase());
+		});
+	const setActiveArray = () => {
+		if (activeLeadNav === 'Liked') {
+			return filteredLeads(liked);
+		} else if (activeLeadNav === 'Archived') {
+			return filteredLeads(archived);
+		} else return filteredLeads(feed);
+	};
+	const arrayChooser = () => setActiveArray();
+	// average data helpers
+	const average = (total, array) =>
+		Math.round((total / array.length + Number.EPSILON) * 100) / 100;
+	const totalProfit = arrayChooser().reduce(
+		(a, { netProfit }) => a + netProfit,
+		0
+	);
+	const totalROI = arrayChooser().reduce((a, { roi }) => a + roi, 0);
+	const totalSales = arrayChooser().reduce(
+		(a, { monthlySales }) => a + monthlySales,
+		0
+	);
+	const totalBSR = arrayChooser().reduce(
+		(a, { currentBSR }) => a + currentBSR,
+		0
+	);
 	const averages = [
 		{
 			title: 'Net Profit',
-			average: `$${parseFloat(average(totalProfit, feed)).toFixed(2)}`,
+			average: average(totalProfit, arrayChooser()).toFixed(2),
 			path: (
 				<g>
 					<path
@@ -100,7 +129,7 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 		},
 		{
 			title: 'Net ROI',
-			average: `${parseFloat(average(totalROI, feed)).toFixed(0)}%`,
+			average: average(totalROI, arrayChooser()).toFixed(0),
 			path: (
 				<g>
 					<path
@@ -120,7 +149,7 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 		},
 		{
 			title: 'Sales / mo',
-			average: `${parseFloat(average(totalSales, feed)).toFixed(0)}`,
+			average: average(totalSales, arrayChooser()).toFixed(0),
 			path: (
 				<path
 					strokeLinecap='round'
@@ -132,7 +161,7 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 		},
 		{
 			title: 'BSR',
-			average: `${parseFloat(average(totalBSR, feed)).toFixed(0)}%`,
+			average: average(totalBSR, arrayChooser()).toFixed(0),
 			path: (
 				<path
 					strokeLinecap='round'
@@ -143,14 +172,6 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 			),
 		},
 	];
-
-	const [search, setSearch] = useState('');
-	const onSearchChange = (e) => {
-		setSearch(e.target.value);
-	};
-	const filteredLeads = feed.filter((lead) => {
-		return lead.title.toLowerCase().includes(search.toLowerCase());
-	});
 	return (
 		<section className='my-6 lg:my-10 container flex'>
 			<div className='pr-8 w-1/5'>
@@ -183,7 +204,10 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 					<aside className='pt-4'>
 						{primaryLinks.map((link, i) => (
 							<div v-for='item in items' className='first:mt-2 mt-1' key={i}>
-								<button className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'>
+								<button
+									className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+									onClick={() => handleLeadNav(link.title)}
+								>
 									<span className='flex items-center'>
 										<span className='text-center text-gray-300'>
 											<svg
@@ -199,8 +223,10 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 									</span>
 									<span
 										className={`px-2 ${
-											link.title === 'Feed' || link.title === 'Liked'
+											link.title === 'Feed'
 												? `bg-purple-600 text-white`
+												: link.title === 'Liked'
+												? `bg-teal-200 text-teal-600`
 												: `bg-gray-100 text-gray-500`
 										}  rounded-full text-xs font-semibold`}
 									>
@@ -248,48 +274,9 @@ const Leads = ({ auth: { loading }, feed, liked, getLeads }) => {
 						</button>
 					</div>
 				</header>
-				<div className='mt-6'>
-					<div className='flex items-center'>
-						<h4 className='flex-none text-gray-400 font-bold text-sm uppercase tracking-widest'>
-							Product Averages
-						</h4>
-						<span className='ml-2 w-full border border-gray-100' />
-					</div>
-					<article className='mt-4 flex justify-between'>
-						{averages.map((item, i) => (
-							<div
-								key={i}
-								className={`inline-block w-1/5 rounded-md shadow-md`}
-							>
-								<div className='pt-4 pb-6 px-6 flex items-center'>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										fill='none'
-										viewBox='0 0 24 24'
-										stroke='currentColor'
-										className='p-2 h-10 w-10 flex-shrink-0 rounded-md bg-purple-600 text-white'
-									>
-										{item.path}
-									</svg>
-									<div className='ml-4'>
-										<div className='flex items-center'>
-											<h5 className='flex-none text-gray-400 font-bold text-xs uppercase tracking-widest'>
-												{item.title}
-											</h5>
-										</div>
-										{item.average && (
-											<p className='text-gray-800 font-black text-xl'>
-												{item.average}
-											</p>
-										)}
-									</div>
-								</div>
-							</div>
-						))}
-					</article>
-				</div>
+				<Averages averages={averages} filteredLeads={arrayChooser()} />
 				<LeadTable
-					leads={filteredLeads}
+					leads={arrayChooser()}
 					loading={loading}
 					getLeads={getLeads}
 				/>
@@ -302,6 +289,7 @@ const mapStateToProps = (state) => ({
 	auth: state.auth,
 	feed: state.leads.feed,
 	liked: state.leads.liked,
+	archived: state.leads.archived,
 });
 
-export default connect(mapStateToProps, { getLeads })(Leads);
+export default connect(mapStateToProps)(Leads);

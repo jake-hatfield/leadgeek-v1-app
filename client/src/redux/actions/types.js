@@ -20,3 +20,5 @@ export const UPDATE_LEADS = 'UPDATE_LEADS';
 export const LIKE_LEAD = 'LIKE_LEAD';
 export const UNLIKE_LEAD = 'UNLIKE_LEAD';
 export const REMOVE_LEADS = 'REMOVE_LEADS';
+export const ARCHIVE_LEAD = 'ARCHIVE_LEAD';
+export const UNARCHIVE_LEAD = 'UNARCHIVE_LEAD';

@@ -52,7 +52,7 @@ const LeadRow = ({ lead, likeLead, unlikeLead }) => {
 				<td className='pl-6'>{lead.category}</td>
 				<td className='pl-6 text-gray-600 font-bold text-right'>
 					<span>$</span>
-					{lead.netProfit}
+					{lead.netProfit.toFixed(2)}
 					<span className='ml-1 text-gray-400 font-semibold uppercase'>
 						USD
 					</span>

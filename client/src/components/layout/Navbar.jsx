@@ -1,10 +1,21 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { getLeads } from '../../redux/actions/leads';
 import { logout } from '../../redux/actions/auth';
 
-const Navbar = ({ auth: { isAuthenticated }, leads, logout }) => {
+const Navbar = ({
+	auth: { isAuthenticated, loading },
+	leads,
+	getLeads,
+	logout,
+}) => {
+	useEffect(() => {
+		!loading && getLeads();
+		return () => {};
+	}, [loading, getLeads]);
 	const primaryLinks = [
 		{
 			title: 'Dashboard',
@@ -38,32 +49,55 @@ const Navbar = ({ auth: { isAuthenticated }, leads, logout }) => {
 			{isAuthenticated && (
 				<nav className='bg-gray-800 text-gray-400'>
 					<div className='py-6 lg:py-3 container flex items-center justify-between'>
-						<div className='flex flex-row items-end'>
-							{primaryLinks.map((link, i) => (
-								<NavLink
-									exact
-									to={link.link}
-									className='mt-1 py-1 px-2 flex items-center font-medium rounded-md hover:bg-gray-900 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-									activeClassName='active'
-									key={i}
-								>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										fill='none'
-										viewBox='0 0 24 24'
-										stroke='currentColor'
-										className='h-5 w-5'
+						<div className='flex items-center'>
+							<h1 className='font-bold text-xl lg:text-2xl text-white'>
+								LeadGeek
+							</h1>
+							<div className='ml-8 flex items-center'>
+								{primaryLinks.map((link, i) => (
+									<NavLink
+										exact
+										to={link.link}
+										className='first:ml-0 ml-6 py-1 px-2 flex items-center font-medium rounded-md hover:bg-gray-900 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										activeClassName='active'
+										key={i}
 									>
-										{link.path}
-									</svg>
-									<aside className='w-full flex items-center justify-between'>
-										<span className='ml-2'>{link.title}</span>
-										<span className='px-2 bg-purple-600 rounded-full text-white text-xs'>
-											{link.notifications}
-										</span>
-									</aside>
-								</NavLink>
-							))}
+										<div className='w-full flex items-center justify-between'>
+											<span>{link.title}</span>
+											{link.notifications && (
+												<span className='ml-2 px-2 bg-purple-600 rounded-full text-white text-xs'>
+													{link.notifications}
+												</span>
+											)}
+										</div>
+									</NavLink>
+								))}
+							</div>
+						</div>
+						<div className='flex items-center'>
+							<button className='rounded-md focus:outline-none focus:shadow-outline'>
+								<svg
+									xmlns='http://www.w3.org/2000/svg'
+									fill='none'
+									viewBox='0 0 24 24'
+									stroke='currentColor'
+									className='h-6 w-6'
+								>
+									<path
+										strokeLinecap='round'
+										strokeLinejoin='round'
+										strokeWidth={2}
+										d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
+									/>
+								</svg>
+							</button>
+							<button className='ml-6 rounded-full focus:outline-none focus:shadow-outline'>
+								<img
+									src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
+									alt=''
+									className='h-10 w-10 rounded-full'
+								/>
+							</button>
 						</div>
 						{/* <div className='bg-gray-700'>
 							<div className='py-6 px-3 flex items-center text-gray-200'>
@@ -119,4 +153,4 @@ const mapStateToProps = (state) => ({
 	leads: state.leads.feed,
 });
 
-export default connect(mapStateToProps, { logout })(Navbar);
+export default connect(mapStateToProps, { logout, getLeads })(Navbar);
