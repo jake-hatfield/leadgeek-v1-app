@@ -9,6 +9,9 @@ import {
 const feed = [
 	{
 		id: 1,
+		sourceLink:
+			'https://www.kohls.com/product/prd-4829820/adidas-hermosa-mesh-backpack.jsp',
+		amzLink: 'https://amazon.com/dp/B07KDSQNTR/',
 		title: 'Revlon 2-Step Mascara',
 		category: 'Beauty & Personal Care',
 		netProfit: 5.77,
@@ -18,12 +21,27 @@ const feed = [
 	},
 	{
 		id: 2,
+		sourceLink:
+			'https://www.kohls.com/product/prd-4829820/adidas-hermosa-mesh-backpack.jsp',
+		amzLink: 'https://amazon.com/dp/B07KDSQNTR/',
 		title: 'Disney Princess Finger Puppets',
 		category: 'Toys & Games',
 		netProfit: 12.1,
 		roi: 65,
 		currentBSR: 22116,
 		monthlySales: 180,
+	},
+	{
+		id: 3,
+		sourceLink:
+			'https://www.kohls.com/product/prd-4829820/adidas-hermosa-mesh-backpack.jsp',
+		amzLink: 'https://amazon.com/dp/B07KDSQNTR/',
+		title: "Carter's Boy's Jumpsuit",
+		category: 'Clothing, Shoes, and Jewelry',
+		netProfit: 4.4,
+		roi: 58,
+		currentBSR: 150432,
+		monthlySales: 24,
 	},
 ];
 

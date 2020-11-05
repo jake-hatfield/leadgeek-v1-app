@@ -11,7 +11,7 @@ const Averages = ({ averages, filteredLeads }) => {
 						</h4>
 						<span className='ml-2 w-full border border-gray-100' />
 					</div>
-					<article className='mt-4 flex justify-between'>
+					<article className='mt-4 md:flex md:flex-wrap md:justify-between'>
 						{averages.map(
 							(item) =>
 								!Number.isNaN(item.average) && (
@@ -38,7 +38,7 @@ const Averages = ({ averages, filteredLeads }) => {
 												<p className='text-gray-800 font-black text-xl'>
 													{item.title === 'Net Profit'
 														? `$${item.average}`
-														: item.title === 'Net ROI' || item.title === 'BSR'
+														: item.title === 'Net ROI'
 														? `${item.average}%`
 														: item.average}
 												</p>

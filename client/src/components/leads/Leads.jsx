@@ -82,6 +82,10 @@ const Leads = ({
 			),
 		},
 	];
+	// utils
+	function numberWithCommas(x) {
+		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+	}
 	// search helpers
 	const [search, setSearch] = useState('');
 	const onSearchChange = (e) => {
@@ -172,7 +176,7 @@ const Leads = ({
 		},
 		{
 			title: 'BSR',
-			average: average(totalBSR, arrayChooser()).toFixed(0),
+			average: numberWithCommas(average(totalBSR, arrayChooser()).toFixed(0)),
 			path: (
 				<path
 					strokeLinecap='round'
@@ -212,7 +216,7 @@ const Leads = ({
 							</p>
 						</div>
 						<div className='mt-1 flex items-center'>
-							<h1 className='text-4xl font-black text-gray-900'>Leads</h1>{' '}
+							<h1 className='text-4xl font-black text-gray-900'>Leads</h1>
 							<span className='ml-2 w-full border border-gray-100' />
 						</div>
 						<aside className='pt-4'>
@@ -244,7 +248,11 @@ const Leads = ({
 													: `bg-gray-100 text-gray-500`
 											}  rounded-full text-xs font-semibold`}
 										>
-											{link.notifications ? link.notifications : ''}
+											{link.notifications
+												? link.title === 'Feed'
+													? `${link.notifications} new`
+													: link.notifications
+												: ''}
 										</span>
 									</button>
 								</div>
