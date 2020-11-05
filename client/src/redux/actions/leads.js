@@ -53,7 +53,7 @@ const feed = [
 			'Scotch-Brite Non-Scratch Advanced Soap Control Dishwand, Leak-Free Guarantee, Keep Your Hands Out Of Dirty Water, Long Lasting and Reusable',
 		category: 'Clothing, Shoes, and Jewelry',
 		netProfit: 4.4,
-		roi: 58,k
+		roi: 58,
 		currentBSR: 150432,
 		monthlySales: 24,
 		sourceLink:
