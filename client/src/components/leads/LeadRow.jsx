@@ -27,7 +27,7 @@ const LeadRow = ({
 				className='rounded-md last:border-none border-b-2 border-gray-100 hover:bg-gray-100 hover:shadow-sm transition-all duration-200 cursor-pointer'
 				onClick={() => setShowDetails(!showDetails)}
 			>
-				<td className='py-2 px-4 text-center text-gray-400'>
+				<td className='py-2 px-4 text-center text-gray-500'>
 					<button
 						onClick={(e) => {
 							e.stopPropagation();
