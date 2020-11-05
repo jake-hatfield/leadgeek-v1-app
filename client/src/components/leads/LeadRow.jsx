@@ -17,10 +17,14 @@ const LeadRow = ({
 	setShowDetails,
 	showDetailedLead,
 }) => {
-	const [like, setLike] = useState(false);
+	// utils
 	function numberWithCommas(x) {
 		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 	}
+	function truncate(str, n) {
+		return str.length > n ? str.substr(0, n - 1) + '...' : str;
+	}
+	const [like, setLike] = useState(false);
 	const handleFavorite = (leadId) => {
 		setLike(!like);
 		like ? unlikeLead(leadId) : likeLead(leadId);
@@ -124,7 +128,7 @@ const LeadRow = ({
 						</svg>
 					</button>
 				</td>
-				<td className='py-6 flex items-center'>{lead.title}</td>
+				<td className='py-6 flex items-center'>{truncate(lead.title, 30)}</td>
 				<td className='pl-6'>{lead.category}</td>
 				<td className='pl-6 text-gray-600 font-bold text-right'>
 					<span>$</span>
