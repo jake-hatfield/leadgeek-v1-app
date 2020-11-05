@@ -5,7 +5,17 @@ import LeadTable from './LeadTable';
 import Averages from './Averages';
 import Tool from './Tools';
 
-const Leads = ({ auth: { loading }, feed, liked, archived, getLeads }) => {
+import { clearDetailedLead } from '../../redux/actions/leads';
+
+const Leads = ({
+	auth: { loading },
+	feed,
+	liked,
+	archived,
+	currentLead,
+	clearDetailedLead,
+	getLeads,
+}) => {
 	const [activeLeadNav, setActiveLeadNav] = useState('Feed');
 	const primaryLinks = [
 		{
@@ -291,11 +301,15 @@ const Leads = ({ auth: { loading }, feed, liked, archived, getLeads }) => {
 			{showDetails && (
 				<div className='w-full h-screen flex absolute right-0'>
 					<div
-						onClick={() => setShowDetails(false)}
+						onClick={() => {
+							clearDetailedLead();
+							setShowDetails(false);
+						}}
 						className='w-2/5 bg-gray-900 opacity-75 cursor-pointer'
 					/>
 					<aside className='py-6 lg:py-10 w-3/5 container bg-white'>
-						More information
+						{console.log(currentLead)}
+						<h1>{currentLead.title}</h1>
 					</aside>
 				</div>
 			)}
@@ -308,6 +322,7 @@ const mapStateToProps = (state) => ({
 	feed: state.leads.feed,
 	liked: state.leads.liked,
 	archived: state.leads.archived,
+	currentLead: state.leads.currentLead,
 });
 
-export default connect(mapStateToProps)(Leads);
+export default connect(mapStateToProps, { clearDetailedLead })(Leads);

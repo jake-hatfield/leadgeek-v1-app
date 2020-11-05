@@ -5,6 +5,8 @@ import {
 	UNLIKE_LEAD,
 	ARCHIVE_LEAD,
 	UNARCHIVE_LEAD,
+	SHOW_DETAILED_LEAD,
+	CLEAR_DETAILED_LEAD,
 } from '../actions/types';
 
 const initialState = {
@@ -40,6 +42,7 @@ export default function (state = initialState, action) {
 			return {
 				...state,
 				liked: state.liked.filter((lead) => lead.id !== payload.id),
+				loading: false,
 			};
 		case ARCHIVE_LEAD:
 			const alreadyArchived = state.archived.find((lead) =>
@@ -50,11 +53,24 @@ export default function (state = initialState, action) {
 				liked:
 					!alreadyArchived &&
 					state.archived.filter((lead) => lead.id !== payload.id),
+				loading: false,
 			};
 		case REMOVE_LEADS:
 			return {
 				...state,
 				feed: [],
+				loading: false,
+			};
+		case SHOW_DETAILED_LEAD:
+			return {
+				...state,
+				currentLead: state.feed.filter((lead) => lead.id === payload.id).pop(),
+				loading: false,
+			};
+		case CLEAR_DETAILED_LEAD:
+			return {
+				...state,
+				currentLead: null,
 				loading: false,
 			};
 		default:

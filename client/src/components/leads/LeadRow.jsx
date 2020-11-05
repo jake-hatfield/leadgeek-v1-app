@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 
 // redux
 import { connect } from 'react-redux';
-import { likeLead, unlikeLead } from '../../redux/actions/leads';
+import {
+	likeLead,
+	unlikeLead,
+	showDetailedLead,
+} from '../../redux/actions/leads';
 
 const LeadRow = ({
 	lead,
@@ -11,12 +15,12 @@ const LeadRow = ({
 	unlikeLead,
 	showDetails,
 	setShowDetails,
+	showDetailedLead,
 }) => {
 	const [like, setLike] = useState(false);
 	function numberWithCommas(x) {
 		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 	}
-
 	const handleFavorite = (leadId) => {
 		setLike(!like);
 		like ? unlikeLead(leadId) : likeLead(leadId);
@@ -25,9 +29,12 @@ const LeadRow = ({
 		<Fragment>
 			<tr
 				className='rounded-md last:border-none border-b-2 border-gray-100 hover:bg-gray-100 hover:shadow-sm transition-all duration-200 cursor-pointer'
-				onClick={() => setShowDetails(!showDetails)}
+				onClick={() => {
+					setShowDetails(!showDetails);
+					showDetailedLead(lead.id);
+				}}
 			>
-				<td className='py-2 px-4 text-center text-gray-500'>
+				<td className='py-2 px-4 text-center text-gray-400'>
 					<button
 						onClick={(e) => {
 							e.stopPropagation();
@@ -82,6 +89,9 @@ const LeadRow = ({
 LeadRow.propTypes = {
 	likeLead: PropTypes.func.isRequired,
 	unlikeLead: PropTypes.func.isRequired,
+	showDetailedLead: PropTypes.func.isRequired,
 };
 
-export default connect(null, { likeLead, unlikeLead })(LeadRow);
+export default connect(null, { likeLead, unlikeLead, showDetailedLead })(
+	LeadRow
+);

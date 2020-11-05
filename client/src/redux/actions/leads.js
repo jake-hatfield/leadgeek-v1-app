@@ -1,4 +1,10 @@
-import { GET_LEADS, LIKE_LEAD, UNLIKE_LEAD } from './types';
+import {
+	GET_LEADS,
+	LIKE_LEAD,
+	UNLIKE_LEAD,
+	SHOW_DETAILED_LEAD,
+	CLEAR_DETAILED_LEAD,
+} from './types';
 
 const feed = [
 	{
@@ -48,6 +54,27 @@ export const unlikeLead = (leadId) => (dispatch) => {
 		dispatch({
 			type: UNLIKE_LEAD,
 			payload: { id: leadId },
+		});
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const showDetailedLead = (leadId) => (dispatch) => {
+	try {
+		dispatch({
+			type: SHOW_DETAILED_LEAD,
+			payload: { id: leadId },
+		});
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const clearDetailedLead = () => (dispatch) => {
+	try {
+		dispatch({
+			type: CLEAR_DETAILED_LEAD,
 		});
 	} catch (error) {
 		console.log(error);
