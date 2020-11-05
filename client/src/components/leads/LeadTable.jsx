@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import LeadRow from './LeadRow';
 
-const LeadTable = ({ loading, getLeads, leads }) => {
+const LeadTable = ({ loading, leads, showDetails, setShowDetails }) => {
 	return (
 		<section className='mt-8'>
 			{loading ? (
@@ -22,7 +22,12 @@ const LeadTable = ({ loading, getLeads, leads }) => {
 					</thead>
 					<tbody className='text-gray-500 text-xs lg:text-sm font-medium'>
 						{leads.map((lead, i) => (
-							<LeadRow key={i} lead={lead} />
+							<LeadRow
+								key={i}
+								lead={lead}
+								showDetails={showDetails}
+								setShowDetails={setShowDetails}
+							/>
 						))}
 					</tbody>
 				</table>

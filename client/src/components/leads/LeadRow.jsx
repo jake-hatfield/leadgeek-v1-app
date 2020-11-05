@@ -5,38 +5,41 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { likeLead, unlikeLead } from '../../redux/actions/leads';
 
-const LeadRow = ({ lead, likeLead, unlikeLead }) => {
-	const [favorite, setFavorite] = useState(false);
-	const [detailedView, setDetailedView] = useState(false);
-
-	const handleShowDetails = () => {
-		setDetailedView(!detailedView);
-	};
-
+const LeadRow = ({
+	lead,
+	likeLead,
+	unlikeLead,
+	showDetails,
+	setShowDetails,
+}) => {
+	const [like, setLike] = useState(false);
 	function numberWithCommas(x) {
 		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 	}
 
 	const handleFavorite = (leadId) => {
-		setFavorite(!favorite);
-		favorite ? unlikeLead(leadId) : likeLead(leadId);
+		setLike(!like);
+		like ? unlikeLead(leadId) : likeLead(leadId);
 	};
 	return (
 		<Fragment>
 			<tr
 				className='rounded-md last:border-none border-b-2 border-gray-100 hover:bg-gray-100 hover:shadow-sm transition-all duration-200 cursor-pointer'
-				// onClick={handleShowDetails}
+				onClick={() => setShowDetails(!showDetails)}
 			>
 				<td className='py-2 px-4 text-center text-gray-400'>
 					<button
-						onClick={() => handleFavorite(lead.id)}
+						onClick={(e) => {
+							e.stopPropagation();
+							handleFavorite(lead.id);
+						}}
 						className='rounded-md focus:outline-none focus:shadow-outline align-middle'
 					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
-							fill={`${favorite ? '#5d55fa' : 'none'}`}
+							fill={`${like ? '#5d55fa' : 'none'}`}
 							viewBox='0 0 24 24'
-							stroke={`${favorite ? '#5d55fa' : 'currentColor'}`}
+							stroke={`${like ? '#5d55fa' : 'currentColor'}`}
 							className='h-6 w-6'
 						>
 							<path
@@ -72,11 +75,6 @@ const LeadRow = ({ lead, likeLead, unlikeLead }) => {
 					{numberWithCommas(lead.monthlySales)}
 				</td>
 			</tr>
-			{detailedView && (
-				<div className='px-6 w-full absolute right-0 text-right inline-block'>
-					{numberWithCommas(lead.monthlySales)}
-				</div>
-			)}
 		</Fragment>
 	);
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 
 import LeadTable from './LeadTable';
@@ -106,6 +106,7 @@ const Leads = ({ auth: { loading }, feed, liked, archived, getLeads }) => {
 		(a, { currentBSR }) => a + currentBSR,
 		0
 	);
+	// averages
 	const averages = [
 		{
 			title: 'Net Profit',
@@ -172,116 +173,133 @@ const Leads = ({ auth: { loading }, feed, liked, archived, getLeads }) => {
 			),
 		},
 	];
+	// toggle additional information
+	const [showDetails, setShowDetails] = useState(false);
 	return (
-		<section className='my-6 lg:my-10 container flex'>
-			<div className='pr-8 w-1/5'>
-				<header className='pb-8 border-b-2 border-gray-100'>
-					<div className='flex items-center'>
-						<span>
-							<svg
-								xmlns='http://www.w3.org/2000/svg'
-								fill='none'
-								viewBox='0 0 24 24'
-								stroke='currentColor'
-								className='h-5 w-5 text-gray-300'
-							>
-								<path
-									strokeLinecap='round'
-									strokeLinejoin='round'
-									strokeWidth={2}
-									d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
-								/>
-							</svg>
-						</span>
-						<p className='ml-1 text-sm text-gray-400'>
-							Last updated Nov. 2 @ 7:58 am CST
-						</p>
-					</div>
-					<div className='mt-1 flex items-center'>
-						<h1 className='text-4xl font-black text-gray-900'>Leads</h1>{' '}
-						<span className='ml-2 w-full border border-gray-100' />
-					</div>
-					<aside className='pt-4'>
-						{primaryLinks.map((link, i) => (
-							<div v-for='item in items' className='first:mt-2 mt-1' key={i}>
-								<button
-									className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-									onClick={() => handleLeadNav(link.title)}
+		<Fragment>
+			<section className='my-6 lg:my-10 container flex'>
+				<div className='pr-8 w-1/5'>
+					<header className='pb-8 border-b-2 border-gray-100'>
+						<div className='flex items-center'>
+							<span>
+								<svg
+									xmlns='http://www.w3.org/2000/svg'
+									fill='none'
+									viewBox='0 0 24 24'
+									stroke='currentColor'
+									className='h-5 w-5 text-gray-300'
 								>
-									<span className='flex items-center'>
-										<span className='text-center text-gray-300'>
-											<svg
-												xmlns='http://www.w3.org/2000/svg'
-												viewBox='0 0 24 24'
-												fill='currentColor'
-												className='h-6 w-6'
-											>
-												{link.path}
-											</svg>
-										</span>
-										<span className='ml-2'>{link.title}</span>
-									</span>
-									<span
-										className={`px-2 ${
-											link.title === 'Feed'
-												? `bg-purple-600 text-white`
-												: link.title === 'Liked'
-												? `bg-teal-200 text-teal-600`
-												: `bg-gray-100 text-gray-500`
-										}  rounded-full text-xs font-semibold`}
+									<path
+										strokeLinecap='round'
+										strokeLinejoin='round'
+										strokeWidth={2}
+										d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+									/>
+								</svg>
+							</span>
+							<p className='ml-1 text-sm text-gray-400'>
+								Last updated Nov. 2 @ 7:58 am CST
+							</p>
+						</div>
+						<div className='mt-1 flex items-center'>
+							<h1 className='text-4xl font-black text-gray-900'>Leads</h1>{' '}
+							<span className='ml-2 w-full border border-gray-100' />
+						</div>
+						<aside className='pt-4'>
+							{primaryLinks.map((link, i) => (
+								<div v-for='item in items' className='first:mt-2 mt-1' key={i}>
+									<button
+										className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										onClick={() => handleLeadNav(link.title)}
 									>
-										{link.notifications ? link.notifications : ''}
-									</span>
-								</button>
-							</div>
-						))}
-					</aside>
-				</header>
-				<article>
-					<nav className='mt-6 flex flex-col'>
-						<h4 className='mb-4 text-gray-400 font-bold text-sm uppercase tracking-widest'>
-							Tools
-						</h4>
-						{tools.map((tool, i) => (
-							<Tool key={i} tool={tool} />
-						))}
-					</nav>
-				</article>
-			</div>
-			<section className='w-4/5'>
-				<header className='flex items-center justify-between'>
-					<input
-						onChange={(e) => onSearchChange(e)}
-						type='text'
-						placeholder='Search by name, ASIN, store, or any other keyword'
-						className='py-3 px-6 w-5/6 rounded-md bg-gray-100 focus:outline-none focus:shadow-outline'
+										<span className='flex items-center'>
+											<span className='text-center text-gray-300'>
+												<svg
+													xmlns='http://www.w3.org/2000/svg'
+													viewBox='0 0 24 24'
+													fill='currentColor'
+													className='h-6 w-6'
+												>
+													{link.path}
+												</svg>
+											</span>
+											<span className='ml-2'>{link.title}</span>
+										</span>
+										<span
+											className={`px-2 ${
+												link.title === 'Feed'
+													? `bg-purple-600 text-white`
+													: link.title === 'Liked'
+													? `bg-teal-200 text-teal-600`
+													: `bg-gray-100 text-gray-500`
+											}  rounded-full text-xs font-semibold`}
+										>
+											{link.notifications ? link.notifications : ''}
+										</span>
+									</button>
+								</div>
+							))}
+						</aside>
+					</header>
+					<article>
+						<nav className='mt-6 flex flex-col'>
+							<h4 className='mb-4 text-gray-400 font-bold text-sm uppercase tracking-widest'>
+								Tools
+							</h4>
+							{tools.map((tool, i) => (
+								<Tool key={i} tool={tool} />
+							))}
+						</nav>
+					</article>
+				</div>
+				<section className='w-4/5'>
+					<header className='flex items-center justify-between'>
+						<input
+							onChange={(e) => onSearchChange(e)}
+							type='text'
+							placeholder='Search by name, ASIN, store, or any other keyword'
+							className='py-3 px-6 w-5/6 rounded-md bg-gray-100 focus:outline-none focus:shadow-outline'
+						/>
+						<div className='w-1/6 flex justify-end'>
+							<button className='py-3 px-4 flex items-center rounded-md text-sm font-semibold focus:outline-none focus:shadow-outline'>
+								<svg
+									xmlns='http://www.w3.org/2000/svg'
+									viewBox='0 0 20 20'
+									fill='currentColor'
+									className='h-4 w-4'
+								>
+									<path
+										fillRule='evenodd'
+										d='M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
+										clipRule='evenodd'
+									/>
+								</svg>
+								<span className='ml-2'>Export</span>
+							</button>
+						</div>
+					</header>
+					<Averages averages={averages} filteredLeads={arrayChooser()} />
+					<LeadTable
+						leads={arrayChooser()}
+						loading={loading}
+						getLeads={getLeads}
+						showDetails={showDetails}
+						setShowDetails={setShowDetails}
 					/>
-					<div className='w-1/6 flex justify-end'>
-						<button className='py-3 px-4 flex items-center rounded-md text-sm font-semibold focus:outline-none focus:shadow-outline'>
-							<svg
-								xmlns='http://www.w3.org/2000/svg'
-								viewBox='0 0 20 20'
-								fill='currentColor'
-								className='h-4 w-4'
-							>
-								<path
-									fillRule='evenodd'
-									d='M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
-									clipRule='evenodd'
-								/>
-							</svg>
-							<span className='ml-2'>Export</span>
-						</button>
-					</div>
-				</header>
-				<Averages averages={averages} filteredLeads={arrayChooser()} />
-				<LeadTable
-					leads={arrayChooser()}
-					loading={loading}
-					getLeads={getLeads}
-				/>
+				</section>
 			</section>
-		</section>
+			{showDetails && (
+				<div className='w-full h-screen flex absolute right-0'>
+					<div
+						onClick={() => setShowDetails(false)}
+						className='w-2/5 bg-gray-900 opacity-75 cursor-pointer'
+					/>
+					<aside className='py-6 lg:py-10 w-3/5 container bg-white'>
+						More information
+					</aside>
+				</div>
+			)}
+		</Fragment>
 	);
 };
 
