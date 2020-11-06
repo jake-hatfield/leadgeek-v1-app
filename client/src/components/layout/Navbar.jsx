@@ -1,5 +1,5 @@
-import React, { Fragment, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import React, { Fragment, useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -7,7 +7,7 @@ import { getLeads } from '../../redux/actions/leads';
 import { logout } from '../../redux/actions/auth';
 
 const Navbar = ({
-	auth: { isAuthenticated, loading },
+	auth: { isAuthenticated, loading, user },
 	leads,
 	getLeads,
 	logout,
@@ -46,7 +46,12 @@ const Navbar = ({
 			notifications: lengthChecker(leads),
 		},
 	];
-
+	// toggle user dropdown
+	const [userDropdown, setUserDropdown] = useState(false);
+	const logoutUser = (logout) => {
+		logout();
+		setUserDropdown(false);
+	};
 	return (
 		<Fragment>
 			{isAuthenticated && (
@@ -61,14 +66,14 @@ const Navbar = ({
 									<NavLink
 										exact
 										to={link.link}
-										className='first:ml-0 ml-6 py-1 px-2 flex items-center font-medium rounded-md hover:bg-gray-900 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										className='first:ml-0 ml-6 py-2 px-4 flex items-center font-medium rounded-md hover:bg-gray-900 hover:shadow-inner hover:text-white transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 										activeClassName='active'
 										key={i}
 									>
 										<div className='w-full flex items-center justify-between'>
 											<span>{link.title}</span>
 											{link.notifications && (
-												<span className='ml-2 px-2 bg-purple-600 rounded-full text-white text-xs'>
+												<span className='ml-2 px-2 bg-purple-600 rounded-full text-white font-semibold text-xs'>
 													{link.notifications}
 												</span>
 											)}
@@ -77,7 +82,7 @@ const Navbar = ({
 								))}
 							</div>
 						</div>
-						<div className='flex items-center'>
+						<div className='relative flex items-center'>
 							<button className='rounded-md focus:outline-none focus:shadow-outline'>
 								<svg
 									xmlns='http://www.w3.org/2000/svg'
@@ -94,51 +99,45 @@ const Navbar = ({
 									/>
 								</svg>
 							</button>
-							<button className='ml-6 rounded-full focus:outline-none focus:shadow-outline'>
-								<img
-									src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
-									alt=''
-									className='h-10 w-10 rounded-full'
-								/>
-							</button>
-						</div>
-						{/* <div className='bg-gray-700'>
-							<div className='py-6 px-3 flex items-center text-gray-200'>
-								<span className='py-2 px-4 bg-gray-600 rounded-md'>J</span>
-								<div className='ml-2 w-full flex justify-between'>
-									<div>
-										<h1 className='font-medium text-lg'>LeadGeek</h1>
-										<h4 className='text-sm'>
-											<Link
-												to='/profile'
-												className='rounded-md focus:outline-none focus:shadow-outline hover:underline transition-all duration-100 ease-in-out'
-											>
-												Jake Hatfield
-											</Link>
-										</h4>
-									</div>
-									<button
-										onClick={logout}
-										className='mt-1 rounded-md focus:outline-none focus:shadow-outline'
-									>
-										<svg
-											xmlns='http://www.w3.org/2000/svg'
-											fill='none'
-											viewBox='0 0 24 24'
-											stroke='currentColor'
-											className='h-5 w-5 hover:text-gray-300 transition-colors duration-100 ease-in-out cursor-pointer'
-										>
-											<path
-												strokeLinecap='round'
-												strokeLinejoin='round'
-												strokeWidth={2}
-												d='M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1'
-											/>
-										</svg>
-									</button>
-								</div>
+							<div className='ml-6'>
+								<button
+									onClick={() => setUserDropdown(!userDropdown)}
+									className='rounded-full focus:outline-none focus:shadow-outline'
+								>
+									<img
+										src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
+										alt=''
+										className='h-10 w-10 rounded-full'
+									/>
+								</button>
 							</div>
-						</div> */}
+							{userDropdown && (
+								<div className='absolute z-10 bottom-0 right-0 transform translate-y-20 text-gray-600'>
+									<div className='py-4 px-4 w-56 rounded-md bg-white shadow-md'>
+										<button
+											onClick={() => logoutUser(logout)}
+											className='p-2 w-full flex items-center rounded-md hover:bg-gray-100 text-left'
+										>
+											<svg
+												xmlns='http://www.w3.org/2000/svg'
+												fill='none'
+												viewBox='0 0 24 24'
+												stroke='currentColor'
+												className='h-6 w-6 text-gray-400'
+											>
+												<path
+													strokeLinecap='round'
+													strokeLinejoin='round'
+													strokeWidth={2}
+													d='M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1'
+												/>
+											</svg>
+											<span className='ml-2'>Log out</span>
+										</button>
+									</div>
+								</div>
+							)}
+						</div>
 					</div>
 				</nav>
 			)}

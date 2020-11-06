@@ -102,7 +102,9 @@ const LeadRow = ({
 				}}
 			>
 				<td className='pl-2'>
-					<span className='h-2 w-2 inline-block rounded-full bg-teal-400' />
+					<span className='h-4 w-4 flex items-center justify-center rounded-full bg-teal-200'>
+						<span className='h-2 w-2 inline-block rounded-full bg-teal-400' />
+					</span>
 				</td>
 				<td className='p-2 text-center text-gray-400'>
 					<button
@@ -129,7 +131,7 @@ const LeadRow = ({
 					</button>
 				</td>
 				<td className='py-6 flex items-center'>{truncate(lead.title, 30)}</td>
-				<td className='pl-6'>{lead.category}</td>
+				<td className='pl-6'>{truncate(lead.category, 28)}</td>
 				<td className='pl-6 text-gray-600 font-bold text-right'>
 					<span>$</span>
 					{lead.netProfit.toFixed(2)}

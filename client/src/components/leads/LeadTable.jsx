@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import LeadRow from './LeadRow';
 
@@ -22,7 +22,7 @@ const LeadTable = ({ loading, leads, showDetails, setShowDetails }) => {
 							<th className='pr-6' />
 						</tr>
 					</thead>
-					<tbody className='text-gray-500 text-xs lg:text-sm font-medium'>
+					<tbody className='text-gray-600 text-xs lg:text-sm font-medium'>
 						{leads.map((lead, i) => (
 							<LeadRow
 								key={i}

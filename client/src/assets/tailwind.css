@@ -37021,6 +37021,10 @@ html {
   --bg-opacity: 1;
   background-color: #243B53;
   background-color: rgba(36, 59, 83, var(--bg-opacity));
+  --text-opacity: 1;
+  color: #fff;
+  color: rgba(255, 255, 255, var(--text-opacity));
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 }
 
 .link {

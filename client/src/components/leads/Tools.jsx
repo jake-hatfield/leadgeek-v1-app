@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
-const Tools = ({ tool }) => {
+const Tools = ({ tool, key }) => {
 	const [openTool, setOpenTool] = useState(false);
 	return (
-		<div v-for='item in items' className='first:mt-2 mt-1'>
+		<div key={key} v-for='item in items' className='first:mt-2 mt-1'>
 			<button
 				onClick={() => setOpenTool(!openTool)}
 				className={`p-2 w-full rounded-md ${
