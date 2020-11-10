@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
+import useStickyState from '../layout/localStorageHook';
 import PrimaryLinks from './PrimaryLinks';
 
 import Tool from './Tools';
 
-const SideNav = ({ feed, liked, setActiveLeadNav }) => {
+const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 	// utils
 	const lengthChecker = (array) => {
 		return array.length > 99 ? '99+' : array.length;
 	};
-	// state
-	const [showMenu, setShowMenu] = useState(true);
+	// state & local storage
+	const [showMenu, setShowMenu] = useStickyState('showMenu', 'full-menu');
 	const [hover, setHover] = useState(false);
 	// primary links
 	const primaryLinks = [
 		{
 			title: 'Feed',
 			link: '/',
-			notifications: lengthChecker(feed),
+			notifications: lengthChecker(unviewed),
 			path: (
 				<path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
 			),
@@ -116,7 +117,7 @@ const SideNav = ({ feed, liked, setActiveLeadNav }) => {
 				<aside className={`${showMenu && 'pt-4'}`}>
 					{showMenu && (
 						<h4 className='mb-4 text-gray-400 font-semibold text-sm uppercase tracking-widest'>
-							Navigation
+							Views
 						</h4>
 					)}
 					{primaryLinks.map((link, i) => (
@@ -141,7 +142,7 @@ const SideNav = ({ feed, liked, setActiveLeadNav }) => {
 					)}
 					{tools.map((tool, i) => (
 						<div key={i}>
-							<Tool tool={tool} showMenu={showMenu} />
+							<Tool tool={tool} showMenu={showMenu} setShowMenu={setShowMenu} />
 						</div>
 					))}
 				</nav>

@@ -11,6 +11,7 @@ import { clearDetailedLead } from '../../redux/actions/leads';
 const Leads = ({
 	auth: { loading },
 	feed,
+	unviewed,
 	liked,
 	archived,
 	currentLead,
@@ -130,7 +131,9 @@ const Leads = ({
 		<Fragment>
 			<section className='my-6 lg:my-10 relative container flex'>
 				<SideNav
+					loading={loading}
 					feed={feed}
+					unviewed={unviewed}
 					liked={liked}
 					setActiveLeadNav={setActiveLeadNav}
 				/>
@@ -198,6 +201,7 @@ const Leads = ({
 const mapStateToProps = (state) => ({
 	auth: state.auth,
 	feed: state.leads.feed,
+	unviewed: state.leads.unviewed,
 	liked: state.leads.liked,
 	archived: state.leads.archived,
 	currentLead: state.leads.currentLead,

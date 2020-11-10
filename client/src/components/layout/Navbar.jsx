@@ -7,18 +7,21 @@ import { getLeads } from '../../redux/actions/leads';
 import { logout } from '../../redux/actions/auth';
 
 const Navbar = ({
-	auth: { isAuthenticated, loading, user },
-	leads,
+	auth: { isAuthenticated, loading },
+	unviewed,
 	getLeads,
 	logout,
 }) => {
+	// get leads
 	useEffect(() => {
 		!loading && getLeads();
 		return () => {};
 	}, [loading, getLeads]);
+	// utils
 	const lengthChecker = (array) => {
 		return array.length > 99 ? '99+' : array.length;
 	};
+	// nav links
 	const primaryLinks = [
 		{
 			title: 'Dashboard',
@@ -43,7 +46,7 @@ const Navbar = ({
 					d='M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
 				/>
 			),
-			notifications: lengthChecker(leads),
+			notifications: lengthChecker(unviewed),
 		},
 	];
 	// toggle user dropdown
@@ -72,11 +75,12 @@ const Navbar = ({
 									>
 										<div className='w-full flex items-center justify-between'>
 											<span>{link.title}</span>
-											{link.notifications && (
-												<span className='ml-2 px-2 bg-purple-600 rounded-full text-white font-semibold text-xs'>
-													{link.notifications}
-												</span>
-											)}
+											{link.notifications !== 0 &&
+												link.notifications !== undefined && (
+													<span className='ml-2 px-2 bg-purple-600 rounded-full text-white font-semibold text-xs'>
+														{link.notifications}
+													</span>
+												)}
 										</div>
 									</NavLink>
 								))}
@@ -152,7 +156,7 @@ Navbar.propTypes = {
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
-	leads: state.leads.feed,
+	unviewed: state.leads.unviewed,
 });
 
 export default connect(mapStateToProps, { logout, getLeads })(Navbar);

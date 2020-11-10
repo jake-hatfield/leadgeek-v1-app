@@ -6,7 +6,9 @@ const Tools = ({ tool, showMenu }) => {
 	return (
 		<div v-for='item in items' className='first:mt-2 mt-1'>
 			<button
-				onClick={() => setOpenTool(!openTool)}
+				onClick={() => {
+					showMenu && setOpenTool(!openTool);
+				}}
 				onMouseEnter={() => setHover(!hover)}
 				onMouseLeave={() => setHover(false)}
 				className={`p-2 w-full ${!showMenu && 'relative'} rounded-md ${

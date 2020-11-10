@@ -1,10 +1,11 @@
 import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
+import useStickyState from '../layout/localStorageHook';
 
 // redux
 import { connect } from 'react-redux';
 import {
-	likeLead,
+	viewLead,
 	setLikeStatus,
 	unlikeLead,
 	showDetailedLead,
@@ -12,7 +13,7 @@ import {
 
 const LeadRow = ({
 	lead,
-	likeLead,
+	viewLead,
 	setLikeStatus,
 	unlikeLead,
 	showDetails,
@@ -26,10 +27,12 @@ const LeadRow = ({
 	function truncate(str, n) {
 		return str.length > n ? str.substr(0, n - 1) + '...' : str;
 	}
+	// event handlers
 	const [like, setLike] = useState(false);
 	const handleFavorite = (leadId, like, liked) => {
 		like || liked ? unlikeLead(leadId) : setLikeStatus(leadId);
 	};
+	const [view, setView] = useStickyState(false);
 	// bsr / category % calculator
 	const calculateBSR = (currentRank, category) => {
 		let totalItems;
@@ -98,19 +101,26 @@ const LeadRow = ({
 			<tr
 				className='rounded-md last:border-none border-b-2 border-gray-100 hover:bg-gray-100 hover:shadow-md transition-all duration-200 cursor-pointer'
 				onClick={() => {
+					!view && setView(true);
+					viewLead(lead.id);
 					setShowDetails(!showDetails);
 					showDetailedLead(lead.id);
 				}}
 			>
 				<td className='pl-2'>
-					<span className='h-4 w-4 flex items-center justify-center rounded-full bg-teal-200'>
-						<span className='h-2 w-2 inline-block rounded-full bg-teal-400' />
-					</span>
+					{!view ||
+						(!lead.viewed && (
+							<span className='h-4 w-4 flex items-center justify-center rounded-full bg-teal-200'>
+								<span className='h-2 w-2 inline-block rounded-full bg-teal-400' />
+							</span>
+						))}
 				</td>
 				<td className='p-2 text-center text-gray-400'>
 					<button
 						onClick={(e) => {
 							e.stopPropagation();
+							!view && setView(true);
+							viewLead(lead.id);
 							setLike(!like);
 							handleFavorite(lead.id, like, lead.liked);
 						}}
@@ -121,7 +131,7 @@ const LeadRow = ({
 							fill={`${lead.liked || like ? '#5d55fa' : 'none'}`}
 							viewBox='0 0 24 24'
 							stroke={`${lead.liked || like ? '#5d55fa' : 'currentColor'}`}
-							className='h-6 w-6'
+							className='h-6 w-6 hover:text-purple-400'
 						>
 							<path
 								strokeLinecap='round'
@@ -180,14 +190,14 @@ const LeadRow = ({
 };
 
 LeadRow.propTypes = {
-	likeLead: PropTypes.func.isRequired,
+	viewLead: PropTypes.func.isRequired,
+	setLikeStatus: PropTypes.func.isRequired,
 	unlikeLead: PropTypes.func.isRequired,
 	showDetailedLead: PropTypes.func.isRequired,
-	setLikeStatus: PropTypes.func.isRequired,
 };
 
 export default connect(null, {
-	likeLead,
+	viewLead,
 	setLikeStatus,
 	unlikeLead,
 	showDetailedLead,

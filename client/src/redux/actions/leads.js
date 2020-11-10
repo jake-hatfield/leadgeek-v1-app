@@ -1,7 +1,7 @@
 import {
 	GET_LEADS,
+	VIEW_LEAD,
 	LIKE_LEAD,
-	SET_LIKE,
 	UNLIKE_LEAD,
 	SHOW_DETAILED_LEAD,
 	CLEAR_DETAILED_LEAD,
@@ -20,6 +20,8 @@ const feed = [
 			'https://www.kohls.com/product/prd-4829820/adidas-hermosa-mesh-backpack.jsp',
 		amzLink: 'https://amazon.com/dp/B07KDSQNTR/',
 		liked: false,
+		archived: false,
+		viewed: false,
 	},
 	{
 		id: 2,
@@ -33,6 +35,8 @@ const feed = [
 			'https://www.kohls.com/product/prd-4829820/adidas-hermosa-mesh-backpack.jsp',
 		amzLink: 'https://amazon.com/dp/B07KDSQNTR/',
 		liked: false,
+		archived: false,
+		viewed: false,
 	},
 	{
 		id: 3,
@@ -46,6 +50,8 @@ const feed = [
 			'https://www.kohls.com/product/prd-4829820/adidas-hermosa-mesh-backpack.jsp',
 		amzLink: 'https://amazon.com/dp/B07KDSQNTR/',
 		liked: false,
+		archived: false,
+		viewed: false,
 	},
 	{
 		id: 4,
@@ -60,6 +66,8 @@ const feed = [
 			'https://www.kohls.com/product/prd-4829820/adidas-hermosa-mesh-backpack.jsp',
 		amzLink: 'https://amazon.com/dp/B07KDSQNTR/',
 		liked: false,
+		archived: false,
+		viewed: false,
 	},
 	{
 		id: 5,
@@ -73,6 +81,8 @@ const feed = [
 			'https://www.kohls.com/product/prd-4829820/adidas-hermosa-mesh-backpack.jsp',
 		amzLink: 'https://amazon.com/dp/B07KDSQNTR/',
 		liked: false,
+		archived: false,
+		viewed: false,
 	},
 	{
 		id: 6,
@@ -86,6 +96,8 @@ const feed = [
 			'https://www.kohls.com/product/prd-4829820/adidas-hermosa-mesh-backpack.jsp',
 		amzLink: 'https://amazon.com/dp/B07KDSQNTR/',
 		liked: false,
+		archived: false,
+		viewed: false,
 	},
 	{
 		id: 7,
@@ -99,24 +111,28 @@ const feed = [
 			'https://www.kohls.com/product/prd-4829820/adidas-hermosa-mesh-backpack.jsp',
 		amzLink: 'https://amazon.com/dp/B07KDSQNTR/',
 		liked: false,
+		archived: false,
+		viewed: false,
 	},
 ];
+
+let unviewed = feed.filter((lead) => lead.viewed === false);
 
 export const getLeads = () => (dispatch) => {
 	try {
 		dispatch({
 			type: GET_LEADS,
-			payload: feed,
+			payload: { feed, unviewed },
 		});
 	} catch (error) {
 		console.log(error);
 	}
 };
 
-export const likeLead = (leadId) => (dispatch) => {
+export const viewLead = (leadId) => (dispatch) => {
 	try {
 		dispatch({
-			type: LIKE_LEAD,
+			type: VIEW_LEAD,
 			payload: { id: leadId },
 		});
 	} catch (error) {
@@ -127,7 +143,7 @@ export const likeLead = (leadId) => (dispatch) => {
 export const setLikeStatus = (leadId) => (dispatch) => {
 	try {
 		dispatch({
-			type: SET_LIKE,
+			type: LIKE_LEAD,
 			payload: { id: leadId },
 		});
 	} catch (error) {

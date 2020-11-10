@@ -1,8 +1,7 @@
 import {
 	GET_LEADS,
-	REMOVE_LEADS,
+	VIEW_LEAD,
 	LIKE_LEAD,
-	SET_LIKE,
 	UNLIKE_LEAD,
 	ARCHIVE_LEAD,
 	UNARCHIVE_LEAD,
@@ -12,7 +11,7 @@ import {
 
 const initialState = {
 	feed: [],
-	new: [],
+	unviewed: [],
 	liked: [],
 	archived: [],
 	currentLead: null,
@@ -21,68 +20,60 @@ const initialState = {
 
 export default function (state = initialState, action) {
 	const { type, payload } = action;
-	const alreadyLiked = state.liked.find((lead) =>
+	const { feed, unviewed, liked, archived, currentLead, loading } = state;
+	const leadIndex = feed.findIndex((lead) => lead.id === payload.id);
+	const alreadyLiked = liked.find((lead) =>
 		lead.id === payload.id ? true : false
 	);
 	switch (type) {
 		case GET_LEADS:
 			return {
 				...state,
-				feed: payload,
+				feed: payload.feed,
+				unviewed: payload.unviewed,
+				loading: false,
+			};
+		case VIEW_LEAD:
+			const updatedNew = unviewed.filter((lead) => lead.id !== payload.id);
+			let selectedLead = feed.find((lead) => lead.id === payload.id);
+			selectedLead.viewed = true;
+			console.log(selectedLead);
+			return {
+				...state,
+				unviewed: updatedNew,
 				loading: false,
 			};
 		case LIKE_LEAD:
-			// get lead from the feed array
-			const likedLead = state.feed.find((lead) => lead.id === payload.id);
-			return {
-				...state,
-				liked: [...state.liked, likedLead],
-				loading: false,
-			};
-		case SET_LIKE:
-			const leadIndex = state.feed.findIndex((lead) => lead.id === payload.id);
-			let newLikedArray = [...state.feed];
+			let newLikedArray = [...feed];
 			newLikedArray[leadIndex] = {
 				...newLikedArray[leadIndex],
 				liked: !newLikedArray[leadIndex].feed,
 			};
 			return {
 				...state,
-				liked: alreadyLiked
-					? [...state.liked]
-					: [...state.liked, newLikedArray[leadIndex]],
+				liked: alreadyLiked ? [...liked] : [...liked, newLikedArray[leadIndex]],
 				loading: false,
 			};
 		case UNLIKE_LEAD:
-			// const alreadyLiked = state.liked.find((lead) =>
-			// 	lead.id === payload.id ? true : false
-			// );
 			return {
 				...state,
-				liked: state.liked.filter((lead) => lead.id !== payload.id),
+				liked: liked.filter((lead) => lead.id !== payload.id),
 				loading: false,
 			};
 		case ARCHIVE_LEAD:
-			const alreadyArchived = state.archived.find((lead) =>
+			const alreadyArchived = archived.find((lead) =>
 				lead.id === payload.id ? true : false
 			);
 			return {
 				...state,
 				liked:
-					!alreadyArchived &&
-					state.archived.filter((lead) => lead.id !== payload.id),
-				loading: false,
-			};
-		case REMOVE_LEADS:
-			return {
-				...state,
-				feed: [],
+					!alreadyArchived && archived.filter((lead) => lead.id !== payload.id),
 				loading: false,
 			};
 		case SHOW_DETAILED_LEAD:
 			return {
 				...state,
-				currentLead: state.feed.filter((lead) => lead.id === payload.id).pop(),
+				currentLead: feed.filter((lead) => lead.id === payload.id).pop(),
 				loading: false,
 			};
 		case CLEAR_DETAILED_LEAD:
