@@ -105,6 +105,7 @@ const LeadRow = ({
 					viewLead(lead.id);
 					setShowDetails(!showDetails);
 					showDetailedLead(lead.id);
+					document.body.style.overflow = 'hidden';
 				}}
 			>
 				<td className='pl-2'>
@@ -131,7 +132,7 @@ const LeadRow = ({
 							fill={`${lead.liked || like ? '#5d55fa' : 'none'}`}
 							viewBox='0 0 24 24'
 							stroke={`${lead.liked || like ? '#5d55fa' : 'currentColor'}`}
-							className='h-6 w-6 hover:text-purple-400'
+							className='h-6 w-6 hover:text-purple-400 transition-colors duration-100 ease-in-out'
 						>
 							<path
 								strokeLinecap='round'

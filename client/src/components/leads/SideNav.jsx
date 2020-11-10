@@ -78,7 +78,9 @@ const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 	return (
 		<div
 			className={`${
-				showMenu ? 'mr-8 md:w-72' : 'mr-4 xl:mr-8 h-screen md:w-10 bg-white'
+				showMenu
+					? 'mr-8 md:w-64 xl:w-72'
+					: 'mr-4 xl:mr-8 h-screen md:w-10 bg-white'
 			} `}
 		>
 			<header
@@ -103,7 +105,7 @@ const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 							</svg>
 						</div>
 
-						<p className='ml-2 text-sm text-gray-400'>
+						<p className='xl:ml-2 text-sm text-gray-400'>
 							Updated Nov. 2 @ 7:58 am
 						</p>
 					</div>

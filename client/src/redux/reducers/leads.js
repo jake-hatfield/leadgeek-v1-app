@@ -21,7 +21,6 @@ const initialState = {
 export default function (state = initialState, action) {
 	const { type, payload } = action;
 	const { feed, unviewed, liked, archived, currentLead, loading } = state;
-	const leadIndex = feed.findIndex((lead) => lead.id === payload.id);
 	const alreadyLiked = liked.find((lead) =>
 		lead.id === payload.id ? true : false
 	);
@@ -37,13 +36,13 @@ export default function (state = initialState, action) {
 			const updatedNew = unviewed.filter((lead) => lead.id !== payload.id);
 			let selectedLead = feed.find((lead) => lead.id === payload.id);
 			selectedLead.viewed = true;
-			console.log(selectedLead);
 			return {
 				...state,
 				unviewed: updatedNew,
 				loading: false,
 			};
 		case LIKE_LEAD:
+			const leadIndex = feed.findIndex((lead) => lead.id === payload.id);
 			let newLikedArray = [...feed];
 			newLikedArray[leadIndex] = {
 				...newLikedArray[leadIndex],
