@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import PrimaryLinks from './PrimaryLinks';
 
 import Tool from './Tools';
 
@@ -7,6 +8,9 @@ const SideNav = ({ feed, liked, setActiveLeadNav }) => {
 	const lengthChecker = (array) => {
 		return array.length > 99 ? '99+' : array.length;
 	};
+	// state
+	const [showMenu, setShowMenu] = useState(true);
+	const [hover, setHover] = useState(false);
 	// primary links
 	const primaryLinks = [
 		{
@@ -46,9 +50,6 @@ const SideNav = ({ feed, liked, setActiveLeadNav }) => {
 			),
 		},
 	];
-	const handleLeadNav = (link) => {
-		setActiveLeadNav(link);
-	};
 	const tools = [
 		{
 			title: 'Filters',
@@ -74,83 +75,125 @@ const SideNav = ({ feed, liked, setActiveLeadNav }) => {
 		},
 	];
 	return (
-		<div className='pr-8 w-1/5'>
-			<header className='pb-8 border-b-2 border-gray-100'>
-				<div className='flex items-center'>
-					<span>
-						<svg
-							xmlns='http://www.w3.org/2000/svg'
-							fill='none'
-							viewBox='0 0 24 24'
-							stroke='currentColor'
-							className='h-5 w-5 text-gray-300'
-						>
-							<path
-								strokeLinecap='round'
-								strokeLinejoin='round'
-								strokeWidth={2}
-								d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
-							/>
-						</svg>
-					</span>
-					<p className='ml-1 text-sm text-gray-400'>
-						Last updated Nov. 2 @ 7:58 am CST
-					</p>
-				</div>
-				<div className='mt-1 flex items-center'>
-					<h1 className='text-4xl font-black text-gray-900'>Leads</h1>
-					<span className='ml-2 w-full border border-gray-100' />
-				</div>
-				<aside className='pt-4'>
-					{primaryLinks.map((link, i) => (
-						<div v-for='item in items' className='first:mt-2 mt-1' key={i}>
-							<button
-								className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-								onClick={() => handleLeadNav(link.title)}
+		<div
+			className={`${
+				showMenu ? 'mr-8 md:w-72' : 'mr-4 xl:mr-8 h-screen md:w-10 bg-white'
+			} `}
+		>
+			<header
+				className={`${showMenu ? 'pb-8' : 'pb-4'} border-b-2 border-gray-100`}
+			>
+				{showMenu && (
+					<div className='xl:flex xl:items-center'>
+						<div>
+							<svg
+								xmlns='http://www.w3.org/2000/svg'
+								fill='none'
+								viewBox='0 0 24 24'
+								stroke='currentColor'
+								className='hidden xl:inline-block h-5 w-5 text-gray-300'
 							>
-								<span className='flex items-center'>
-									<span className='text-center text-gray-300'>
-										<svg
-											xmlns='http://www.w3.org/2000/svg'
-											viewBox='0 0 24 24'
-											fill='currentColor'
-											className='h-6 w-6'
-										>
-											{link.path}
-										</svg>
-									</span>
-									<span className='ml-2'>{link.title}</span>
-								</span>
-								<span
-									className={`px-2 ${
-										link.title === 'Feed'
-											? `bg-purple-600 text-white`
-											: link.title === 'Liked'
-											? `bg-teal-200 text-teal-600`
-											: `bg-gray-100 text-gray-500`
-									}  rounded-full text-xs font-semibold`}
-								>
-									{link.notifications
-										? link.title === 'Feed'
-											? `${link.notifications} new`
-											: link.notifications
-										: ''}
-								</span>
-							</button>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth={2}
+									d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+								/>
+							</svg>
+						</div>
+
+						<p className='ml-2 text-sm text-gray-400'>
+							Updated Nov. 2 @ 7:58 am
+						</p>
+					</div>
+				)}
+				{showMenu && (
+					<div className='mt-1 flex items-center'>
+						<h1 className='text-4xl font-black text-gray-900'>Leads</h1>
+						<span className='ml-2 w-full border border-gray-100' />
+					</div>
+				)}
+				<aside className={`${showMenu && 'pt-4'}`}>
+					{showMenu && (
+						<h4 className='mb-4 text-gray-400 font-semibold text-sm uppercase tracking-widest'>
+							Navigation
+						</h4>
+					)}
+					{primaryLinks.map((link, i) => (
+						<div key={i}>
+							<PrimaryLinks
+								link={link}
+								setActiveLeadNav={setActiveLeadNav}
+								showMenu={showMenu}
+							/>
 						</div>
 					))}
 				</aside>
 			</header>
-			<article>
-				<nav className='mt-6 flex flex-col'>
-					<h4 className='mb-4 text-gray-400 font-bold text-sm uppercase tracking-widest'>
-						Tools
-					</h4>
+			<article
+				className={`${showMenu ? 'pb-8' : 'pb-4'} border-b-2 border-gray-100`}
+			>
+				<nav className={`${showMenu ? 'mt-6' : 'mt-4'} flex flex-col`}>
+					{showMenu && (
+						<h4 className='mb-4 text-gray-400 font-semibold text-sm uppercase tracking-widest'>
+							Tools
+						</h4>
+					)}
 					{tools.map((tool, i) => (
-						<Tool key={i} tool={tool} />
+						<div key={i}>
+							<Tool tool={tool} showMenu={showMenu} />
+						</div>
 					))}
 				</nav>
 			</article>
+			<aside className='mt-4 text-gray-300'>
+				<button
+					onClick={() => setShowMenu(!showMenu)}
+					onMouseEnter={() => setHover(!hover)}
+					onMouseLeave={() => setHover(false)}
+					className={`p-2 ${
+						showMenu && 'w-full flex'
+					} relative rounded-md hover:bg-gray-100 hover:shadow-inner focus:outline-none focus:shadow-outline`}
+				>
+					{!showMenu && hover && (
+						<div className='p-2 absolute left-0 transform -translate-y-2 translate-x-12 rounded-md  bg-gray-800 shadow-md text-white text-sm whitespace-no-wrap'>
+							Show menu
+						</div>
+					)}
+					{showMenu ? (
+						<span className='flex items-center'>
+							<svg
+								xmlns='http://www.w3.org/2000/svg'
+								viewBox='0 0 20 20'
+								fill='currentColor'
+								className='h-5 w-5'
+							>
+								<path
+									fillRule='evenodd'
+									d='M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z'
+									clipRule='evenodd'
+								/>
+								<path d='M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z' />
+							</svg>
+							<span className='ml-2 text-gray-500'>Hide menu</span>
+						</span>
+					) : (
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							viewBox='0 0 20 20'
+							fill='currentColor'
+							className='h-5 w-5'
+						>
+							<path d='M10 12a2 2 0 100-4 2 2 0 000 4z' />
+							<path
+								fillRule='evenodd'
+								d='M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z'
+								clipRule='evenodd'
+							/>
+						</svg>
+					)}
+				</button>
+			</aside>
 		</div>
 	);
 };

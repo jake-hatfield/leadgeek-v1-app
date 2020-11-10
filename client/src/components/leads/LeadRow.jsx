@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
 	likeLead,
+	setLikeStatus,
 	unlikeLead,
 	showDetailedLead,
 } from '../../redux/actions/leads';
@@ -12,6 +13,7 @@ import {
 const LeadRow = ({
 	lead,
 	likeLead,
+	setLikeStatus,
 	unlikeLead,
 	showDetails,
 	setShowDetails,
@@ -25,9 +27,8 @@ const LeadRow = ({
 		return str.length > n ? str.substr(0, n - 1) + '...' : str;
 	}
 	const [like, setLike] = useState(false);
-	const handleFavorite = (leadId) => {
-		setLike(!like);
-		like ? unlikeLead(leadId) : likeLead(leadId);
+	const handleFavorite = (leadId, like, liked) => {
+		like || liked ? unlikeLead(leadId) : setLikeStatus(leadId);
 	};
 	// bsr / category % calculator
 	const calculateBSR = (currentRank, category) => {
@@ -95,7 +96,7 @@ const LeadRow = ({
 	return (
 		<Fragment>
 			<tr
-				className='rounded-md last:border-none border-b-2 border-gray-100 hover:bg-gray-100 hover:shadow-sm transition-all duration-200 cursor-pointer'
+				className='rounded-md last:border-none border-b-2 border-gray-100 hover:bg-gray-100 hover:shadow-md transition-all duration-200 cursor-pointer'
 				onClick={() => {
 					setShowDetails(!showDetails);
 					showDetailedLead(lead.id);
@@ -110,15 +111,16 @@ const LeadRow = ({
 					<button
 						onClick={(e) => {
 							e.stopPropagation();
-							handleFavorite(lead.id);
+							setLike(!like);
+							handleFavorite(lead.id, like, lead.liked);
 						}}
 						className='rounded-md focus:outline-none focus:shadow-outline align-middle'
 					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
-							fill={`${like ? '#5d55fa' : 'none'}`}
+							fill={`${lead.liked || like ? '#5d55fa' : 'none'}`}
 							viewBox='0 0 24 24'
-							stroke={`${like ? '#5d55fa' : 'currentColor'}`}
+							stroke={`${lead.liked || like ? '#5d55fa' : 'currentColor'}`}
 							className='h-6 w-6'
 						>
 							<path
@@ -130,7 +132,7 @@ const LeadRow = ({
 						</svg>
 					</button>
 				</td>
-				<td className='py-6 flex items-center'>{truncate(lead.title, 30)}</td>
+				<td className='py-6 flex items-center'>{truncate(lead.title, 28)}</td>
 				<td className='pl-6'>{truncate(lead.category, 28)}</td>
 				<td className='pl-6 text-gray-600 font-bold text-right'>
 					<span>$</span>
@@ -181,8 +183,12 @@ LeadRow.propTypes = {
 	likeLead: PropTypes.func.isRequired,
 	unlikeLead: PropTypes.func.isRequired,
 	showDetailedLead: PropTypes.func.isRequired,
+	setLikeStatus: PropTypes.func.isRequired,
 };
 
-export default connect(null, { likeLead, unlikeLead, showDetailedLead })(
-	LeadRow
-);
+export default connect(null, {
+	likeLead,
+	setLikeStatus,
+	unlikeLead,
+	showDetailedLead,
+})(LeadRow);

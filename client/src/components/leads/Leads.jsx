@@ -128,15 +128,15 @@ const Leads = ({
 	const [showDetails, setShowDetails] = useState(false);
 	return (
 		<Fragment>
-			<section className='my-6 lg:my-10 container flex'>
+			<section className='my-6 lg:my-10 relative container flex'>
 				<SideNav
 					feed={feed}
 					liked={liked}
 					setActiveLeadNav={setActiveLeadNav}
 				/>
-				<section className='w-4/5'>
+				<section className='w-full'>
 					<header className='flex items-center justify-between'>
-						<div className='relative w-5/6'>
+						<div className='relative z-0 w-full xl:w-5/6'>
 							<input
 								onChange={(e) => onSearchChange(e)}
 								type='text'

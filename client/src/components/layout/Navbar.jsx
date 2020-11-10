@@ -55,8 +55,8 @@ const Navbar = ({
 	return (
 		<Fragment>
 			{isAuthenticated && (
-				<nav className='bg-gray-800 text-gray-400'>
-					<div className='py-6 lg:py-3 container flex items-center justify-between'>
+				<nav className='w-full bg-gray-800 text-gray-400'>
+					<div className='py-3 container flex items-center justify-between'>
 						<div className='flex items-center'>
 							<h1 className='font-bold text-xl lg:text-2xl text-white'>
 								LeadGeek
@@ -116,8 +116,9 @@ const Navbar = ({
 									<div className='py-4 px-4 w-56 rounded-md bg-white shadow-md'>
 										<button
 											onClick={() => logoutUser(logout)}
-											className='p-2 w-full flex items-center rounded-md hover:bg-gray-100 text-left'
+											className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 text-left'
 										>
+											<span className='ml-2 font-medium'>Log out</span>
 											<svg
 												xmlns='http://www.w3.org/2000/svg'
 												fill='none'
@@ -132,7 +133,6 @@ const Navbar = ({
 													d='M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1'
 												/>
 											</svg>
-											<span className='ml-2'>Log out</span>
 										</button>
 									</div>
 								</div>

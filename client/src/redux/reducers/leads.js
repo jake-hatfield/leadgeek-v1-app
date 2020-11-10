@@ -2,6 +2,7 @@ import {
 	GET_LEADS,
 	REMOVE_LEADS,
 	LIKE_LEAD,
+	SET_LIKE,
 	UNLIKE_LEAD,
 	ARCHIVE_LEAD,
 	UNARCHIVE_LEAD,
@@ -20,6 +21,9 @@ const initialState = {
 
 export default function (state = initialState, action) {
 	const { type, payload } = action;
+	const alreadyLiked = state.liked.find((lead) =>
+		lead.id === payload.id ? true : false
+	);
 	switch (type) {
 		case GET_LEADS:
 			return {
@@ -33,6 +37,20 @@ export default function (state = initialState, action) {
 			return {
 				...state,
 				liked: [...state.liked, likedLead],
+				loading: false,
+			};
+		case SET_LIKE:
+			const leadIndex = state.feed.findIndex((lead) => lead.id === payload.id);
+			let newLikedArray = [...state.feed];
+			newLikedArray[leadIndex] = {
+				...newLikedArray[leadIndex],
+				liked: !newLikedArray[leadIndex].feed,
+			};
+			return {
+				...state,
+				liked: alreadyLiked
+					? [...state.liked]
+					: [...state.liked, newLikedArray[leadIndex]],
 				loading: false,
 			};
 		case UNLIKE_LEAD:

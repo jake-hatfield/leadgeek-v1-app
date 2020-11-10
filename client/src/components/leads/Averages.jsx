@@ -6,18 +6,18 @@ const Averages = ({ averages, filteredLeads }) => {
 			{filteredLeads.length > 0 && (
 				<div className='mt-6'>
 					<div className='flex items-center'>
-						<h4 className='flex-none text-gray-400 font-bold text-sm uppercase tracking-widest'>
+						<h4 className='flex-none text-gray-400 font-semibold text-sm uppercase tracking-widest'>
 							Product Averages
 						</h4>
 						<span className='ml-2 w-full border border-gray-100' />
 					</div>
-					<article className='mt-4 md:flex md:flex-wrap md:justify-between'>
+					<article className='mt-4 grid grid-flow-col grid-cols-2 grid-rows-2 xl:grid-cols-4 xl:grid-rows-1 gap-8 xl:gap-4'>
 						{averages.map(
 							(item) =>
 								!Number.isNaN(item.average) && (
 									<div
 										key={item.title}
-										className='inline-block w-1/5 rounded-md shadow-md hover:shadow-lg transition-shadow duration-200 ease-in-out'
+										className='inline-block rounded-md shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out'
 									>
 										<div className='pt-4 pb-6 px-6 flex items-center'>
 											<svg
@@ -31,11 +31,11 @@ const Averages = ({ averages, filteredLeads }) => {
 											</svg>
 											<div className='ml-4'>
 												<div className='flex items-center'>
-													<h5 className='flex-none text-gray-400 font-bold text-xs uppercase tracking-widest'>
+													<h5 className='text-gray-400 font-bold text-xs uppercase tracking-widest'>
 														{item.title}
 													</h5>
 												</div>
-												<p className='text-gray-800 font-black text-xl'>
+												<p className='text-gray-800 font-black text-lg xl:text-xl'>
 													{item.title === 'Net Profit'
 														? `$${item.average}`
 														: item.title === 'Net ROI'

@@ -34065,6 +34065,10 @@ video {
   width: 16rem;
 }
 
+.w-72 {
+  width: 18rem;
+}
+
 .w-auto {
   width: auto;
 }
@@ -70503,6 +70507,10 @@ table tbody tr td:last-child {
     width: 16rem;
   }
 
+  .sm\:w-72 {
+    width: 18rem;
+  }
+
   .sm\:w-auto {
     width: auto;
   }
@@ -106812,6 +106820,10 @@ table tbody tr td:last-child {
 
   .md\:w-64 {
     width: 16rem;
+  }
+
+  .md\:w-72 {
+    width: 18rem;
   }
 
   .md\:w-auto {
@@ -143125,6 +143137,10 @@ table tbody tr td:last-child {
     width: 16rem;
   }
 
+  .lg\:w-72 {
+    width: 18rem;
+  }
+
   .lg\:w-auto {
     width: auto;
   }
@@ -179434,6 +179450,10 @@ table tbody tr td:last-child {
 
   .xl\:w-64 {
     width: 16rem;
+  }
+
+  .xl\:w-72 {
+    width: 18rem;
   }
 
   .xl\:w-auto {

@@ -46,6 +46,9 @@ module.exports = {
 					900: '#243B53',
 				},
 			},
+			width: {
+				72: '18rem',
+			},
 		},
 	},
 	variants: {
