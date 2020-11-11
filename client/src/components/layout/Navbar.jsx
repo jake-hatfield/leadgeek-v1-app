@@ -116,11 +116,11 @@ const Navbar = ({
 								</button>
 							</div>
 							{userDropdown && (
-								<div className='absolute z-10 bottom-0 right-0 transform translate-y-20 text-gray-600'>
-									<div className='py-4 px-4 w-56 rounded-md bg-white shadow-md'>
+								<div className='absolute z-10 bottom-0 right-0 transform translate-y-40 shadow-md text-gray-600'>
+									<div className='p-4 w-56 rounded-t-md bg-white'>
 										<button
 											onClick={() => logoutUser(logout)}
-											className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 text-left'
+											className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 hover:shadow-inner text-left'
 										>
 											<span className='ml-2 font-medium'>Log out</span>
 											<svg
@@ -139,6 +139,7 @@ const Navbar = ({
 											</svg>
 										</button>
 									</div>
+									<div className='p-4 bg-gray-100'>Bundle subscriber</div>
 								</div>
 							)}
 						</div>

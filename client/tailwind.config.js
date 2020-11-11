@@ -91,6 +91,16 @@ module.exports = {
 			'group-hover',
 			'focus',
 		],
+		borderColor: [
+			'responsive',
+			'first',
+			'last',
+			'even',
+			'odd',
+			'hover',
+			'group-hover',
+			'focus',
+		],
 		flexDirection: ['responsive', 'first', 'last', 'even', 'odd'],
 	},
 	corePlugins: {

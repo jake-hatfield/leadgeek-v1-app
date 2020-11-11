@@ -4,7 +4,7 @@ const Tools = ({ tool, showMenu }) => {
 	const [openTool, setOpenTool] = useState(false);
 	const [hover, setHover] = useState(false);
 	return (
-		<div v-for='item in items' className='first:mt-2 mt-1'>
+		<div v-for='item in items'>
 			<button
 				onClick={() => {
 					showMenu && setOpenTool(!openTool);
@@ -22,16 +22,7 @@ const Tools = ({ tool, showMenu }) => {
 				)}
 				<div className='flex items-center justify-between'>
 					<span className='flex items-center'>
-						<span className='text-center text-gray-300'>
-							<svg
-								xmlns='http://www.w3.org/2000/svg'
-								viewBox='0 0 24 24'
-								fill='currentColor'
-								className='h-6 w-6'
-							>
-								{tool.path}
-							</svg>
-						</span>
+						<span className='text-center text-gray-300'>{tool.svg}</span>
 						{showMenu && <span className='ml-2'>{tool.title}</span>}
 					</span>
 					{showMenu && (
