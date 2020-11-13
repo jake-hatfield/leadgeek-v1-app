@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
-import useStickyState from '../layout/localStorageHook';
+import { useStickyState } from '../layout/utils';
 
 // redux
 import { connect } from 'react-redux';
@@ -147,24 +147,24 @@ const LeadRow = ({
 				<td className='pl-6'>{truncate(lead.category, 28)}</td>
 				<td className='pl-6 text-gray-600 font-bold text-right'>
 					<span>$</span>
-					{lead.netProfit.toFixed(2)}
+					{lead.coreStats.netProfit.toFixed(2)}
 					<span className='ml-1 text-gray-400 font-semibold uppercase'>
 						USD
 					</span>
 				</td>
 				<td className='pl-6 text-gray-600 font-bold text-right'>
-					{lead.roi}
+					{lead.coreStats.roi}
 					<span className='ml-1 text-gray-400 font-semibold'>%</span>
 				</td>
 				<td className='px-6 text-gray-600 font-bold text-right'>
-					{numberWithCommas(lead.currentBSR)}
+					{numberWithCommas(lead.coreStats.currentBSR)}
 					<span className='ml-1 text-gray-400 font-normal'>
-						({calculateBSR(lead.currentBSR, lead.category)})
+						({calculateBSR(lead.coreStats.currentBSR, lead.category)})
 						<span className='ml-1 text-gray-400 font-semibold'>%</span>
 					</span>
 				</td>
 				<td className='pr-6 text-gray-600 font-bold text-right'>
-					{numberWithCommas(lead.monthlySales)}
+					{numberWithCommas(lead.coreStats.monthlySales)}
 				</td>
 				<td className='pr-4'>
 					<button

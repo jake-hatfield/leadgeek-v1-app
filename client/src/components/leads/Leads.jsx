@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import SideNav from './SideNav';
 import LeadTable from './LeadTable';
 import Averages from './Averages';
-import Details from './Details';
+import Details from './Details/Details';
 
 import { clearDetailedLead } from '../../redux/actions/leads';
 
@@ -46,16 +46,35 @@ const Leads = ({
 	const average = (total, array) =>
 		Math.round((total / array.length + Number.EPSILON) * 100) / 100;
 	const totalProfit = arrayChooser().reduce(
-		(a, { netProfit }) => a + netProfit,
+		(
+			a,
+
+			{ coreStats: { netProfit } }
+		) => a + netProfit,
 		0
 	);
-	const totalROI = arrayChooser().reduce((a, { roi }) => a + roi, 0);
+	const totalROI = arrayChooser().reduce(
+		(
+			a,
+
+			{ coreStats: { roi } }
+		) => a + roi,
+		0
+	);
 	const totalSales = arrayChooser().reduce(
-		(a, { monthlySales }) => a + monthlySales,
+		(
+			a,
+
+			{ coreStats: { monthlySales } }
+		) => a + monthlySales,
 		0
 	);
 	const totalBSR = arrayChooser().reduce(
-		(a, { currentBSR }) => a + currentBSR,
+		(
+			a,
+
+			{ coreStats: { currentBSR } }
+		) => a + currentBSR,
 		0
 	);
 	// averages

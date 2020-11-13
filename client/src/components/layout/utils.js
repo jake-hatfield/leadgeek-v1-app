@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function useStickyState(defaultValue, key) {
+export function useStickyState(defaultValue, key) {
 	const [value, setValue] = React.useState(() => {
 		const stickyValue = window.localStorage.getItem(key);
 		return stickyValue !== null ? JSON.parse(stickyValue) : defaultValue;
@@ -9,4 +9,8 @@ export default function useStickyState(defaultValue, key) {
 		window.localStorage.setItem(key, JSON.stringify(value));
 	}, [key, value]);
 	return [value, setValue];
+}
+
+export function truncate(str, n) {
+	return str.length > n ? str.substr(0, n - 1) + '...' : str;
 }

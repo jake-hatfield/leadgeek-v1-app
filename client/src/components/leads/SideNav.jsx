@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useStickyState from '../layout/localStorageHook';
+import { useStickyState } from '../layout/utils';
 import PrimaryLinks from './PrimaryLinks';
 
 import Tool from './Tools';
@@ -164,7 +164,7 @@ const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 				<aside className={`${showMenu && 'pt-4'}`}>
 					{showMenu && (
 						<h4 className='mb-4 text-gray-400 font-semibold text-sm uppercase tracking-widest'>
-							Views
+							Collections
 						</h4>
 					)}
 					{primaryLinks.map((link, i) => (
