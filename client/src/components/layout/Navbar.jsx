@@ -61,15 +61,15 @@ const Navbar = ({
 				<nav className='w-full bg-gray-800 text-gray-400'>
 					<div className='py-3 container flex items-center justify-between'>
 						<div className='flex items-center'>
-							<h1 className='font-bold text-xl lg:text-2xl text-white'>
+							<h2 className='font-bold text-xl lg:text-2xl text-white'>
 								LeadGeek
-							</h1>
+							</h2>
 							<div className='ml-8 flex items-center'>
 								{primaryLinks.map((link, i) => (
 									<NavLink
 										exact
 										to={link.link}
-										className='first:ml-0 ml-6 py-2 px-4 flex items-center font-medium rounded-md hover:bg-gray-900 hover:shadow-inner hover:text-white transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										className='first:ml-0 ml-6 py-2 px-4 flex items-center font-medium rounded-md hover:bg-gray-900 hover:text-white transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 										activeClassName='active'
 										key={i}
 									>
@@ -120,7 +120,7 @@ const Navbar = ({
 									<div className='p-4 w-56 rounded-t-md bg-white'>
 										<button
 											onClick={() => logoutUser(logout)}
-											className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 hover:shadow-inner text-left'
+											className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 text-left'
 										>
 											<span className='ml-2 font-medium'>Log out</span>
 											<svg

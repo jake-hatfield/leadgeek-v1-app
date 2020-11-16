@@ -201,7 +201,7 @@ const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 					onMouseLeave={() => setHover(false)}
 					className={`p-2 ${
 						showMenu && 'w-full flex'
-					} relative rounded-md hover:bg-gray-100 hover:shadow-inner focus:outline-none focus:shadow-outline`}
+					} relative rounded-md hover:bg-gray-100 focus:outline-none focus:shadow-outline`}
 				>
 					{!showMenu && hover && (
 						<div className='p-2 absolute left-0 transform -translate-y-2 translate-x-12 rounded-md  bg-gray-800 shadow-md text-white text-sm whitespace-no-wrap'>

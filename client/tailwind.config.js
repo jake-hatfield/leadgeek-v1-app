@@ -81,6 +81,16 @@ module.exports = {
 			'group-hover',
 			'focus',
 		],
+		borderWidth: [
+			'responsive',
+			'first',
+			'last',
+			'even',
+			'odd',
+			'hover',
+			'group-hover',
+			'focus',
+		],
 		borderStyle: [
 			'responsive',
 			'first',

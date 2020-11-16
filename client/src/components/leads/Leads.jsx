@@ -179,7 +179,7 @@ const Leads = ({
 							</svg>
 						</div>
 						<div className='w-1/6 flex justify-end'>
-							<button className='py-3 px-4 flex items-center rounded-md text-sm font-semibold focus:outline-none focus:shadow-outline'>
+							<button className='py-3 px-4 flex items-center rounded-md text-sm font-semibold hover:bg-purple-100 hover:text-purple-600 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'>
 								<svg
 									xmlns='http://www.w3.org/2000/svg'
 									viewBox='0 0 20 20'

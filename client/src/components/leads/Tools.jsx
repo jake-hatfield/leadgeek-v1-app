@@ -13,7 +13,7 @@ const Tools = ({ tool, showMenu }) => {
 				onMouseLeave={() => setHover(false)}
 				className={`p-2 w-full ${!showMenu && 'relative'} rounded-md ${
 					openTool && 'bg-gray-100'
-				} hover:bg-gray-100 hover:shadow-inner transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline`}
+				} hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline`}
 			>
 				{!showMenu && hover && (
 					<div className='p-2 absolute left-0 transform -translate-y-2 translate-x-12 rounded-md bg-gray-800 shadow-md text-white text-sm whitespace-no-wrap'>

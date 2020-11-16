@@ -8,7 +8,7 @@ const PrimaryLinks = ({ link, setActiveLeadNav, showMenu }) => {
 	return (
 		<div v-for='item in items'>
 			<button
-				className='p-2 relative w-full flex items-center justify-between rounded-md group hover:bg-gray-100 hover:shadow-inner transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+				className='p-2 relative w-full flex items-center justify-between rounded-md group hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 				onMouseEnter={() => setHover(!hover)}
 				onMouseLeave={() => setHover(false)}
 				onClick={() => handleLeadNav(link.title)}

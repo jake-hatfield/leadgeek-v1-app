@@ -11,6 +11,8 @@ const feed = [
 	{
 		id: 1,
 		title: 'Revlon 2-Step Mascara',
+		brand: 'Revlon',
+		asin: 'B07KDSQNTR',
 		category: 'Beauty & Personal Care',
 		coreStats: {
 			netProfit: 5.77,
@@ -18,6 +20,7 @@ const feed = [
 			currentBSR: 1110006,
 			monthlySales: 2143,
 		},
+		source: `Kohl's`,
 		sourceLink:
 			'https://www.kohls.com/product/prd-4829820/adidas-hermosa-mesh-backpack.jsp',
 		amzLink: 'https://amazon.com/dp/B07KDSQNTR/',

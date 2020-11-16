@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { truncate } from '../../layout/utils';
 
-import Dropdown from './Dropdown';
+import CoreStatsDropdown from './CoreStatsDropdown';
+import SummaryDropdown from './SummaryDropdown';
 
 const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
+	const [fullTitle, toggleFullTitle] = useState(false);
 	return (
 		<div className='w-full h-screen flex justify-between absolute right-0'>
 			<div
@@ -16,9 +18,20 @@ const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
 			<section className='w-full lg:w-3/4 xl:w-3/5 relative z-10 bg-white'>
 				<header className='container'>
 					<div className='pt-10 pb-6 flex justify-between border-b-2 border-gray-100'>
-						<h4 className='text-gray-800 text-2xl lg:text-3xl font-extrabold leading-none'>
-							{truncate(currentLead.title, 40)}
-						</h4>
+						<div className='relative'>
+							<h3
+								onMouseEnter={() => toggleFullTitle(true)}
+								onMouseLeave={() => toggleFullTitle(false)}
+								className='text-gray-800 text-2xl lg:text-3xl font-extrabold leading-none cursor-pointer'
+							>
+								{truncate(currentLead.title, 40)}
+							</h3>
+							{fullTitle && (
+								<div className='p-2 absolute top-0 transform translate-y-10 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+									{currentLead.title}
+								</div>
+							)}
+						</div>
 						<div className='flex'>
 							<button className='rounded-md focus:outline-none focus:shadow-outline'>
 								<svg
@@ -59,13 +72,20 @@ const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
 						</div>
 					</div>
 				</header>
-				<div className='py-10 container'>
+				<section className='py-10 container'>
 					<article>
-						<header>
-							<Dropdown header='Core stats' obj={currentLead.coreStats} />
-						</header>
+						<SummaryDropdown
+							header='Summary'
+							obj={currentLead}
+							defaultOpen={true}
+						/>
+						<CoreStatsDropdown
+							header='Core stats'
+							obj={currentLead}
+							defaultOpen={true}
+						/>
 					</article>
-				</div>
+				</section>
 			</section>
 		</div>
 	);
