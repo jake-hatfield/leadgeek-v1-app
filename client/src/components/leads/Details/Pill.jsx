@@ -1,8 +1,14 @@
 import React from 'react';
 
-const Pill = ({ pill }) => {
+const Pill = ({ pill, pillColor }) => {
 	return (
-		<div className='p-1 rounded-md bg-gray-100 font-medium text-gray-600 text-sm'>
+		<div
+			className={`${
+				pillColor === 'green'
+					? 'bg-teal-200 text-teal-600'
+					: 'bg-gray-100 text-gray-600'
+			} p-1 rounded-md font-medium text-sm`}
+		>
 			{pill}
 		</div>
 	);

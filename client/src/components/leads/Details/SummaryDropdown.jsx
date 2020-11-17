@@ -5,37 +5,14 @@ import DropdownRow from './DropdownRow';
 const CoreStatsDropdown = ({ header, obj, defaultOpen }) => {
 	const [dropdown, toggleDropdown] = useState(defaultOpen || false);
 	return (
-		<div className='mb-8 lg:w-2/5'>
+		<div className='mb-8'>
 			<button
 				onClick={() => toggleDropdown(!dropdown)}
 				className='w-full flex items-end justify-between rounded-md focus:outline-none'
 			>
-				<div className='flex items-end'>
-					<svg
-						xmlns='http://www.w3.org/2000/svg'
-						fill='none'
-						viewBox='0 0 24 24'
-						stroke='currentColor'
-						className='p-2 h-10 w-10 flex-shrink-0 rounded-md bg-purple-600 text-white'
-					>
-						<path
-							strokeLinecap='round'
-							strokeLinejoin='round'
-							strokeWidth={2}
-							d='M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z'
-						/>
-					</svg>
-					<svg
-						xmlns='http://www.w3.org/2000/svg'
-						viewBox='0 0 20 20'
-						fill='currentColor'
-					>
-						<path d='M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z' />
-					</svg>
-					<h4 className='ml-4 text-2xl leading-none font-semibold text-gray-700'>
-						{header}
-					</h4>
-				</div>
+				<h4 className='text-2xl leading-none font-semibold text-gray-700'>
+					{header}
+				</h4>
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
 					viewBox='0 0 20 20'
@@ -69,7 +46,13 @@ const CoreStatsDropdown = ({ header, obj, defaultOpen }) => {
 						/>
 					)}
 					{obj.amzLink && <DropdownRow title='Sell link' link={obj.amzLink} />}
-					{obj.category && <DropdownRow title='Category' pill={obj.category} />}
+					{obj.category && (
+						<DropdownRow
+							title='Category'
+							pill={obj.category}
+							pillColor='green'
+						/>
+					)}
 					{obj.asin && <DropdownRow title='ASIN' pill={obj.asin} />}
 					{obj.brand && <DropdownRow title='Brand' pill={obj.brand} />}
 				</div>

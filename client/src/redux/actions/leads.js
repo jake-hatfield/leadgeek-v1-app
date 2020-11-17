@@ -14,6 +14,8 @@ const feed = [
 		brand: 'Revlon',
 		asin: 'B07KDSQNTR',
 		category: 'Beauty & Personal Care',
+		img:
+			'https://images-na.ssl-images-amazon.com/images/I/91r2hU%2Bo-9L._AC_UY741_.jpg',
 		coreStats: {
 			netProfit: 5.77,
 			roi: 114,

@@ -3,6 +3,7 @@ import { truncate } from '../../layout/utils';
 
 import CoreStatsDropdown from './CoreStatsDropdown';
 import SummaryDropdown from './SummaryDropdown';
+import InsightsDropdown from './InsightsDropdown';
 
 const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
 	const [fullTitle, toggleFullTitle] = useState(false);
@@ -72,8 +73,8 @@ const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
 						</div>
 					</div>
 				</header>
-				<section className='py-10 container'>
-					<article>
+				<section className='py-10 flex container'>
+					<article className='lg:w-2/5'>
 						<SummaryDropdown
 							header='Summary'
 							obj={currentLead}
@@ -84,7 +85,15 @@ const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
 							obj={currentLead}
 							defaultOpen={true}
 						/>
+						<InsightsDropdown header='Historic insights' obj={currentLead} />
 					</article>
+					<div className='w-3/5'>
+						<img
+							src={currentLead.img}
+							alt={currentLead.title}
+							className='px-48'
+						/>
+					</div>
 				</section>
 			</section>
 		</div>

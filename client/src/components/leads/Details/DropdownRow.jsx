@@ -14,6 +14,7 @@ const DropdownRow = ({
 	value,
 	valueUnit,
 	pill,
+	pillColor,
 	link,
 	source,
 	isFunction,
@@ -26,7 +27,7 @@ const DropdownRow = ({
 			{currency && <Currency currency={currency} />}
 			{percentage && <Percentage percentage={percentage} />}
 			{value && <Value value={value} valueUnit={valueUnit} />}
-			{pill && <Pill pill={pill} />}
+			{pill && <Pill pill={pill} pillColor={pillColor} />}
 			{link && <DetailLink link={link} source={source} />}
 			{isFunction && <Function arg1={arg1} arg2={arg2} />}
 		</div>

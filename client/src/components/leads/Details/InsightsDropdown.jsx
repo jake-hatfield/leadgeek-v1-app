@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 
 import DropdownRow from './DropdownRow';
 
-const CoreStatsDropdown = ({ header, obj, defaultOpen }) => {
+const TrendsDropdown = ({ header, obj, defaultOpen }) => {
 	const [dropdown, toggleDropdown] = useState(defaultOpen || false);
-	const coreStats = obj.coreStats;
 	return (
 		<div className='mb-8'>
 			<button
@@ -39,34 +38,27 @@ const CoreStatsDropdown = ({ header, obj, defaultOpen }) => {
 			<div className='mt-2 border-t-2 border-gray-100' />
 			{dropdown && (
 				<div className='mt-4'>
-					{coreStats.netProfit && (
-						<DropdownRow title='Net profit' currency={coreStats.netProfit} />
-					)}
-					{coreStats.roi && (
-						<DropdownRow title='ROI' percentage={coreStats.roi} />
-					)}
-					{coreStats.monthlySales && (
+					{obj.source && obj.sourceLink && (
 						<DropdownRow
-							title='Estimated sales'
-							value={coreStats.monthlySales}
-							valueUnit='/ mo'
+							title='Source link'
+							link={obj.sourceLink}
+							source={obj.source}
 						/>
 					)}
-					{coreStats.currentBSR && (
+					{obj.amzLink && <DropdownRow title='Sell link' link={obj.amzLink} />}
+					{obj.category && (
 						<DropdownRow
-							title='BSR %'
-							isFunction
-							arg1={coreStats.currentBSR}
-							arg2={obj.category}
+							title='Category'
+							pill={obj.category}
+							pillColor='green'
 						/>
 					)}
-					{coreStats.currentBSR && (
-						<DropdownRow title='Current BSR' value={coreStats.currentBSR} />
-					)}
+					{obj.asin && <DropdownRow title='ASIN' pill={obj.asin} />}
+					{obj.brand && <DropdownRow title='Brand' pill={obj.brand} />}
 				</div>
 			)}
 		</div>
 	);
 };
 
-export default CoreStatsDropdown;
+export default TrendsDropdown;
