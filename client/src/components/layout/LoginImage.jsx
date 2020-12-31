@@ -8,7 +8,7 @@ const LoginImage = ({ auth: { isAuthenticated } }) => {
 	return (
 		<Fragment>
 			{!isAuthenticated && (
-				<aside className='py-12 lg:w-3/5 hidden lg:block h-screen bg-gray-800'>
+				<aside className='py-12 hidden xl:block h-screen xl:w-2/5 bg-gray-800'>
 					<header className='container'>
 						<LeadGeekLogo className='w-16' />
 						<h2 className='max-w-md text-4xl text-gray-400 font-black'>
