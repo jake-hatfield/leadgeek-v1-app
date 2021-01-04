@@ -32,7 +32,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 	const { name, email, password, password2 } = formData;
 
 	if (isAuthenticated) {
-		return <Redirect to='/dashboard' />;
+		return <Redirect to='/leads' />;
 	}
 	return (
 		<Fragment>

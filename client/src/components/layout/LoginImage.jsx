@@ -2,18 +2,28 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { ReactComponent as LeadGeekLogo } from '../../assets/images/svgs/leadgeek-logo-light.svg';
-
 const LoginImage = ({ auth: { isAuthenticated } }) => {
 	return (
 		<Fragment>
 			{!isAuthenticated && (
-				<aside className='py-12 hidden xl:block h-screen xl:w-2/5 bg-gray-800'>
-					<header className='container'>
-						<LeadGeekLogo className='w-16' />
-						<h2 className='max-w-md text-4xl text-gray-400 font-black'>
-							Find the best products to flip on Amazon.
+				<aside
+					style={{
+						backgroundImage: `url(${
+							process.env.PUBLIC_URL + '/img/login-image.png'
+						})`,
+						backgroundRepeat: 'no-repeat',
+						backgroundSize: 'cover',
+						position: 'relative',
+					}}
+					className='py-12 hidden xl:block h-screen xl:w-2/5'
+				>
+					<header className='absolute top-0 left-0 h-screen container bg-gray-800 opacity-75 text-gray-200'>
+						<h2 className='mt-5 text-4xl font-black'>
+							Be able to access your leads from anywhere.
 						</h2>
+						<h3 className='mt-4 text-xl font-semibold'>
+							LeadGeek Android and iOS apps are in development.
+						</h3>
 					</header>
 				</aside>
 			)}

@@ -5,8 +5,6 @@ import Navbar from './components/layout/Navbar';
 import Login from './components/auth/Login';
 import Dashboard from './components/dashboard/Dashboard';
 import CreateProfile from './components/profile-forms/CreateProfile';
-import AddExperience from './components/profile-forms/AddExperience';
-import AddEducation from './components/profile-forms/AddEducation';
 import EditProfile from './components/profile-forms/EditProfile';
 import Leads from './components/leads/Leads';
 
@@ -47,24 +45,14 @@ const App = () => {
 					<Alert />
 					<Switch>
 						<Route exact path='/login' component={Login} />
-						<PrivateRoute exact path='/' component={Dashboard} />
-						<PrivateRoute exact path='/leads' component={Leads} />
+						<PrivateRoute exact path='/' component={Leads} />
+						{/* <PrivateRoute exact path='/leads' component={Leads} /> */}
 						<PrivateRoute
 							exact
 							path='/create-profile'
 							component={CreateProfile}
 						/>
 						<PrivateRoute exact path='/edit-profile' component={EditProfile} />
-						<PrivateRoute
-							exact
-							path='/add-experience'
-							component={AddExperience}
-						/>
-						<PrivateRoute
-							exact
-							path='/add-education'
-							component={AddEducation}
-						/>
 					</Switch>
 				</Fragment>
 			</Router>
