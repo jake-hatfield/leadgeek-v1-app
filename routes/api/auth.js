@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const auth = require('../../middleware/auth');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const { check, validationResult } = require('express-validator');
+const nodemailer = require('nodemailer');
 
 const User = require('../../models/User');
 
@@ -80,5 +82,18 @@ router.post(
 		}
 	}
 );
+
+// @route       POST api/auth
+// @description reset password
+// @access      Public
+router.post('/forgotPassword', auth, async (req, res) => {
+	try {
+		const user = await User.findById(req.user.id).select('-password');
+		return res.json(user);
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).send('Server error');
+	}
+});
 
 module.exports = router;

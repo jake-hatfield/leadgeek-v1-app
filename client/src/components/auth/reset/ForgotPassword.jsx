@@ -1,16 +1,19 @@
 import React, { Fragment, useState } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import { resetPassword } from '../../../redux/actions/auth';
 import { setAlert } from '../../../redux/actions/alert';
 
 import FormField from '../formField/FormField';
 import LoginImage from '../../layout/LoginImage';
 import { ReactComponent as LeadGeekLogo } from '../../../assets/images/svgs/leadgeek-logo-light.svg';
 
-const ForgotPassword = ({ setAlert }) => {
+const ForgotPassword = ({ resetPassword, setAlert }) => {
 	const [formData, setFormData] = useState({
 		email: '',
 	});
+	const [messageFromServer, setMessageFromServer] = useState('');
 	const { email } = formData;
 	const onChange = (e) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,6 +21,8 @@ const ForgotPassword = ({ setAlert }) => {
 		e.preventDefault();
 		if (email === '') {
 			setAlert('Please enter your email', 'danger');
+			setMessageFromServer('');
+		} else {
 		}
 	};
 	const onSubmit = (e) => {
@@ -40,8 +45,8 @@ const ForgotPassword = ({ setAlert }) => {
 								Reset password
 							</h1>
 							<p className='inline-block'>
-								Fear not! We'll send instructions to reset the password
-								associated with the email below.
+								We'll send instructions to reset the password associated with
+								the email below.
 							</p>
 						</header>
 						<form className='my-3' onSubmit={(e) => onSubmit(e)}>
@@ -58,7 +63,7 @@ const ForgotPassword = ({ setAlert }) => {
 								type='submit'
 								className='bg-purple-600 mt-4 py-2 w-full rounded-md text-white shadow-md hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline'
 							>
-								Log in
+								Send email
 							</button>
 						</form>
 					</div>
@@ -73,8 +78,16 @@ const ForgotPassword = ({ setAlert }) => {
 	);
 };
 
+ForgotPassword.propTypes = {
+	setAlert: PropTypes.func.isRequired,
+	resetPassword: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = (state) => ({
+	resetPassword: state.auth.resetPassword,
 	setAlert: state.alert,
 });
 
-export default connect(mapStateToProps, { setAlert })(ForgotPassword);
+export default connect(mapStateToProps, { setAlert, resetPassword })(
+	ForgotPassword
+);

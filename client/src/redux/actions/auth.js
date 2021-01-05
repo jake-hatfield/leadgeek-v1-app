@@ -9,6 +9,7 @@ import {
 	USER_LOADED,
 	AUTH_ERROR,
 	CLEAR_PROFILE,
+	RESET_PASSWORD,
 } from './types';
 
 // load user
@@ -91,4 +92,28 @@ export const logout = () => (dispatch) => {
 	dispatch({
 		type: LOGOUT,
 	});
+};
+
+// reset password
+export const resetPassword = ({ email }) => async (dispatch) => {
+	const config = {
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	};
+
+	const body = JSON.stringify({ email });
+
+	try {
+		const res = await axios.post('/api/forgotPassword', body, config);
+		dispatch({
+			type: RESET_PASSWORD,
+			payload: res.data,
+		});
+	} catch (error) {
+		const errors = error.response.data.errors;
+		if (errors) {
+			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+		}
+	}
 };

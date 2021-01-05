@@ -52,5 +52,5 @@ table tbody tr td:last-child {
 }
 
 .alert-danger {
-	@apply bg-red-2000 text-red-500 border-red-500;
+	@apply bg-red-200 text-red-500 border-red-500;
 }
