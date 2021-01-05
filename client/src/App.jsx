@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import Navbar from './components/layout/Navbar';
 import Login from './components/auth/Login';
-import Dashboard from './components/dashboard/Dashboard';
+import ForgotPassword from './components/auth/reset/ForgotPassword';
 import CreateProfile from './components/profile-forms/CreateProfile';
 import EditProfile from './components/profile-forms/EditProfile';
 import Leads from './components/leads/Leads';
@@ -45,6 +45,11 @@ const App = () => {
 					<Alert />
 					<Switch>
 						<Route exact path='/login' component={Login} />
+						<Route
+							exact
+							path='/reset/forgot-password'
+							component={ForgotPassword}
+						/>
 						<PrivateRoute exact path='/' component={Leads} />
 						{/* <PrivateRoute exact path='/leads' component={Leads} /> */}
 						<PrivateRoute

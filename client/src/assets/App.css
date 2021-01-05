@@ -46,3 +46,11 @@ table tbody tr td:first-child {
 table tbody tr td:last-child {
 	@apply rounded-r-md !important;
 }
+
+.alert-success {
+	@apply bg-teal-100 text-teal-400 border-teal-400;
+}
+
+.alert-danger {
+	@apply bg-red-2000 text-red-500 border-red-500;
+}

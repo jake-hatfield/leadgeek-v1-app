@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { login } from '../../redux/actions/auth';
@@ -27,16 +27,16 @@ const Login = ({ login, isAuthenticated }) => {
 		<Fragment>
 			<section className='h-screen relative flex justify-center bg-gray-100'>
 				<div className='lg:hidden h-2 absolute inset-x-0 top-0 bg-purple-300' />
-				<div className='xl:h-screen w-full xl:w-3/5 lg:flex lg:flex-col justify-between bg-gray-100'>
-					<div className='mt-6 container'>
+				<div className='xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100'>
+					<div className='mt-6 hidden md:block container'>
 						<a href='https://leadgeek.io'>
 							<LeadGeekLogo className='inline-block w-16' />
 						</a>
 					</div>
-					<div className='mx-4 md:mx-auto pt-2 pb-3 lg:pt-3 lg:pb-2 px-6 md:px-8 lg:px-12 max-w-sm bg-white rounded-md shadow-lg'>
+					<div className='mt-12 md:mt-0 mx-4 md:mx-auto pt-2 pb-3 lg:pt-3 lg:pb-2 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
 						<header>
-							<LeadGeekLogo className='lg:hidden w-16' />
-							<h1 className='text-5xl font-black text-gray-900'>Log in</h1>
+							<LeadGeekLogo className='md:hidden w-16' />
+							<h1 className='text-4xl font-black text-gray-900'>Log in</h1>
 							<p className='inline-block'>Need a LeadGeek account?</p>
 							<a
 								href='https://leadgeek.io/signup'
@@ -45,7 +45,7 @@ const Login = ({ login, isAuthenticated }) => {
 								Join now
 							</a>
 						</header>
-						<form className='my-3 max-w-xs' onSubmit={(e) => onSubmit(e)}>
+						<form className='my-3' onSubmit={(e) => onSubmit(e)}>
 							<FormField
 								label='Email'
 								type='email'
@@ -71,7 +71,9 @@ const Login = ({ login, isAuthenticated }) => {
 								Log in
 							</button>
 							<div className='mt-4 text-sm text-gray-400 link'>
-								<span>Forgot password?</span>
+								<NavLink exact to={'/reset/forgot-password'}>
+									Forgot password?
+								</NavLink>
 							</div>
 						</form>
 					</div>
