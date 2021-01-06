@@ -95,17 +95,15 @@ export const logout = () => (dispatch) => {
 };
 
 // reset password
-export const resetPassword = ({ email }) => async (dispatch) => {
+export const resetPassword = (email) => async (dispatch) => {
 	const config = {
 		headers: {
 			'Content-Type': 'application/json',
 		},
 	};
-
 	const body = JSON.stringify({ email });
-
 	try {
-		const res = await axios.post('/api/forgotPassword', body, config);
+		const res = await axios.post('/api/users/forgotPassword', body, config);
 		dispatch({
 			type: RESET_PASSWORD,
 			payload: res.data,

@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Login from './components/auth/Login';
 import ForgotPassword from './components/auth/reset/ForgotPassword';
+import ResetPassword from './components/auth/reset/ResetPassword';
 import CreateProfile from './components/profile-forms/CreateProfile';
 import EditProfile from './components/profile-forms/EditProfile';
 import Leads from './components/leads/Leads';
@@ -49,6 +50,11 @@ const App = () => {
 							exact
 							path='/reset/forgot-password'
 							component={ForgotPassword}
+						/>
+						<Route
+							exact
+							path='/reset/reset-password'
+							component={ResetPassword}
 						/>
 						<PrivateRoute exact path='/' component={Leads} />
 						{/* <PrivateRoute exact path='/leads' component={Leads} /> */}
