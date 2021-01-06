@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
+import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import { resetPassword } from '../../../redux/actions/auth';
@@ -23,6 +24,7 @@ const ForgotPassword = ({ resetPassword, setAlert }) => {
 			setAlert('Please enter your email', 'danger');
 			setMessageFromServer('');
 		} else {
+			resetPassword(email);
 		}
 	};
 	const onSubmit = (e) => {
@@ -38,7 +40,7 @@ const ForgotPassword = ({ resetPassword, setAlert }) => {
 							<LeadGeekLogo className='inline-block w-16' />
 						</a>
 					</div>
-					<div className='mt-12 md:mt-0 mx-4 md:mx-auto pt-2 pb-3 lg:py-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
+					<div className='mt-12 md:mt-0 mx-4 md:mx-auto pt-2 pb-3 lg:pt-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
 						<header>
 							<LeadGeekLogo className='md:hidden w-16' />
 							<h1 className='text-4xl font-black text-gray-900'>
@@ -65,6 +67,11 @@ const ForgotPassword = ({ resetPassword, setAlert }) => {
 							>
 								Send email
 							</button>
+							<div className='mt-4 text-sm text-gray-400 link'>
+								<NavLink exact to={'/login'}>
+									Back to log in
+								</NavLink>
+							</div>
 						</form>
 					</div>
 					<div className='mt-6 xl:mt-0 mb-6 container'>
