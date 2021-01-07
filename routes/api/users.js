@@ -82,8 +82,8 @@ router.post(
 	}
 );
 
-// @route       POST api/auth
-// @description reset password
+// @route       POST api/users/forgotPassword
+// @description request forgot password
 // @access      Public
 router.post('/forgotPassword', async (req, res) => {
 	try {
@@ -91,7 +91,6 @@ router.post('/forgotPassword', async (req, res) => {
 		if (email === '') {
 			res.status(400).send('Email required');
 		}
-		console.error(email);
 		let user = await User.findOne({ email });
 		if (user === null) {
 			const error = 'Email not found in database';
@@ -99,11 +98,22 @@ router.post('/forgotPassword', async (req, res) => {
 			return res.status(403).send(error);
 		} else {
 			const token = crypto.randomBytes(20).toString('hex');
-			user.update({
+			const updatedData = {
 				resetPasswordToken: token,
 				resetPasswordExpires: Date.now() + 3600000,
+			};
+			// update the user's token and token expiration date
+			User.findOneAndUpdate({ email }, updatedData).then(function (
+				error,
+				result
+			) {
+				if (error) {
+					console.log(error);
+				} else {
+					console.log(User);
+					console.log(result);
+				}
 			});
-
 			const transporter = nodemailer.createTransport({
 				name: 'improvmx',
 				host: 'smtp.improvmx.com',
@@ -113,7 +123,7 @@ router.post('/forgotPassword', async (req, res) => {
 					// user: `${process.env.EMAIL_ADDRESS}`,
 					// pass: `${process.env.EMAIL_PASSWORD}`,
 					user: 'support@leadgeek.io',
-					pass: 'WI961B9gkN4a',
+					pass: '52LxOHANDCQa',
 				},
 				tls: {
 					rejectUnauthorized: false,
@@ -135,8 +145,8 @@ router.post('/forgotPassword', async (req, res) => {
 				if (err) {
 					console.error('There was an error sending the email: ', err);
 				} else {
-					console.log('Here is the mail response: ', res);
-					res.status(200).json('Recover email sent successfully');
+					console.log('Email sent successfully. Here are the details:', res);
+					res.status(200).json('Password recovery email sent successfully');
 				}
 			});
 		}
@@ -144,6 +154,64 @@ router.post('/forgotPassword', async (req, res) => {
 		console.error(error.message);
 		return res.status(500).send('Server error');
 	}
+});
+
+// @route       GET api/users/resetPassword
+// @description validate password reset token
+// @access      Public
+router.get('/resetPassword', (req, res) => {
+	try {
+		User.findOne({
+			resetPasswordToken: req.query.resetPasswordToken,
+			resetPasswordExpires: {
+				$gt: Date.now(),
+			},
+		}).then((user) => {
+			if (user == null) {
+				const error = 'Password reset link expired or invalid';
+				console.log(error);
+				res.json(error);
+			} else {
+				res.status(200).send({
+					username: user.email,
+					message: 'Password reset link was validated',
+				});
+			}
+		});
+	} catch (error) {}
+});
+
+// @route       PUT api/users
+// @description update password in database
+// @access      Public
+router.put('/updatePassword', (req, res) => {
+	User.findOne({
+		email: req.body.email,
+	}).then((user) => {
+		if (user !== null) {
+			console.log('User found in the database');
+			// encrypt password
+			const salt = bcrypt.genSalt(10);
+			bcrypt
+				.hash(req.body.password, salt)
+				.then((hashedPassword) => {
+					User.update({
+						password: hashedPassword,
+						resetPasswordToken: null,
+						resetPasswordExpires: null,
+					});
+				})
+				.then(() => {
+					const message = 'Password successfully updated';
+					console.log(message);
+					res.status(200).send({ message });
+				});
+		} else {
+			const message = 'No user exists in the database to update';
+			console.error(message);
+			res.status(404).json(message);
+		}
+	});
 });
 
 module.exports = router;

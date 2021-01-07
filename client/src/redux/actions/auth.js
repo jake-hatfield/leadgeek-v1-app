@@ -9,7 +9,9 @@ import {
 	USER_LOADED,
 	AUTH_ERROR,
 	CLEAR_PROFILE,
+	FORGOT_PASSWORD,
 	RESET_PASSWORD,
+	UPDATE_PASSWORD,
 } from './types';
 
 // load user
@@ -94,8 +96,8 @@ export const logout = () => (dispatch) => {
 	});
 };
 
-// reset password
-export const resetPassword = (email) => async (dispatch) => {
+// forgot password
+export const forgotPassword = (email) => async (dispatch) => {
 	const config = {
 		headers: {
 			'Content-Type': 'application/json',
@@ -104,9 +106,69 @@ export const resetPassword = (email) => async (dispatch) => {
 	const body = JSON.stringify({ email });
 	try {
 		const res = await axios.post('/api/users/forgotPassword', body, config);
+		dispatch(
+			setAlert(
+				'Email successfuly sent! Please also check your spam folder.',
+				'success'
+			)
+		);
+	} catch (error) {
+		const errorMsg = error.response.data;
+		if (errorMsg == 'Email not found in database') {
+			dispatch(
+				setAlert(
+					'Email successfuly sent! Please also check your spam folder.',
+					'success'
+				)
+			);
+		} else {
+			dispatch(
+				setAlert(
+					'Email could not be sent, please contact LeadGeek support.',
+					'danger'
+				)
+			);
+		}
+	}
+};
+
+// reset password validation
+export const resetPassword = (email) => async (dispatch) => {
+	const config = {
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	};
+	const body = JSON.stringify({ email });
+	try {
+		const res = await axios.get('/api/users/forgotPassword', body, config);
 		dispatch({
 			type: RESET_PASSWORD,
 			payload: res.data,
+		});
+	} catch (error) {
+		const errors = error.response.data.errors;
+		if (errors) {
+			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+		}
+	}
+};
+
+export const updatePassword = (email, password) => async (dispatch) => {
+	const config = {
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	};
+	const body = JSON.stringify({ email, password });
+	try {
+		axios.put('/api/users/updatePassword', body, config).then((res) => {
+			console.log(res.data);
+			if (res.data.message === 'Password successfully updated') {
+				dispatch(setAlert('Password successfully updated', 'success'));
+			} else {
+				dispatch(setAlert("Password couldn't be updated", 'danger'));
+			}
 		});
 	} catch (error) {
 		const errors = error.response.data.errors;

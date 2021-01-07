@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 const Alert = ({ alerts }) => {
-	let alertSVG;
 	return (
 		<Fragment>
 			{alerts !== null &&

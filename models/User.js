@@ -21,6 +21,14 @@ const UserSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now,
 	},
+	resetPasswordToken: {
+		type: String,
+		default: null,
+	},
+	resetPasswordExpires: {
+		type: Date,
+		default: null,
+	},
 });
 
 module.exports = User = mongoose.model('user', UserSchema);

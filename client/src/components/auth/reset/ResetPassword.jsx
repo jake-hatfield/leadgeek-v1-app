@@ -1,5 +1,6 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { resetPassword } from '../../../redux/actions/auth';
@@ -9,26 +10,26 @@ import FormField from '../formField/FormField';
 import LoginImage from '../../layout/LoginImage';
 import { ReactComponent as LeadGeekLogo } from '../../../assets/images/svgs/leadgeek-logo-light.svg';
 
-const ForgotPassword = ({ resetPassword, setAlert }) => {
+const ForgotPassword = (props) => {
 	const [formData, setFormData] = useState({
 		email: '',
 	});
 	const [messageFromServer, setMessageFromServer] = useState('');
-	const { email } = formData;
+	const { email, password_1, password_2 } = formData;
+	useEffect(() => {
+		console.log(props.match.params.token);
+	}, []);
 	const onChange = (e) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
-	const sendEmail = (e) => {
+	const updatePassword = (e) => {
 		e.preventDefault();
-		if (email === '') {
-			setAlert('Please enter your email', 'danger');
-			setMessageFromServer('');
-		} else {
-			resetPassword(email);
-		}
+		axios.put('/users/updatePassword', {});
 	};
 	const onSubmit = (e) => {
-		sendEmail(e);
+		e.preventDefault();
+		updatePassword(e);
 	};
+	// console.log(props.match.params.token);
 	return (
 		<Fragment>
 			<section className='h-screen relative flex justify-center bg-gray-100'>
@@ -62,7 +63,7 @@ const ForgotPassword = ({ resetPassword, setAlert }) => {
 							<FormField
 								label='Confirm Password'
 								type='text'
-								placeholder='Repeat password'
+								placeholder='Enter password again'
 								name='password_2'
 								onChange={onChange}
 								// required
@@ -87,15 +88,19 @@ const ForgotPassword = ({ resetPassword, setAlert }) => {
 };
 
 ForgotPassword.propTypes = {
-	setAlert: PropTypes.func.isRequired,
 	resetPassword: PropTypes.func.isRequired,
+	// updatePassword: PropTypes.func.isRequired,
+	setAlert: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
 	resetPassword: state.auth.resetPassword,
+	// updatePassword: state.auth.updatePassword,
 	setAlert: state.alert,
 });
 
-export default connect(mapStateToProps, { setAlert, resetPassword })(
-	ForgotPassword
-);
+export default connect(mapStateToProps, {
+	resetPassword,
+	// updatePassword,
+	setAlert,
+})(ForgotPassword);

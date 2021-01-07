@@ -53,7 +53,7 @@ const App = () => {
 						/>
 						<Route
 							exact
-							path='/reset/reset-password'
+							path='/reset/reset-password/:token'
 							component={ResetPassword}
 						/>
 						<PrivateRoute exact path='/' component={Leads} />

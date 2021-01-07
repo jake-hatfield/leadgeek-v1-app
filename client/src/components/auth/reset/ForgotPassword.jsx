@@ -2,19 +2,17 @@ import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import axios from 'axios';
-import { resetPassword } from '../../../redux/actions/auth';
+import { forgotPassword } from '../../../redux/actions/auth';
 import { setAlert } from '../../../redux/actions/alert';
 
 import FormField from '../formField/FormField';
 import LoginImage from '../../layout/LoginImage';
 import { ReactComponent as LeadGeekLogo } from '../../../assets/images/svgs/leadgeek-logo-light.svg';
 
-const ForgotPassword = ({ resetPassword, setAlert }) => {
+const ForgotPassword = ({ forgotPassword, setAlert }) => {
 	const [formData, setFormData] = useState({
 		email: '',
 	});
-	const [messageFromServer, setMessageFromServer] = useState('');
 	const { email } = formData;
 	const onChange = (e) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,9 +20,8 @@ const ForgotPassword = ({ resetPassword, setAlert }) => {
 		e.preventDefault();
 		if (email === '') {
 			setAlert('Please enter your email', 'danger');
-			setMessageFromServer('');
 		} else {
-			resetPassword(email);
+			forgotPassword(email);
 		}
 	};
 	const onSubmit = (e) => {
@@ -87,7 +84,7 @@ const ForgotPassword = ({ resetPassword, setAlert }) => {
 
 ForgotPassword.propTypes = {
 	setAlert: PropTypes.func.isRequired,
-	resetPassword: PropTypes.func.isRequired,
+	forgotPassword: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -95,6 +92,6 @@ const mapStateToProps = (state) => ({
 	setAlert: state.alert,
 });
 
-export default connect(mapStateToProps, { setAlert, resetPassword })(
+export default connect(mapStateToProps, { setAlert, forgotPassword })(
 	ForgotPassword
 );
