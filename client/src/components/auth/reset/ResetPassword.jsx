@@ -40,15 +40,14 @@ const ForgotPassword = (props) => {
 							<LeadGeekLogo className='inline-block w-16' />
 						</a>
 					</div>
-					<div className='mt-12 md:mt-0 mx-4 md:mx-auto pt-2 pb-3 lg:pt-6 px-6 md:px-8 lg:px-12 w-full max-w-lg bg-white rounded-md shadow-lg'>
+					<div className='mt-12 md:mt-0 mx-4 md:mx-auto pt-2 pb-3 lg:pt-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
 						<header>
 							<LeadGeekLogo className='md:hidden w-16' />
 							<h1 className='text-4xl font-black text-gray-900'>
-								Create new password
+								New password
 							</h1>
 							<p className='inline-block'>
-								We'll send instructions to reset the password associated with
-								the email below.
+								Create a new, secure password for your LeadGeek account.
 							</p>
 						</header>
 						<form className='my-3' onSubmit={(e) => onSubmit(e)}>

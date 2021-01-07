@@ -106,13 +106,15 @@ export const forgotPassword = (email) => async (dispatch) => {
 	const body = JSON.stringify({ email });
 	try {
 		const res = await axios.post('/api/users/forgotPassword', body, config);
-		dispatch(
-			setAlert(
-				'Email successfuly sent! Please also check your spam folder.',
-				'success'
-			)
-		);
+		if (res.data === 'Password recovery email sent successfully')
+			dispatch(
+				setAlert(
+					'Email successfuly sent! Please also check your spam folder.',
+					'success'
+				)
+			);
 	} catch (error) {
+		// make sure people can't guess user's password by trial and error
 		const errorMsg = error.response.data;
 		if (errorMsg == 'Email not found in database') {
 			dispatch(

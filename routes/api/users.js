@@ -110,7 +110,6 @@ router.post('/forgotPassword', async (req, res) => {
 				if (error) {
 					console.log(error);
 				} else {
-					console.log(User);
 					console.log(result);
 				}
 			});
@@ -129,7 +128,6 @@ router.post('/forgotPassword', async (req, res) => {
 					rejectUnauthorized: false,
 				},
 			});
-
 			const mailOptions = {
 				from: '"LeadGeek Support" <support@leadgeek.io>',
 				to: `${user.email}`,
@@ -146,9 +144,12 @@ router.post('/forgotPassword', async (req, res) => {
 					console.error('There was an error sending the email: ', err);
 				} else {
 					console.log('Email sent successfully. Here are the details:', res);
-					res.status(200).json('Password recovery email sent successfully');
+					return res
+						.status(200)
+						.json('Password recovery email sent successfully');
 				}
 			});
+			return res.status(200).json('Password recovery email sent successfully');
 		}
 	} catch (error) {
 		console.error(error.message);

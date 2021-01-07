@@ -56,7 +56,7 @@ const ForgotPassword = ({ forgotPassword, setAlert }) => {
 								name='email'
 								value={email}
 								onChange={onChange}
-								// required
+								required
 							/>
 							<button
 								type='submit'
