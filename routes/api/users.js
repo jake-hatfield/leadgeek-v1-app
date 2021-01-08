@@ -39,7 +39,7 @@ router.post(
 			if (user) {
 				return res
 					.status(400)
-					.json({ erorrs: [{ msg: 'User already exists' }] });
+					.json({ errors: [{ msg: 'User already exists' }] });
 			}
 			// user doesn't already exist, so get their gravatar
 			const avatar = gravatar.url(email, {
@@ -149,7 +149,9 @@ router.post('/forgotPassword', async (req, res) => {
 						.json('Password recovery email sent successfully');
 				}
 			});
-			return res.status(200).json('Password recovery email sent successfully');
+			return res
+				.status(200)
+				.json({ msg: 'Password recovery email sent successfully', token });
 		}
 	} catch (error) {
 		console.error(error.message);
@@ -157,25 +159,28 @@ router.post('/forgotPassword', async (req, res) => {
 	}
 });
 
-// @route       GET api/users/resetPassword
+// @route       GET api/users/resetPasswordValidation
 // @description validate password reset token
 // @access      Public
-router.get('/resetPassword', (req, res) => {
+router.post('/resetPasswordValidation', (req, res) => {
 	try {
+		console.log('Searching for user password reset token...');
 		User.findOne({
-			resetPasswordToken: req.query.resetPasswordToken,
+			resetPasswordToken: req.body.resetPasswordToken,
 			resetPasswordExpires: {
 				$gt: Date.now(),
 			},
 		}).then((user) => {
-			if (user == null) {
-				const error = 'Password reset link expired or invalid';
-				console.log(error);
-				res.json(error);
+			if (user === null) {
+				console.error('Token not found.');
+				res.status(400).json({
+					errors: [{ msg: 'Password reset link expired or invalid' }],
+				});
 			} else {
+				console.log('Token found!');
 				res.status(200).send({
-					username: user.email,
-					message: 'Password reset link was validated',
+					user: user.email,
+					msg: 'Password reset link was validated',
 				});
 			}
 		});

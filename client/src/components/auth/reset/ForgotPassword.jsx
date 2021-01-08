@@ -44,8 +44,10 @@ const ForgotPassword = ({ forgotPassword, setAlert }) => {
 								Reset password
 							</h1>
 							<p className='inline-block'>
-								We'll send instructions to reset the password associated with
-								the email below.
+								Don't worry, it happens to the best of us.
+							</p>
+							<p className='mt-2 inline-block'>
+								We'll send password reset instructions to the email below.
 							</p>
 						</header>
 						<form className='my-3' onSubmit={(e) => onSubmit(e)}>

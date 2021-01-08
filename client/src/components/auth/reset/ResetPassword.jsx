@@ -1,24 +1,24 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { resetPassword } from '../../../redux/actions/auth';
+import { resetPasswordValidation } from '../../../redux/actions/auth';
 import { setAlert } from '../../../redux/actions/alert';
 
 import FormField from '../formField/FormField';
 import LoginImage from '../../layout/LoginImage';
 import { ReactComponent as LeadGeekLogo } from '../../../assets/images/svgs/leadgeek-logo-light.svg';
 
-const ForgotPassword = (props) => {
+const ResetPassword = ({ auth: { loading }, resetPasswordValidation }) => {
+	const resetPasswordToken = localStorage.resetPasswordToken;
+	useEffect(() => {
+		resetPasswordValidation(resetPasswordToken);
+	}, []);
+
 	const [formData, setFormData] = useState({
 		email: '',
 	});
-	const [messageFromServer, setMessageFromServer] = useState('');
-	const { email, password_1, password_2 } = formData;
-	useEffect(() => {
-		console.log(props.match.params.token);
-	}, []);
+	// const { email, password_1, password_2 } = formData;
 	const onChange = (e) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	const updatePassword = (e) => {
@@ -29,7 +29,6 @@ const ForgotPassword = (props) => {
 		e.preventDefault();
 		updatePassword(e);
 	};
-	// console.log(props.match.params.token);
 	return (
 		<Fragment>
 			<section className='h-screen relative flex justify-center bg-gray-100'>
@@ -44,17 +43,24 @@ const ForgotPassword = (props) => {
 						<header>
 							<LeadGeekLogo className='md:hidden w-16' />
 							<h1 className='text-4xl font-black text-gray-900'>
-								New password
+								Change password
 							</h1>
 							<p className='inline-block'>
-								Create a new, secure password for your LeadGeek account.
+								Please enter a new, secure password.
 							</p>
+							{/* <div className='inline-block'>
+								In order to protect your account, please make sure your
+								password:
+								<ul className='mt-4'>
+									<li>Is longer than 8 characters</li>
+								</ul>
+							</div> */}
 						</header>
 						<form className='my-3' onSubmit={(e) => onSubmit(e)}>
 							<FormField
-								label='Password'
+								label='New Password'
 								type='text'
-								placeholder='Choose a password'
+								placeholder='Create a new password'
 								name='password_1'
 								onChange={onChange}
 								// required
@@ -62,7 +68,7 @@ const ForgotPassword = (props) => {
 							<FormField
 								label='Confirm Password'
 								type='text'
-								placeholder='Enter password again'
+								placeholder='Enter the password again'
 								name='password_2'
 								onChange={onChange}
 								// required
@@ -86,20 +92,21 @@ const ForgotPassword = (props) => {
 	);
 };
 
-ForgotPassword.propTypes = {
-	resetPassword: PropTypes.func.isRequired,
+ResetPassword.propTypes = {
+	auth: PropTypes.object.isRequired,
+	resetPasswordValidation: PropTypes.func.isRequired,
 	// updatePassword: PropTypes.func.isRequired,
 	setAlert: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-	resetPassword: state.auth.resetPassword,
+	auth: state.auth,
 	// updatePassword: state.auth.updatePassword,
 	setAlert: state.alert,
 });
 
 export default connect(mapStateToProps, {
-	resetPassword,
+	resetPasswordValidation,
 	// updatePassword,
 	setAlert,
-})(ForgotPassword);
+})(ResetPassword);

@@ -10,9 +10,11 @@ import {
 	AUTH_ERROR,
 	CLEAR_PROFILE,
 	FORGOT_PASSWORD,
-	RESET_PASSWORD,
+	SET_RESET_PASSWORD_TOKEN,
 	UPDATE_PASSWORD,
 } from './types';
+
+import { setResetPasswordToken } from '../../utils/authTokens';
 
 // load user
 export const loadUser = () => async (dispatch) => {
@@ -106,20 +108,23 @@ export const forgotPassword = (email) => async (dispatch) => {
 	const body = JSON.stringify({ email });
 	try {
 		const res = await axios.post('/api/users/forgotPassword', body, config);
-		if (res.data === 'Password recovery email sent successfully')
+		if (res.data.msg === 'Password recovery email sent successfully') {
 			dispatch(
 				setAlert(
-					'Email successfuly sent! Please also check your spam folder.',
+					`An email has been sent to ${email} if an account is associated. Please also check your spam folder.`,
 					'success'
 				)
 			);
+			const { token } = res.data;
+			setResetPasswordToken(token);
+		}
 	} catch (error) {
 		// make sure people can't guess user's password by trial and error
 		const errorMsg = error.response.data;
-		if (errorMsg == 'Email not found in database') {
+		if (errorMsg === 'Email not found in database') {
 			dispatch(
 				setAlert(
-					'Email successfuly sent! Please also check your spam folder.',
+					`An email has been sent to ${email} if an account is associated. Please also check your spam folder.`,
 					'success'
 				)
 			);
@@ -135,24 +140,35 @@ export const forgotPassword = (email) => async (dispatch) => {
 };
 
 // reset password validation
-export const resetPassword = (email) => async (dispatch) => {
+export const resetPasswordValidation = (resetPasswordToken) => async (
+	dispatch
+) => {
 	const config = {
 		headers: {
 			'Content-Type': 'application/json',
 		},
 	};
-	const body = JSON.stringify({ email });
+	const body = JSON.stringify({ resetPasswordToken });
 	try {
-		const res = await axios.get('/api/users/forgotPassword', body, config);
-		dispatch({
-			type: RESET_PASSWORD,
-			payload: res.data,
-		});
-	} catch (error) {
-		const errors = error.response.data.errors;
-		if (errors) {
-			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+		const res = await axios.post(
+			'/api/users/resetPasswordValidation',
+			body,
+			config
+		);
+
+		console.log(res.data);
+		if (res.data.msg === 'Password reset link was validated') {
+			dispatch({
+				type: SET_RESET_PASSWORD_TOKEN,
+				payload: res.data.user,
+			});
 		}
+	} catch (error) {
+		console.log(error);
+		const errors = error.response;
+		// if (errors) {
+		// 	errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+		// }
 	}
 };
 

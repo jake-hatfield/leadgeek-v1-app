@@ -18,7 +18,7 @@ import { LOGOUT } from './redux/actions/types';
 import { Provider } from 'react-redux';
 import store from './store';
 import { loadUser } from './redux/actions/auth';
-import setAuthToken from './utils/setAuthToken';
+import setAuthToken from './utils/authTokens';
 
 // styles & fonts
 import './assets/tailwind.css';

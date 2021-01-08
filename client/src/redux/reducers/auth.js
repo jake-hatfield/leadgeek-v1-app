@@ -6,6 +6,7 @@ import {
 	LOGOUT,
 	USER_LOADED,
 	AUTH_ERROR,
+	SET_RESET_PASSWORD_TOKEN,
 } from '../actions/types';
 
 const initialState = {
@@ -13,6 +14,7 @@ const initialState = {
 	isAuthenticated: null,
 	loading: true,
 	user: null,
+	resetPasswordToken: null,
 };
 
 export default function (state = initialState, action) {
@@ -43,6 +45,10 @@ export default function (state = initialState, action) {
 				isAuthenticated: false,
 				loading: false,
 				user: null,
+			};
+		case SET_RESET_PASSWORD_TOKEN:
+			return {
+				...state,
 			};
 		default:
 			return state;

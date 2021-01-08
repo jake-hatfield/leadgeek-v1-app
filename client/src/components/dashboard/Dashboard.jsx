@@ -5,11 +5,7 @@ import { connect } from 'react-redux';
 import { getCurrentProfile } from '../../redux/actions/profile';
 import Spinner from '../layout/Spinner';
 
-const Dashboard = ({
-	auth: { user, loading },
-	profile: { profile },
-	getCurrentProfile,
-}) => {
+const Dashboard = ({ auth: { user, loading }, profile, getCurrentProfile }) => {
 	useEffect(() => {
 		if (!loading) {
 			getCurrentProfile();
