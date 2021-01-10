@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useStickyState } from '../layout/utils';
 import PrimaryLinks from './PrimaryLinks';
-
 import Tool from './Tools';
 
 const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {

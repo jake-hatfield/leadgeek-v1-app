@@ -44,17 +44,27 @@ router.post(
 			// see if user exists
 			let user = await User.findOne({ email });
 			if (!user) {
-				return res
-					.status(400)
-					.json({ erorrs: [{ msg: 'Invalid credentials' }] });
+				return res.status(400).json({
+					erorrs: [
+						{
+							msg:
+								'Email & password combination not correct. Please try again or reset your password.',
+						},
+					],
+				});
 			}
 
 			// validate password with bcrypt
 			const isMatch = await bcrypt.compare(password, user.password);
 			if (!isMatch) {
-				return res
-					.status(400)
-					.json({ errors: [{ msg: 'Invalid credentials' }] });
+				return res.status(400).json({
+					errors: [
+						{
+							msg:
+								'Uh-oh! Email & password combination not correct. Please try again or reset your password.',
+						},
+					],
+				});
 			}
 
 			// return the JWT

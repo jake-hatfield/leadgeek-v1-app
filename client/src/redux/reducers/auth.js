@@ -7,6 +7,8 @@ import {
 	USER_LOADED,
 	AUTH_ERROR,
 	SET_RESET_PASSWORD_TOKEN,
+	CHECK_RESET_PASSWORD_TOKEN,
+	REMOVE_RESET_PASSWORD_TOKEN,
 } from '../actions/types';
 
 const initialState = {
@@ -14,7 +16,7 @@ const initialState = {
 	isAuthenticated: null,
 	loading: true,
 	user: null,
-	resetPasswordToken: null,
+	validatedResetPasswordToken: false,
 };
 
 export default function (state = initialState, action) {
@@ -46,9 +48,22 @@ export default function (state = initialState, action) {
 				loading: false,
 				user: null,
 			};
+		case CHECK_RESET_PASSWORD_TOKEN:
+			return {
+				...state,
+				loading: true,
+			};
 		case SET_RESET_PASSWORD_TOKEN:
 			return {
 				...state,
+				user: { email: payload },
+				loading: false,
+				validatedResetPasswordToken: true,
+			};
+		case REMOVE_RESET_PASSWORD_TOKEN:
+			return {
+				...state,
+				validatedResetPasswordToken: false,
 			};
 		default:
 			return state;

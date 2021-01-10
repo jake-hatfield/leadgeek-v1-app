@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { truncate } from '../../layout/utils';
-
 import CoreStatsDropdown from './CoreStatsDropdown';
 import SummaryDropdown from './SummaryDropdown';
 import InsightsDropdown from './InsightsDropdown';

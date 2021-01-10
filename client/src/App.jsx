@@ -1,25 +1,22 @@
 import React, { Fragment, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-
-import Navbar from './components/layout/Navbar';
-import Login from './components/auth/Login';
-import ForgotPassword from './components/auth/reset/ForgotPassword';
-import ResetPassword from './components/auth/reset/ResetPassword';
-import CreateProfile from './components/profile-forms/CreateProfile';
-import EditProfile from './components/profile-forms/EditProfile';
-import Leads from './components/leads/Leads';
-
-// utils
-import PrivateRoute from './components/routing/PrivateRoute';
-import Alert from './components/layout/Alert';
-import { LOGOUT } from './redux/actions/types';
-
 // redux
 import { Provider } from 'react-redux';
 import store from './store';
 import { loadUser } from './redux/actions/auth';
 import setAuthToken from './utils/authTokens';
-
+// components
+import Navbar from './components/layout/Navbar';
+import Login from './components/auth/login/Login';
+import ForgotPassword from './components/auth/login/reset/ForgotPassword';
+import ResetPassword from './components/auth/login/reset/ResetPassword';
+import CreateProfile from './components/profile-forms/CreateProfile';
+import EditProfile from './components/profile-forms/EditProfile';
+import Leads from './components/leads/Leads';
+// utils
+import PrivateRoute from './components/routing/PrivateRoute';
+import Alert from './components/layout/Alert';
+import { LOGOUT } from './redux/actions/types';
 // styles & fonts
 import './assets/tailwind.css';
 import 'fontsource-inter';

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import DropdownRow from './DropdownRow';
 
 const Dropdown = ({ header, obj, arrayItems, defaultOpen }) => {

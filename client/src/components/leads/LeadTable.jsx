@@ -1,5 +1,4 @@
 import React from 'react';
-
 import LeadRow from './LeadRow';
 
 const LeadTable = ({ loading, leads, showDetails, setShowDetails }) => {

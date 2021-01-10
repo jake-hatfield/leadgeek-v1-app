@@ -1,5 +1,4 @@
 import React from 'react';
-
 import Currency from './Currency';
 import Percentage from './Percentage';
 import Value from './Value';

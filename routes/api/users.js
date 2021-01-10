@@ -130,15 +130,17 @@ router.post('/forgotPassword', async (req, res) => {
 			});
 			const mailOptions = {
 				from: '"LeadGeek Support" <support@leadgeek.io>',
-				to: `${user.email}`,
+				to: `${user.name} <${user.email}>`,
 				subject: 'Link To Reset Password',
 				text:
-					'You are receiving this email because you (or someone else) have requested the reset of the password for your account. \n\n' +
+					'You are receiving this email because you (or someone else) have requested to reset your LeadGeek account password. \n\n' +
 					'Please click on the following link, or paste this into your browser to complete the password reset process within one hour of receiving this email: \n\n' +
 					`http://localhost:3000/reset/reset-password/${token} \n\n` +
+					// `https://leadgeek.io/reset/reset-password/${token} \n\n` +
 					'If you did not request this, please ignore this email and you password will remain unchanged. \n',
 			};
 			console.log('Sending email...');
+			console.log(req.hostname);
 			transporter.sendMail(mailOptions, (err, res) => {
 				if (err) {
 					console.error('There was an error sending the email: ', err);
@@ -184,40 +186,40 @@ router.post('/resetPasswordValidation', (req, res) => {
 				});
 			}
 		});
-	} catch (error) {}
+	} catch (error) {
+		console.error(error);
+	}
 });
 
 // @route       PUT api/users
 // @description update password in database
 // @access      Public
-router.put('/updatePassword', (req, res) => {
-	User.findOne({
-		email: req.body.email,
-	}).then((user) => {
-		if (user !== null) {
+router.put('/updatePassword', async (req, res) => {
+	const { email, password } = req.body;
+	try {
+		let user = User.findOne({
+			email,
+		});
+		if (user) {
 			console.log('User found in the database');
 			// encrypt password
-			const salt = bcrypt.genSalt(10);
-			bcrypt
-				.hash(req.body.password, salt)
-				.then((hashedPassword) => {
-					User.update({
-						password: hashedPassword,
-						resetPasswordToken: null,
-						resetPasswordExpires: null,
-					});
-				})
-				.then(() => {
-					const message = 'Password successfully updated';
-					console.log(message);
-					res.status(200).send({ message });
-				});
+			const salt = await bcrypt.genSalt(10);
+			const newHashedPassword = await bcrypt.hash(password, salt);
+			await user.updateOne({
+				password: newHashedPassword,
+				resetPasswordToken: null,
+				resetPasswordExpires: null,
+			});
+			console.log('Password was succesfully updated');
+			return res.status(200).send('Password was successfully updated');
 		} else {
 			const message = 'No user exists in the database to update';
 			console.error(message);
 			res.status(404).json(message);
 		}
-	});
+	} catch (error) {
+		console.error(error);
+	}
 });
 
 module.exports = router;

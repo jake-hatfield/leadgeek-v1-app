@@ -9,11 +9,10 @@ import {
 	USER_LOADED,
 	AUTH_ERROR,
 	CLEAR_PROFILE,
-	FORGOT_PASSWORD,
+	CHECK_RESET_PASSWORD_TOKEN,
 	SET_RESET_PASSWORD_TOKEN,
-	UPDATE_PASSWORD,
+	REMOVE_RESET_PASSWORD_TOKEN,
 } from './types';
-
 import { setResetPasswordToken } from '../../utils/authTokens';
 
 // load user
@@ -150,13 +149,14 @@ export const resetPasswordValidation = (resetPasswordToken) => async (
 	};
 	const body = JSON.stringify({ resetPasswordToken });
 	try {
+		dispatch({
+			type: CHECK_RESET_PASSWORD_TOKEN,
+		});
 		const res = await axios.post(
 			'/api/users/resetPasswordValidation',
 			body,
 			config
 		);
-
-		console.log(res.data);
 		if (res.data.msg === 'Password reset link was validated') {
 			dispatch({
 				type: SET_RESET_PASSWORD_TOKEN,
@@ -165,13 +165,10 @@ export const resetPasswordValidation = (resetPasswordToken) => async (
 		}
 	} catch (error) {
 		console.log(error);
-		const errors = error.response;
-		// if (errors) {
-		// 	errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
-		// }
 	}
 };
 
+// update password
 export const updatePassword = (email, password) => async (dispatch) => {
 	const config = {
 		headers: {
@@ -181,12 +178,20 @@ export const updatePassword = (email, password) => async (dispatch) => {
 	const body = JSON.stringify({ email, password });
 	try {
 		axios.put('/api/users/updatePassword', body, config).then((res) => {
-			console.log(res.data);
-			if (res.data.message === 'Password successfully updated') {
-				dispatch(setAlert('Password successfully updated', 'success'));
+			if (res.data === 'Password was successfully updated') {
+				dispatch(setAlert('Password was successfully updated!', 'success'));
+				dispatch({ type: REMOVE_RESET_PASSWORD_TOKEN });
+				dispatch({ type: LOGIN_SUCCESS });
+				localStorage.removeItem('resetPasswordToken');
 			} else {
-				dispatch(setAlert("Password couldn't be updated", 'danger'));
+				dispatch(
+					setAlert(
+						"Password couldn't be updated. Please contact support.",
+						'danger'
+					)
+				);
 			}
+			return;
 		});
 	} catch (error) {
 		const errors = error.response.data.errors;

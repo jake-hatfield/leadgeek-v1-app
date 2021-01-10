@@ -1,12 +1,5 @@
 import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
-import {
-	useStickyState,
-	truncate,
-	numberWithCommas,
-	calculateBSR,
-} from '../layout/utils';
-
 // redux
 import { connect } from 'react-redux';
 import {
@@ -15,6 +8,13 @@ import {
 	unlikeLead,
 	showDetailedLead,
 } from '../../redux/actions/leads';
+// utils
+import {
+	useStickyState,
+	truncate,
+	numberWithCommas,
+	calculateBSR,
+} from '../layout/utils';
 
 const LeadRow = ({
 	lead,

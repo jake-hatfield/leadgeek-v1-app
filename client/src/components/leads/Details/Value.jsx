@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { numberWithCommas } from '../../layout/utils';
 
 const Value = ({ value, valueUnit }) => {

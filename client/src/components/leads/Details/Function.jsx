@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { calculateBSR } from '../../layout/utils';
 
 const Function = ({ arg1, arg2 }) => {
