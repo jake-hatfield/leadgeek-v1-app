@@ -7,16 +7,15 @@ import { getLeads } from '../../redux/actions/leads';
 import { logout } from '../../redux/actions/auth';
 
 const Navbar = ({
-	auth: { isAuthenticated, loading },
+	auth: { isAuthenticated, loading, activeSubscription, activeSubscriptions },
 	unviewed,
 	getLeads,
 	logout,
 }) => {
 	// get leads
 	useEffect(() => {
-		!loading && isAuthenticated && getLeads();
-		return () => {};
-	}, [loading, isAuthenticated, getLeads]);
+		!loading && isAuthenticated && activeSubscription && getLeads();
+	}, [loading, isAuthenticated, activeSubscription, getLeads]);
 	// utils
 	const lengthChecker = (array) => {
 		return array.length > 99 ? '99+' : array.length;
@@ -39,6 +38,8 @@ const Navbar = ({
 	];
 	// toggle user dropdown
 	const [userDropdown, setUserDropdown] = useState(false);
+	// assign stripe plan IDs to displayable text
+	let displaySubscription;
 	const logoutUser = (logout) => {
 		logout();
 		setUserDropdown(false);
@@ -57,6 +58,7 @@ const Navbar = ({
 									<NavLink
 										exact
 										to={link.link}
+										k
 										className='first:ml-0 ml-6 py-2 px-4 flex items-center font-medium rounded-md hover:bg-gray-900 hover:text-white transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 										activeClassName='active'
 										key={i}
@@ -127,7 +129,7 @@ const Navbar = ({
 											</svg>
 										</button>
 									</div>
-									<div className='p-4 bg-gray-100'>Bundle subscriber</div>
+									<div className='p-4 bg-gray-100'>{displaySubscription}</div>
 								</div>
 							)}
 						</div>

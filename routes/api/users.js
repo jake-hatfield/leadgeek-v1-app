@@ -140,7 +140,6 @@ router.post('/forgotPassword', async (req, res) => {
 					'If you did not request this, please ignore this email and you password will remain unchanged. \n',
 			};
 			console.log('Sending email...');
-			console.log(req.hostname);
 			transporter.sendMail(mailOptions, (err, res) => {
 				if (err) {
 					console.error('There was an error sending the email: ', err);

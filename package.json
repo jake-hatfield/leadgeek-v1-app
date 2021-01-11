@@ -22,7 +22,8 @@
 		"jsonwebtoken": "^8.5.1",
 		"mongoose": "^5.10.9",
 		"nodemailer": "^6.4.17",
-		"request": "^2.88.2"
+		"request": "^2.88.2",
+		"stripe": "^8.130.0"
 	},
 	"devDependencies": {
 		"@tailwindcss/custom-forms": "^0.2.1",

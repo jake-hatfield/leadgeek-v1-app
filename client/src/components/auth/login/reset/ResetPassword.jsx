@@ -23,7 +23,7 @@ const ResetPassword = ({
 	// check for valid token
 	useEffect(() => {
 		resetPasswordValidation(resetPasswordToken);
-	}, []);
+	}, [resetPasswordToken, resetPasswordValidation]);
 	const [formData, setFormData] = useState({
 		password_1: '',
 		password_2: '',
@@ -207,7 +207,7 @@ const ResetPassword = ({
 				) {
 					setEmailValidated(false);
 					setAlert(
-						'The password is too close to your email. Please choose another password.',
+						'The password is too similar to your email. Please choose another password.',
 						'danger'
 					);
 				} else if (

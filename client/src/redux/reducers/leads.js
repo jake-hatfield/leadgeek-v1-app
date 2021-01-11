@@ -4,9 +4,9 @@ import {
 	LIKE_LEAD,
 	UNLIKE_LEAD,
 	ARCHIVE_LEAD,
-	UNARCHIVE_LEAD,
 	SHOW_DETAILED_LEAD,
 	CLEAR_DETAILED_LEAD,
+	LOGOUT,
 } from '../actions/types';
 
 const initialState = {
@@ -20,7 +20,7 @@ const initialState = {
 
 export default function (state = initialState, action) {
 	const { type, payload } = action;
-	const { feed, unviewed, liked, archived, currentLead, loading } = state;
+	const { feed, unviewed, liked, archived } = state;
 	const alreadyLiked = liked.find((lead) =>
 		lead.id === payload.id ? true : false
 	);
@@ -80,6 +80,15 @@ export default function (state = initialState, action) {
 				...state,
 				currentLead: null,
 				loading: false,
+			};
+		case LOGOUT:
+			return {
+				feed: [],
+				unviewed: [],
+				liked: [],
+				archived: [],
+				currentLead: null,
+				loading: true,
 			};
 		default:
 			return {

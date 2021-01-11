@@ -20,4 +20,14 @@ export const setResetPasswordToken = (token) => {
 	}
 };
 
+export const setStripeToken = (token) => {
+	if (token) {
+		axios.defaults.headers.common['x-auth-token'] = token;
+		localStorage.setItem('stripeSubscription', token);
+	} else {
+		delete axios.defaults.headers.common['x-auth-token'];
+		localStorage.removeItem('stripeSubscription');
+	}
+};
+
 export default setAuthToken;

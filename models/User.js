@@ -21,6 +21,16 @@ const UserSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now,
 	},
+	custID: {
+		type: String,
+		required: true,
+		unique: true,
+	},
+	subID: {
+		type: String,
+		required: true,
+		unique: true,
+	},
 	resetPasswordToken: {
 		type: String,
 		default: null,

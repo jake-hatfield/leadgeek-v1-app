@@ -9,13 +9,16 @@ import {
 	SET_RESET_PASSWORD_TOKEN,
 	CHECK_RESET_PASSWORD_TOKEN,
 	REMOVE_RESET_PASSWORD_TOKEN,
+	GET_STRIPE_SUBSCRIPTION,
 } from '../actions/types';
 
 const initialState = {
 	token: localStorage.getItem('token'),
-	isAuthenticated: null,
 	loading: true,
+	isAuthenticated: null,
 	user: null,
+	activeSubscription: localStorage.getItem('stripeSubscription'),
+	activeSubscriptions: null,
 	validatedResetPasswordToken: false,
 };
 
@@ -35,7 +38,6 @@ export default function (state = initialState, action) {
 				...state,
 				...payload,
 				isAuthenticated: true,
-				loading: false,
 			};
 		case REGISTER_FAIL:
 		case AUTH_ERROR:
@@ -44,9 +46,16 @@ export default function (state = initialState, action) {
 			return {
 				...state,
 				token: null,
-				isAuthenticated: false,
 				loading: false,
+				isAuthenticated: false,
+				activeSubscription: null,
 				user: null,
+			};
+		case GET_STRIPE_SUBSCRIPTION:
+			return {
+				...state,
+				activeSubscription: true,
+				activeSubscriptions: payload,
 			};
 		case CHECK_RESET_PASSWORD_TOKEN:
 			return {

@@ -5,8 +5,10 @@ const auth = require('../../middleware/auth');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const { check, validationResult } = require('express-validator');
-
 const User = require('../../models/User');
+const stripePublishable = config.get('stripeTestPublishable');
+const stripeSecret = config.get('stripeTestSecret');
+const stripe = require('stripe')(stripeSecret);
 
 // @route       GET api/auth
 // @description Register user
@@ -90,5 +92,33 @@ router.post(
 		}
 	}
 );
+
+// @route       POST api/auth/getStripeSubscriptions
+// @description Check for and return stripe subscriptions
+// @access      Public
+router.post('/getStripeSubscriptions', async (req, res) => {
+	// const { email } = req.body.email;
+	// const customer = await stripe.customers.list({
+
+	// })
+	try {
+		console.log(req.body.email);
+		const customerID = 'cus_IWxsVyXQ1yvrpJ';
+		const subscriptions = await stripe.subscriptions.list({
+			customer: customerID,
+		});
+		console.log(subscriptions.data[0].plan.id);
+		if (subscriptions.data[0].status === 'active') {
+			return res.json({
+				status: 'active',
+				subscriptions,
+			});
+		}
+		return res.json('No subscription found.');
+	} catch (error) {
+		console.log(error);
+		return res.status(500).send('Server error');
+	}
+});
 
 module.exports = router;

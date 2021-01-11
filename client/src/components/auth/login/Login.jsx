@@ -2,12 +2,12 @@ import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { login } from '../../../redux/actions/auth';
+import { getStripeSubscription, login } from '../../../redux/actions/auth';
 import LoginImage from './LoginImage';
 import FormField from '../formField/FormField';
 import { ReactComponent as LeadGeekLogo } from '../../../assets/images/svgs/leadgeek-logo-light.svg';
 
-const Login = ({ login, isAuthenticated }) => {
+const Login = ({ login, getStripeSubscription, isAuthenticated }) => {
 	const [formData, setFormData] = useState({
 		email: '',
 		password: '',
@@ -18,6 +18,7 @@ const Login = ({ login, isAuthenticated }) => {
 	const onSubmit = (e) => {
 		e.preventDefault();
 		login(email, password);
+		getStripeSubscription(email);
 	};
 
 	if (isAuthenticated) {
@@ -101,4 +102,6 @@ const mapStateToProps = (state) => ({
 	isAuthenticated: state.auth.isAuthenticated,
 });
 
-export default connect(mapStateToProps, { login })(Login);
+export default connect(mapStateToProps, { login, getStripeSubscription })(
+	Login
+);

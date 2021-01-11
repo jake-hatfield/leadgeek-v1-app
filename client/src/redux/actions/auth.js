@@ -12,8 +12,9 @@ import {
 	CHECK_RESET_PASSWORD_TOKEN,
 	SET_RESET_PASSWORD_TOKEN,
 	REMOVE_RESET_PASSWORD_TOKEN,
+	GET_STRIPE_SUBSCRIPTION,
 } from './types';
-import { setResetPasswordToken } from '../../utils/authTokens';
+import { setResetPasswordToken, setStripeToken } from '../../utils/authTokens';
 
 // load user
 export const loadUser = () => async (dispatch) => {
@@ -74,7 +75,6 @@ export const login = (email, password) => async (dispatch) => {
 			type: LOGIN_SUCCESS,
 			payload: res.data,
 		});
-
 		dispatch(loadUser());
 	} catch (error) {
 		const errors = error.response.data.errors;
@@ -84,6 +84,38 @@ export const login = (email, password) => async (dispatch) => {
 		dispatch({
 			type: LOGIN_FAIL,
 		});
+	}
+};
+
+// check for an active stripe subscription
+export const getStripeSubscription = (email) => async (dispatch) => {
+	const config = {
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	};
+	const body = JSON.stringify({ email });
+
+	try {
+		const res = await axios.post(
+			'/api/auth/getStripeSubscriptions',
+			body,
+			config
+		);
+		if (res.data.status === 'active') {
+			dispatch({
+				type: GET_STRIPE_SUBSCRIPTION,
+				payload: res.data.subscriptions.data,
+			});
+			setStripeToken('active');
+		} else {
+			console.log(res.data);
+		}
+	} catch (error) {
+		const errors = error.response.data.errors;
+		if (errors) {
+			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+		}
 	}
 };
 
