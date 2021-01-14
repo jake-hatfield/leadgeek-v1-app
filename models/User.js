@@ -14,19 +14,16 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	avatar: {
-		type: String,
-	},
 	date: {
 		type: Date,
 		default: Date.now,
 	},
-	custID: {
+	custId: {
 		type: String,
-		required: true,
+		// required: true,
 		unique: true,
 	},
-	subID: {
+	subId: {
 		type: String,
 		required: true,
 		unique: true,

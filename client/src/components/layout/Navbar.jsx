@@ -39,7 +39,8 @@ const Navbar = ({
 	// toggle user dropdown
 	const [userDropdown, setUserDropdown] = useState(false);
 	// assign stripe plan IDs to displayable text
-	let displaySubscription;
+	console.log(activeSubscriptions);
+	const displaySubscription = activeSubscriptions;
 	const logoutUser = (logout) => {
 		logout();
 		setUserDropdown(false);
@@ -58,7 +59,6 @@ const Navbar = ({
 									<NavLink
 										exact
 										to={link.link}
-										k
 										className='first:ml-0 ml-6 py-2 px-4 flex items-center font-medium rounded-md hover:bg-gray-900 hover:text-white transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 										activeClassName='active'
 										key={i}

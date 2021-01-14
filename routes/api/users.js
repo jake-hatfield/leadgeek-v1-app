@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const gravatar = require('gravatar');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
@@ -41,17 +40,10 @@ router.post(
 					.status(400)
 					.json({ errors: [{ msg: 'User already exists' }] });
 			}
-			// user doesn't already exist, so get their gravatar
-			const avatar = gravatar.url(email, {
-				s: '200',
-				r: 'pg',
-				d: 'mm',
-			});
 
 			user = new User({
 				name,
 				email,
-				avatar,
 				password,
 			});
 			// encrypt password
