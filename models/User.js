@@ -20,13 +20,12 @@ const UserSchema = new mongoose.Schema({
 	},
 	customerId: {
 		type: String,
-		// required: true,
+		required: true,
 		unique: true,
 	},
 	subId: {
 		type: String,
 		required: true,
-		unique: true,
 	},
 	resetPasswordToken: {
 		type: String,
