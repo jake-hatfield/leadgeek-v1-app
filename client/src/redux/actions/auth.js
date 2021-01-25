@@ -13,6 +13,7 @@ import {
 	SET_RESET_PASSWORD_TOKEN,
 	REMOVE_RESET_PASSWORD_TOKEN,
 	GET_STRIPE_SUBSCRIPTION,
+	GET_PAYMENT_DETAILS,
 } from './types';
 import { setResetPasswordToken, setStripeToken } from '../../utils/authTokens';
 
@@ -88,36 +89,41 @@ export const login = (email, password) => async (dispatch) => {
 };
 
 // check for an active stripe subscription
-export const getStripeSubscription = (email) => async (dispatch) => {
-	const config = {
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	};
-	const body = JSON.stringify({ email });
+// export const getStripeSubscription = (email) => async (dispatch) => {
+// 	const config = {
+// 		headers: {
+// 			'Content-Type': 'application/json',
+// 		},
+// 	};
+// 	const body = JSON.stringify({ email });
 
-	try {
-		const res = await axios.post(
-			'/api/auth/getStripeSubscriptions',
-			body,
-			config
-		);
-		if (res.data.status === 'active') {
-			dispatch({
-				type: GET_STRIPE_SUBSCRIPTION,
-				payload: res.data.subscriptions.data,
-			});
-			setStripeToken('active');
-		} else {
-			console.log(res.data);
-		}
-	} catch (error) {
-		const errors = error.response.data.errors;
-		if (errors) {
-			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
-		}
-	}
-};
+// 	try {
+// 		const res = await axios.post(
+// 			'/api/auth/getStripeSubscriptions',
+// 			body,
+// 			config
+// 		);
+// 		console.log(res.data);
+// 		if (res.data.msg === 'Customer found') {
+// 			dispatch({
+// 				type: GET_STRIPE_SUBSCRIPTION,
+// 				payload: res.data.activeSubscriptions,
+// 			});
+// 			dispatch({
+// 				type: GET_PAYMENT_DETAILS,
+// 				payload: res.data.paymentMethodId,
+// 			});
+// 			setStripeToken('active');
+// 		} else {
+// 			console.log(res.data.msg);
+// 		}
+// 	} catch (error) {
+// 		const errors = error.response.data.errors;
+// 		if (errors) {
+// 			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+// 		}
+// 	}
+// };
 
 // logout & clear the profile
 export const logout = () => (dispatch) => {

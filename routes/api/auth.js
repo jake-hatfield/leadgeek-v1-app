@@ -96,24 +96,51 @@ router.post(
 // @description Check for and return stripe subscriptions
 // @access      Public
 router.post('/getStripeSubscriptions', async (req, res) => {
-	// const { email } = req.body.email;
-	// const customer = await stripe.customers.list({
-
-	// })
 	try {
-		console.log(req.body.email);
-		const customerID = 'cus_IWxsVyXQ1yvrpJ';
-		const subscriptions = await stripe.subscriptions.list({
-			customer: customerID,
-		});
-		console.log(subscriptions.data[0].plan.id);
-		if (subscriptions.data[0].status === 'active') {
-			return res.json({
-				status: 'active',
-				subscriptions,
+		const email = req.body.email;
+		const user = await User.findOne({ email });
+		if (!user) {
+			let message = 'No user found';
+			console.log(message);
+			return res.status(400).json({
+				erorrs: [
+					{
+						msg: message,
+					},
+				],
 			});
+		} else if (!user.customerId) {
+			let message = 'No Stripe customer is associated with this email.';
+			console.log(message);
+			return res.status(400).json({
+				erorrs: [
+					{
+						msg: message,
+					},
+				],
+			});
+		} else {
+			let message = 'Customer found';
+			console.log(user);
+			if (!user.subId || !user.paymentMethod.id) {
+				let message = 'Incomplete user information';
+				console.log(message);
+				return res.status(400).json({
+					erorrs: [
+						{
+							msg: message,
+						},
+					],
+				});
+			}
+			return res
+				.status(200)
+				.send({
+					msg: message,
+					activeSubscriptions: user.subId,
+					paymentMethodId: user.paymentMethod.id,
+				});
 		}
-		return res.json('No subscription found.');
 	} catch (error) {
 		console.log(error);
 		return res.status(500).send('Server error');

@@ -74,7 +74,7 @@ const ResetPassword = ({
 				<span>
 					Is not a member of this{' '}
 					<a
-						href='https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10k-most-common.txt'
+						href='https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-100.txt'
 						target='_blank'
 						rel='noopener noreferrer'
 						className='link'

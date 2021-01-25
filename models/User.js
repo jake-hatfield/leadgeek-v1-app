@@ -23,13 +23,20 @@ const UserSchema = new mongoose.Schema({
 		required: true,
 		unique: true,
 	},
-	subId: {
-		type: String,
+	subId: [
+		{
+			type: String,
+			required: true,
+		},
+	],
+	paymentMethod: {
+		type: Object,
 		required: true,
 	},
 	resetPasswordToken: {
 		type: String,
 		default: null,
+		unique: true,
 	},
 	resetPasswordExpires: {
 		type: Date,

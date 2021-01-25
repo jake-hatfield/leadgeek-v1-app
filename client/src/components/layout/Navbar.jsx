@@ -1,21 +1,20 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { getLeads } from '../../redux/actions/leads';
 import { logout } from '../../redux/actions/auth';
 
 const Navbar = ({
-	auth: { isAuthenticated, loading, activeSubscription, activeSubscriptions },
+	auth: { isAuthenticated, loading, user },
 	unviewed,
 	getLeads,
 	logout,
 }) => {
 	// get leads
 	useEffect(() => {
-		!loading && isAuthenticated && activeSubscription && getLeads();
-	}, [loading, isAuthenticated, activeSubscription, getLeads]);
+		!loading && isAuthenticated && getLeads();
+	}, [loading, isAuthenticated, getLeads]);
 	// utils
 	const lengthChecker = (array) => {
 		return array.length > 99 ? '99+' : array.length;
@@ -39,8 +38,25 @@ const Navbar = ({
 	// toggle user dropdown
 	const [userDropdown, setUserDropdown] = useState(false);
 	// assign stripe plan IDs to displayable text
-	console.log(activeSubscriptions);
-	const displaySubscription = activeSubscriptions;
+	const [activeSubscription, setActiveSubscription] = useState('');
+	useEffect(() => {
+		if (!loading && isAuthenticated) {
+			user.subId.forEach(function (sub) {
+				console.log(sub);
+				console.log(process.env.REACT_APP_BUNDLE_PRODUCT_ID);
+				if (sub === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
+					setActiveSubscription('Bundle');
+				} else if (sub === process.env.REACT_APP_PRO_PRODUCT_ID) {
+					setActiveSubscription('Pro');
+				} else if (sub === process.env.REACT_APP_GROW_PRODUCT_ID) {
+					setActiveSubscription('Grow');
+				} else return;
+			});
+		}
+	}, [user]);
+
+	// user.subId.forEach((sub) => console.log(sub));
+	// const displaySubscription = activeSubscriptions;
 	const logoutUser = (logout) => {
 		logout();
 		setUserDropdown(false);
@@ -129,7 +145,9 @@ const Navbar = ({
 											</svg>
 										</button>
 									</div>
-									<div className='p-4 bg-gray-100'>{displaySubscription}</div>
+									<div className='p-4 bg-gray-100'>
+										<p>{!loading && activeSubscription} plan</p>
+									</div>
 								</div>
 							)}
 						</div>
@@ -141,8 +159,8 @@ const Navbar = ({
 };
 
 Navbar.propTypes = {
-	logout: PropTypes.func.isRequired,
 	auth: PropTypes.object.isRequired,
+	logout: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
