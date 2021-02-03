@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { getLeads } from '../../redux/actions/leads';
 import { logout } from '../../redux/actions/auth';
+import AltDropdown from './AltDropdown';
 
 const Navbar = ({
 	auth: { isAuthenticated, loading, user },
@@ -42,8 +43,6 @@ const Navbar = ({
 	useEffect(() => {
 		if (!loading && isAuthenticated) {
 			user.subId.forEach(function (sub) {
-				console.log(sub);
-				console.log(process.env.REACT_APP_BUNDLE_PRODUCT_ID);
 				if (sub === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
 					setActiveSubscription('Bundle');
 				} else if (sub === process.env.REACT_APP_PRO_PRODUCT_ID) {
@@ -54,9 +53,30 @@ const Navbar = ({
 			});
 		}
 	}, [user]);
+	const moreItems = [
+		{
+			linkID: 100,
 
-	// user.subId.forEach((sub) => console.log(sub));
-	// const displaySubscription = activeSubscriptions;
+			path: (
+				<svg
+					className='p-2 h-10 w-10 flex-shrink-0 rounded-md bg-purple-100 text-purple-600'
+					fill='none'
+					viewBox='0 0 24 24'
+					stroke='currentColor'
+				>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						strokeWidth={2}
+						d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+					/>
+				</svg>
+			),
+			title: 'Account',
+			description: 'Edit account settings and other information',
+			link: 'account',
+		},
+	];
 	const logoutUser = (logout) => {
 		logout();
 		setUserDropdown(false);
@@ -122,31 +142,18 @@ const Navbar = ({
 								</button>
 							</div>
 							{userDropdown && (
-								<div className='absolute z-10 bottom-0 right-0 transform translate-y-40 shadow-md text-gray-600'>
-									<div className='p-4 w-56 rounded-t-md bg-white'>
-										<button
-											onClick={() => logoutUser(logout)}
-											className='p-2 w-full flex items-center justify-between rounded-md hover:bg-gray-100 text-left'
-										>
-											<span className='ml-2 font-medium'>Log out</span>
-											<svg
-												xmlns='http://www.w3.org/2000/svg'
-												fill='none'
-												viewBox='0 0 24 24'
-												stroke='currentColor'
-												className='h-6 w-6 text-gray-400'
-											>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													strokeWidth={2}
-													d='M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1'
-												/>
-											</svg>
-										</button>
-									</div>
-									<div className='p-4 bg-gray-100'>
-										<p>{!loading && activeSubscription} plan</p>
+								<div className='absolute z-10 bottom-0 right-0 transform text-gray-600'>
+									<div>
+										<AltDropdown
+											items={moreItems}
+											open={userDropdown}
+											setOpen={setUserDropdown}
+											logout={logout}
+											logoutUser={logoutUser}
+											loading={loading}
+											activeSubscription={activeSubscription}
+											// animation={mobileAnimation}
+										/>
 									</div>
 								</div>
 							)}

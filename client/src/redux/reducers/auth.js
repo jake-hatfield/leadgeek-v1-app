@@ -16,8 +16,6 @@ const initialState = {
 	loading: true,
 	isAuthenticated: null,
 	user: {},
-	activeSubscription: localStorage.getItem('stripeSubscription'),
-	activeSubscriptions: null,
 	validatedResetPasswordToken: false,
 };
 
