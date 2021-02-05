@@ -1,6 +1,5 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-// import { animated } from 'react-spring';
 
 function MoreDropdown({
 	items,
@@ -27,7 +26,6 @@ function MoreDropdown({
 					className={`${
 						open ? `block` : `hidden`
 					} pt-8 px-2 sm:px-0 w-screen max-w-xs absolute right-0 z-40`}
-					// style={animation}
 				>
 					<div className='rounded-md shadow-md'>
 						<div className='rounded-md shadow-xs overflow-hidden'>
@@ -77,9 +75,27 @@ function MoreDropdown({
 									</div>
 								</div>
 							</div>
-							<div className='p-4 bg-gray-100 text-left'>
-								<p>{!loading && activeSubscription} plan</p>
-							</div>
+							{!loading && activeSubscription && (
+								<div className='py-4 px-5 bg-gray-100 text-left'>
+									<div className='md:flex md:items-center'>
+										<div className='text-teal-400'>
+											<svg
+												xmlns='http://www.w3.org/2000/svg'
+												viewBox='0 0 20 20'
+												fill='currentColor'
+												className='h-6 w-6'
+											>
+												<path
+													fillRule='evenodd'
+													d='M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+													clipRule='evenodd'
+												/>
+											</svg>
+										</div>
+										<p className='ml-2 text-gray-600'>{`${activeSubscription} plan subscriber`}</p>
+									</div>
+								</div>
+							)}
 						</div>
 					</div>
 				</div>

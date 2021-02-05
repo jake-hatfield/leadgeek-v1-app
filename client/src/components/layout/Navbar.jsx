@@ -40,6 +40,7 @@ const Navbar = ({
 	const [userDropdown, setUserDropdown] = useState(false);
 	// assign stripe plan IDs to displayable text
 	const [activeSubscription, setActiveSubscription] = useState('');
+	const [initials, setInitials] = useState('');
 	useEffect(() => {
 		if (!loading && isAuthenticated) {
 			user.subId.forEach(function (sub) {
@@ -53,7 +54,7 @@ const Navbar = ({
 			});
 		}
 	}, [user]);
-	const moreItems = [
+	const dropdownItems = [
 		{
 			linkID: 100,
 
@@ -74,7 +75,7 @@ const Navbar = ({
 			),
 			title: 'Account',
 			description: 'Edit account settings and other information',
-			link: 'account',
+			link: 'account/profile',
 		},
 	];
 	const logoutUser = (logout) => {
@@ -96,7 +97,7 @@ const Navbar = ({
 										exact
 										to={link.link}
 										className='first:ml-0 ml-6 py-2 px-4 flex items-center font-medium rounded-md hover:bg-gray-900 hover:text-white transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-										activeClassName='active'
+										activeClassName='top-nav-active'
 										key={i}
 									>
 										<div className='w-full flex items-center justify-between'>
@@ -132,29 +133,25 @@ const Navbar = ({
 							<div className='ml-6'>
 								<button
 									onClick={() => setUserDropdown(!userDropdown)}
-									className='rounded-full focus:outline-none focus:shadow-outline'
+									className='p-3 h-10 w-10 flex items-center justify-center rounded-full bg-gray-100 focus:outline-none focus:shadow-outline'
 								>
-									<img
-										src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
-										alt=''
-										className='h-10 w-10 rounded-full'
-									/>
+									<span className='text-gray-600 text-sm font-bold'>
+										{initials}
+									</span>
 								</button>
 							</div>
 							{userDropdown && (
 								<div className='absolute z-10 bottom-0 right-0 transform text-gray-600'>
-									<div>
-										<AltDropdown
-											items={moreItems}
-											open={userDropdown}
-											setOpen={setUserDropdown}
-											logout={logout}
-											logoutUser={logoutUser}
-											loading={loading}
-											activeSubscription={activeSubscription}
-											// animation={mobileAnimation}
-										/>
-									</div>
+									<AltDropdown
+										items={dropdownItems}
+										open={userDropdown}
+										setOpen={setUserDropdown}
+										logout={logout}
+										logoutUser={logoutUser}
+										loading={loading}
+										activeSubscription={activeSubscription}
+										// animation={mobileAnimation}
+									/>
 								</div>
 							)}
 						</div>

@@ -13,6 +13,7 @@ import ResetPassword from './components/auth/login/reset/ResetPassword';
 import CreateProfile from './components/profile-forms/CreateProfile';
 import EditProfile from './components/profile-forms/EditProfile';
 import Leads from './components/leads/Leads';
+import Account from './components/account/Account';
 // utils
 import PrivateRoute from './components/routing/PrivateRoute';
 import Alert from './components/layout/Alert';
@@ -54,7 +55,8 @@ const App = () => {
 							component={ResetPassword}
 						/>
 						<PrivateRoute exact path='/' component={Leads} />
-						{/* <PrivateRoute exact path='/leads' component={Leads} /> */}
+						<PrivateRoute exact path='/account/profile' component={Account} />
+						<PrivateRoute exact path='/account/billing' component={Account} />
 						<PrivateRoute
 							exact
 							path='/create-profile'

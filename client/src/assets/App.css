@@ -10,8 +10,12 @@ html {
 	@apply w-full mx-8;
 }
 
-.active {
+.top-nav-active {
 	@apply bg-gray-900 text-white shadow-inner;
+}
+
+.account-nav-active {
+	@apply bg-gray-100;
 }
 
 .link {

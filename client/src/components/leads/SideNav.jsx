@@ -156,13 +156,13 @@ const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 				)}
 				{showMenu && (
 					<div className='mt-1 flex items-center'>
-						<h1 className='text-4xl font-black text-gray-900'>Leads</h1>
+						<h1 className='text-3xl font-black text-gray-900'>Leads</h1>
 						<span className='ml-2 w-full border border-gray-100' />
 					</div>
 				)}
 				<aside className={`${showMenu && 'pt-4'}`}>
 					{showMenu && (
-						<h4 className='mb-4 text-gray-400 font-semibold text-sm uppercase tracking-widest'>
+						<h4 className='mb-4 text-gray-400 font-semibold text-xs uppercase tracking-widest'>
 							Collections
 						</h4>
 					)}
@@ -182,7 +182,7 @@ const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 			>
 				<nav className={`${showMenu ? 'mt-6' : 'mt-4'} flex flex-col`}>
 					{showMenu && (
-						<h4 className='mb-4 text-gray-400 font-semibold text-sm uppercase tracking-widest'>
+						<h4 className='mb-4 text-gray-400 font-semibold text-xs uppercase tracking-widest'>
 							Tools
 						</h4>
 					)}
