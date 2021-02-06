@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { forgotPassword } from '../../../../redux/actions/auth';
 import { setAlert } from '../../../../redux/actions/alert';
-import FormField from '../../formField/FormField';
+import FormField from '../../../layout/formField/FormField';
 import LoginImage from '../LoginImage';
 import { ReactComponent as LeadGeekLogo } from '../../../../assets/images/svgs/leadgeek-logo-light.svg';
 

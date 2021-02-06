@@ -4,7 +4,7 @@ import { Redirect, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { login } from '../../../redux/actions/auth';
 import LoginImage from './LoginImage';
-import FormField from '../formField/FormField';
+import FormField from '../../layout/formField/FormField';
 import { ReactComponent as LeadGeekLogo } from '../../../assets/images/svgs/leadgeek-logo-light.svg';
 
 const Login = ({ login, isAuthenticated }) => {

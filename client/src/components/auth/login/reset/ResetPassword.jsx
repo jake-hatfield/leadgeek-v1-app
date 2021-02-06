@@ -1,29 +1,18 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Redirect, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import {
-	resetPasswordValidation,
-	updatePassword,
-} from '../../../../redux/actions/auth';
+import { updatePassword } from '../../../../redux/actions/auth';
 import { setAlert } from '../../../../redux/actions/alert';
-import FormField from '../../formField/FormField';
-import LoginImage from '../LoginImage';
-import { ReactComponent as LeadGeekLogo } from '../../../../assets/images/svgs/leadgeek-logo-light.svg';
+import FormField from '../../../layout/formField/FormField';
 import { ReactComponent as Check } from '../../../../assets/images/svgs/check.svg';
 import { ReactComponent as X } from '../../../../assets/images/svgs/x.svg';
 
 const ResetPassword = ({
-	auth: { isAuthenticated, user, loading, validatedResetPasswordToken },
-	resetPasswordValidation,
+	auth: { user, loading },
 	updatePassword,
 	setAlert,
+	fullWidthButton,
 }) => {
-	const resetPasswordToken = localStorage.resetPasswordToken;
-	// check for valid token
-	useEffect(() => {
-		resetPasswordValidation(resetPasswordToken);
-	}, [resetPasswordToken, resetPasswordValidation]);
 	const [formData, setFormData] = useState({
 		password_1: '',
 		password_2: '',
@@ -257,118 +246,50 @@ const ResetPassword = ({
 			handleUpdatePassword(e);
 		}
 	};
-	if (isAuthenticated) {
-		return <Redirect to='/' />;
-	}
 	return (
 		<Fragment>
-			{!loading && validatedResetPasswordToken ? (
-				<section className='h-screen relative flex justify-center bg-gray-100'>
-					<div className='lg:hidden h-2 absolute inset-x-0 top-0 bg-purple-300' />
-					<div className='xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100'>
-						<div className='mt-6 hidden md:block container'>
-							<a href='https://leadgeek.io'>
-								<LeadGeekLogo className='inline-block w-16' />
-							</a>
+			{!loading && (
+				<article className='pt-2'>
+					<header>
+						<div className='inline-block'>
+							In order to protect your account, please make sure your password:
+							<ul className='mt-4'>
+								{securityMeasureBullets.map((bullet, i) => (
+									<li key={i} className='mt-1 flex'>
+										<span>{bullet.svg}</span>
+										<span className='ml-2'>{bullet.content}</span>
+									</li>
+								))}
+							</ul>
 						</div>
-						<div className='container'>
-							<div className='mt-12 md:mt-0 mx-auto py-4 lg:py-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
-								<header>
-									<LeadGeekLogo className='md:hidden w-16' />
-									<h1 className='text-2xl md:text-3xl lg:text-4xl font-black text-gray-900'>
-										Change password
-									</h1>
-									<div className='inline-block'>
-										In order to protect your account, please make sure your
-										password:
-										<ul className='mt-4'>
-											{securityMeasureBullets.map((bullet, i) => (
-												<li key={i} className='mt-1 flex'>
-													<span>{bullet.svg}</span>
-													<span className='ml-2'>{bullet.content}</span>
-												</li>
-											))}
-										</ul>
-									</div>
-								</header>
-								<form className='my-3' onSubmit={(e) => onSubmit(e)}>
-									<FormField
-										label='New Password'
-										type='password'
-										placeholder='Create a new password'
-										name='password_1'
-										onChange={(e) => onChange(e)}
-										minLength={7}
-										// required
-									/>
-									<FormField
-										label='Confirm Password'
-										type='password'
-										placeholder='Enter the password again'
-										name='password_2'
-										onChange={(e) => onChange(e)}
-										minLength={7}
-										// required
-									/>
-									<button
-										type='submit'
-										className='bg-purple-600 mt-4 py-2 w-full rounded-md text-white shadow-md hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline'
-									>
-										Reset password
-									</button>
-								</form>
-							</div>
-						</div>
-						<div className='mt-6 xl:mt-0 mb-6 container'>
-							&copy; 2020 - {new Date().getFullYear()} LeadGeek, Inc. All rights
-							reserved.
-						</div>
-					</div>
-					<LoginImage />
-				</section>
-			) : (
-				<section className='h-screen relative flex justify-center bg-gray-100'>
-					<div className='lg:hidden h-2 absolute inset-x-0 top-0 bg-purple-300' />
-					<div className='xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100'>
-						<div className='mt-6 hidden md:block container'>
-							<a href='https://leadgeek.io'>
-								<LeadGeekLogo className='inline-block w-16' />
-							</a>
-						</div>
-						<div className='container'>
-							<div className='mt-12 md:mt-0 mx-auto py-4 lg:py-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
-								<header>
-									<LeadGeekLogo className='md:hidden w-16' />
-									<h1 className='text-2xl md:text-3xl lg:text-4xl font-black text-gray-900'>
-										Uh-oh!
-									</h1>
-									<div className='my-3 inline-block'>
-										Your password could not be reset. Please try to{' '}
-										<NavLink to='/reset/forgot-password' className='link'>
-											get a new password reset link
-										</NavLink>{' '}
-										or{' '}
-										<a href='https://leadgeek.io/contact' className='link'>
-											contact support
-										</a>
-										.
-										<NavLink
-											to='/login'
-											className='block bg-purple-600 mt-4 py-2 w-full rounded-md text-white text-center shadow-md hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline'
-										>
-											Return to log in
-										</NavLink>
-									</div>
-								</header>
-							</div>
-						</div>
-						<div className='mt-6 xl:mt-0 mb-6 container'>
-							&copy; 2020 - {new Date().getFullYear()} LeadGeek, Inc. All rights
-							reserved.
-						</div>
-					</div>
-					<LoginImage />
-				</section>
+					</header>
+					<form className='my-3' onSubmit={(e) => onSubmit(e)}>
+						<FormField
+							label='New Password'
+							type='password'
+							placeholder='Create a new password'
+							name='password_1'
+							onChange={(e) => onChange(e)}
+							minLength={7}
+						/>
+						<FormField
+							label='Confirm Password'
+							type='password'
+							placeholder='Enter the password again'
+							name='password_2'
+							onChange={(e) => onChange(e)}
+							minLength={7}
+						/>
+						<button
+							type='submit'
+							className={`mt-4 py-2 px-4 ${
+								fullWidthButton && 'w-full'
+							} rounded-md text-white shadow-md bg-purple-600  hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline`}
+						>
+							Reset password
+						</button>
+					</form>
+				</article>
 			)}
 		</Fragment>
 	);
@@ -376,7 +297,6 @@ const ResetPassword = ({
 
 ResetPassword.propTypes = {
 	auth: PropTypes.object.isRequired,
-	resetPasswordValidation: PropTypes.func.isRequired,
 	updatePassword: PropTypes.func.isRequired,
 	setAlert: PropTypes.func.isRequired,
 };
@@ -387,7 +307,6 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, {
-	resetPasswordValidation,
 	updatePassword,
 	setAlert,
 })(ResetPassword);

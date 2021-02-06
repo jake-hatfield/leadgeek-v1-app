@@ -52,6 +52,9 @@ const Navbar = ({
 					setActiveSubscription('Grow');
 				} else return;
 			});
+			// set initials on page load
+			let userInitials = user.name.split(' ').map((n) => n[0]);
+			setInitials(userInitials);
 		}
 	}, [user]);
 	const dropdownItems = [

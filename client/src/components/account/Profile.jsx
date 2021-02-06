@@ -3,22 +3,26 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import Spinner from '../layout/Spinner';
+import FormField from '../layout/formField/FormField';
+import ResetPassword from '../auth/login/reset/ResetPassword';
 
-const Dashboard = ({
-	auth: { user, loading, isAuthenticated },
-	getCurrentProfile,
-}) => {
-	// get a user's profile
-	// useEffect(() => {
-	// 	if (!loading) {
-	// 		getCurrentProfile();
-	// 	}
-	// }, [loading, getCurrentProfile]);
-	// nav links
+const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 	const accountLinks = [
 		{
 			title: 'Profile',
 			link: '/account/profile',
+			path: (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
+				/>
+			),
+		},
+		{
+			title: 'Password',
+			link: '/account/password',
 			path: (
 				<path
 					strokeLinecap='round'
@@ -54,7 +58,7 @@ const Dashboard = ({
 				{loading ? (
 					<Spinner />
 				) : (
-					<div className='mx-auto w-full max-w-4xl'>
+					<div className='mx-auto w-full max-w-3xl'>
 						<h1 className='text-3xl font-black text-gray-900'>Account</h1>
 						<div className='mt-6 md:flex md:items-center'>
 							<div className='p-3 h-16 w-16 flex items-center justify-center rounded-full bg-gray-100 shadow-sm focus:outline-none focus:shadow-outline'>
@@ -84,7 +88,27 @@ const Dashboard = ({
 									</NavLink>
 								))}
 							</nav>
-							<article className='ml-8 w-3/4'>Hello</article>
+							<article className='ml-8 w-3/4'>
+								<FormField
+									padding='pt-0'
+									label='Name'
+									placeholder={user.name}
+									disabled={true}
+								/>
+								<FormField
+									label='Email'
+									placeholder={user.email}
+									disabled={true}
+								/>
+								<h3 className='pt-6 block text-sm font-medium text-gray-700'>
+									Testimonial
+								</h3>
+								<p className='pt-2'>
+									Submit a testmionial and receive a 15% discount on next
+									month's subscription.
+								</p>
+								<FormField label='Testimonial' type='message' />
+							</article>
 						</div>
 					</div>
 				)}
@@ -95,12 +119,10 @@ const Dashboard = ({
 
 Dashboard.propTypes = {
 	auth: PropTypes.object.isRequired,
-	profile: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
-	profile: state.profile,
 });
 
 export default connect(mapStateToProps)(Dashboard);

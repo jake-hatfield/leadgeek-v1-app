@@ -12,8 +12,6 @@ import {
 	CHECK_RESET_PASSWORD_TOKEN,
 	SET_RESET_PASSWORD_TOKEN,
 	REMOVE_RESET_PASSWORD_TOKEN,
-	GET_STRIPE_SUBSCRIPTION,
-	GET_PAYMENT_DETAILS,
 } from './types';
 import { setResetPasswordToken, setStripeToken } from '../../utils/authTokens';
 
