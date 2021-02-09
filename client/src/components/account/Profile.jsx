@@ -68,7 +68,7 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 							</div>
 							<div className='ml-8'>
 								<div className='md:flex md:items-center text-lg font-semibold text-gray-600'>
-									<h2>{user.name}</h2>
+									<h2 className='text-purple-600'>{user.name}</h2>
 									<span className='mx-2 text-gray-200'>/</span>
 									<h3>Edit profile</h3>
 								</div>
@@ -88,23 +88,25 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 									</NavLink>
 								))}
 							</nav>
-							<article className='ml-8 w-3/4'>
+							<article className='ml-8 p-8 w-3/4 shadow-lg rounded-md'>
 								<FormField
 									padding='pt-0'
 									label='Name'
+									labelSize='text-base'
 									placeholder={user.name}
 									disabled={true}
 								/>
 								<FormField
 									label='Email'
+									labelSize='text-base'
 									placeholder={user.email}
 									disabled={true}
 								/>
-								<h3 className='pt-6 block text-sm font-medium text-gray-700'>
+								<h3 className='pt-6 block text-base font-medium text-gray-700'>
 									Testimonial
 								</h3>
 								<p className='pt-2'>
-									Submit a testmionial and receive a 15% discount on next
+									Submit a testimonial and receive a 15% discount on next
 									month's subscription.
 								</p>
 								<FormField label='Testimonial' type='message' />

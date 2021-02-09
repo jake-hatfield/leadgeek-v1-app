@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 
 function MoreDropdown({
 	items,
-	animation,
 	open,
 	setOpen,
 	logout,
@@ -12,7 +11,6 @@ function MoreDropdown({
 	activeSubscription,
 }) {
 	const toggle = () => setOpen(!open);
-
 	return (
 		<div>
 			<button

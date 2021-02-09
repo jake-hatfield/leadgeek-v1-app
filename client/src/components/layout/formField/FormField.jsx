@@ -3,6 +3,7 @@ import React from 'react';
 const FormField = ({
 	padding,
 	label,
+	labelSize,
 	type,
 	name,
 	placeholder,
@@ -12,7 +13,10 @@ const FormField = ({
 }) => {
 	return (
 		<div className={`${padding || 'pt-4'} flex-col items-center`}>
-			<label htmlFor={name} className='block text-sm font-medium text-gray-700'>
+			<label
+				htmlFor={name}
+				className={`block ${labelSize || 'text-sm'} font-medium text-gray-700`}
+			>
 				{label}
 			</label>
 			<div className='mt-1'>

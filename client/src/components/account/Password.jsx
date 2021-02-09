@@ -68,7 +68,7 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 							</div>
 							<div className='ml-8'>
 								<div className='md:flex md:items-center text-lg font-semibold text-gray-600'>
-									<h2>{user.name}</h2>
+									<h2 className='text-purple-600'>{user.name}</h2>
 									<span className='mx-2 text-gray-200'>/</span>
 									<h3>Update password</h3>
 								</div>
@@ -88,8 +88,8 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 									</NavLink>
 								))}
 							</nav>
-							<article className='ml-8 w-3/4'>
-								<h3 className='text-sm font-medium text-gray-700'>
+							<article className='ml-8  p-8 w-3/4 shadow-lg rounded-md'>
+								<h3 className='text-base font-medium text-gray-700'>
 									Reset Password
 								</h3>
 								<ResetPassword />

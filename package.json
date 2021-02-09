@@ -10,7 +10,7 @@
 		"dev": "concurrently \"npm run server\" \"npm run client\""
 	},
 	"author": "Jake Hatfield",
-	"license": "MIT",
+	"license": "(ISC) See license in LICENSE.md",
 	"dependencies": {
 		"bcryptjs": "^2.4.3",
 		"config": "^3.3.2",

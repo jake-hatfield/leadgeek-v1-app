@@ -43,20 +43,25 @@ const Navbar = ({
 	const [initials, setInitials] = useState('');
 	useEffect(() => {
 		if (!loading && isAuthenticated) {
-			user.subId.forEach(function (sub) {
-				if (sub === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
-					setActiveSubscription('Bundle');
-				} else if (sub === process.env.REACT_APP_PRO_PRODUCT_ID) {
-					setActiveSubscription('Pro');
-				} else if (sub === process.env.REACT_APP_GROW_PRODUCT_ID) {
-					setActiveSubscription('Grow');
-				} else return;
-			});
+			if (user.subId > 0) {
+				user.subId.forEach(function (sub) {
+					console.log(sub);
+					if (sub == process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
+						setActiveSubscription('Bundle');
+						console.log('EH');
+					} else if (sub == process.env.REACT_APP_PRO_PRODUCT_ID) {
+						setActiveSubscription('Pro');
+					} else if (sub == process.env.REACT_APP_GROW_PRODUCT_ID) {
+						setActiveSubscription('Grow');
+					} else return;
+				});
+			}
 			// set initials on page load
 			let userInitials = user.name.split(' ').map((n) => n[0]);
 			setInitials(userInitials);
 		}
 	}, [user]);
+	console.log(process.env.REACT_APP_BUNDLE_PRODUCT_ID);
 	const dropdownItems = [
 		{
 			linkID: 100,

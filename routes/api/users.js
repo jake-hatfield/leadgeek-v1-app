@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -6,7 +7,6 @@ const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const { check, validationResult } = require('express-validator');
-
 const User = require('../../models/User');
 
 // @route       POST api/users
@@ -111,10 +111,8 @@ router.post('/forgotPassword', async (req, res) => {
 				port: 587,
 				secure: false,
 				auth: {
-					// user: `${process.env.EMAIL_ADDRESS}`,
-					// pass: `${process.env.EMAIL_PASSWORD}`,
-					user: 'support@leadgeek.io',
-					pass: '52LxOHANDCQa',
+					user: process.env.REACT_APP_EMAIL_ADDRESS,
+					pass: process.env.REACT_APP_EMAIL_PASSWORD,
 				},
 				tls: {
 					rejectUnauthorized: false,
