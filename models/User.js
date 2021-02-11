@@ -25,6 +25,12 @@ const UserSchema = new mongoose.Schema({
 	},
 	subId: [
 		{
+			type: Object,
+			required: true,
+		},
+	],
+	planId: [
+		{
 			type: String,
 			required: true,
 		},

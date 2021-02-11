@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const { check, validationResult } = require('express-validator');
 const User = require('../../models/User');
+const stripeSecret = config.get('stripeTestSecret');
+const stripe = require('stripe')(stripeSecret);
 
 // @route       POST api/users
 // @description Register user
@@ -208,6 +210,55 @@ router.put('/updatePassword', async (req, res) => {
 		}
 	} catch (error) {
 		console.error(error);
+	}
+});
+
+// @route       POST api/cancel-subscription
+// @description Cancel current user's requested stripe subscription
+// @access      Private
+router.post('/cancel-subscription', async (req, res) => {
+	try {
+		const { subscriptionId } = req.body;
+		const foundSubscription = await stripe.subscriptions.retrieve(
+			subscriptionId
+		);
+		console.log(foundSubscription);
+		if (foundSubscription) {
+			const canceledSubscription = await stripe.subscriptions.del(
+				subscriptionId
+			);
+			if (canceledSubscription.status === 'canceled') {
+				return res.json({
+					msg: 'Subscription was successfully canceled.',
+					subscription: canceledSubscription,
+				});
+			} else {
+				return res
+					.status(200)
+					.json({ msg: 'Subscription could not be canceled.' });
+			}
+		} else {
+			return res
+				.status(200)
+				.json({ msg: 'No active subscriptions were found.' });
+		}
+	} catch (error) {
+		console.error(error.message);
+		res.status(500).send('Server error');
+	}
+});
+
+router.post('/update-db-subscription', async (req, res) => {
+	try {
+		const { customerId, subscription } = req.body;
+		let subscriptionId = subscription.id;
+		let user = await User.findOne({ customerId });
+		console.log(subscriptionId);
+		const subscriptions = user.subId.filter((sub) => sub.id === subscriptionId);
+		console.log(subscriptions);
+	} catch (error) {
+		console.error(error.message);
+		res.status(500).send('Server error');
 	}
 });
 

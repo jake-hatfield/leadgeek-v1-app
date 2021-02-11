@@ -133,13 +133,11 @@ router.post('/getStripeSubscriptions', async (req, res) => {
 					],
 				});
 			}
-			return res
-				.status(200)
-				.send({
-					msg: message,
-					activeSubscriptions: user.subId,
-					paymentMethodId: user.paymentMethod.id,
-				});
+			return res.status(200).send({
+				msg: message,
+				activeSubscriptions: user.subId,
+				paymentMethodId: user.paymentMethod.id,
+			});
 		}
 	} catch (error) {
 		console.log(error);

@@ -122,3 +122,22 @@ export const addEducation = (formData, history) => async (dispatch) => {
 		});
 	}
 };
+
+// get active stripe subscriptions
+// export const getActiveStripeSubs = (email) => async (dispatch) => {
+// 	try {
+// 		const config = {
+// 			header: {
+// 				'Content-Type': 'application/json',
+// 			},
+// 		};
+
+// 		const res = await axios.post('/api/profile/subscriptions', email, config);
+// 		console.log(res);
+// 	} catch (error) {
+// 		const errors = error.response.data.errors;
+// 		if (errors) {
+// 			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+// 		}
+// 	}
+// };

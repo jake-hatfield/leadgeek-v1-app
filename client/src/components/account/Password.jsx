@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import Spinner from '../layout/Spinner';
-import FormField from '../layout/formField/FormField';
 import ResetPassword from '../auth/login/reset/ResetPassword';
 
 const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
@@ -51,7 +50,7 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 			let userInitials = user.name.split(' ').map((n) => n[0]);
 			setInitials(userInitials);
 		}
-	}, [user]);
+	}, [user, loading, isAuthenticated]);
 	return (
 		<Fragment>
 			<section className='my-6 lg:my-10 relative container flex'>

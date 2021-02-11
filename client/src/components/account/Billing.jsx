@@ -1,29 +1,41 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { cancelStripeSub } from '../../redux/actions/auth';
 import { NavLink } from 'react-router-dom';
 import Spinner from '../layout/Spinner';
+import { setAlert } from '../../redux/actions/alert';
 
-const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
+const Dashboard = ({
+	auth: { user, loading, isAuthenticated },
+	cancelStripeSub,
+	setAlert,
+}) => {
 	const [initials, setInitials] = useState('');
 	const [activeSubscriptions, setActiveSubscriptions] = useState('');
 	const [cancelModal, setCancelModal] = useState(false);
+	// check for active sub & assign it to a displayable plan string
 	useEffect(() => {
 		if (!loading && isAuthenticated) {
-			if (user.subId.length < 1) {
+			if (user.subId.length === 0) {
 				return setActiveSubscriptions('No plans found!');
+			} else {
+				user.subId.forEach(function (sub) {
+					if (sub.status !== 'active') {
+						return setActiveSubscriptions('No active plans found!');
+					}
+					if (sub.plan.id === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
+						setActiveSubscriptions('Bundle');
+					} else if (sub.plan.id === process.env.REACT_APP_PRO_PRODUCT_ID) {
+						setActiveSubscriptions('Pro');
+					} else if (sub.plan.id === process.env.REACT_APP_GROW_PRODUCT_ID) {
+						setActiveSubscriptions('Grow');
+					} else return;
+				});
 			}
-			user.subId.forEach(function (sub) {
-				if (sub === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
-					setActiveSubscriptions('Bundle');
-				} else if (sub === process.env.REACT_APP_PRO_PRODUCT_ID) {
-					setActiveSubscriptions('Pro');
-				} else if (sub === process.env.REACT_APP_GROW_PRODUCT_ID) {
-					setActiveSubscriptions('Grow');
-				} else return;
-			});
 		}
-	}, [user]);
+	}, [loading, isAuthenticated, user]);
+
 	const accountLinks = [
 		{
 			title: 'Profile',
@@ -67,7 +79,7 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 			let userInitials = user.name.split(' ').map((n) => n[0]);
 			setInitials(userInitials);
 		}
-	}, [user]);
+	}, [loading, isAuthenticated, user]);
 	const growPlanSeats = 30;
 	const proPlanSeats = 15;
 	const featureLists = [
@@ -194,7 +206,16 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 		],
 	];
 	const handleCancelSubscription = () => {
-		alert('Subscription cancelled');
+		const { customerId } = user;
+		if (!customerId) {
+			return setAlert(
+				"Your account couldn't be verified to cancel your subscription. Please contact support@leadgeek.io to cancel.",
+				'danger'
+			);
+		}
+		let subscriptionId = user.subId[0].id;
+		// cancels subscription in stripe and updates to 'canceled' status in db
+		cancelStripeSub(customerId, subscriptionId);
 	};
 
 	return (
@@ -236,74 +257,95 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 									</NavLink>
 								))}
 							</nav>
-							<article className='ml-8 w-3/4 shadow-lg rounded-md'>
-								<div className='pt-8 px-8'>
-									{activeSubscriptions === 'No plans found!' ? (
-										<h3 className='pb-8'>{activeSubscriptions}</h3>
-									) : (
-										<div>
-											<h3 className='text-base font-medium text-gray-700'>
-												Your current plan:{' '}
-												<span className='text-purple-600'>
-													{activeSubscriptions} plan
-												</span>
-											</h3>
-											{
-												<div className='my-6'>
-													<h3 className='text-base font-medium text-gray-700'>
-														Plan details:
-													</h3>
-													{activeSubscriptions === 'Bundle' ? (
-														<ul className='mt-2'>
-															{featureLists[2].map((feature, i) => (
-																<li key={i}>{feature.body}</li>
-															))}
-														</ul>
-													) : activeSubscriptions === 'Pro' ? (
-														<ul className='mt-2'>
-															{featureLists[2].map((feature, i) => (
-																<li key={i}>{feature.body}</li>
-															))}
-														</ul>
-													) : (
-														activeSubscriptions
-													)}
-												</div>
-											}
-										</div>
-									)}
-								</div>
-								<div className='pt-6 pb-8 px-8 md:flex md:justify-between md:items-end bg-gray-100 rounded-b-md'>
-									<button
-										className={`py-2 px-4 rounded-md text-white shadow-md bg-purple-600 hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline`}
-									>
-										Change plan
-									</button>
-									<button
-										onClick={() => setCancelModal(!cancelModal)}
-										className='ml-4 link rounded-md focus:outline-none focus:shadow-outline'
-									>
-										Cancel subscription
-									</button>
-								</div>
-							</article>
+							{user.subId.map(
+								(sub) =>
+									sub.status === 'active' && (
+										<article className='ml-8 w-3/4 shadow-lg rounded-md'>
+											<div className='pt-8 px-8'>
+												{activeSubscriptions === 'No plans found!' ? (
+													<h3 className='pb-8'>{activeSubscriptions}</h3>
+												) : (
+													<div>
+														<h3 className='text-base font-medium text-gray-700'>
+															Your current plan:{' '}
+															<span className='text-purple-600'>
+																{activeSubscriptions} plan
+															</span>
+														</h3>
+														{
+															<div className='my-6'>
+																<h3 className='text-base font-medium text-gray-700'>
+																	Plan details:
+																</h3>
+																{activeSubscriptions === 'Bundle' ? (
+																	<ul className='mt-2'>
+																		{featureLists[2].map((feature, i) => (
+																			<li key={i}>{feature.body}</li>
+																		))}
+																	</ul>
+																) : activeSubscriptions === 'Pro' ? (
+																	<ul className='mt-2'>
+																		{featureLists[1].map((feature, i) => (
+																			<li key={i}>{feature.body}</li>
+																		))}
+																	</ul>
+																) : (
+																	activeSubscriptions === 'Grow' && (
+																		<ul className='mt-2'>
+																			{featureLists[0].map((feature, i) => (
+																				<li key={i}>{feature.body}</li>
+																			))}
+																		</ul>
+																	)
+																)}
+															</div>
+														}
+													</div>
+												)}
+											</div>
+											<div className='pt-6 pb-8 px-8 md:flex md:justify-between md:items-end bg-gray-100 rounded-b-md'>
+												<button
+													className={`py-2 px-4 rounded-md text-white shadow-md bg-purple-600 hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline`}
+												>
+													Change plan
+												</button>
+												<button
+													onClick={() => setCancelModal(!cancelModal)}
+													className='ml-4 link rounded-md focus:outline-none focus:shadow-outline'
+												>
+													Cancel subscription
+												</button>
+											</div>
+										</article>
+									)
+							)}
 						</div>
 						{cancelModal && (
 							<div className='p-8 bg-white shadow-lg rounded-md'>
 								<h3 className='text-2xl font-bold'>Cancel modal</h3>
+								<div>
+									<p>
+										Are you sure you want to cancel your {activeSubscriptions}{' '}
+										subscription?
+									</p>
+									<p>
+										This action will stop any recurring payments at the end of
+										your billing cycle.
+									</p>
+								</div>
 								<button
 									type='submit'
 									onClick={handleCancelSubscription}
 									className={`py-2 px-4 rounded-md text-red-600 shadow-md bg-red-300 hover:bg-red-400 transition-colors duration-200 focus:outline-none focus:shadow-outline`}
 								>
-									Cancel subscription
+									Confirm
 								</button>
 							</div>
 						)}
 					</div>
 				)}
 			</section>
-		</Fragment>k
+		</Fragment>
 	);
 };
 
@@ -315,4 +357,7 @@ const mapStateToProps = (state) => ({
 	auth: state.auth,
 });
 
-export default connect(mapStateToProps)(Dashboard);
+export default connect(mapStateToProps, {
+	cancelStripeSub,
+	setAlert,
+})(Dashboard);

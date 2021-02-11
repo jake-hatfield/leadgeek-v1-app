@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import Spinner from '../layout/Spinner';
 import FormField from '../layout/formField/FormField';
-import ResetPassword from '../auth/login/reset/ResetPassword';
 
 const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 	const accountLinks = [
@@ -51,7 +50,7 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 			let userInitials = user.name.split(' ').map((n) => n[0]);
 			setInitials(userInitials);
 		}
-	}, [user]);
+	}, [loading, isAuthenticated, user]);
 	return (
 		<Fragment>
 			<section className='my-6 lg:my-10 relative container flex'>
@@ -106,10 +105,19 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 									Testimonial
 								</h3>
 								<p className='pt-2'>
-									Submit a testimonial and receive a 15% discount on next
-									month's subscription.
+									Do you have 5 minutes? Submit a review on WebRetailer and
+									receive a 15% discount on next month's subscription.
 								</p>
-								<FormField label='Testimonial' type='message' />
+								<div className='mt-4 mb-3'>
+									<a
+										href='https://www.webretailer.com/reviews/leadgeek/write-review/'
+										target='_blank'
+										rel='noopener noreferrer nofollow'
+										className='py-2 px-4 rounded-md text-white shadow-md bg-purple-600  hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline'
+									>
+										Write a review
+									</a>
+								</div>
 							</article>
 						</div>
 					</div>

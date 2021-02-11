@@ -14,8 +14,8 @@ const Navbar = ({
 }) => {
 	// get leads
 	useEffect(() => {
-		!loading && isAuthenticated && getLeads();
-	}, [loading, isAuthenticated, getLeads]);
+		!loading && isAuthenticated && user && getLeads();
+	}, [loading, isAuthenticated, user, getLeads]);
 	// utils
 	const lengthChecker = (array) => {
 		return array.length > 99 ? '99+' : array.length;
@@ -42,16 +42,16 @@ const Navbar = ({
 	const [activeSubscription, setActiveSubscription] = useState('');
 	const [initials, setInitials] = useState('');
 	useEffect(() => {
-		if (!loading && isAuthenticated) {
+		if (!loading && isAuthenticated && user) {
 			if (user.subId > 0) {
 				user.subId.forEach(function (sub) {
 					console.log(sub);
-					if (sub == process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
+					if (sub === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
 						setActiveSubscription('Bundle');
 						console.log('EH');
-					} else if (sub == process.env.REACT_APP_PRO_PRODUCT_ID) {
+					} else if (sub === process.env.REACT_APP_PRO_PRODUCT_ID) {
 						setActiveSubscription('Pro');
-					} else if (sub == process.env.REACT_APP_GROW_PRODUCT_ID) {
+					} else if (sub === process.env.REACT_APP_GROW_PRODUCT_ID) {
 						setActiveSubscription('Grow');
 					} else return;
 				});
@@ -60,8 +60,7 @@ const Navbar = ({
 			let userInitials = user.name.split(' ').map((n) => n[0]);
 			setInitials(userInitials);
 		}
-	}, [user]);
-	console.log(process.env.REACT_APP_BUNDLE_PRODUCT_ID);
+	}, [loading, isAuthenticated, user]);
 	const dropdownItems = [
 		{
 			linkID: 100,

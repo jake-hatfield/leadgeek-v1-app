@@ -13,7 +13,7 @@ import {
 	SET_RESET_PASSWORD_TOKEN,
 	REMOVE_RESET_PASSWORD_TOKEN,
 } from './types';
-import { setResetPasswordToken, setStripeToken } from '../../utils/authTokens';
+import { setResetPasswordToken } from '../../utils/authTokens';
 
 // load user
 export const loadUser = () => async (dispatch) => {
@@ -83,45 +83,14 @@ export const login = (email, password) => async (dispatch) => {
 		dispatch({
 			type: LOGIN_FAIL,
 		});
+		dispatch(
+			setAlert(
+				"Email & password combination aren't correct. Please try again or reset your password.",
+				'danger'
+			)
+		);
 	}
 };
-
-// check for an active stripe subscription
-// export const getStripeSubscription = (email) => async (dispatch) => {
-// 	const config = {
-// 		headers: {
-// 			'Content-Type': 'application/json',
-// 		},
-// 	};
-// 	const body = JSON.stringify({ email });
-
-// 	try {
-// 		const res = await axios.post(
-// 			'/api/auth/getStripeSubscriptions',
-// 			body,
-// 			config
-// 		);
-// 		console.log(res.data);
-// 		if (res.data.msg === 'Customer found') {
-// 			dispatch({
-// 				type: GET_STRIPE_SUBSCRIPTION,
-// 				payload: res.data.activeSubscriptions,
-// 			});
-// 			dispatch({
-// 				type: GET_PAYMENT_DETAILS,
-// 				payload: res.data.paymentMethodId,
-// 			});
-// 			setStripeToken('active');
-// 		} else {
-// 			console.log(res.data.msg);
-// 		}
-// 	} catch (error) {
-// 		const errors = error.response.data.errors;
-// 		if (errors) {
-// 			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
-// 		}
-// 	}
-// };
 
 // logout & clear the profile
 export const logout = () => (dispatch) => {
@@ -229,6 +198,67 @@ export const updatePassword = (email, password) => async (dispatch) => {
 			}
 			return;
 		});
+	} catch (error) {
+		const errors = error.response.data.errors;
+		if (errors) {
+			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+		}
+	}
+};
+
+// update stripe sub information in mongo
+const updateStripeSubInDb = (customerId, subscription) => async (dispatch) => {
+	try {
+		const config = {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		};
+		const body = JSON.stringify({ customerId, subscription });
+		const res = await axios.post(
+			'/api/users/update-db-subscription',
+			body,
+			config
+		);
+		console.log(res);
+	} catch (error) {
+		const errors = error.response.data.errors;
+		if (errors) {
+			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+		}
+	}
+};
+
+// cancel stripe sub
+export const cancelStripeSub = (customerId, subscriptionId) => async (
+	dispatch
+) => {
+	try {
+		const config = {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		};
+		const body = JSON.stringify({ subscriptionId });
+		const res = await axios.post(
+			'/api/users/cancel-subscription',
+			body,
+			config
+		);
+		const { msg, subscription } = res.data;
+		if (msg === 'Subscription was successfully canceled.') {
+			dispatch(updateStripeSubInDb(customerId, subscription));
+			dispatch(
+				setAlert('Your subscription was successfully canceled', 'success')
+			);
+		} else {
+			dispatch(
+				setAlert(
+					`${msg} Please contact support@leadgeek.io if you need assistance with your subscription.`,
+					'danger'
+				)
+			);
+		}
 	} catch (error) {
 		const errors = error.response.data.errors;
 		if (errors) {

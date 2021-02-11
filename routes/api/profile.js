@@ -4,7 +4,8 @@ const config = require('config');
 const router = express.Router();
 const auth = require('../../middleware/auth');
 const { check, validationResult } = require('express-validator');
-
+require('dotenv').config();
+const stripe = require('stripe')(process.env.REACT_APP_STRIPE_SECRET_KEY);
 const User = require('../../models/User');
 const Profile = require('../../models/Profile');
 

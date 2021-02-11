@@ -219,7 +219,7 @@ const ResetPassword = ({
 				return;
 			}
 		}
-	}, [password_1, password_2]);
+	}, [password_1, password_2, terriblePasswords, setAlert, user.email]);
 	const handleUpdatePassword = (e) => {
 		e.preventDefault();
 		if (!password_1 || !password_2) {
