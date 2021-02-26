@@ -219,11 +219,18 @@ router.put('/updatePassword', async (req, res) => {
 router.post('/cancel-subscription', async (req, res) => {
 	try {
 		const { subscriptionId } = req.body;
-		const foundSubscription = await stripe.subscriptions.retrieve(
-			subscriptionId
-		);
-		console.log(foundSubscription);
-		if (foundSubscription) {
+		const retrievedSub = await stripe.subscriptions.retrieve(subscriptionId);
+		console.log(retrievedSub);
+		if (!retrievedSub) {
+			return res
+				.status(200)
+				.json({ msg: 'Subscription could not be canceled.' });
+		}
+		if (retrievedSub.status === 'canceled') {
+			return res
+				.status(200)
+				.json({ msg: 'This subscription is already canceled.' });
+		} else {
 			const canceledSubscription = await stripe.subscriptions.del(
 				subscriptionId
 			);
@@ -233,14 +240,10 @@ router.post('/cancel-subscription', async (req, res) => {
 					subscription: canceledSubscription,
 				});
 			} else {
-				return res
-					.status(200)
-					.json({ msg: 'Subscription could not be canceled.' });
+				return res.json({
+					msg: 'There was an error trying to cancel this subscription.',
+				});
 			}
-		} else {
-			return res
-				.status(200)
-				.json({ msg: 'No active subscriptions were found.' });
 		}
 	} catch (error) {
 		console.error(error.message);
@@ -251,11 +254,21 @@ router.post('/cancel-subscription', async (req, res) => {
 router.post('/update-db-subscription', async (req, res) => {
 	try {
 		const { customerId, subscription } = req.body;
-		let subscriptionId = subscription.id;
+		const { id } = subscription;
 		let user = await User.findOne({ customerId });
-		console.log(subscriptionId);
-		const subscriptions = user.subId.filter((sub) => sub.id === subscriptionId);
-		console.log(subscriptions);
+		let subArray = user.subId;
+		const index = subArray.findIndex((sub) => sub.id === id);
+		if (index !== -1) {
+			subArray[index] = subscription;
+			user.update({ subId: subArray }, function (error) {
+				if (error) console.log(error);
+			});
+		} else {
+			console.log('Subscription index not found.');
+			return res.status(200).json({
+				msg: 'There was an error in updating your subscription.',
+			});
+		}
 	} catch (error) {
 		console.error(error.message);
 		res.status(500).send('Server error');

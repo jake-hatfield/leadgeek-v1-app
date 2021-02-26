@@ -6,7 +6,7 @@ import {
 	SHOW_DETAILED_LEAD,
 	CLEAR_DETAILED_LEAD,
 } from './types';
-
+import axios from 'axios';
 const feed = [
 	{
 		id: 1,
@@ -84,10 +84,29 @@ const feed = [
 	},
 ];
 
-let unviewed = feed.filter((lead) => lead.viewed === false);
-
-export const getLeads = () => (dispatch) => {
+export const getLeads = (planId) => async (dispatch) => {
 	try {
+		let activeSubscriptions;
+		if (planId.length > 0) {
+			planId.forEach(function (sub) {
+				if (sub === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
+					activeSubscriptions = 'Bundle';
+				} else if (sub === process.env.REACT_APP_PRO_PRODUCT_ID) {
+					activeSubscriptions = 'Pro';
+				} else if (sub === process.env.REACT_APP_GROW_PRODUCT_ID) {
+					activeSubscriptions = 'Grow';
+				} else return;
+			});
+		}
+		const config = {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		};
+		const body = JSON.stringify({ activeSubscriptions });
+		const feed = await axios.post('/api/leads', body, config);
+		console.log(feed);
+		let unviewed = feed.filter((lead) => lead.viewed === false);
 		dispatch({
 			type: GET_LEADS,
 			payload: { feed, unviewed },
@@ -146,6 +165,48 @@ export const clearDetailedLead = () => (dispatch) => {
 		dispatch({
 			type: CLEAR_DETAILED_LEAD,
 		});
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const exportLead = () => (dispatch) => {
+	try {
+		const lead = {
+			source: 'Target',
+			bsr30: '1903.0',
+			cashback: '',
+			shipping: 'Free shipping on $35+',
+			roi: '0.4803001876172608',
+			asin: '6026ec8b537dbb177eddd8e0',
+			competitors: 'MF',
+			brand: 'Barbie',
+			date: '1969-12-31',
+			retailerLink:
+				'http://www.target.com/p/,barbie-fizzy-bath-brunette-doll-and-playset/-/...',
+			variations: '',
+			buyPrice: '15.99',
+			category: 'Toys & Games',
+			promo: '-',
+			bsr90: '1684.0',
+			amzLink: 'https://amazon.com/dp/B07XB3JL3Y/',
+			bsrCurrent: '5341.0',
+			sellPrice: '36.0',
+			notes: '',
+			netProfit: '7.68',
+			weight: '1.4',
+			title:
+				'​Barbie Fizzy Bath Doll and Playset, Brunette, with Tub, Fizzy Powder,...',
+			monthlySales: '214.0',
+		};
+		const config = {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		};
+		const body = JSON.stringify({ lead });
+		const res = axios.post('/api/leads/export', body, config);
+		console.log(res);
 	} catch (error) {
 		console.log(error);
 	}

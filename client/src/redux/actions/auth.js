@@ -254,7 +254,7 @@ export const cancelStripeSub = (customerId, subscriptionId) => async (
 		} else {
 			dispatch(
 				setAlert(
-					`${msg} Please contact support@leadgeek.io if you need assistance with your subscription.`,
+					`${msg} Please contact support@leadgeek.io if you need help.`,
 					'danger'
 				)
 			);

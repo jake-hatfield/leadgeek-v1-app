@@ -18,7 +18,7 @@ import EditProfile from './components/profile-forms/EditProfile';
 import Leads from './components/leads/Leads';
 import Profile from './components/account/Profile';
 import Password from './components/account/Password';
-import Billing from './components/account/Billing';
+// import Billing from './components/account/Billing';
 // utils
 import PrivateRoute from './components/routing/PrivateRoute';
 import Alert from './components/layout/Alert';
@@ -71,7 +71,7 @@ const App = () => {
 								path='/account/password'
 								component={Password}
 							/>
-							<PrivateRoute exact path='/account/billing' component={Billing} />
+							{/* <PrivateRoute exact path='/account/billing' component={Billing} /> */}
 							<PrivateRoute
 								exact
 								path='/create-profile'

@@ -215,7 +215,7 @@ const Dashboard = ({
 		}
 		let subscriptionId = user.subId[0].id;
 		// cancels subscription in stripe and updates to 'canceled' status in db
-		cancelStripeSub(customerId, subscriptionId);
+		cancelStripeSub(customerId, 'sub_IvxscYyUQVlmT7');
 	};
 
 	return (

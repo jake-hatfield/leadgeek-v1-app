@@ -14,7 +14,7 @@ const Navbar = ({
 }) => {
 	// get leads
 	useEffect(() => {
-		!loading && isAuthenticated && user && getLeads();
+		!loading && isAuthenticated && user && getLeads(user.planId);
 	}, [loading, isAuthenticated, user, getLeads]);
 	// utils
 	const lengthChecker = (array) => {
