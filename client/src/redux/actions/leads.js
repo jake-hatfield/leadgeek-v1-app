@@ -86,30 +86,31 @@ const feed = [
 
 export const getLeads = (planId) => async (dispatch) => {
 	try {
-		let activeSubscriptions;
-		if (planId.length > 0) {
-			planId.forEach(function (sub) {
-				if (sub === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
-					activeSubscriptions = 'Bundle';
-				} else if (sub === process.env.REACT_APP_PRO_PRODUCT_ID) {
-					activeSubscriptions = 'Pro';
-				} else if (sub === process.env.REACT_APP_GROW_PRODUCT_ID) {
-					activeSubscriptions = 'Grow';
-				} else return;
-			});
-		}
-		const config = {
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		};
-		const body = JSON.stringify({ activeSubscriptions });
-		const feed = await axios.post('/api/leads', body, config);
-		console.log(feed);
-		let unviewed = feed.filter((lead) => lead.viewed === false);
+		// let activeSubscriptions;
+		// if (planId.length > 0) {
+		// 	planId.forEach(function (sub) {
+		// 		if (sub === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
+		// 			activeSubscriptions = 'Bundle';
+		// 		} else if (sub === process.env.REACT_APP_PRO_PRODUCT_ID) {
+		// 			activeSubscriptions = 'Pro';
+		// 		} else if (sub === process.env.REACT_APP_GROW_PRODUCT_ID) {
+		// 			activeSubscriptions = 'Grow';
+		// 		} else return;
+		// 	});
+		// }
+		// const config = {
+		// 	headers: {
+		// 		'Content-Type': 'application/json',
+		// 	},
+		// };
+		// const body = JSON.stringify({ activeSubscriptions });
+		const { data: feed } = await axios.get('/api/leads');
+		const feedArray = feed.feed;
+		console.log(feedArray);
+		let unviewed = feedArray.filter((lead) => lead.viewed === false);
 		dispatch({
 			type: GET_LEADS,
-			payload: { feed, unviewed },
+			payload: { feedArray, unviewed },
 		});
 	} catch (error) {
 		console.log(error);

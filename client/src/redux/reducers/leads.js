@@ -28,7 +28,7 @@ export default function (state = initialState, action) {
 		case GET_LEADS:
 			return {
 				...state,
-				feed: payload.feed,
+				feed: payload.feedArray,
 				unviewed: payload.unviewed,
 				loading: false,
 			};

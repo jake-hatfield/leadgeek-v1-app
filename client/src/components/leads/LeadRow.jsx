@@ -31,7 +31,6 @@ const LeadRow = ({
 		like || liked ? unlikeLead(leadId) : setLikeStatus(leadId);
 	};
 	const [view, setView] = useStickyState(false);
-
 	// link opener
 	const openBothLinks = (e, sourceLink, amzLink) => {
 		e.preventDefault();
@@ -89,24 +88,24 @@ const LeadRow = ({
 				<td className='pl-6'>{truncate(lead.category, 28)}</td>
 				<td className='pl-6 text-gray-600 font-bold text-right'>
 					<span>$</span>
-					{lead.coreStats.netProfit.toFixed(2)}
+					{lead.netProfit.toFixed(2)}
 					<span className='ml-1 text-gray-400 font-semibold uppercase'>
 						USD
 					</span>
 				</td>
 				<td className='pl-6 text-gray-600 font-bold text-right'>
-					{lead.coreStats.roi}
+					{lead.roi.toFixed(2) * 100}
 					<span className='ml-1 text-gray-400 font-semibold'>%</span>
 				</td>
 				<td className='px-6 text-gray-600 font-bold text-right'>
-					{numberWithCommas(lead.coreStats.currentBSR)}
+					{numberWithCommas(lead.bsrCurrent)}
 					<span className='ml-1 text-gray-400 font-normal'>
-						({calculateBSR(lead.coreStats.currentBSR, lead.category)})
+						({calculateBSR(lead.bsrCurrent, lead.category)})
 						<span className='ml-1 text-gray-400 font-semibold'>%</span>
 					</span>
 				</td>
 				<td className='pr-6 text-gray-600 font-bold text-right'>
-					{numberWithCommas(lead.coreStats.monthlySales)}
+					{numberWithCommas(lead.monthlySales)}
 				</td>
 				<td className='pr-4'>
 					<button

@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import SideNav from './SideNav';
@@ -30,6 +30,9 @@ const Leads = ({
 	const onSearchChange = (e) => {
 		setSearch(e.target.value);
 	};
+	useEffect(() => {
+		feed && console.log(feed);
+	}, [feed]);
 	// array helpers
 	const filteredLeads = (array) =>
 		array.filter((lead) => {
@@ -47,35 +50,16 @@ const Leads = ({
 	const average = (total, array) =>
 		Math.round((total / array.length + Number.EPSILON) * 100) / 100;
 	const totalProfit = arrayChooser().reduce(
-		(
-			a,
-
-			{ coreStats: { netProfit } }
-		) => a + netProfit,
+		(acc, { netProfit }) => acc + netProfit,
 		0
 	);
-	const totalROI = arrayChooser().reduce(
-		(
-			a,
-
-			{ coreStats: { roi } }
-		) => a + roi,
-		0
-	);
+	const totalROI = arrayChooser().reduce((acc, { roi }) => acc + roi, 0);
 	const totalSales = arrayChooser().reduce(
-		(
-			a,
-
-			{ coreStats: { monthlySales } }
-		) => a + monthlySales,
+		(acc, { monthlySales }) => acc + monthlySales,
 		0
 	);
 	const totalBSR = arrayChooser().reduce(
-		(
-			a,
-
-			{ coreStats: { currentBSR } }
-		) => a + currentBSR,
+		(acc, { bsrCurrent }) => acc + bsrCurrent,
 		0
 	);
 	// averages
@@ -102,7 +86,7 @@ const Leads = ({
 		},
 		{
 			title: 'Net ROI',
-			average: average(totalROI, arrayChooser()).toFixed(0),
+			average: average(totalROI, arrayChooser()) * 100,
 			path: (
 				<g>
 					<path
@@ -208,6 +192,9 @@ const Leads = ({
 						showDetails={showDetails}
 						setShowDetails={setShowDetails}
 					/>
+					<div>
+						<button className='link'>See more</button>
+					</div>
 				</section>
 			</section>
 			{showDetails && (

@@ -21,25 +21,40 @@ router.post('/export', auth, async (req, res) => {
 // @route       GET api/leads
 // @description Get bundle leads
 // @access      Private
-router.post('/', auth, async (req, res) => {
+router.get('/', auth, async (req, res) => {
 	try {
-		let leadCollection;
-		if (req.body.activeSubscriptions === 'Pro') {
-			leadCollection = 'pro_1_leads';
-		}
-		let connection = mongoose.connection;
-		console.log(connection);
-		connection.on('error', console.error.bind(console, 'connection error:'));
-		console.log('Retrieving leads');
-		connection.once('open', function () {
-			connection.db.collection('users', function (err, collection) {
-				collection.find({}).toArray(function (err, data) {
-					console.log(data);
-					return res.status(200).json(data);
-				});
-			});
+		// let leadCollection;
+		// if (req.body.activeSubscriptions === 'Pro') {
+		// 	leadCollection = 'pro_1_leads';
+		// }
+		// let connection = mongoose.connection;
+		// console.log(connection);
+		// connection.on('error', console.error.bind(console, 'connection error:'));
+		// console.log('Retrieving leads');
+		// connection.once('open', function () {
+		// 	connection.db.collection('users', function (err, collection) {
+		// 		collection.find({}).toArray(function (err, data) {
+		// 			console.log(data);
+		// 			return res.status(200).json(data);
+		// 		});
+		// 	});
+		// });
+		const feed = await Lead.find({
+			date: {
+				$lte: Date.now(),
+			},
 		});
-		// const feed = await User.findById(req.user.id).select('-password');
+		// const feed = await Lead.find({ sort: { created_at: -1 } });
+		if (!feed) {
+			return res
+				.status(404)
+				.json({ status: 'failure', message: 'Could not retrieve leads.' });
+		} else {
+			console.log(
+				`Successfully queried leads! There were ${feed.length} leads found.`
+			);
+			return res.status(200).json({ feed });
+		}
 	} catch (error) {
 		console.error(error.message);
 		return res.status(500).send('Server error');
