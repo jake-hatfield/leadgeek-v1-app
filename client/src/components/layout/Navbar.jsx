@@ -14,8 +14,12 @@ const Navbar = ({
 }) => {
 	// get leads
 	useEffect(() => {
-		!loading && isAuthenticated && user && getLeads(user.planId);
+		!loading &&
+			isAuthenticated &&
+			user &&
+			getLeads(user.lastLoggedIn, user.planId);
 	}, [loading, isAuthenticated, user, getLeads]);
+	const test = [];
 	// utils
 	const lengthChecker = (array) => {
 		return array.length > 99 ? '99+' : array.length;

@@ -9,7 +9,7 @@ import Details from './Details/Details';
 import { clearDetailedLead, exportLead } from '../../redux/actions/leads';
 
 const Leads = ({
-	auth: { loading },
+	auth: { user, loading },
 	feed,
 	unviewed,
 	liked,
@@ -30,13 +30,10 @@ const Leads = ({
 	const onSearchChange = (e) => {
 		setSearch(e.target.value);
 	};
-	useEffect(() => {
-		feed && console.log(feed);
-	}, [feed]);
 	// array helpers
 	const filteredLeads = (array) =>
 		array.filter((lead) => {
-			return lead.title.toLowerCase().includes(search.toLowerCase());
+			return lead.data.title.toLowerCase().includes(search.toLowerCase());
 		});
 	const setActiveArray = () => {
 		if (activeLeadNav === 'Liked') {
@@ -191,6 +188,7 @@ const Leads = ({
 						getLeads={getLeads}
 						showDetails={showDetails}
 						setShowDetails={setShowDetails}
+						user={user}
 					/>
 					<div>
 						<button className='link'>See more</button>

@@ -1,7 +1,7 @@
 import React from 'react';
 import LeadRow from './LeadRow';
 
-const LeadTable = ({ loading, leads, showDetails, setShowDetails }) => {
+const LeadTable = ({ loading, leads, showDetails, setShowDetails, user }) => {
 	return (
 		<section className='mt-8'>
 			{loading ? (
@@ -28,6 +28,7 @@ const LeadTable = ({ loading, leads, showDetails, setShowDetails }) => {
 								lead={lead}
 								showDetails={showDetails}
 								setShowDetails={setShowDetails}
+								user={user}
 							/>
 						))}
 					</tbody>

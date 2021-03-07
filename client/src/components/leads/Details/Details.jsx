@@ -6,6 +6,7 @@ import InsightsDropdown from './InsightsDropdown';
 
 const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
 	const [fullTitle, toggleFullTitle] = useState(false);
+	const { data } = currentLead;
 	return (
 		<div className='w-full h-screen flex justify-between absolute right-0'>
 			<div
@@ -24,11 +25,11 @@ const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
 								onMouseLeave={() => toggleFullTitle(false)}
 								className='text-gray-800 text-2xl lg:text-3xl font-extrabold leading-none cursor-pointer'
 							>
-								{truncate(currentLead.title, 40)}
+								{truncate(data.title, 40)}
 							</h3>
 							{fullTitle && (
 								<div className='p-2 absolute top-0 transform translate-y-10 rounded-md shadow-md bg-gray-800 text-white text-sm'>
-									{currentLead.title}
+									{data.title}
 								</div>
 							)}
 						</div>
@@ -72,28 +73,20 @@ const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
 						</div>
 					</div>
 				</header>
-				<section className='py-10 flex container'>
+				{/* <section className='py-10 flex container'>
 					<article className='lg:w-2/5'>
-						<SummaryDropdown
-							header='Summary'
-							obj={currentLead}
-							defaultOpen={true}
-						/>
+						<SummaryDropdown header='Summary' obj={data} defaultOpen={true} />
 						<CoreStatsDropdown
 							header='Core stats'
-							obj={currentLead}
+							obj={data}
 							defaultOpen={true}
 						/>
-						<InsightsDropdown header='Historic insights' obj={currentLead} />
+						<InsightsDropdown header='Historic insights' obj={data} />
 					</article>
 					<div className='w-3/5'>
-						<img
-							src={currentLead.img}
-							alt={currentLead.title}
-							className='px-48'
-						/>
+						<img src={data.img} alt={data.title} className='px-48' />
 					</div>
-				</section>
+				</section> */}
 			</section>
 		</div>
 	);

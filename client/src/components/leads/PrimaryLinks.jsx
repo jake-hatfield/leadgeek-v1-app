@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
 const PrimaryLinks = ({ link, setActiveLeadNav, showMenu }) => {
 	const handleLeadNav = (link) => {
@@ -7,11 +8,11 @@ const PrimaryLinks = ({ link, setActiveLeadNav, showMenu }) => {
 	const [hover, setHover] = useState(false);
 	return (
 		<div v-for='item in items'>
-			<button
+			<NavLink
 				className='p-2 relative w-full flex items-center justify-between rounded-md group hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 				onMouseEnter={() => setHover(!hover)}
 				onMouseLeave={() => setHover(false)}
-				onClick={() => handleLeadNav(link.title)}
+				to={link.title.toLowerCase()}
 			>
 				{!showMenu && hover && (
 					<div className='p-2 absolute left-0 z-10 transform -translate-y-1 translate-x-12 rounded-md bg-gray-800 shadow-md text-white text-sm whitespace-no-wrap'>
@@ -60,7 +61,7 @@ const PrimaryLinks = ({ link, setActiveLeadNav, showMenu }) => {
 							: ''}
 					</span>
 				)}
-			</button>
+			</NavLink>
 		</div>
 	);
 };

@@ -68,6 +68,9 @@ router.post(
 				});
 			}
 
+			user.lastLoggedIn = Date.now();
+			user.save();
+
 			// return the JWT
 			const payload = {
 				user: {

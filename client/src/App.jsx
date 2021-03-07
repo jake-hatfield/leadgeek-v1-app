@@ -13,8 +13,6 @@ import Navbar from './components/layout/Navbar';
 import Login from './components/auth/login/Login';
 import ForgotPassword from './components/auth/login/reset/ForgotPassword';
 import ResetPasswordPage from './components/auth/login/reset/ResetPasswordPage';
-import CreateProfile from './components/profile-forms/CreateProfile';
-import EditProfile from './components/profile-forms/EditProfile';
 import Leads from './components/leads/Leads';
 import Profile from './components/account/Profile';
 import Password from './components/account/Password';
@@ -65,6 +63,7 @@ const App = () => {
 								component={ResetPasswordPage}
 							/>
 							<PrivateRoute exact path='/' component={Leads} />
+							<PrivateRoute exact path='/liked' component={Leads} />
 							<PrivateRoute exact path='/account/profile' component={Profile} />
 							<PrivateRoute
 								exact
@@ -72,16 +71,6 @@ const App = () => {
 								component={Password}
 							/>
 							{/* <PrivateRoute exact path='/account/billing' component={Billing} /> */}
-							<PrivateRoute
-								exact
-								path='/create-profile'
-								component={CreateProfile}
-							/>
-							<PrivateRoute
-								exact
-								path='/edit-profile'
-								component={EditProfile}
-							/>
 						</Switch>
 					</Fragment>
 				</Router>

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
 	name: {
 		type: String,
 		required: true,
@@ -14,9 +15,14 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	date: {
+	dateCreated: {
 		type: Date,
 		default: Date.now,
+	},
+	lastLoggedIn: {
+		type: Date,
+		required: true,
+		default: null,
 	},
 	customerId: {
 		type: String,
@@ -48,6 +54,16 @@ const UserSchema = new mongoose.Schema({
 		type: Date,
 		default: null,
 	},
+	likedLeads: [
+		{
+			leadId: { type: Schema.Types.ObjectId, ref: 'Lead' },
+		},
+	],
+	archivedLeads: [
+		{
+			leadId: { type: Schema.Types.ObjectId, ref: 'Lead' },
+		},
+	],
 });
 
 module.exports = User = mongoose.model('user', UserSchema);

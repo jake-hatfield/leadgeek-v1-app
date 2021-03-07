@@ -1,11 +1,11 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 // redux
 import { connect } from 'react-redux';
 import {
 	viewLead,
+	handleLikeLead,
 	setLikeStatus,
-	unlikeLead,
 	showDetailedLead,
 } from '../../redux/actions/leads';
 // utils
@@ -19,18 +19,28 @@ import {
 const LeadRow = ({
 	lead,
 	viewLead,
+	handleLikeLead,
 	setLikeStatus,
-	unlikeLead,
 	showDetails,
 	setShowDetails,
 	showDetailedLead,
+	user,
 }) => {
+	const { data } = lead;
 	// event handlers
 	const [like, setLike] = useState(false);
 	const handleFavorite = (leadId, like, liked) => {
-		like || liked ? unlikeLead(leadId) : setLikeStatus(leadId);
+		like || (liked && setLikeStatus(leadId));
 	};
-	const [view, setView] = useStickyState(false);
+	const [unviewedLead, setUnviewedLead] = useState(false);
+	let newLead;
+	useEffect(() => {
+		console.log(data.date);
+		if (data.date >= user.lastLoggedIn) {
+			setUnviewedLead(true);
+		}
+	}, [user]);
+	const [view, setView] = useState(false);
 	// link opener
 	const openBothLinks = (e, sourceLink, amzLink) => {
 		e.preventDefault();
@@ -43,9 +53,9 @@ const LeadRow = ({
 				className='rounded-md last:border-none border-b-2 border-gray-100 hover:border-white hover:bg-gray-100 transition-all duration-200 cursor-pointer'
 				onClick={() => {
 					!view && setView(true);
-					viewLead(lead.id);
+					viewLead(lead._id);
 					setShowDetails(!showDetails);
-					showDetailedLead(lead.id);
+					showDetailedLead(lead._id);
 					document.body.style.overflow = 'hidden';
 				}}
 			>
@@ -62,7 +72,7 @@ const LeadRow = ({
 						onClick={(e) => {
 							e.stopPropagation();
 							!view && setView(true);
-							viewLead(lead.id);
+							handleLikeLead(user._id, lead._id);
 							setLike(!like);
 							handleFavorite(lead.id, like, lead.liked);
 						}}
@@ -84,34 +94,34 @@ const LeadRow = ({
 						</svg>
 					</button>
 				</td>
-				<td className='py-6 flex items-center'>{truncate(lead.title, 28)}</td>
-				<td className='pl-6'>{truncate(lead.category, 28)}</td>
+				<td className='py-6 flex items-center'>{truncate(data.title, 28)}</td>
+				<td className='pl-6'>{truncate(data.category, 28)}</td>
 				<td className='pl-6 text-gray-600 font-bold text-right'>
 					<span>$</span>
-					{lead.netProfit.toFixed(2)}
+					{data.netProfit.toFixed(2)}
 					<span className='ml-1 text-gray-400 font-semibold uppercase'>
 						USD
 					</span>
 				</td>
 				<td className='pl-6 text-gray-600 font-bold text-right'>
-					{lead.roi.toFixed(2) * 100}
+					{data.roi.toFixed(2) * 100}
 					<span className='ml-1 text-gray-400 font-semibold'>%</span>
 				</td>
 				<td className='px-6 text-gray-600 font-bold text-right'>
-					{numberWithCommas(lead.bsrCurrent)}
+					{numberWithCommas(data.bsrCurrent)}
 					<span className='ml-1 text-gray-400 font-normal'>
-						({calculateBSR(lead.bsrCurrent, lead.category)})
+						({calculateBSR(data.bsrCurrent, data.category)})
 						<span className='ml-1 text-gray-400 font-semibold'>%</span>
 					</span>
 				</td>
 				<td className='pr-6 text-gray-600 font-bold text-right'>
-					{numberWithCommas(lead.monthlySales)}
+					{numberWithCommas(data.monthlySales)}
 				</td>
 				<td className='pr-4'>
 					<button
 						onClick={(e) => {
 							e.stopPropagation();
-							openBothLinks(e, lead.sourceLink, lead.amzLink);
+							openBothLinks(e, data.sourceLink, data.amzLink);
 						}}
 						className='ml-2 rounded-md focus:outline-none focus:shadow-outline'
 					>
@@ -134,13 +144,12 @@ const LeadRow = ({
 LeadRow.propTypes = {
 	viewLead: PropTypes.func.isRequired,
 	setLikeStatus: PropTypes.func.isRequired,
-	unlikeLead: PropTypes.func.isRequired,
 	showDetailedLead: PropTypes.func.isRequired,
 };
 
 export default connect(null, {
 	viewLead,
+	handleLikeLead,
 	setLikeStatus,
-	unlikeLead,
 	showDetailedLead,
 })(LeadRow);

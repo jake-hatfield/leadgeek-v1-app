@@ -8,7 +8,6 @@ import {
 	LOGOUT,
 	USER_LOADED,
 	AUTH_ERROR,
-	CLEAR_PROFILE,
 	CHECK_RESET_PASSWORD_TOKEN,
 	SET_RESET_PASSWORD_TOKEN,
 	REMOVE_RESET_PASSWORD_TOKEN,
@@ -94,9 +93,6 @@ export const login = (email, password) => async (dispatch) => {
 
 // logout & clear the profile
 export const logout = () => (dispatch) => {
-	dispatch({
-		type: CLEAR_PROFILE,
-	});
 	dispatch({
 		type: LOGOUT,
 	});

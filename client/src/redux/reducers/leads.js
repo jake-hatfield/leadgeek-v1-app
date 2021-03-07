@@ -1,12 +1,12 @@
 import {
 	GET_LEADS,
 	VIEW_LEAD,
-	LIKE_LEAD,
-	UNLIKE_LEAD,
+	HANDLE_LIKE_LEAD,
 	ARCHIVE_LEAD,
 	SHOW_DETAILED_LEAD,
 	CLEAR_DETAILED_LEAD,
 	LOGOUT,
+	USER_LOADED,
 } from '../actions/types';
 
 const initialState = {
@@ -21,10 +21,13 @@ const initialState = {
 export default function (state = initialState, action) {
 	const { type, payload } = action;
 	const { feed, unviewed, liked, archived } = state;
-	const alreadyLiked = liked.find((lead) =>
-		lead.id === payload.id ? true : false
-	);
+	const likedLeads = [];
 	switch (type) {
+		case USER_LOADED:
+			return {
+				...state,
+				liked: payload.likedLeads,
+			};
 		case GET_LEADS:
 			return {
 				...state,
@@ -35,28 +38,15 @@ export default function (state = initialState, action) {
 		case VIEW_LEAD:
 			const updatedNew = unviewed.filter((lead) => lead.id !== payload.id);
 			let selectedLead = feed.find((lead) => lead.id === payload.id);
-			selectedLead.viewed = true;
 			return {
 				...state,
 				unviewed: updatedNew,
 				loading: false,
 			};
-		case LIKE_LEAD:
-			const leadIndex = feed.findIndex((lead) => lead.id === payload.id);
-			let newLikedArray = [...feed];
-			newLikedArray[leadIndex] = {
-				...newLikedArray[leadIndex],
-				liked: !newLikedArray[leadIndex].feed,
-			};
+		case HANDLE_LIKE_LEAD:
 			return {
 				...state,
-				liked: alreadyLiked ? [...liked] : [...liked, newLikedArray[leadIndex]],
-				loading: false,
-			};
-		case UNLIKE_LEAD:
-			return {
-				...state,
-				liked: liked.filter((lead) => lead.id !== payload.id),
+				liked: payload,
 				loading: false,
 			};
 		case ARCHIVE_LEAD:
@@ -72,7 +62,7 @@ export default function (state = initialState, action) {
 		case SHOW_DETAILED_LEAD:
 			return {
 				...state,
-				currentLead: feed.filter((lead) => lead.id === payload.id).pop(),
+				currentLead: feed.filter((lead) => lead._id === payload.id)[0],
 				loading: false,
 			};
 		case CLEAR_DETAILED_LEAD:
