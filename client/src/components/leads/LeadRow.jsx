@@ -14,7 +14,6 @@ import {
 	numberWithCommas,
 	calculateBSR,
 } from '../layout/utils';
-
 const LeadRow = ({
 	lead,
 	viewLead,
@@ -46,7 +45,6 @@ const LeadRow = ({
 		window.open(sourceLink);
 		window.open(amzLink);
 	};
-
 	return (
 		<tr
 			className='rounded-md last:border-none border-b-2 border-gray-100 hover:border-white hover:bg-gray-100 transition-all duration-200 cursor-pointer'
@@ -55,7 +53,6 @@ const LeadRow = ({
 				newLead && setNewLead(false);
 				setShowDetails(!showDetails);
 				showDetailedLead(lead._id);
-				document.body.style.overflow = 'hidden';
 			}}
 		>
 			<td className='pl-2'>
