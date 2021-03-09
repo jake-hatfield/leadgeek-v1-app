@@ -8,6 +8,10 @@ import setAuthToken from './utils/authTokens';
 // stripe
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+// routes
+import Feed from '../src/routes/Feed';
+import Liked from '../src/routes/Liked';
+import Archived from '../src/routes/Archived';
 // components
 import Navbar from './components/layout/Navbar';
 import Login from './components/auth/login/Login';
@@ -62,8 +66,9 @@ const App = () => {
 								path='/reset/reset-password/:token'
 								component={ResetPasswordPage}
 							/>
-							<PrivateRoute exact path='/' component={Leads} />
-							<PrivateRoute exact path='/liked' component={Leads} />
+							<PrivateRoute exact path='/' component={Feed} />
+							<PrivateRoute exact path='/liked' component={Liked} />
+							<PrivateRoute exact path='/archived' component={Archived} />
 							<PrivateRoute exact path='/account/profile' component={Profile} />
 							<PrivateRoute
 								exact

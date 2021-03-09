@@ -1,7 +1,7 @@
 import {
 	GET_LEADS,
+	GET_LIKED_LEADS,
 	VIEW_LEAD,
-	HANDLE_LIKE_LEAD,
 	ARCHIVE_LEAD,
 	SHOW_DETAILED_LEAD,
 	CLEAR_DETAILED_LEAD,
@@ -14,6 +14,7 @@ const initialState = {
 	unviewed: [],
 	liked: [],
 	archived: [],
+	lastActive: null,
 	currentLead: null,
 	loading: true,
 };
@@ -26,7 +27,7 @@ export default function (state = initialState, action) {
 		case USER_LOADED:
 			return {
 				...state,
-				liked: payload.likedLeads,
+				lastActive: payload.lastLoggedIn,
 			};
 		case GET_LEADS:
 			return {
@@ -35,18 +36,15 @@ export default function (state = initialState, action) {
 				unviewed: payload.unviewed,
 				loading: false,
 			};
+		case GET_LIKED_LEADS:
+			return { ...state, liked: payload, loading: false };
 		case VIEW_LEAD:
-			const updatedNew = unviewed.filter((lead) => lead.id !== payload.id);
-			let selectedLead = feed.find((lead) => lead.id === payload.id);
+			const newUnviewedArray = unviewed.filter(
+				(lead) => lead._id !== payload.id
+			);
 			return {
 				...state,
-				unviewed: updatedNew,
-				loading: false,
-			};
-		case HANDLE_LIKE_LEAD:
-			return {
-				...state,
-				liked: payload,
+				unviewed: newUnviewedArray,
 				loading: false,
 			};
 		case ARCHIVE_LEAD:

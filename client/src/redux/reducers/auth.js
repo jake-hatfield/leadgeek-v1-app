@@ -9,6 +9,7 @@ import {
 	SET_RESET_PASSWORD_TOKEN,
 	CHECK_RESET_PASSWORD_TOKEN,
 	REMOVE_RESET_PASSWORD_TOKEN,
+	HANDLE_LIKE_LEAD,
 } from '../actions/types';
 
 const initialState = {
@@ -64,6 +65,12 @@ export default function (state = initialState, action) {
 			return {
 				...state,
 				validatedResetPasswordToken: false,
+			};
+		case HANDLE_LIKE_LEAD:
+			return {
+				...state,
+				user: { ...state.user, likedLeads: payload },
+				loading: false,
 			};
 		default:
 			return state;

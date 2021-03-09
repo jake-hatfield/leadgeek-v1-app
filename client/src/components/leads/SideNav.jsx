@@ -1,13 +1,77 @@
 import React, { useState } from 'react';
-import { useStickyState } from '../layout/utils';
-import PrimaryLinks from './PrimaryLinks';
+import { NavLink } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { useStickyState, lengthChecker } from '../layout/utils';
 import Tool from './Tools';
 
-const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
-	// utils
-	const lengthChecker = (array) => {
-		return array.length > 99 ? '99+' : array.length;
-	};
+const PrimaryLinks = ({ link, showMenu }) => {
+	const [hover, setHover] = useState(false);
+	return (
+		<div v-for='item in items'>
+			<NavLink
+				className='p-2 relative w-full flex items-center justify-between rounded-md group hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+				onMouseEnter={() => setHover(!hover)}
+				onMouseLeave={() => setHover(false)}
+				to={link.link}
+			>
+				{!showMenu && hover && (
+					<div className='p-2 absolute left-0 z-10 transform -translate-y-1 translate-x-12 rounded-md bg-gray-800 shadow-md text-white text-sm whitespace-no-wrap'>
+						{link.title}
+					</div>
+				)}
+				<div className='flex items-center'>
+					<span
+						className={`${showMenu && 'relative'} text-center text-gray-300`}
+					>
+						{link.svg}
+						{!showMenu &&
+							link.notifications !== 0 &&
+							link.notifications !== undefined && (
+								<span className='absolute top-0 '>
+									<span
+										className={`px-1 h-5 w-5 flex items-center justify-center rounded-full border-2 border-white group-hover:border-gray-100 ${
+											link.title === 'Feed'
+												? `bg-purple-600 text-white`
+												: link.title === 'Liked'
+												? `bg-teal-200 text-teal-600`
+												: `bg-gray-100 text-gray-500`
+										} text-white text-xs font-semibold transition-colors duration-100 ease-in-out`}
+									>
+										{link.notifications}
+									</span>
+								</span>
+							)}
+					</span>
+					{showMenu && <span className='ml-2'>{link.title}</span>}
+				</div>
+				{showMenu && (
+					<span
+						className={`px-2 ${
+							link.title === 'Feed'
+								? `bg-purple-600 text-white`
+								: link.title === 'Liked'
+								? `bg-teal-200 text-teal-600`
+								: `bg-gray-100 text-gray-500`
+						}  rounded-full text-xs font-semibold`}
+					>
+						{link.notifications
+							? link.title === 'Feed'
+								? `${link.notifications} new`
+								: link.notifications
+							: ''}
+					</span>
+				)}
+			</NavLink>
+		</div>
+	);
+};
+
+const SideNav = ({
+	auth: {
+		user: { likedLeads },
+	},
+	leads: { feed, unviewed },
+}) => {
 	// state & local storage
 	const [showMenu, setShowMenu] = useStickyState('showMenu', 'full-menu');
 	const [hover, setHover] = useState(false);
@@ -31,8 +95,8 @@ const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 		},
 		{
 			title: 'Liked',
-			link: '/leads',
-			notifications: lengthChecker(liked),
+			link: '/liked',
+			notifications: lengthChecker(likedLeads),
 			svg: (
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
@@ -50,7 +114,7 @@ const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 		},
 		{
 			title: 'Archived',
-			link: '/leads',
+			link: '/archived',
 			svg: (
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
@@ -59,24 +123,6 @@ const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 					className={svgClass}
 				>
 					<path d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z' />
-				</svg>
-			),
-		},
-		{
-			title: 'Compare',
-			link: '/leads',
-			svg: (
-				<svg
-					xmlns='http://www.w3.org/2000/svg'
-					viewBox='0 0 20 20'
-					fill='currentColor'
-					className={svgClass}
-				>
-					<path
-						fillRule='evenodd'
-						d='M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.993 1.993 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z'
-						clipRule='evenodd'
-					/>
 				</svg>
 			),
 		},
@@ -168,11 +214,7 @@ const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 					)}
 					{primaryLinks.map((link, i) => (
 						<div key={i} className='first:mt-0 mt-1'>
-							<PrimaryLinks
-								link={link}
-								setActiveLeadNav={setActiveLeadNav}
-								showMenu={showMenu}
-							/>
+							<PrimaryLinks link={link} showMenu={showMenu} />
 						</div>
 					))}
 				</aside>
@@ -245,4 +287,9 @@ const SideNav = ({ unviewed, liked, setActiveLeadNav }) => {
 	);
 };
 
-export default SideNav;
+const mapStateToProps = (state, ownProps) => {
+	const { auth, leads } = state;
+	return { auth, leads };
+};
+
+export default connect(mapStateToProps)(SideNav);

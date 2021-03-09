@@ -24,6 +24,10 @@ const UserSchema = new Schema({
 		required: true,
 		default: null,
 	},
+	lastActive: {
+		type: Date,
+		default: this.lastLoggedIn,
+	},
 	customerId: {
 		type: String,
 		required: true,

@@ -11,6 +11,7 @@ export const USER_LOADED = 'USER_LOADED';
 export const AUTH_ERROR = 'AUTH_ERROR';
 // leads types
 export const GET_LEADS = 'GET_LEADS';
+export const GET_LIKED_LEADS = 'GET_LIKED_LEADS';
 export const UPDATE_LEADS = 'UPDATE_LEADS';
 export const VIEW_LEAD = 'VIEW_LEAD';
 export const HANDLE_LIKE_LEAD = 'HANDLE_LIKE_LEAD';

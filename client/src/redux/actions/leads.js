@@ -1,5 +1,6 @@
 import {
 	GET_LEADS,
+	GET_LIKED_LEADS,
 	VIEW_LEAD,
 	HANDLE_LIKE_LEAD,
 	SHOW_DETAILED_LEAD,
@@ -18,6 +19,24 @@ export const getLeads = (lastLoggedIn, planId) => async (dispatch) => {
 		dispatch({
 			type: GET_LEADS,
 			payload: { feedArray, unviewed, liked },
+		});
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const populateLikedLeads = (leads) => async (dispatch) => {
+	try {
+		const config = {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		};
+		const body = JSON.stringify(leads);
+		const { data } = await axios.post('/api/leads/liked', body, config);
+		dispatch({
+			type: GET_LIKED_LEADS,
+			payload: data.likedLeads,
 		});
 	} catch (error) {
 		console.log(error);
@@ -43,17 +62,6 @@ export const handleLikeLead = (userId, leadId) => async (dispatch) => {
 		}
 	} catch (error) {
 		console.error(error);
-	}
-};
-
-export const setLikeStatus = (leadId) => (dispatch) => {
-	try {
-		dispatch({
-			type: HANDLE_LIKE_LEAD,
-			payload: { id: leadId },
-		});
-	} catch (error) {
-		console.log(error);
 	}
 };
 

@@ -76,3 +76,7 @@ export const calculateBSR = (currentRank, category) => {
 	let bsrPercentage = ((currentRank / totalItems) * 100).toFixed(3);
 	return bsrPercentage;
 };
+
+export const lengthChecker = (array) => {
+	return array.length > 99 ? '99+' : array.length;
+};

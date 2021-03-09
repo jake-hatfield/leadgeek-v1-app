@@ -26,16 +26,16 @@ router.post('/export', auth, async (req, res) => {
 // @access      Private
 router.get('/', auth, async (req, res) => {
 	try {
-		const feed = await Lead.find({});
+		const feed = await Lead.find({}).sort({ 'data.date': -1 });
 		if (feed.length <= 0) {
 			let message = 'Could not retrieve leads.';
 			console.log(message);
-			return res.status(404).json({ status: 'failure', message });
+			return res.status(404).send({ status: 'failure', message });
 		} else {
 			console.log(
 				`Successfully queried leads! There were ${feed.length} leads found.`
 			);
-			return res.status(200).json({ feed });
+			return res.status(200).send({ feed });
 		}
 	} catch (error) {
 		console.error(error.message);
@@ -43,8 +43,27 @@ router.get('/', auth, async (req, res) => {
 	}
 });
 
-// @route       POST api/like-lead
-// @description Like a lead
+router.post('/liked', auth, async (req, res) => {
+	try {
+		const likedLeads = await Lead.find({ _id: { $in: req.body } });
+		if (likedLeads.length <= 0) {
+			let message = 'Could not retrieve leads.';
+			console.log(message);
+			return res.status(404).send({ status: 'failure', message });
+		} else {
+			console.log(
+				`Successfully queried liked leads! There were ${likedLeads.length} leads found.`
+			);
+			return res.status(200).send({ likedLeads });
+		}
+	} catch (error) {
+		console.log(error.message);
+		return res.status(500).send('Sever error');
+	}
+});
+
+// @route       POST api/handle-like-lead
+// @description Like/unlike a lead
 // @access      Private
 const unlikeLead = async (user, leadId) => {
 	const updatedLikedArray = user.likedLeads.filter(
