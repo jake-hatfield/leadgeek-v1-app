@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
+import { handleArchiveLead } from '../../../redux/actions/leads';
 import { truncate } from '../../layout/utils';
 import CoreStatsDropdown from './CoreStatsDropdown';
 import SummaryDropdown from './SummaryDropdown';
 import InsightsDropdown from './InsightsDropdown';
 
-const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
+const Details = ({
+	clearDetailedLead,
+	setShowDetails,
+	currentLead,
+	user,
+	handleArchiveLead,
+}) => {
 	const [fullTitle, toggleFullTitle] = useState(false);
 	const { data } = currentLead;
 	return (
@@ -34,7 +42,10 @@ const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
 							)}
 						</div>
 						<div className='flex'>
-							<button className='rounded-md focus:outline-none focus:shadow-outline'>
+							<button
+								onClick={() => handleArchiveLead(user._id, currentLead._id)}
+								className='rounded-md focus:outline-none focus:shadow-outline'
+							>
 								<svg
 									xmlns='http://www.w3.org/2000/svg'
 									fill='none'
@@ -92,4 +103,10 @@ const Details = ({ clearDetailedLead, setShowDetails, currentLead }) => {
 	);
 };
 
-export default Details;
+const mapStateToProps = (state, ownProps) => {
+	const { clearDetailedLead, setShowDetails, currentLead } = ownProps;
+	const { user } = state.auth;
+	return { clearDetailedLead, setShowDetails, currentLead, user };
+};
+
+export default connect(mapStateToProps, { handleArchiveLead })(Details);

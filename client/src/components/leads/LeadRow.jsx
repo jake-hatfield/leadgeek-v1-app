@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 // redux
 import { connect } from 'react-redux';
@@ -8,17 +8,11 @@ import {
 	showDetailedLead,
 } from '../../redux/actions/leads';
 // utils
-import {
-	useStickyState,
-	truncate,
-	numberWithCommas,
-	calculateBSR,
-} from '../layout/utils';
+import { truncate, numberWithCommas, calculateBSR } from '../layout/utils';
 const LeadRow = ({
 	lead,
 	viewLead,
 	handleLikeLead,
-	setLikeStatus,
 	showDetails,
 	setShowDetails,
 	showDetailedLead,
@@ -49,9 +43,9 @@ const LeadRow = ({
 		<tr
 			className='rounded-md last:border-none border-b-2 border-gray-100 hover:border-white hover:bg-gray-100 transition-all duration-200 cursor-pointer'
 			onClick={() => {
-				viewLead(lead._id);
 				newLead && setNewLead(false);
 				setShowDetails(!showDetails);
+				viewLead(lead._id);
 				showDetailedLead(lead._id);
 			}}
 		>
@@ -65,6 +59,7 @@ const LeadRow = ({
 			<td className='p-2 text-center text-gray-400'>
 				<button
 					onClick={(e) => {
+						e.stopPropagation();
 						newLead && setNewLead(false);
 						setLike(!like);
 						handleLikeLead(user._id, lead._id);

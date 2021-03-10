@@ -9,17 +9,17 @@ import AltDropdown from './AltDropdown';
 const Navbar = ({
 	auth: { isAuthenticated, loading, user },
 	unviewed,
+	page,
 	getLeads,
 	logout,
 }) => {
+	console.log(page);
 	// get leads
 	useEffect(() => {
-		!loading &&
-			isAuthenticated &&
-			user &&
-			getLeads(user.lastLoggedIn, user.planId);
-	}, [loading, isAuthenticated, user, getLeads]);
-	const test = [];
+		if (user) {
+			!loading && isAuthenticated && user && getLeads(user, page);
+		}
+	}, [loading, isAuthenticated, user, getLeads, page]);
 	// utils
 	const lengthChecker = (array) => {
 		return array.length > 99 ? '99+' : array.length;
@@ -178,9 +178,11 @@ Navbar.propTypes = {
 	logout: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => ({
-	auth: state.auth,
-	unviewed: state.leads.unviewed,
-});
+const mapStateToProps = (state) => {
+	const { auth } = state;
+	const { unviewed } = state.leads;
+	const { page } = state.leads.pagination;
+	return { auth, unviewed, page };
+};
 
 export default connect(mapStateToProps, { logout, getLeads })(Navbar);

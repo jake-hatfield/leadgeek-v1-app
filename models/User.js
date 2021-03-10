@@ -68,6 +68,11 @@ const UserSchema = new Schema({
 			leadId: { type: Schema.Types.ObjectId, ref: 'Lead' },
 		},
 	],
+	unviewedLeads: [
+		{
+			leadId: { type: Schema.Types.ObjectId, ref: 'Lead' },
+		},
+	],
 });
 
 module.exports = User = mongoose.model('user', UserSchema);

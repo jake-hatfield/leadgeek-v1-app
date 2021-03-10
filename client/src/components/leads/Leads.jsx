@@ -1,16 +1,12 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
+import { clearDetailedLead, exportLead } from '../../redux/actions/leads';
 
 import SideNav from './SideNav';
 import LeadTable from './LeadTable';
 import Averages from './Averages';
 import Details from './Details/Details';
-
-import {
-	clearDetailedLead,
-	exportLead,
-	populateLikedLeads,
-} from '../../redux/actions/leads';
+import Pagination from '../layout/Pagination';
 
 const Leads = ({
 	leads,
@@ -26,10 +22,10 @@ const Leads = ({
 	// // navigation
 	// const [activeLeadNav, setActiveLeadNav] = useState('Feed');
 	// // search helpers
-	// const [search, setSearch] = useState('');
-	// const onSearchChange = (e) => {
-	// 	setSearch(e.target.value);
-	// };
+	const [search, setSearch] = useState('');
+	const onSearchChange = (e) => {
+		setSearch(e.target.value);
+	};
 	// // array helpers
 	// const filteredLeads = (array) => {
 	// 	array.filter((lead) => {
@@ -130,18 +126,6 @@ const Leads = ({
 	// toggle additional information
 	const [showDetails, setShowDetails] = useState(false);
 	return (
-		// !loading &&
-		// user &&
-		// <Fragment>
-
-		/* {showDetails && (
-				<Details
-					clearDetailedLead={clearDetailedLead}
-					setShowDetails={setShowDetails}
-					currentLead={currentLead}
-				/>
-			)} */
-		// </Fragment>
 		!loading &&
 		user && (
 			<Fragment>
@@ -149,7 +133,7 @@ const Leads = ({
 					<SideNav />
 					<section className='w-full'>
 						<header className='flex items-center justify-between'>
-							{/* <div className='relative z-0 w-full xl:w-5/6'>
+							<div className='relative z-0 w-full xl:w-5/6'>
 								<input
 									onChange={(e) => onSearchChange(e)}
 									type='text'
@@ -168,7 +152,7 @@ const Leads = ({
 										clipRule='evenodd'
 									/>
 								</svg>
-							</div> */}
+							</div>
 							<div className='w-1/6 flex justify-end'>
 								<button
 									onClick={() => exportLead()}
@@ -198,11 +182,16 @@ const Leads = ({
 							setShowDetails={setShowDetails}
 							user={user}
 						/>
-						<div>
-							<button className='link'>See more</button>
-						</div>
+						<Pagination />
 					</section>
 				</section>
+				{showDetails && (
+					<Details
+						clearDetailedLead={clearDetailedLead}
+						setShowDetails={setShowDetails}
+						currentLead={currentLead}
+					/>
+				)}
 			</Fragment>
 		)
 	);
@@ -211,10 +200,11 @@ const Leads = ({
 const mapStateToProps = (state, ownProps) => {
 	const { leads } = ownProps;
 	const { auth } = state;
-	const { currentLead } = state.leads;
-	return { leads, auth, currentLead };
+	const { currentLead, page } = state.leads;
+	return { leads, auth, currentLead, page };
 };
 
-export default connect(mapStateToProps, { clearDetailedLead, exportLead })(
-	Leads
-);
+export default connect(mapStateToProps, {
+	clearDetailedLead,
+	exportLead,
+})(Leads);

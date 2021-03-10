@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { populateLikedLeads } from '../redux/actions/leads';
 
@@ -18,4 +18,3 @@ const mapStateToProps = (state) => {
 };
 
 export default connect(mapStateToProps, { populateLikedLeads })(Liked);
-k;
