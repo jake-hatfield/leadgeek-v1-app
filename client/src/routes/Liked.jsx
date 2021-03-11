@@ -6,8 +6,8 @@ import Leads from '../components/leads/Leads';
 
 const Liked = ({ user, liked, populateLikedLeads }) => {
 	useEffect(() => {
-		liked.length === 0 && populateLikedLeads(user.likedLeads);
-	}, [user]);
+		populateLikedLeads(user.likedLeads);
+	}, [user.likedLeads]);
 	return <Leads leads={liked} />;
 };
 

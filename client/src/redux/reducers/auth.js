@@ -9,7 +9,9 @@ import {
 	SET_RESET_PASSWORD_TOKEN,
 	CHECK_RESET_PASSWORD_TOKEN,
 	REMOVE_RESET_PASSWORD_TOKEN,
+	VIEW_LEAD,
 	HANDLE_LIKE_LEAD,
+	HANDLE_ARCHIVE_LEAD,
 } from '../actions/types';
 
 const initialState = {
@@ -66,10 +68,22 @@ export default function (state = initialState, action) {
 				...state,
 				validatedResetPasswordToken: false,
 			};
+		case VIEW_LEAD: {
+			return {
+				...state,
+				user: { ...state.user, unviewedLeads: payload },
+			};
+		}
 		case HANDLE_LIKE_LEAD:
 			return {
 				...state,
-				user: { ...state.user, likedLeads: payload },
+				user: { ...state.user, likedLeads: payload.leads },
+				loading: false,
+			};
+		case HANDLE_ARCHIVE_LEAD:
+			return {
+				...state,
+				user: { ...state.user, archivedLeads: payload.leads },
 				loading: false,
 			};
 		default:

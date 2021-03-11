@@ -5,7 +5,7 @@ const auth = require('../../middleware/auth');
 const Lead = require('../../models/Lead');
 const User = require('../../models/User');
 
-const ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE = 10;
 
 // @route       POST api/leads/export
 // @description Create new lead
@@ -24,12 +24,19 @@ router.post('/export', auth, async (req, res) => {
 });
 
 // @route       GET api/leads
-// @description Get bundle leads
+// @description Get all leads by plan
 // @access      Private
 router.post('/', auth, async (req, res) => {
 	try {
 		const { lastLoggedIn, _id, plan, page } = req.body;
-		console.log(page);
+		const user = await User.findById({ _id });
+		if (!user) {
+			let message = 'There was an error finding a user with that id.';
+			console.log(message);
+			return res.status(404).send({ status: 'failure', message });
+		}
+		console.log('Getting all leads...');
+		const { unviewedLeads } = user;
 		let totalItems;
 		const feed = await Lead.find({ plan })
 			.countDocuments()
@@ -43,26 +50,24 @@ router.post('/', auth, async (req, res) => {
 		if (feed.length === 0) {
 			let message = 'There are no leads to show.';
 			console.log(message);
-			return res.status(404).send({ status: 'failure', message });
+			return res.status(404).send({ message });
 		} else {
-			const user = await User.findById({ _id });
-			const { unviewedLeads } = user;
 			// see if any leads have been added since the user last logged in
-			const unviewed = feed
-				.filter((lead) => lead.data.date >= lastLoggedIn)
-				.map((obj) => {
-					return obj._id;
-				});
+			const unviewed = await Lead.find({
+				plan,
+				'data.date': { $gte: lastLoggedIn },
+			}).select('_id');
 			// if any new leads, add them to the DB
 			if (unviewed.length > 0) {
 				console.log('Adding new unviewed products...');
-				unviewedLeads.push(unviewed);
-				console.log(unviewedLeads);
+				// see if they're already in the user's unviewed leads
+				const newUnviewed = unviewed.filter(
+					(lead) => unviewedLeads.map((l) => l._id) !== lead._id
+				);
+				user.unviewedLeads = newUnviewed;
 				await user.save();
 			}
-			console.log(
-				`Successfully queried all leads! There were ${feed.length} leads found.`
-			);
+			console.log(`Successfully queried ${feed.length} database leads.`);
 			return res.status(200).send({
 				feed,
 				unviewedLeads,
@@ -80,6 +85,25 @@ router.post('/', auth, async (req, res) => {
 	}
 });
 
+// @route       POST api/view
+// @description Update unviewed leads in database on view
+// @access      Private
+router.post('/view', auth, async (req, res) => {
+	try {
+		const { userId, leadId } = req.body;
+		let user = await User.findById(userId);
+		const newUnviewedLeads = user.unviewedLeads.filter(
+			(lead) => lead._id.toString() !== leadId.toString()
+		);
+		user.unviewedLeads = newUnviewedLeads;
+		await user.save();
+		return res.status(200).send(newUnviewedLeads);
+	} catch (error) {
+		console.log(error.message);
+		return res.status(500).send('Sever error');
+	}
+});
+
 // @route       POST api/liked
 // @description Send lead ids to populate the liked page
 // @access      Private
@@ -89,13 +113,13 @@ router.post('/liked', auth, async (req, res) => {
 			'data.date': -1,
 		});
 		if (likedLeads.length === 0) {
-			console.log('You have not liked any leads yet.');
-			return res.status(204);
+			let message = 'You have not liked any leads.';
+			console.log(message);
+			return res.status(200).send({ message });
 		} else {
-			console.log(
-				`Successfully queried liked leads! There were ${likedLeads.length} leads found.`
-			);
-			return res.status(200).send({ likedLeads });
+			let message = `Successfully queried ${likedLeads.length} liked leads.`;
+			console.log(message);
+			return res.status(200).send({ message, likedLeads });
 		}
 	} catch (error) {
 		console.log(error.message);
@@ -112,13 +136,13 @@ router.post('/archived', auth, async (req, res) => {
 			'data.date': -1,
 		});
 		if (archivedLeads.length === 0) {
-			console.log('You have not archived any leads yet.');
-			return res.status(204);
+			let message = 'You have not archived any leads.';
+			console.log(message);
+			return res.status(200).send({ message });
 		} else {
-			console.log(
-				`Successfully queried archived leads! There were ${archivedLeads.length} leads found.`
-			);
-			return res.status(200).send({ archivedLeads });
+			let message = `Successfully queried ${archivedLeads.length} archived leads.`;
+			console.log(message);
+			return res.status(200).send({ message, archivedLeads });
 		}
 	} catch (error) {
 		console.log(error.message);

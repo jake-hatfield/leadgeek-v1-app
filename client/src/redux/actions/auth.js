@@ -14,6 +14,12 @@ import {
 } from './types';
 import { setResetPasswordToken } from '../../utils/authTokens';
 
+const config = {
+	headers: {
+		'Content-Type': 'application/json',
+	},
+};
+
 // load user
 export const loadUser = () => async (dispatch) => {
 	try {
@@ -36,9 +42,7 @@ export const register = ({ name, email, password }) => async (dispatch) => {
 			'Content-Type': 'application/json',
 		},
 	};
-
 	const body = JSON.stringify({ name, email, password });
-
 	try {
 		const res = await axios.post('/api/users', body, config);
 		dispatch({
@@ -59,14 +63,7 @@ export const register = ({ name, email, password }) => async (dispatch) => {
 
 // login user
 export const login = (email, password) => async (dispatch) => {
-	const config = {
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	};
-
 	const body = JSON.stringify({ email, password });
-
 	try {
 		const res = await axios.post('/api/auth', body, config);
 		dispatch({
@@ -92,7 +89,8 @@ export const login = (email, password) => async (dispatch) => {
 };
 
 // logout & clear the profile
-export const logout = () => (dispatch) => {
+export const logout = () => async (dispatch) => {
+	localStorage.setItem('lastLogout', new Date().getTime());
 	dispatch({
 		type: LOGOUT,
 	});
@@ -100,11 +98,6 @@ export const logout = () => (dispatch) => {
 
 // forgot password
 export const forgotPassword = (email) => async (dispatch) => {
-	const config = {
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	};
 	const body = JSON.stringify({ email });
 	try {
 		const res = await axios.post('/api/users/forgotPassword', body, config);

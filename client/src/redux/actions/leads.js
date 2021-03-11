@@ -5,38 +5,47 @@ import {
 	VIEW_LEAD,
 	HANDLE_LIKE_LEAD,
 	HANDLE_ARCHIVE_LEAD,
-	SHOW_DETAILED_LEAD,
+	SET_CURRENT_LEAD,
 	CLEAR_DETAILED_LEAD,
 	SET_PAGE,
-	SET_ALERT,
+	LOADING,
+	FINISHED_LOADING,
 } from './types';
 import axios from 'axios';
 import { setAlert } from './alert';
-const queryString = require('query-string');
+
+// application/json config object
+const config = {
+	headers: {
+		'Content-Type': 'application/json',
+	},
+};
 
 export const getLeads = (user, page) => async (dispatch) => {
 	try {
-		const { lastLoggedIn, _id, planId } = user;
+		dispatch({ type: LOADING });
+		const { _id, lastLoggedIn, planId, unviewedLeads } = user;
 		let plan;
 		if (planId.includes(process.env.REACT_APP_BUNDLE_PRODUCT_ID)) {
 			plan = 'bundle_1';
 		} else if (planId.includes(process.env.REACT_APP_PRO_PRODUCT_ID)) {
 			plan = 'pro_1';
 		} else plan = 'grow_1';
-		const config = {
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		};
-		const body = JSON.stringify({ lastLoggedIn, _id, plan, page });
+		const body = JSON.stringify({
+			_id,
+			lastLoggedIn,
+			plan,
+			unviewedLeads,
+			page,
+		});
 		const { data } = await axios.post('/api/leads', body, config);
-		// const liked = feed.filter((lead) => lead.liked === true);
 		dispatch({
 			type: GET_LEADS,
 			payload: {
 				data,
 			},
 		});
+		dispatch({ type: FINISHED_LOADING });
 	} catch (error) {
 		console.log(error);
 	}
@@ -44,17 +53,20 @@ export const getLeads = (user, page) => async (dispatch) => {
 
 export const populateLikedLeads = (leads) => async (dispatch) => {
 	try {
-		const config = {
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		};
+		dispatch({ type: LOADING });
 		const body = JSON.stringify(leads);
-		const { data } = await axios.post('/api/leads/liked', body, config);
-		dispatch({
-			type: GET_LIKED_LEADS,
-			payload: data.likedLeads,
-		});
+		const {
+			data: { message, likedLeads },
+		} = await axios.post('/api/leads/liked', body, config);
+		if (message === 'You have not liked any leads.') {
+			dispatch(setAlert(message, 'warning'));
+		} else {
+			dispatch({
+				type: GET_LIKED_LEADS,
+				payload: likedLeads,
+			});
+		}
+		dispatch({ type: FINISHED_LOADING });
 	} catch (error) {
 		console.log(error);
 	}
@@ -62,17 +74,20 @@ export const populateLikedLeads = (leads) => async (dispatch) => {
 
 export const populateArchivedLeads = (leads) => async (dispatch) => {
 	try {
-		const config = {
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		};
+		dispatch({ type: LOADING });
 		const body = JSON.stringify(leads);
-		const { data } = await axios.post('/api/leads/archived', body, config);
-		dispatch({
-			type: GET_ARCHIVED_LEADS,
-			payload: data.archivedLeads,
-		});
+		const {
+			data: { message, archivedLeads },
+		} = await axios.post('/api/leads/archived', body, config);
+		if (message === 'You have not archived any leads.') {
+			dispatch(setAlert(message, 'warning'));
+		} else {
+			dispatch({
+				type: GET_ARCHIVED_LEADS,
+				payload: archivedLeads,
+			});
+		}
+		dispatch({ type: FINISHED_LOADING });
 	} catch (error) {
 		console.log(error);
 	}
@@ -80,19 +95,14 @@ export const populateArchivedLeads = (leads) => async (dispatch) => {
 
 export const handleLikeLead = (userId, leadId) => async (dispatch) => {
 	try {
-		const config = {
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		};
 		const body = JSON.stringify({ userId, leadId });
 		const res = await axios.post('/api/leads/handle-like-lead', body, config);
 		if (res.status === 200) {
-			let message = res.data.msg;
-			dispatch(setAlert(message, 'success'));
+			const { msg, leads } = res.data;
+			dispatch(setAlert(msg, 'success'));
 			dispatch({
 				type: HANDLE_LIKE_LEAD,
-				payload: res.data.leads,
+				payload: { leadId, leads },
 			});
 		}
 	} catch (error) {
@@ -102,11 +112,6 @@ export const handleLikeLead = (userId, leadId) => async (dispatch) => {
 
 export const handleArchiveLead = (userId, leadId) => async (dispatch) => {
 	try {
-		const config = {
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		};
 		const body = JSON.stringify({ userId, leadId });
 		const res = await axios.post(
 			'/api/leads/handle-archive-lead',
@@ -114,11 +119,11 @@ export const handleArchiveLead = (userId, leadId) => async (dispatch) => {
 			config
 		);
 		if (res.status === 200) {
-			let message = res.data.msg;
-			dispatch(setAlert(message, 'success'));
+			const { msg, leads } = res.data;
+			dispatch(setAlert(msg, 'success'));
 			dispatch({
 				type: HANDLE_ARCHIVE_LEAD,
-				payload: res.data.leads,
+				payload: { leadId, leads },
 			});
 		}
 	} catch (error) {
@@ -126,24 +131,25 @@ export const handleArchiveLead = (userId, leadId) => async (dispatch) => {
 	}
 };
 
-export const viewLead = (leadId) => (dispatch) => {
+export const viewLead = (userId, leadId) => async (dispatch) => {
 	try {
+		const body = JSON.stringify({ userId, leadId });
+		const res = await axios.post('/api/leads/view', body, config);
+		console.log(res.data);
 		dispatch({
 			type: VIEW_LEAD,
-			payload: { id: leadId },
+			payload: res.data,
 		});
 	} catch (error) {
 		console.log(error);
 	}
 };
 
-export const showDetailedLead = (leadId) => (dispatch) => {
+export const setCurrentLead = (lead) => (dispatch) => {
 	try {
-		const path = window.location.pathname;
-		const arrayType = path.replace(/\//, '');
 		dispatch({
-			type: SHOW_DETAILED_LEAD,
-			payload: { id: leadId, array: arrayType },
+			type: SET_CURRENT_LEAD,
+			payload: lead,
 		});
 	} catch (error) {
 		console.log(error);
@@ -202,14 +208,9 @@ export const exportLead = () => async (dispatch) => {
 			},
 			plan: 'pro_1',
 		};
-		const config = {
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		};
 		const body = JSON.stringify({ lead });
-		const res = await axios.post('/api/leads/export', body, config);
-		console.log(res.data);
+		const { data } = await axios.post('/api/leads/export', body, config);
+		console.log(data);
 	} catch (error) {
 		console.log(error);
 	}

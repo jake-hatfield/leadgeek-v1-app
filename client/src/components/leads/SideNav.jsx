@@ -68,9 +68,8 @@ const PrimaryLinks = ({ link, showMenu }) => {
 
 const SideNav = ({
 	auth: {
-		user: { likedLeads },
+		user: { unviewedLeads, likedLeads, archivedLeads },
 	},
-	leads: { feed, unviewed },
 }) => {
 	// state & local storage
 	const [showMenu, setShowMenu] = useStickyState('showMenu', 'full-menu');
@@ -81,7 +80,7 @@ const SideNav = ({
 		{
 			title: 'Feed',
 			link: '/',
-			notifications: lengthChecker(unviewed),
+			notifications: lengthChecker(unviewedLeads),
 			svg: (
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
@@ -115,6 +114,7 @@ const SideNav = ({
 		{
 			title: 'Archived',
 			link: '/archived',
+			notifications: lengthChecker(archivedLeads),
 			svg: (
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
@@ -287,9 +287,9 @@ const SideNav = ({
 	);
 };
 
-const mapStateToProps = (state, ownProps) => {
-	const { auth, leads } = state;
-	return { auth, leads };
+const mapStateToProps = (state) => {
+	const { auth } = state;
+	return { auth };
 };
 
 export default connect(mapStateToProps)(SideNav);

@@ -1,4 +1,6 @@
-// alert types
+// utils
+export const LOADING = 'LOADING';
+export const FINISHED_LOADING = 'FINISHED_LOADING';
 export const SET_ALERT = 'SET_ALERT';
 export const REMOVE_ALERT = 'REMOVE_ALERT';
 // auth types
@@ -20,7 +22,7 @@ export const HANDLE_ARCHIVE_LEAD = 'HANDLE_ARCHIVE_LEAD';
 export const REMOVE_LEADS = 'REMOVE_LEADS';
 export const ARCHIVE_LEAD = 'ARCHIVE_LEAD';
 export const UNARCHIVE_LEAD = 'UNARCHIVE_LEAD';
-export const SHOW_DETAILED_LEAD = 'SHOW_DETAILED_LEAD';
+export const SET_CURRENT_LEAD = 'SET_CURRENT_LEAD';
 export const CLEAR_DETAILED_LEAD = 'CLEAR_DETAILED_LEAD';
 export const SET_PAGE = 'SET_PAGE';
 export const SET_RESET_PASSWORD_TOKEN = 'SET_RESET_PASSWORD_TOKEN';

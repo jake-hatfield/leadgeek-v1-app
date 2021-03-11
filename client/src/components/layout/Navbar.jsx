@@ -6,20 +6,7 @@ import { getLeads } from '../../redux/actions/leads';
 import { logout } from '../../redux/actions/auth';
 import AltDropdown from './AltDropdown';
 
-const Navbar = ({
-	auth: { isAuthenticated, loading, user },
-	unviewed,
-	page,
-	getLeads,
-	logout,
-}) => {
-	console.log(page);
-	// get leads
-	useEffect(() => {
-		if (user) {
-			!loading && isAuthenticated && user && getLeads(user, page);
-		}
-	}, [loading, isAuthenticated, user, getLeads, page]);
+const Navbar = ({ auth: { isAuthenticated, loading, user }, logout }) => {
 	// utils
 	const lengthChecker = (array) => {
 		return array.length > 99 ? '99+' : array.length;
@@ -37,7 +24,6 @@ const Navbar = ({
 					d='M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
 				/>
 			),
-			notifications: lengthChecker(unviewed),
 		},
 	];
 	// toggle user dropdown
@@ -90,7 +76,7 @@ const Navbar = ({
 		},
 	];
 	const logoutUser = (logout) => {
-		logout();
+		logout(user._id);
 		setUserDropdown(false);
 	};
 	return (
@@ -180,9 +166,8 @@ Navbar.propTypes = {
 
 const mapStateToProps = (state) => {
 	const { auth } = state;
-	const { unviewed } = state.leads;
 	const { page } = state.leads.pagination;
-	return { auth, unviewed, page };
+	return { auth, page };
 };
 
 export default connect(mapStateToProps, { logout, getLeads })(Navbar);

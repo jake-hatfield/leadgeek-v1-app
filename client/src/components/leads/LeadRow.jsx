@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import {
 	viewLead,
 	handleLikeLead,
-	showDetailedLead,
+	setCurrentLead,
 } from '../../redux/actions/leads';
 // utils
 import { truncate, numberWithCommas, calculateBSR } from '../layout/utils';
@@ -15,7 +15,7 @@ const LeadRow = ({
 	handleLikeLead,
 	showDetails,
 	setShowDetails,
-	showDetailedLead,
+	setCurrentLead,
 	user,
 }) => {
 	const { data } = lead;
@@ -23,9 +23,11 @@ const LeadRow = ({
 	const [like, setLike] = useState(false);
 	const [newLead, setNewLead] = useState(false);
 	useEffect(() => {
-		if (data.date >= user.lastLoggedIn) {
+		// set unviewed status
+		if (user.unviewedLeads.some((l) => l._id === lead._id)) {
 			setNewLead(true);
 		}
+		// set like status
 		for (let i = 0; i < user.likedLeads.length; i++) {
 			if (user.likedLeads[i]._id === lead._id) {
 				setLike(true);
@@ -45,8 +47,8 @@ const LeadRow = ({
 			onClick={() => {
 				newLead && setNewLead(false);
 				setShowDetails(!showDetails);
-				viewLead(lead._id);
-				showDetailedLead(lead._id);
+				viewLead(user._id, lead._id);
+				setCurrentLead(lead);
 			}}
 		>
 			<td className='pl-2'>
@@ -63,6 +65,7 @@ const LeadRow = ({
 						newLead && setNewLead(false);
 						setLike(!like);
 						handleLikeLead(user._id, lead._id);
+						viewLead(user._id, lead._id);
 					}}
 					className='rounded-md focus:outline-none focus:shadow-outline align-middle'
 				>
@@ -128,11 +131,11 @@ const LeadRow = ({
 
 LeadRow.propTypes = {
 	viewLead: PropTypes.func.isRequired,
-	showDetailedLead: PropTypes.func.isRequired,
+	setCurrentLead: PropTypes.func.isRequired,
 };
 
 export default connect(null, {
 	viewLead,
 	handleLikeLead,
-	showDetailedLead,
+	setCurrentLead,
 })(LeadRow);

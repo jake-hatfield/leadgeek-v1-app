@@ -58,3 +58,7 @@ table tbody tr td:last-child {
 .alert-danger {
 	@apply bg-red-200 text-red-500 border-red-500;
 }
+
+.alert-warning {
+	@apply bg-purple-100 text-purple-600 border-purple-600;
+}

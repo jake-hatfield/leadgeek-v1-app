@@ -10,8 +10,10 @@ import Pagination from '../layout/Pagination';
 
 const Leads = ({
 	leads,
-	auth: { user, loading },
+	user,
 	currentLead,
+	authLoading,
+	leadLoading,
 	clearDetailedLead,
 	exportLead,
 }) => {
@@ -126,7 +128,7 @@ const Leads = ({
 	// toggle additional information
 	const [showDetails, setShowDetails] = useState(false);
 	return (
-		!loading &&
+		!authLoading &&
 		user && (
 			<Fragment>
 				<section className='my-6 lg:my-10 relative container flex'>
@@ -177,7 +179,7 @@ const Leads = ({
 						{/* <Averages averages={averages} filteredLeads={arrayChooser()} /> */}
 						<LeadTable
 							leads={leads}
-							loading={loading}
+							loading={leadLoading}
 							showDetails={showDetails}
 							setShowDetails={setShowDetails}
 							user={user}
@@ -199,9 +201,9 @@ const Leads = ({
 
 const mapStateToProps = (state, ownProps) => {
 	const { leads } = ownProps;
-	const { auth } = state;
-	const { currentLead, page } = state.leads;
-	return { leads, auth, currentLead, page };
+	const { user, loading: authLoading } = state.auth;
+	const { currentLead, page, loading: leadLoading } = state.leads;
+	return { leads, user, authLoading, currentLead, page, leadLoading };
 };
 
 export default connect(mapStateToProps, {

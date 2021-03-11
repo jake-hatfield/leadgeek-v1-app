@@ -6,8 +6,8 @@ import Leads from '../components/leads/Leads';
 
 const Archived = ({ user, archived, populateArchivedLeads }) => {
 	useEffect(() => {
-		archived.length === 0 && populateArchivedLeads(user.archivedLeads);
-	}, [user]);
+		populateArchivedLeads(user.archivedLeads);
+	}, [user.archivedLeads]);
 	return <Leads leads={archived} />;
 };
 

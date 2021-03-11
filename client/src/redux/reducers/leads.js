@@ -1,19 +1,19 @@
 import {
 	GET_LEADS,
 	GET_LIKED_LEADS,
-	VIEW_LEAD,
-	SHOW_DETAILED_LEAD,
+	SET_CURRENT_LEAD,
 	CLEAR_DETAILED_LEAD,
 	SET_PAGE,
 	LOGOUT,
 	USER_LOADED,
 	GET_ARCHIVED_LEADS,
+	LOADING,
+	FINISHED_LOADING,
+	HANDLE_LIKE_LEAD,
 } from '../actions/types';
 
 const initialState = {
-	active: [],
 	feed: [],
-	unviewed: [],
 	liked: [],
 	archived: [],
 	pagination: {
@@ -30,8 +30,8 @@ const initialState = {
 };
 
 export default function (state = initialState, action) {
+	const { liked } = state;
 	const { type, payload } = action;
-	const { feed, unviewed, liked, archived } = state;
 	switch (type) {
 		case USER_LOADED:
 			return {
@@ -41,7 +41,6 @@ export default function (state = initialState, action) {
 		case GET_LEADS:
 			const {
 				feed,
-				unviewedLeads,
 				page,
 				hasNextPage,
 				hasPreviousPage,
@@ -52,7 +51,6 @@ export default function (state = initialState, action) {
 			return {
 				...state,
 				feed,
-				unviewed: unviewedLeads,
 				pagination: {
 					...state.pagination,
 					page,
@@ -62,35 +60,21 @@ export default function (state = initialState, action) {
 					previousPage,
 					lastPage,
 				},
-				loading: false,
 			};
 		case GET_LIKED_LEADS:
-			return { ...state, liked: payload, loading: false };
-		case GET_ARCHIVED_LEADS:
-			return { ...state, archived: payload, loading: false };
-		case VIEW_LEAD:
-			const newUnviewedArray = unviewed.filter(
-				(lead) => lead._id !== payload.id
-			);
+			return { ...state, liked: payload };
+		case HANDLE_LIKE_LEAD:
+			const newLiked = liked.filter((lead) => lead._id !== payload.leadId);
 			return {
 				...state,
-				unviewed: newUnviewedArray,
-				loading: false,
+				liked: newLiked,
 			};
-		case SHOW_DETAILED_LEAD:
-			let arrayType;
-			const { array, id } = payload;
-			if (array === '') {
-				arrayType = feed;
-			} else if (array === 'leads') {
-				arrayType = liked;
-			} else {
-				arrayType = archived;
-			}
+		case GET_ARCHIVED_LEADS:
+			return { ...state, archived: payload };
+		case SET_CURRENT_LEAD:
 			return {
 				...state,
-				currentLead: arrayType.filter((lead) => lead._id === id)[0],
-				loading: false,
+				currentLead: payload,
 			};
 		case CLEAR_DETAILED_LEAD:
 			return {
@@ -105,12 +89,17 @@ export default function (state = initialState, action) {
 			};
 		case LOGOUT:
 			return {
-				feed: [],
-				unviewed: [],
-				liked: [],
-				archived: [],
-				currentLead: null,
+				...initialState,
+			};
+		case LOADING:
+			return {
+				...state,
 				loading: true,
+			};
+		case FINISHED_LOADING:
+			return {
+				...state,
+				loading: false,
 			};
 		default:
 			return {
