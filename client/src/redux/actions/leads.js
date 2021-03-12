@@ -39,13 +39,18 @@ export const getLeads = (user, page) => async (dispatch) => {
 			page,
 		});
 		const { data } = await axios.post('/api/leads', body, config);
-		dispatch({
-			type: GET_LEADS,
-			payload: {
-				data,
-			},
-		});
-		dispatch({ type: FINISHED_LOADING });
+		console.log(data.message);
+		if (data.message === 'There are no leads to show.') {
+			dispatch(setAlert(data.message, 'warning'));
+		} else {
+			dispatch({
+				type: GET_LEADS,
+				payload: {
+					data,
+				},
+			});
+		}
+		return dispatch({ type: FINISHED_LOADING });
 	} catch (error) {
 		console.log(error);
 	}

@@ -1,25 +1,80 @@
 const express = require('express');
 const router = express.Router();
+const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 const auth = require('../../middleware/auth');
 const Lead = require('../../models/Lead');
 const User = require('../../models/User');
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 2;
 
 // @route       POST api/leads/export
 // @description Create new lead
 // @access      Private
 router.post('/export', auth, async (req, res) => {
+	const SPREADSHEET_ID = process.env.REACT_APP_GOOGLE_SPREADSHEET_ID;
+	const BUNDLE_1_SHEET_ID = process.env.REACT_APP_BUNDLE_1_SHEET_ID;
+	const CLIENT_EMAIL = process.env.REACT_APP_SHEETS_CLIENT_EMAIL;
+	const PRIVATE_KEY = process.env.REACT_APP_SHEETS_PRIVATE_KEY.replace(
+		/\\n/gm,
+		'\n'
+	);
 	try {
-		const newLead = await new Lead(req.body.lead);
-		newLead.save();
-		let message = 'Lead was added to the database.';
-		console.log(message);
-		return res.status(200).send(message);
+		console.log('Connecting to Google Sheets...');
+		const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
+		await doc.useServiceAccountAuth({
+			client_email: CLIENT_EMAIL,
+			private_key: PRIVATE_KEY,
+		});
+		await doc.loadInfo();
+		const sheet = await doc.sheetsByIndex[0];
+		if (!sheet) {
+			return res
+				.status(404)
+				.send('Error connecting to Google Sheets. No sheet was found');
+		} else {
+			console.log('Sheet found!');
+		}
+		const rows = await sheet.getRows();
+		const newLeads = rows.map((lead) => ({
+			data: {
+				source: lead.source,
+				title: lead.title,
+				brand: lead.brand,
+				category: lead.category,
+				retailerLink: lead.retailerLink,
+				amzLink: lead.amzLink,
+				promo: lead.promo,
+				buyPrice: +lead.buyPrice,
+				sellPrice: +lead.sellPrice,
+				netProfit: +lead.netProfit,
+				roi: +lead.roi,
+				bsrCurrent: +lead.bsrCurrent,
+				monthlySales: +lead.monthlySales,
+				bsr30: +lead.bsr30,
+				bsr90: +lead.bsr90,
+				competitorType: lead.competitorType,
+				variations: lead.variations,
+				cashback: lead.cashback,
+				weight: +lead.weight,
+				shipping: lead.shipping,
+				notes: lead.notes,
+				date: lead.date,
+			},
+			plan: lead.plan,
+		}));
+		if (newLeads) {
+			Lead.insertMany(newLeads);
+			let message = `Leads were added to the database.`;
+			console.log(message);
+			return res.status(200).send(message);
+		} else {
+			let message = 'There were no rows to pull from Google Sheets';
+			console.log(message);
+			return res.status(400).send(message);
+		}
 	} catch (error) {
-		console.error(error.message);
-		return res.status(500).send('Server error');
+		console.log(error);
 	}
 });
 
@@ -50,7 +105,7 @@ router.post('/', auth, async (req, res) => {
 		if (feed.length === 0) {
 			let message = 'There are no leads to show.';
 			console.log(message);
-			return res.status(404).send({ message });
+			return res.status(200).send({ message });
 		} else {
 			// see if any leads have been added since the user last logged in
 			const unviewed = await Lead.find({
