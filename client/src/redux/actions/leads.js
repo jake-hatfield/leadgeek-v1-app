@@ -39,7 +39,6 @@ export const getLeads = (user, page) => async (dispatch) => {
 			page,
 		});
 		const { data } = await axios.post('/api/leads', body, config);
-		console.log(data.message);
 		if (data.message === 'There are no leads to show.') {
 			dispatch(setAlert(data.message, 'warning'));
 		} else {
@@ -58,8 +57,9 @@ export const getLeads = (user, page) => async (dispatch) => {
 
 export const populateLikedLeads = (leads) => async (dispatch) => {
 	try {
+		console.log(leads);
 		dispatch({ type: LOADING });
-		const body = JSON.stringify(leads);
+		const body = JSON.stringify({ leads });
 		const {
 			data: { message, likedLeads },
 		} = await axios.post('/api/leads/liked', body, config);
@@ -79,8 +79,9 @@ export const populateLikedLeads = (leads) => async (dispatch) => {
 
 export const populateArchivedLeads = (leads) => async (dispatch) => {
 	try {
+		console.log(leads);
 		dispatch({ type: LOADING });
-		const body = JSON.stringify(leads);
+		const body = JSON.stringify({ leads });
 		const {
 			data: { message, archivedLeads },
 		} = await axios.post('/api/leads/archived', body, config);

@@ -37,6 +37,7 @@ export default function (state = initialState, action) {
 			return {
 				...state,
 				lastActive: payload.lastLoggedIn,
+				loading: false,
 			};
 		case GET_LEADS:
 			const {
@@ -101,6 +102,7 @@ export default function (state = initialState, action) {
 				...state,
 				loading: false,
 			};
+
 		default:
 			return {
 				...state,

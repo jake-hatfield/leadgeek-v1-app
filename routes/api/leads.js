@@ -164,7 +164,7 @@ router.post('/view', auth, async (req, res) => {
 // @access      Private
 router.post('/liked', auth, async (req, res) => {
 	try {
-		const likedLeads = await Lead.find({ _id: { $in: req.body } }).sort({
+		const likedLeads = await Lead.find({ _id: { $in: req.body.leads } }).sort({
 			'data.date': -1,
 		});
 		if (likedLeads.length === 0) {
@@ -187,7 +187,9 @@ router.post('/liked', auth, async (req, res) => {
 // @access      Private
 router.post('/archived', auth, async (req, res) => {
 	try {
-		const archivedLeads = await Lead.find({ _id: { $in: req.body } }).sort({
+		const archivedLeads = await Lead.find({
+			_id: { $in: req.body.leads },
+		}).sort({
 			'data.date': -1,
 		});
 		if (archivedLeads.length === 0) {
