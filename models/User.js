@@ -24,10 +24,6 @@ const UserSchema = new Schema({
 		required: true,
 		default: null,
 	},
-	lastActive: {
-		type: Date,
-		default: this.lastLoggedIn,
-	},
 	customerId: {
 		type: String,
 		required: true,
@@ -57,6 +53,12 @@ const UserSchema = new Schema({
 	resetPasswordExpires: {
 		type: Date,
 		default: null,
+	},
+	role: {
+		type: String,
+		enum: ['user', 'admin'],
+		default: 'user',
+		required: true,
 	},
 	likedLeads: [
 		{

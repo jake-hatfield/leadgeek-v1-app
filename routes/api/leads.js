@@ -1,19 +1,19 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 const auth = require('../../middleware/auth');
 const Lead = require('../../models/Lead');
 const User = require('../../models/User');
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 10;
 
 // @route       POST api/leads/export
 // @description Create new lead
 // @access      Private
-router.post('/export', auth, async (req, res) => {
+router.get('/export', auth, async (req, res) => {
 	const SPREADSHEET_ID = process.env.REACT_APP_GOOGLE_SPREADSHEET_ID;
-	const BUNDLE_1_SHEET_ID = process.env.REACT_APP_BUNDLE_1_SHEET_ID;
 	const CLIENT_EMAIL = process.env.REACT_APP_SHEETS_CLIENT_EMAIL;
 	const PRIVATE_KEY = process.env.REACT_APP_SHEETS_PRIVATE_KEY.replace(
 		/\\n/gm,
@@ -34,44 +34,59 @@ router.post('/export', auth, async (req, res) => {
 				.send('Error connecting to Google Sheets. No sheet was found');
 		} else {
 			console.log('Sheet found!');
-		}
-		const rows = await sheet.getRows();
-		const newLeads = rows.map((lead) => ({
-			data: {
-				source: lead.source,
-				title: lead.title,
-				brand: lead.brand,
-				category: lead.category,
-				retailerLink: lead.retailerLink,
-				amzLink: lead.amzLink,
-				promo: lead.promo,
-				buyPrice: +lead.buyPrice,
-				sellPrice: +lead.sellPrice,
-				netProfit: +lead.netProfit,
-				roi: +lead.roi,
-				bsrCurrent: +lead.bsrCurrent,
-				monthlySales: +lead.monthlySales,
-				bsr30: +lead.bsr30,
-				bsr90: +lead.bsr90,
-				competitorType: lead.competitorType,
-				variations: lead.variations,
-				cashback: lead.cashback,
-				weight: +lead.weight,
-				shipping: lead.shipping,
-				notes: lead.notes,
-				date: lead.date,
-			},
-			plan: lead.plan,
-		}));
-		if (newLeads) {
-			Lead.insertMany(newLeads);
-			let message = `Leads were added to the database.`;
-			console.log(message);
-			return res.status(200).send(message);
-		} else {
-			let message = 'There were no rows to pull from Google Sheets';
-			console.log(message);
-			return res.status(400).send(message);
+			const rows = await sheet.getRows();
+			rows.forEach(async (element, index) => {
+				if (element._id === undefined) {
+					rows[index]._id = mongoose.Types.ObjectId();
+					await rows[index].save();
+				}
+			});
+			const newLeads = rows.map((lead) => ({
+				data: {
+					source: lead.source,
+					title: lead.title,
+					brand: lead.brand,
+					category: lead.category,
+					retailerLink: lead.retailerLink,
+					amzLink: lead.amzLink,
+					promo: lead.promo,
+					buyPrice: +lead.buyPrice,
+					sellPrice: +lead.sellPrice,
+					netProfit: +lead.netProfit,
+					roi: +lead.roi,
+					bsrCurrent: +lead.bsrCurrent,
+					monthlySales: +lead.monthlySales,
+					bsr30: +lead.bsr30,
+					bsr90: +lead.bsr90,
+					competitorType: lead.competitorType,
+					variations: lead.variations,
+					cashback: lead.cashback,
+					weight: +lead.weight,
+					shipping: lead.shipping,
+					notes: lead.notes,
+					date: Date.now(),
+				},
+				plan: lead.plan,
+				_id: lead._id,
+			}));
+			if (newLeads) {
+				Lead.insertMany(newLeads, function (err, leads) {
+					if (err) {
+						let message =
+							"Leads weren't uploaded. Please check Google Sheets for duplicate _ids.";
+						console.log(message);
+						return res.status(200).send(message);
+					} else {
+						let message = `Leads were added to the database.`;
+						console.log(message);
+						return res.status(201).send(message);
+					}
+				});
+			} else {
+				let message = 'There were no rows to pull from Google Sheets';
+				console.log(message);
+				return res.status(400).send(message);
+			}
 		}
 	} catch (error) {
 		console.log(error);
@@ -92,16 +107,19 @@ router.post('/', auth, async (req, res) => {
 		}
 		console.log('Getting all leads...');
 		const { unviewedLeads } = user;
+		let itemCount;
 		let totalItems;
 		const feed = await Lead.find({ plan })
 			.countDocuments()
 			.then((numLeads) => {
 				totalItems = numLeads;
-				return Lead.find({ plan })
+				return Lead.find({ plan, 'data.date': { $gte: user.dateCreated } })
 					.skip((page - 1) * ITEMS_PER_PAGE)
 					.limit(ITEMS_PER_PAGE)
 					.sort({ 'data.date': -1 });
 			});
+		console.log(`Total items: ${totalItems}`);
+		// const planEndDate = user.subId[0].current_period_end;
 		if (feed.length === 0) {
 			let message = 'There are no leads to show.';
 			console.log(message);
@@ -122,10 +140,13 @@ router.post('/', auth, async (req, res) => {
 				user.unviewedLeads = newUnviewed;
 				await user.save();
 			}
-			console.log(`Successfully queried ${feed.length} database leads.`);
+			console.log(
+				`Successfully queried + paginated ${feed.length} database leads.`
+			);
 			return res.status(200).send({
 				feed,
 				unviewedLeads,
+				itemCount,
 				page,
 				hasNextPage: ITEMS_PER_PAGE * page < totalItems,
 				hasPreviousPage: page > 1,
@@ -164,9 +185,16 @@ router.post('/view', auth, async (req, res) => {
 // @access      Private
 router.post('/liked', auth, async (req, res) => {
 	try {
-		const likedLeads = await Lead.find({ _id: { $in: req.body.leads } }).sort({
-			'data.date': -1,
-		});
+		const { leads, page } = req.body;
+		const likedLeads = await Lead.find({ _id: { $in: leads } })
+			.countDocuments()
+			.then((numLeads) => {
+				totalItems = numLeads;
+				return Lead.find({ _id: { $in: leads } })
+					.skip((page - 1) * ITEMS_PER_PAGE)
+					.limit(ITEMS_PER_PAGE)
+					.sort({ 'data.date': -1 });
+			});
 		if (likedLeads.length === 0) {
 			let message = 'You have not liked any leads.';
 			console.log(message);
@@ -174,7 +202,16 @@ router.post('/liked', auth, async (req, res) => {
 		} else {
 			let message = `Successfully queried ${likedLeads.length} liked leads.`;
 			console.log(message);
-			return res.status(200).send({ message, likedLeads });
+			return res.status(200).send({
+				message,
+				likedLeads,
+				page,
+				hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+				hasPreviousPage: page > 1,
+				nextPage: page + 1,
+				previousPage: page - 1,
+				lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+			});
 		}
 	} catch (error) {
 		console.log(error.message);
@@ -187,11 +224,16 @@ router.post('/liked', auth, async (req, res) => {
 // @access      Private
 router.post('/archived', auth, async (req, res) => {
 	try {
-		const archivedLeads = await Lead.find({
-			_id: { $in: req.body.leads },
-		}).sort({
-			'data.date': -1,
-		});
+		const { leads, page } = req.body;
+		const archivedLeads = await Lead.find({ _id: { $in: leads } })
+			.countDocuments()
+			.then((numLeads) => {
+				totalItems = numLeads;
+				return Lead.find({ _id: { $in: leads } })
+					.skip((page - 1) * ITEMS_PER_PAGE)
+					.limit(ITEMS_PER_PAGE)
+					.sort({ 'data.date': -1 });
+			});
 		if (archivedLeads.length === 0) {
 			let message = 'You have not archived any leads.';
 			console.log(message);
@@ -199,7 +241,18 @@ router.post('/archived', auth, async (req, res) => {
 		} else {
 			let message = `Successfully queried ${archivedLeads.length} archived leads.`;
 			console.log(message);
-			return res.status(200).send({ message, archivedLeads });
+			return res
+				.status(200)
+				.send({
+					message,
+					archivedLeads,
+					page,
+					hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+					hasPreviousPage: page > 1,
+					nextPage: page + 1,
+					previousPage: page - 1,
+					lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+				});
 		}
 	} catch (error) {
 		console.log(error.message);

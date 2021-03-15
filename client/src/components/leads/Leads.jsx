@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import { clearDetailedLead, exportLead } from '../../redux/actions/leads';
+import { clearDetailedLead } from '../../redux/actions/leads';
 
 import SideNav from './SideNav';
 import LeadTable from './LeadTable';
@@ -10,12 +10,13 @@ import Pagination from '../layout/Pagination';
 
 const Leads = ({
 	leads,
+	pagination,
+	type,
 	user,
 	currentLead,
 	authLoading,
 	leadLoading,
 	clearDetailedLead,
-	exportLead,
 }) => {
 	// // utils
 	// function numberWithCommas(x) {
@@ -156,10 +157,7 @@ const Leads = ({
 								</svg>
 							</div>
 							<div className='w-1/6 flex justify-end'>
-								<button
-									onClick={() => exportLead()}
-									className='py-3 px-4 flex items-center rounded-md text-sm font-semibold hover:bg-purple-100 hover:text-purple-600 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-								>
+								<button className='py-3 px-4 flex items-center rounded-md text-sm font-semibold hover:bg-purple-100 hover:text-purple-600 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'>
 									<svg
 										xmlns='http://www.w3.org/2000/svg'
 										viewBox='0 0 20 20'
@@ -168,7 +166,7 @@ const Leads = ({
 									>
 										<path
 											fillRule='evenodd'
-											d='M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
+											d='M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 k0 010-1.414z'
 											clipRule='evenodd'
 										/>
 									</svg>
@@ -184,7 +182,7 @@ const Leads = ({
 							setShowDetails={setShowDetails}
 							user={user}
 						/>
-						<Pagination />
+						<Pagination pagination={pagination} type={type} />
 					</section>
 				</section>
 				{showDetails && (
@@ -200,13 +198,20 @@ const Leads = ({
 };
 
 const mapStateToProps = (state, ownProps) => {
-	const { leads } = ownProps;
+	const { leads, pagination } = ownProps;
 	const { user, loading: authLoading } = state.auth;
 	const { currentLead, page, loading: leadLoading } = state.leads;
-	return { leads, user, authLoading, currentLead, page, leadLoading };
+	return {
+		leads,
+		pagination,
+		user,
+		authLoading,
+		currentLead,
+		page,
+		leadLoading,
+	};
 };
 
 export default connect(mapStateToProps, {
 	clearDetailedLead,
-	exportLead,
 })(Leads);

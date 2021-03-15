@@ -3,30 +3,26 @@ import { connect } from 'react-redux';
 import { getLeads } from '../redux/actions/leads';
 
 import Leads from '../components/leads/Leads';
+import Pagination from '../components/layout/Pagination';
 
-const Feed = ({ user, isAuthenticated, loading, leads, page, getLeads }) => {
-	// const date = localStorage.getItem('lastLogout');
-	// let lastLogout = new Date(date);
-	// lastLogout.setDate(date.getDate() + 7);
+const Feed = ({ user, loading, isAuthenticated, pagination, getLeads }) => {
 	useEffect(() => {
-		// console.log(lastLogout);
-		!loading && isAuthenticated && user && getLeads(user, page);
-	}, [loading, isAuthenticated, user && page]);
+		!loading && isAuthenticated && user && getLeads(user, pagination.feed.page);
+	}, [loading, isAuthenticated, user && pagination.feed.page]);
+
 	return (
-		<Fragment>
-			<Leads leads={leads} />
-			<div>hello</div>
-		</Fragment>
+		<Leads
+			leads={pagination.feed.active}
+			pagination={pagination.feed}
+			type={'feed'}
+		/>
 	);
 };
 
 const mapStateToProps = (state) => {
-	const { user, isAuthenticated, loading } = state.auth;
-	const {
-		feed: leads,
-		pagination: { page },
-	} = state.leads;
-	return { user, isAuthenticated, leads, page };
+	const { user, loading, isAuthenticated } = state.auth;
+	const { pagination } = state.leads;
+	return { user, loading, isAuthenticated, pagination };
 };
 
 export default connect(mapStateToProps, { getLeads })(Feed);

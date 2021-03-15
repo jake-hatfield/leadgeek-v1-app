@@ -4,17 +4,31 @@ import { populateArchivedLeads } from '../redux/actions/leads';
 
 import Leads from '../components/leads/Leads';
 
-const Archived = ({ user, archived, populateArchivedLeads }) => {
+const Archived = ({
+	user,
+	loading,
+	archived,
+	pagination,
+	populateArchivedLeads,
+}) => {
 	useEffect(() => {
-		populateArchivedLeads(user.archivedLeads);
-	}, [user.archivedLeads]);
-	return <Leads leads={archived} />;
+		!loading &&
+			user &&
+			populateArchivedLeads(user.archivedLeads, pagination.archived.page);
+	}, [user.archivedLeads, pagination.archived.page]);
+	return (
+		<Leads
+			leads={pagination.archived.active}
+			pagination={pagination.archived}
+			type={'archived'}
+		/>
+	);
 };
 
 const mapStateToProps = (state) => {
-	const { user } = state.auth;
-	const { archived } = state.leads;
-	return { user, archived };
+	const { user, loading } = state.auth;
+	const { archived, pagination } = state.leads;
+	return { user, loading, archived, pagination };
 };
 
 export default connect(mapStateToProps, { populateArchivedLeads })(Archived);

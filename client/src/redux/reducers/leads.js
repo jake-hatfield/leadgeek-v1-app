@@ -1,3 +1,4 @@
+import { paginate } from '../actions/leads';
 import {
 	GET_LEADS,
 	GET_LIKED_LEADS,
@@ -17,12 +18,31 @@ const initialState = {
 	liked: [],
 	archived: [],
 	pagination: {
-		page: 1,
-		hasNextPage: null,
-		hasPreviousPage: false,
-		nextPage: null,
-		previousPage: null,
-		lastPage: null,
+		feed: {
+			active: [],
+			itemCount: null,
+			page: 1,
+			hasNextPage: null,
+			hasPreviousPage: false,
+			nextPage: null,
+			previousPage: null,
+		},
+		liked: {
+			active: [],
+			page: 1,
+			hasNextPage: null,
+			hasPreviousPage: false,
+			nextPage: null,
+			previousPage: null,
+		},
+		archived: {
+			active: [],
+			page: 1,
+			hasNextPage: null,
+			hasPreviousPage: false,
+			nextPage: null,
+			previousPage: null,
+		},
 	},
 	lastActive: null,
 	currentLead: null,
@@ -42,6 +62,7 @@ export default function (state = initialState, action) {
 		case GET_LEADS:
 			const {
 				feed,
+				itemCount,
 				page,
 				hasNextPage,
 				hasPreviousPage,
@@ -51,19 +72,37 @@ export default function (state = initialState, action) {
 			} = payload.data;
 			return {
 				...state,
-				feed,
 				pagination: {
 					...state.pagination,
-					page,
-					hasNextPage,
-					hasPreviousPage,
-					nextPage,
-					previousPage,
-					lastPage,
+					feed: {
+						...state.feed.pagination,
+						active: feed,
+						itemCount,
+						page,
+						hasNextPage,
+						hasPreviousPage,
+						nextPage,
+						previousPage,
+						lastPage,
+					},
 				},
 			};
 		case GET_LIKED_LEADS:
-			return { ...state, liked: payload };
+			return {
+				...state,
+				pagination: {
+					...state.pagination,
+					liked: {
+						...state.liked.pagination,
+						active: payload.likedLeads,
+						page: payload.page,
+						hasNextPage: payload.hasNextPage,
+						hasPreviousPage: payload.hasPreviousPage,
+						nextPage: payload.nextPage,
+						previousPage: payload.previousPage,
+					},
+				},
+			};
 		case HANDLE_LIKE_LEAD:
 			const newLiked = liked.filter((lead) => lead._id !== payload.leadId);
 			return {
@@ -71,7 +110,21 @@ export default function (state = initialState, action) {
 				liked: newLiked,
 			};
 		case GET_ARCHIVED_LEADS:
-			return { ...state, archived: payload };
+			return {
+				...state,
+				pagination: {
+					...state.pagination,
+					archived: {
+						...state.archived.pagination,
+						active: payload.archivedLeads,
+						page: payload.page,
+						hasNextPage: payload.hasNextPage,
+						hasPreviousPage: payload.hasPreviousPage,
+						nextPage: payload.nextPage,
+						previousPage: payload.previousPage,
+					},
+				},
+			};
 		case SET_CURRENT_LEAD:
 			return {
 				...state,
@@ -84,10 +137,37 @@ export default function (state = initialState, action) {
 				loading: false,
 			};
 		case SET_PAGE:
-			return {
-				...state,
-				pagination: { ...state.pagination, page: payload },
-			};
+			const { type } = payload;
+			switch (type) {
+				case 'feed': {
+					return {
+						...state,
+						pagination: {
+							...state.pagination,
+							feed: { ...state.pagination.feed, page: payload.page },
+						},
+					};
+				}
+				case 'liked': {
+					return {
+						...state,
+						pagination: {
+							...state.pagination,
+							liked: { ...state.pagination.liked, page: payload.page },
+						},
+					};
+				}
+				case 'archived': {
+					return {
+						...state,
+						pagination: {
+							...state.pagination,
+							archived: { ...state.pagination.archived, page: payload.page },
+						},
+					};
+				}
+			}
+
 		case LOGOUT:
 			return {
 				...initialState,

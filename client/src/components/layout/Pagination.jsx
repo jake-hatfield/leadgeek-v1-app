@@ -4,33 +4,29 @@ import { connect } from 'react-redux';
 import { setPage } from '../../redux/actions/leads';
 
 const Pagination = ({
-	pagination: {
-		page,
-		hasNextPage,
-		hasPreviousPage,
-		nextPage,
-		previousPage,
-		lastPage,
-	},
+	pagination: { hasNextPage, hasPreviousPage, nextPage, previousPage },
+	type,
 	loading,
 	setPage,
 }) => {
-	const search = window.location.search;
-	const params = new URLSearchParams(search);
-	const newPage = params.get('page');
 	return (
 		!loading && (
-			<article className='flex justify-between'>
-				{hasPreviousPage && (
+			<article className='mt-8 flex justify-between'>
+				{hasPreviousPage ? (
 					<Link
 						to={`?page=${previousPage}`}
-						onClick={() => setPage(previousPage)}
+						onClick={() => setPage(previousPage, type)}
 					>
 						Previous page
 					</Link>
+				) : (
+					<div />
 				)}
 				{hasNextPage && (
-					<Link to={`?page=${nextPage}`} onClick={() => setPage(nextPage)}>
+					<Link
+						to={`?page=${nextPage}`}
+						onClick={() => setPage(nextPage, type)}
+					>
 						Next page
 					</Link>
 				)}
@@ -39,10 +35,12 @@ const Pagination = ({
 	);
 };
 
-const mapStateToProps = (state) => {
-	const { pagination, loading } = state.leads;
+const mapStateToProps = (state, ownProps) => {
+	const { loading } = state.leads;
+	const { pagination, type } = ownProps;
 	return {
 		pagination,
+		type,
 		loading,
 	};
 };

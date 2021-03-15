@@ -12,12 +12,12 @@ import { loadStripe } from '@stripe/stripe-js';
 import Feed from '../src/routes/Feed';
 import Liked from '../src/routes/Liked';
 import Archived from '../src/routes/Archived';
+import Admin from '../src/routes/Admin';
 // components
 import Navbar from './components/layout/Navbar';
 import Login from './components/auth/login/Login';
 import ForgotPassword from './components/auth/login/reset/ForgotPassword';
 import ResetPasswordPage from './components/auth/login/reset/ResetPasswordPage';
-import Leads from './components/leads/Leads';
 import Profile from './components/account/Profile';
 import Password from './components/account/Password';
 // import Billing from './components/account/Billing';
@@ -70,6 +70,7 @@ const App = () => {
 							<PrivateRoute exact path='/liked' component={Liked} />
 							<PrivateRoute exact path='/archived' component={Archived} />
 							<PrivateRoute exact path='/account/profile' component={Profile} />
+							<PrivateRoute exact path='/admin' component={Admin} />
 							<PrivateRoute
 								exact
 								path='/account/password'

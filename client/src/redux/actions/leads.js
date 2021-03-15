@@ -21,6 +21,21 @@ const config = {
 	},
 };
 
+export const exportLeads = () => async (dispatch) => {
+	try {
+		const { status, data } = await axios.get('/api/leads/export');
+		console.log(data);
+		if (data === 'Leads were added to the database.') {
+			console.log(data);
+			dispatch(setAlert(data, 'success'));
+		} else {
+			dispatch(setAlert(data, 'danger'));
+		}
+	} catch (error) {
+		console.log(error);
+	}
+};
+
 export const getLeads = (user, page) => async (dispatch) => {
 	try {
 		dispatch({ type: LOADING });
@@ -55,20 +70,17 @@ export const getLeads = (user, page) => async (dispatch) => {
 	}
 };
 
-export const populateLikedLeads = (leads) => async (dispatch) => {
+export const populateLikedLeads = (leads, page) => async (dispatch) => {
 	try {
-		console.log(leads);
 		dispatch({ type: LOADING });
-		const body = JSON.stringify({ leads });
-		const {
-			data: { message, likedLeads },
-		} = await axios.post('/api/leads/liked', body, config);
-		if (message === 'You have not liked any leads.') {
-			dispatch(setAlert(message, 'warning'));
+		const body = JSON.stringify({ leads, page });
+		const { data } = await axios.post('/api/leads/liked', body, config);
+		if (data.message === 'You have not liked any leads.') {
+			dispatch(setAlert(data.message, 'warning'));
 		} else {
 			dispatch({
 				type: GET_LIKED_LEADS,
-				payload: likedLeads,
+				payload: data,
 			});
 		}
 		dispatch({ type: FINISHED_LOADING });
@@ -77,20 +89,17 @@ export const populateLikedLeads = (leads) => async (dispatch) => {
 	}
 };
 
-export const populateArchivedLeads = (leads) => async (dispatch) => {
+export const populateArchivedLeads = (leads, page) => async (dispatch) => {
 	try {
-		console.log(leads);
 		dispatch({ type: LOADING });
-		const body = JSON.stringify({ leads });
-		const {
-			data: { message, archivedLeads },
-		} = await axios.post('/api/leads/archived', body, config);
-		if (message === 'You have not archived any leads.') {
-			dispatch(setAlert(message, 'warning'));
+		const body = JSON.stringify({ leads, page });
+		const { data } = await axios.post('/api/leads/archived', body, config);
+		if (data.message === 'You have not archived any leads.') {
+			dispatch(setAlert(data.message, 'warning'));
 		} else {
 			dispatch({
 				type: GET_ARCHIVED_LEADS,
-				payload: archivedLeads,
+				payload: data,
 			});
 		}
 		dispatch({ type: FINISHED_LOADING });
@@ -141,7 +150,6 @@ export const viewLead = (userId, leadId) => async (dispatch) => {
 	try {
 		const body = JSON.stringify({ userId, leadId });
 		const res = await axios.post('/api/leads/view', body, config);
-		console.log(res.data);
 		dispatch({
 			type: VIEW_LEAD,
 			payload: res.data,
@@ -172,51 +180,12 @@ export const clearDetailedLead = () => (dispatch) => {
 	}
 };
 
-export const setPage = (page) => (dispatch) => {
+export const setPage = (page, type) => (dispatch) => {
 	try {
 		dispatch({
 			type: SET_PAGE,
-			payload: page,
+			payload: { page, type },
 		});
-	} catch (error) {
-		console.log(error);
-	}
-};
-
-export const exportLead = () => async (dispatch) => {
-	try {
-		const lead = {
-			data: {
-				source: 'Target',
-				bsr30: 1903.0,
-				cashback: '',
-				shipping: 'Free shipping on $35+',
-				roi: 0.4803001876172608,
-				asin: '6026ec8b537dbb177eddd8e0',
-				competitors: 'MF',
-				brand: 'Barbie',
-				date: Date.now(),
-				retailerLink:
-					'http://www.target.com/p/,barbie-fizzy-bath-brunette-doll-and-playset/-/...',
-				variations: '',
-				buyPrice: 15.99,
-				category: 'Toys & Games',
-				promo: '-',
-				bsr90: 1684.0,
-				amzLink: 'https://amazon.com/dp/B07XB3JL3Y/',
-				bsrCurrent: 5341.0,
-				sellPrice: 36.0,
-				notes: '',
-				netProfit: 7.68,
-				weight: 1.4,
-				title: 'Schmarbie',
-				monthlySales: 214.0,
-			},
-			plan: 'pro_1',
-		};
-		const body = JSON.stringify({ lead });
-		const { data } = await axios.post('/api/leads/export', body, config);
-		console.log(data);
 	} catch (error) {
 		console.log(error);
 	}
