@@ -7,8 +7,10 @@ const AuthLayout = ({ children }) => {
 	return (
 		<Fragment>
 			<Alert />
-			<Navbar />
-			<main className='relative flex flex-col h-screen'>{children}</main>
+			<div className='relative flex h-screen'>
+				<Navbar />
+				<main className='w-full'>{children}</main>
+			</div>
 		</Fragment>
 	);
 };

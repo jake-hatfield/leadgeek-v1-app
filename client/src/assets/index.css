@@ -11,6 +11,10 @@ html {
 	@apply w-full mx-8;
 }
 
+.content {
+	@apply ml-20;
+}
+
 .top-nav-active {
 	@apply bg-gray-900 text-white shadow-inner;
 }

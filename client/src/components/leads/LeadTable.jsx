@@ -4,7 +4,7 @@ import Spinner from '../layout/Spinner';
 
 const LeadTable = ({ loading, leads, showDetails, setShowDetails, user }) => {
 	return (
-		<section className='mt-8'>
+		<section className='mt-8 ml-16'>
 			{loading ? (
 				<div>
 					<Spinner />

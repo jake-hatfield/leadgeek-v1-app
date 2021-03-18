@@ -1,64 +1,146 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import { getLeads } from '../../../redux/actions/leads';
 import { logout } from '../../../redux/actions/auth';
+
 import AltDropdown from './AltDropdown';
 
-const Navbar = ({ auth: { isAuthenticated, loading, user }, logout }) => {
-	// nav links
+const NavbarLink = ({ link, showMenu }) => {
+	const [hover, setHover] = useState(false);
+	return (
+		<div v-for='item in items'>
+			<NavLink
+				className='p-2 relative w-full flex items-center justify-between rounded-lg group hover:bg-gray-100 hover:text-purple-600 hover:shadow-sm transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+				onMouseEnter={() => setHover(!hover)}
+				onMouseLeave={() => setHover(false)}
+				to={link.link}
+			>
+				<span>{link.svg}</span>
+				{hover && (
+					<div className='p-2 absolute left-0 z-10 transform -translate-y-1 translate-x-12 rounded-lg bg-gray-800 shadow-md text-white text-sm whitespace-no-wrap'>
+						{link.title}
+					</div>
+				)}
+				{showMenu && (
+					<span
+						className={`px-2 ${
+							link.title === 'Feed'
+								? `bg-purple-600 text-white`
+								: link.title === 'Liked'
+								? `bg-teal-200 text-teal-600`
+								: `bg-gray-100 text-gray-500`
+						}  rounded-full text-xs font-semibold`}
+					>
+						{link.notifications
+							? link.title === 'Feed'
+								? `${link.notifications} new`
+								: link.notifications
+							: ''}
+					</span>
+				)}
+			</NavLink>
+		</div>
+	);
+};
+
+const SideNav = ({
+	auth: {
+		user: { _id, role, unviewedLeads, likedLeads, archivedLeads },
+		loading,
+	},
+}) => {
+	// state & local storage
+	const [hover, setHover] = useState(false);
+	const [userDropdown, setUserDropdown] = useState(false);
+	const [activeSubscription, setActiveSubscription] = useState('');
+	// primary links
+	const svgClass = 'h6 w-6';
 	const primaryLinks = [
 		{
 			title: 'Dashboard',
 			link: '/',
-			path: (
-				<path
-					strokeLinecap='round'
-					strokeLinejoin='round'
-					strokeWidth={2}
-					d='M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
-				/>
+			// notifications: lengthChecker(unviewedLeads),
+			svg: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='0 0 20 20'
+					fill='currentColor'
+					className={svgClass}
+				>
+					<path d='M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z' />
+				</svg>
 			),
 		},
 		{
 			title: 'Leads',
 			link: '/leads',
-			path: (
-				<path
-					strokeLinecap='round'
-					strokeLinejoin='round'
-					strokeWidth={2}
-					d='M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
-				/>
+			// notifications: lengthChecker(likedLeads),
+			svg: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='0 0 20 20'
+					fill='currentColor'
+					className={svgClass}
+				>
+					<path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
+				</svg>
 			),
 		},
 	];
-	// toggle user dropdown
-	const [userDropdown, setUserDropdown] = useState(false);
-	// assign stripe plan IDs to displayable text
-	const [activeSubscription, setActiveSubscription] = useState('');
-	const [initials, setInitials] = useState('');
-	// useEffect(() => {
-	// 	if (!loading && isAuthenticated && user) {
-	// 		if (user.subId > 0) {
-	// 			user.subId.forEach(function (sub) {
-	// 				console.log(sub);
-	// 				if (sub === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
-	// 					setActiveSubscription('Bundle');
-	// 					console.log('EH');
-	// 				} else if (sub === process.env.REACT_APP_PRO_PRODUCT_ID) {
-	// 					setActiveSubscription('Pro');
-	// 				} else if (sub === process.env.REACT_APP_GROW_PRODUCT_ID) {
-	// 					setActiveSubscription('Grow');
-	// 				} else return;
-	// 			});
-	// 		}
-	// 		// set initials on page load
-	// 		let userInitials = user.name.split(' ').map((n) => n[0]);
-	// 		setInitials(userInitials);
-	// 	}
-	// }, [loading, isAuthenticated, user]);
+	const secondaryLinks = [
+		{
+			title: 'Notifications',
+			link: '/#',
+			svg: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='0 0 20 20'
+					fill='currentColor'
+					className={svgClass}
+				>
+					<path d='M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z' />
+				</svg>
+			),
+		},
+		{
+			title: 'Help',
+			link: '/#',
+			svg: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='0 0 20 20'
+					fill='currentColor'
+					className={svgClass}
+				>
+					<path
+						fillRule='evenodd'
+						d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z'
+						clipRule='evenodd'
+					/>
+				</svg>
+			),
+		},
+	];
+	const adminLinks = [
+		{
+			title: 'Admin',
+			link: '/admin',
+			svg: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='0 0 20 20'
+					fill='currentColor'
+					className={svgClass}
+				>
+					<path
+						fillRule='evenodd'
+						d='M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+						clipRule='evenodd'
+					/>
+				</svg>
+			),
+		},
+	];
 	const dropdownItems = [
 		{
 			linkID: 100,
@@ -83,95 +165,67 @@ const Navbar = ({ auth: { isAuthenticated, loading, user }, logout }) => {
 		},
 	];
 	const logoutUser = (logout) => {
-		logout(user._id);
+		logout(_id);
 		setUserDropdown(false);
 	};
 	return (
-		<Fragment>
-			{isAuthenticated && (
-				<nav className='relative min-h-screen w-14 bg-gray-400 text-gray-400'>
-					<div className='py-3 '>
-						<div className='flex items-center'>
-							<div className='ml-8 flex items-center'>
-								{primaryLinks.map((link, i) => (
-									<NavLink
-										exact
-										to={link.link}
-										className='first:ml-0 ml-6 py-2 px-4 flex items-center font-medium rounded-md hover:bg-gray-900 hover:text-white transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-										activeClassName='top-nav-active'
-										key={i}
-									>
-										<div className='w-full flex items-center justify-between'>
-											<span>{link.title}</span>
-											{link.notifications !== 0 &&
-												link.notifications !== undefined && (
-													<span className='ml-2 px-2 bg-purple-600 rounded-full text-white font-semibold text-xs'>
-														{link.notifications}
-													</span>
-												)}
-										</div>
-									</NavLink>
-								))}
-							</div>
-						</div>
-						<div className='relative flex items-center'>
-							<button className='rounded-md focus:outline-none focus:shadow-outline'>
-								<svg
-									xmlns='http://www.w3.org/2000/svg'
-									fill='none'
-									viewBox='0 0 24 24'
-									stroke='currentColor'
-									className='h-6 w-6'
-								>
-									<path
-										strokeLinecap='round'
-										strokeLinejoin='round'
-										strokeWidth={2}
-										d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
-									/>
-								</svg>
-							</button>
-							<div className='ml-6'>
-								<button
-									onClick={() => setUserDropdown(!userDropdown)}
-									className='p-3 h-10 w-10 flex items-center justify-center rounded-full bg-gray-100 focus:outline-none focus:shadow-outline'
-								>
-									<span className='text-gray-600 text-sm font-bold'>
-										{initials}
-									</span>
-								</button>
-							</div>
-							{userDropdown && (
-								<div className='absolute z-10 bottom-0 right-0 transform text-gray-600'>
-									<AltDropdown
-										items={dropdownItems}
-										open={userDropdown}
-										setOpen={setUserDropdown}
-										logout={logout}
-										logoutUser={logoutUser}
-										loading={loading}
-										activeSubscription={activeSubscription}
-										// animation={mobileAnimation}
-									/>
-								</div>
-							)}
-						</div>
+		<nav className='fixed top-0 left-0 h-full min-h-screen w-16 py-16 px-3 flex flex-col justify-between bg-white border-r-2 border-gray-100 text-gray-400'>
+			<aside>
+				{primaryLinks.map((link, i) => (
+					<div key={i} className='first:mt-0 mt-6'>
+						<NavbarLink link={link} />
 					</div>
-				</nav>
-			)}
-		</Fragment>
-	);
-};
+				))}
+			</aside>
 
-Navbar.propTypes = {
-	auth: PropTypes.object.isRequired,
-	logout: PropTypes.func.isRequired,
+			<article>
+				{role === 'admin' && (
+					<nav className='mt-4 flex flex-col'>
+						{adminLinks.map((link, i) => (
+							<div key={i} className='first:mt-0 mt-6'>
+								<NavbarLink link={link} />
+							</div>
+						))}
+					</nav>
+				)}
+				<nav className='mt-4 flex flex-col'>
+					{secondaryLinks.map((link, i) => (
+						<div key={i} className='first:mt-0 mt-6'>
+							<NavbarLink link={link} />
+						</div>
+					))}
+				</nav>
+				<aside className='mt-16 text-gray-400'>
+					<button
+						onClick={() => setUserDropdown(true)}
+						onMouseEnter={() => setHover(!hover)}
+						onMouseLeave={() => setHover(false)}
+						className='p-2 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md focus:outline-none focus:shadow-outline'
+					>
+						<span className='text-xl font-bold'>J</span>
+					</button>
+					{userDropdown && (
+						<div className='absolute z-10 bottom-0 right-0 transform translate-x-48 text-gray-600'>
+							<AltDropdown
+								items={dropdownItems}
+								open={userDropdown}
+								setOpen={setUserDropdown}
+								logout={logout}
+								logoutUser={logoutUser}
+								loading={loading}
+								activeSubscription={activeSubscription}
+							/>
+						</div>
+					)}
+				</aside>
+			</article>
+		</nav>
+	);
 };
 
 const mapStateToProps = (state) => {
 	const { auth } = state;
-	const { page } = state.leads.pagination;
-	return { auth, page };
+	return { auth };
 };
 
-export default connect(mapStateToProps, { logout, getLeads })(Navbar);
+export default connect(mapStateToProps)(SideNav);

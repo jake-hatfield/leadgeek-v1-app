@@ -7,7 +7,7 @@ const auth = require('../../middleware/auth');
 const Lead = require('../../models/Lead');
 const User = require('../../models/User');
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 30;
 
 // @route       POST api/leads/export
 // @description Create new lead
@@ -241,18 +241,16 @@ router.post('/archived', auth, async (req, res) => {
 		} else {
 			let message = `Successfully queried ${archivedLeads.length} archived leads.`;
 			console.log(message);
-			return res
-				.status(200)
-				.send({
-					message,
-					archivedLeads,
-					page,
-					hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-					hasPreviousPage: page > 1,
-					nextPage: page + 1,
-					previousPage: page - 1,
-					lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
-				});
+			return res.status(200).send({
+				message,
+				archivedLeads,
+				page,
+				hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+				hasPreviousPage: page > 1,
+				nextPage: page + 1,
+				previousPage: page - 1,
+				lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+			});
 		}
 	} catch (error) {
 		console.log(error.message);

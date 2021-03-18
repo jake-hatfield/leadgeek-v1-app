@@ -230,11 +230,6 @@ const Dashboard = ({
 					<div className='mx-auto w-full max-w-3xl'>
 						<h1 className='text-3xl font-black text-gray-900'>Account</h1>
 						<div className='mt-6 md:flex md:items-center'>
-							<div className='p-3 h-16 w-16 flex items-center justify-center rounded-full bg-gray-100 shadow-sm focus:outline-none focus:shadow-outline'>
-								<span className='text-gray-600 text-xl font-bold'>
-									{initials}
-								</span>
-							</div>
 							<div className='ml-8'>
 								<div className='md:flex md:items-center text-lg font-semibold text-gray-600'>
 									<h2 className='text-purple-600'>{user.name}</h2>
