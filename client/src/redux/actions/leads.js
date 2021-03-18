@@ -23,7 +23,7 @@ const config = {
 
 export const exportLeads = () => async (dispatch) => {
 	try {
-		const { status, data } = await axios.get('/api/leads/export');
+		const { data } = await axios.get('/api/leads/export');
 		console.log(data);
 		if (data === 'Leads were added to the database.') {
 			console.log(data);

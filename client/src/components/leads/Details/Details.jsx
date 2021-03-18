@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { handleArchiveLead } from '../../../redux/actions/leads';
-import { truncate } from '../../layout/utils';
-import CoreStatsDropdown from './CoreStatsDropdown';
-import SummaryDropdown from './SummaryDropdown';
-import InsightsDropdown from './InsightsDropdown';
+import { truncate } from '../../../utils/utils';
 
 const Details = ({
 	clearDetailedLead,

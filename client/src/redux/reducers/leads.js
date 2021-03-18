@@ -1,4 +1,3 @@
-import { paginate } from '../actions/leads';
 import {
 	GET_LEADS,
 	GET_LIKED_LEADS,
@@ -166,8 +165,12 @@ export default function (state = initialState, action) {
 						},
 					};
 				}
+				default: {
+					return {
+						...state,
+					};
+				}
 			}
-
 		case LOGOUT:
 			return {
 				...initialState,

@@ -8,7 +8,7 @@ import {
 	setCurrentLead,
 } from '../../redux/actions/leads';
 // utils
-import { truncate, numberWithCommas, calculateBSR } from '../layout/utils';
+import { truncate, numberWithCommas, calculateBSR } from '../../utils/utils';
 const LeadRow = ({
 	lead,
 	viewLead,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { useStickyState, lengthChecker } from '../layout/utils';
+import { useStickyState, lengthChecker } from '../../utils/utils';
 import Tool from './Tools';
 
 const PrimaryLinks = ({ link, showMenu }) => {

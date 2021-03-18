@@ -8,9 +8,6 @@ module.exports = {
 	purge: false,
 	theme: {
 		extend: {
-			fontFamily: {
-				inter: ['Inter', 'sans-serif'],
-			},
 			colors: {
 				purple: {
 					100: '#E6E6FF',
