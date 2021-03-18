@@ -10,7 +10,7 @@ const Navbar = ({ auth: { isAuthenticated, loading, user }, logout }) => {
 	// nav links
 	const primaryLinks = [
 		{
-			title: 'Leads',
+			title: 'Dashboard',
 			link: '/',
 			path: (
 				<path
@@ -22,8 +22,8 @@ const Navbar = ({ auth: { isAuthenticated, loading, user }, logout }) => {
 			),
 		},
 		{
-			title: 'Admin',
-			link: '/admin',
+			title: 'Leads',
+			link: '/leads',
 			path: (
 				<path
 					strokeLinecap='round'
@@ -89,12 +89,9 @@ const Navbar = ({ auth: { isAuthenticated, loading, user }, logout }) => {
 	return (
 		<Fragment>
 			{isAuthenticated && (
-				<nav className='w-full bg-gray-800 text-gray-400'>
-					<div className='py-3 container flex items-center justify-between'>
+				<nav className='relative min-h-screen w-14 bg-gray-400 text-gray-400'>
+					<div className='py-3 '>
 						<div className='flex items-center'>
-							<h2 className='font-bold text-xl lg:text-2xl text-white'>
-								LeadGeek
-							</h2>
 							<div className='ml-8 flex items-center'>
 								{primaryLinks.map((link, i) => (
 									<NavLink

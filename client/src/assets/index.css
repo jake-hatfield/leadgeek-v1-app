@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+	@apply text-gray-500;
+	@apply font-sans;
+}
+
+.app-container {
+	@apply w-full mx-8;
+}
+
+.top-nav-active {
+	@apply bg-gray-900 text-white shadow-inner;
+}
+
+.account-nav-active {
+	@apply bg-gray-100;
+}
+
+.link {
+	@apply underline font-semibold;
+	text-decoration-color: #9fb3c8;
+	text-decoration-thickness: 0.1rem;
+}
+
+.link:hover {
+	text-decoration-color: #5d55fa;
+}
+
+#leads,
+table thead,
+table tbody {
+	@apply rounded-md !important;
+}
+
+table thead tr th:first-child {
+	@apply rounded-l-md !important;
+}
+
+table thead tr th:last-child {
+	@apply rounded-r-md !important;
+}
+
+table tbody tr td:first-child {
+	@apply rounded-l-md !important;
+	/* border-bottom-left-radius: 10px; */
+}
+
+table tbody tr td:last-child {
+	@apply rounded-r-md !important;
+}
+
+.alert-success {
+	@apply bg-teal-100 text-teal-400 border-teal-400;
+}
+
+.alert-danger {
+	@apply bg-red-200 text-red-500 border-red-500;
+}
+
+.alert-warning {
+	@apply bg-purple-100 text-purple-600 border-purple-600;
+}

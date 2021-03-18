@@ -3,7 +3,6 @@ const plugin = require('tailwindcss/plugin');
 module.exports = {
 	future: {
 		removeDeprecatedGapUtilities: true,
-		// purgeLayersByDefault: true,
 	},
 	purge: false,
 	theme: {
@@ -146,6 +145,5 @@ module.exports = {
 			};
 			addComponents(container);
 		}),
-		// require('@tailwindcss/custom-forms'),
 	],
 };
