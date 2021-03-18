@@ -12,6 +12,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import Routes from './routes/Routes';
 import { LOGOUT } from './redux/actions/types';
 // styles & fonts
+import './assets/index.css';
 import './assets/tailwind.css';
 
 const App = () => {

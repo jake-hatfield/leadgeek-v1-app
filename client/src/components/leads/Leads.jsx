@@ -29,7 +29,7 @@ const Leads = ({
 			<Fragment>
 				<section className='my-6 lg:my-10 relative container flex'>
 					<section className='w-full'>
-						<header className='ml-20 flex items-center justify-between'>
+						<header className='flex items-center justify-between'>
 							<div className='relative z-0 w-full xl:w-5/6'>
 								<input
 									onChange={(e) => onSearchChange(e)}

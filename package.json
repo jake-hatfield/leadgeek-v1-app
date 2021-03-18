@@ -1,5 +1,5 @@
 {
-	"name": "leadgeek-app",
+	"name": "leadgeek-app-server",
 	"version": "1.0.0",
 	"description": "The web application for LeadGeek's arbitrage sourcing service.",
 	"main": "server.js",

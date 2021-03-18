@@ -1,5 +1,5 @@
 {
-	"name": "client",
+	"name": "leadgeek-client",
 	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
@@ -9,11 +9,9 @@
 		"@testing-library/jest-dom": "^4.2.4",
 		"@testing-library/react": "^9.3.2",
 		"@testing-library/user-event": "^7.1.2",
-		"autoprefixer": "^9.8.6",
 		"axios": "^0.20.0",
 		"dotenv": "^8.2.0",
 		"moment": "^2.29.1",
-		"postcss": "^7.0.35",
 		"react": "^16.14.0",
 		"react-dom": "^16.14.0",
 		"react-moment": "^1.1.1",
@@ -23,11 +21,9 @@
 		"redux": "^4.0.5",
 		"redux-devtools-extension": "^2.13.9",
 		"redux-thunk": "^2.3.0",
-		"tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.4",
 		"uuid": "^8.3.2"
 	},
 	"scripts": {
-		"build:style": "tailwind src/assets/index.css -o src/assets/tailwind.css",
 		"start": "craco start && react-scripts start",
 		"build": "craco build",
 		"test": "craco test",
@@ -50,6 +46,10 @@
 	},
 	"proxy": "http://localhost:5000",
 	"devDependencies": {
-		"postcss-cli": "^8.3.1"
+		"@tailwindcss/postcss7-compat": "^2.0.4",
+		"autoprefixer": "^9.8.6",
+		"postcss": "^7.0.35",
+		"postcss-cli": "^8.3.1",
+		"tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.4"
 	}
 }
