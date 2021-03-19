@@ -34,6 +34,10 @@ html {
 	text-decoration-color: #5d55fa;
 }
 
+.negative-translate-x-14 {
+	translate-x: -3.5rem;
+}
+
 .alert-success {
 	@apply bg-teal-100 text-teal-400 border-teal-400;
 }
