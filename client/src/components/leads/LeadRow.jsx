@@ -43,7 +43,7 @@ const LeadRow = ({
 	};
 	return (
 		<tr
-			className='rounded-md last:border-none border-b-2 border-gray-100 hover:border-white hover:bg-gray-100 transition-all duration-200 cursor-pointer'
+			className='border-b border-gray-200 hover:bg-gray-100 transition-all duration-100 cursor-pointer'
 			onClick={() => {
 				newLead && setNewLead(false);
 				setShowDetails(!showDetails);
@@ -51,7 +51,7 @@ const LeadRow = ({
 				setCurrentLead(lead);
 			}}
 		>
-			<td className='pl-2'>
+			<td className='p-2'>
 				{newLead && (
 					<span className='h-4 w-4 flex items-center justify-center rounded-full bg-teal-200'>
 						<span className='h-2 w-2 inline-block rounded-full bg-teal-400' />
@@ -85,28 +85,27 @@ const LeadRow = ({
 					</svg>
 				</button>
 			</td>
-			<td className='py-6 flex items-center'>{truncate(data.title, 28)}</td>
-			<td className='pl-6'>{truncate(data.category, 28)}</td>
-			<td className='pl-6 text-gray-600 font-bold text-right'>
+			<td className='p-2 font-semibold'>{truncate(data.title, 28)}</td>
+			<td className='p-2'>{truncate(data.category, 28)}</td>
+			<td className='p-2'>
 				<span>$</span>
 				{data.netProfit.toFixed(2)}
 				<span className='ml-1 text-gray-400 font-semibold uppercase'>USD</span>
 			</td>
-			<td className='pl-6 text-gray-600 font-bold text-right'>
-				{data.roi.toFixed(2) * 100}
+			<td className='p-2'>
+				{(data.roi.toFixed(2) * 100).toFixed(0)}
 				<span className='ml-1 text-gray-400 font-semibold'>%</span>
 			</td>
-			<td className='px-6 text-gray-600 font-bold text-right'>
+			<td className='p-2'>
 				{numberWithCommas(data.bsrCurrent)}
 				<span className='ml-1 text-gray-400 font-normal'>
 					({calculateBSR(data.bsrCurrent, data.category)})
 					<span className='ml-1 text-gray-400 font-semibold'>%</span>
 				</span>
 			</td>
-			<td className='pr-6 text-gray-600 font-bold text-right'>
-				{numberWithCommas(data.monthlySales)}
-			</td>
-			<td className='pr-4'>
+			<td className='p-2'>{numberWithCommas(data.monthlySales)}</td>
+			<td className='p-2'>{numberWithCommas(data.monthlySales)}</td>
+			<td className='p-2'>
 				<button
 					onClick={(e) => {
 						e.stopPropagation();

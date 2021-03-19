@@ -1,30 +1,32 @@
 import React from 'react';
+
 import LeadRow from './LeadRow';
 import Spinner from '../layout/Spinner';
 
 const LeadTable = ({ loading, leads, showDetails, setShowDetails, user }) => {
 	return (
-		<section className='mt-8 ml-16'>
+		<section className='mt-10 container'>
 			{loading ? (
 				<div>
 					<Spinner />
 				</div>
 			) : leads.length > 0 ? (
 				<table className='w-full table-auto' id='leads'>
-					<thead>
-						<tr className='bg-gray-100 text-gray-400 text-xs text-left uppercase tracking-widest whitespace-no-wrap'>
-							<th className='pl-1' />
-							<th className='pl-3' />
-							<th className='py-3'>Title</th>
-							<th className='pl-6'>Category</th>
-							<th className='pl-6 text-right'>Net Profit</th>
-							<th className='pl-6 text-right'>Net ROI</th>
-							<th className='px-6 text-right'>Current BSR</th>
-							<th className='pr-6 text-right'>Sales</th>
-							<th className='pr-6' />
+					<thead className='border-b border-gray-200'>
+						<tr className='text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
+							<th className='p-2' />
+							<th className='p-2' />
+							<th className='p-2'>Title</th>
+							<th className='p-2'>Category</th>
+							<th className='p-2'>Profit</th>
+							<th className='p-2'>ROI</th>
+							<th className='p-2'>BSR</th>
+							<th className='p-2'>Mo. Sales</th>
+							<th className='p-2'>Date</th>
+							<th className='p-2' />
 						</tr>
 					</thead>
-					<tbody className='text-gray-600 text-xs lg:text-sm font-medium'>
+					<tbody className='text-sm text-gray-800'>
 						{leads.map((lead, i) => (
 							<LeadRow
 								key={lead._id}

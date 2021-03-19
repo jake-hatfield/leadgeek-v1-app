@@ -12,7 +12,8 @@ html {
 }
 
 .content {
-	@apply ml-20;
+	@apply ml-16;
+	width: calc(100%-64px);
 }
 
 .top-nav-active {
@@ -31,29 +32,6 @@ html {
 
 .link:hover {
 	text-decoration-color: #5d55fa;
-}
-
-#leads,
-table thead,
-table tbody {
-	@apply rounded-md !important;
-}
-
-table thead tr th:first-child {
-	@apply rounded-l-md !important;
-}
-
-table thead tr th:last-child {
-	@apply rounded-r-md !important;
-}
-
-table tbody tr td:first-child {
-	@apply rounded-l-md !important;
-	/* border-bottom-left-radius: 10px; */
-}
-
-table tbody tr td:last-child {
-	@apply rounded-r-md !important;
 }
 
 .alert-success {

@@ -10,7 +10,7 @@ const NavbarLink = ({ link, showMenu }) => {
 	return (
 		<div v-for='item in items'>
 			<NavLink
-				className='p-2 relative w-full flex items-center justify-between rounded-lg group hover:bg-gray-100 hover:text-purple-600 hover:shadow-sm transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+				className='p-2 relative w-full flex items-center justify-between rounded-lg group shadow-sm hover:text-purple-600 hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 				onMouseEnter={() => setHover(!hover)}
 				onMouseLeave={() => setHover(false)}
 				to={link.link}
@@ -43,7 +43,7 @@ const NavbarLink = ({ link, showMenu }) => {
 	);
 };
 
-const SideNav = ({
+const Navbar = ({
 	auth: {
 		user: { _id, role, unviewedLeads, likedLeads, archivedLeads },
 		loading,
@@ -169,7 +169,7 @@ const SideNav = ({
 		setUserDropdown(false);
 	};
 	return (
-		<nav className='fixed top-0 left-0 h-full min-h-screen w-16 py-16 px-3 flex flex-col justify-between bg-white border-r-2 border-gray-100 text-gray-400'>
+		<nav className='fixed top-0 left-0 h-full min-h-screen w-16 py-20 px-3 flex flex-col justify-between bg-white border-r border-gray-200 text-gray-400'>
 			<aside>
 				{primaryLinks.map((link, i) => (
 					<div key={i} className='first:mt-0 mt-6'>
@@ -200,7 +200,7 @@ const SideNav = ({
 						onClick={() => setUserDropdown(true)}
 						onMouseEnter={() => setHover(!hover)}
 						onMouseLeave={() => setHover(false)}
-						className='p-2 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md focus:outline-none focus:shadow-outline'
+						className='p-2 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 					>
 						<span className='text-xl font-bold'>J</span>
 					</button>
@@ -228,4 +228,4 @@ const mapStateToProps = (state) => {
 	return { auth };
 };
 
-export default connect(mapStateToProps)(SideNav);
+export default connect(mapStateToProps)(Navbar);
