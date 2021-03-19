@@ -5,11 +5,9 @@ import Spinner from '../layout/Spinner';
 
 const LeadTable = ({ loading, leads, showDetails, setShowDetails, user }) => {
 	return (
-		<section className='mt-10 container'>
+		<section className='relative mt-10 container'>
 			{loading ? (
-				<div>
-					<Spinner />
-				</div>
+				<Spinner search={true} />
 			) : leads.length > 0 ? (
 				<table className='w-full table-auto' id='leads'>
 					<thead className='border-b border-gray-200'>

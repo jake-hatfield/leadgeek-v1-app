@@ -16,6 +16,7 @@ const Feed = ({ user, loading, isAuthenticated, pagination, getLeads }) => {
 			<Leads
 				leads={pagination.feed.active}
 				pagination={pagination.feed}
+				totalItems={pagination.feed.totalItems}
 				type={'feed'}
 			/>
 		</AuthLayout>

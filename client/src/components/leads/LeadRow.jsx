@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 // redux
 import { connect } from 'react-redux';
@@ -23,6 +23,22 @@ const LeadRow = ({
 	user,
 }) => {
 	const { data } = lead;
+	const wrapperRef = useRef(null);
+	const useOutsideAlerter = (ref) => {
+		useEffect(() => {
+			function handleClickOutside(event) {
+				if (ref.current && !ref.current.contains(event.target)) {
+					setQuickView(false);
+					setExpandedView(false);
+				}
+			}
+			document.addEventListener('mousedown', handleClickOutside);
+			return () => {
+				document.removeEventListener('mousedown', handleClickOutside);
+			};
+		}, [ref]);
+	};
+	useOutsideAlerter(wrapperRef);
 	const [like, setLike] = useState(false);
 	const [newLead, setNewLead] = useState(false);
 	const [quickView, setQuickView] = useState(false);
@@ -40,8 +56,30 @@ const LeadRow = ({
 			}
 		}
 	}, [user]);
-	// link opener
-	const openBothLinks = (e, sourceLink, amzLink) => {
+
+	const viewDetailsHandler = () => {
+		newLead && setNewLead(false);
+		setShowDetails(!showDetails);
+		viewLead(user._id, lead._id);
+		setCurrentLead(lead);
+		setQuickView(false);
+		setExpandedView(false);
+	};
+	const favoriteHandler = (e) => {
+		e.stopPropagation();
+		newLead && setNewLead(false);
+		setLike(!like);
+		handleLikeLead(user._id, lead._id);
+		viewLead(user._id, lead._id);
+	};
+	const archiveHandler = (e) => {
+		e.stopPropagation();
+		newLead && setNewLead(false);
+		setLike(!like);
+		handleLikeLead(user._id, lead._id);
+		viewLead(user._id, lead._id);
+	};
+	const openLinkHandler = (e, sourceLink, amzLink) => {
 		e.preventDefault();
 		window.open(sourceLink);
 		window.open(amzLink);
@@ -50,10 +88,7 @@ const LeadRow = ({
 		<tr
 			className='relative px-1 border-b border-gray-200 hover:bg-gray-100 transition-all duration-100 cursor-pointer'
 			onClick={() => {
-				newLead && setNewLead(false);
-				setShowDetails(!showDetails);
-				viewLead(user._id, lead._id);
-				setCurrentLead(lead);
+				viewDetailsHandler();
 			}}
 		>
 			<td className='p-2'>
@@ -66,11 +101,7 @@ const LeadRow = ({
 			<td className='p-2 text-center text-gray-400'>
 				<button
 					onClick={(e) => {
-						e.stopPropagation();
-						newLead && setNewLead(false);
-						setLike(!like);
-						handleLikeLead(user._id, lead._id);
-						viewLead(user._id, lead._id);
+						favoriteHandler(e);
 					}}
 					className='p-1 rounded-md focus:outline-none focus:shadow-outline align-middle'
 				>
@@ -114,7 +145,7 @@ const LeadRow = ({
 				<div className='flex items-center justify-center rounded-r-lg focus:outline-none focus:shadow-outline'>
 					{/* horiztonal dots */}
 					<button
-						onMouseEnter={() => setQuickView(true)}
+						ref={wrapperRef}
 						onClick={(e) => {
 							e.stopPropagation();
 							setQuickView(expandedView ? false : true);
@@ -140,6 +171,7 @@ const LeadRow = ({
 							<div className='flex items-center'>
 								{/* eye */}
 								<button
+									ref={wrapperRef}
 									onClick={(e) => {
 										e.stopPropagation();
 										setShowDetails(!showDetails);
@@ -163,9 +195,10 @@ const LeadRow = ({
 								</button>
 								{/* link */}
 								<button
+									ref={wrapperRef}
 									onClick={(e) => {
 										e.stopPropagation();
-										openBothLinks(e, data.sourceLink, data.amzLink);
+										openLinkHandler(e, data.sourceLink, data.amzLink);
 									}}
 									className='p-2 border-r border-gray-200 hover:text-gray-700 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 								>
@@ -186,15 +219,14 @@ const LeadRow = ({
 						</div>
 					)}
 					{expandedView && (
-						<div className='absolute z-20 w-32 transform -translate-x-16 bg-white rounded-lg shadow-md'>
+						<div
+							ref={wrapperRef}
+							className='absolute z-20 w-40 transform translate-y-24 -translate-x-16 bg-white rounded-lg shadow-md'
+						>
 							<div className='py-2 border-b border-gray-200'>
 								<button
 									onClick={(e) => {
-										e.stopPropagation();
-										newLead && setNewLead(false);
-										setLike(!like);
-										handleLikeLead(user._id, lead._id);
-										viewLead(user._id, lead._id);
+										favoriteHandler(e);
 									}}
 									className={buttonClasses}
 								>
@@ -202,19 +234,20 @@ const LeadRow = ({
 								</button>
 								<button
 									onClick={(e) => {
-										e.stopPropagation();
-										newLead && setNewLead(false);
-										setLike(!like);
-										handleLikeLead(user._id, lead._id);
-										viewLead(user._id, lead._id);
+										archiveHandler(e);
 									}}
 									className={buttonClasses}
 								>
 									Archive lead
 								</button>
 							</div>
-							<div className='pt-2 pb-4'>
-								<button className={`${buttonClasses} flex items-center`}>
+							<div className='py-2'>
+								<button
+									onClick={(e) =>
+										openLinkHandler(e, data.sourceLink, data.amzLink)
+									}
+									className={`${buttonClasses} flex items-center`}
+								>
 									<span>Open links</span>
 									<svg
 										xmlns='http://www.w3.org/2000/svg'
@@ -229,7 +262,10 @@ const LeadRow = ({
 										/>
 									</svg>
 								</button>
-								<button className={`${buttonClasses} flex items-center`}>
+								<button
+									onClick={() => viewDetailsHandler()}
+									className={`${buttonClasses} flex items-center`}
+								>
 									<span>View details</span>
 									<svg
 										xmlns='http://www.w3.org/2000/svg'

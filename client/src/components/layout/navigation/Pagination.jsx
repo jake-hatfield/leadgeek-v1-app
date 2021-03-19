@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { setPage } from '../../../redux/actions/leads';
@@ -9,27 +10,31 @@ const Pagination = ({
 	loading,
 	setPage,
 }) => {
+	const buttonClasses =
+		'ml-4 py-2 px-3 rounded-lg shadow-sm text-sm font-semibold hover:text-gray-500 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline';
 	return (
 		!loading && (
-			<article className='mt-8 flex justify-between'>
-				{hasPreviousPage ? (
+			<article className='flex justify-end mt-8 container'>
+				<div>
 					<Link
-						to={`?page=${previousPage}`}
+						to={`${hasPreviousPage && `?page=${previousPage}`}`}
 						onClick={() => setPage(previousPage, type)}
+						className={`${
+							hasPreviousPage ? 'hover:shadow-md' : 'cursor-default opacity-50'
+						} ${buttonClasses}`}
 					>
 						Previous page
 					</Link>
-				) : (
-					<div />
-				)}
-				{hasNextPage && (
 					<Link
 						to={`?page=${nextPage}`}
 						onClick={() => setPage(nextPage, type)}
+						className={`${
+							hasNextPage ? 'hover:shadow-md' : 'opacity-50'
+						} ${buttonClasses}`}
 					>
 						Next page
 					</Link>
-				)}
+				</div>
 			</article>
 		)
 	);

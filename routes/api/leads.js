@@ -7,7 +7,7 @@ const auth = require('../../middleware/auth');
 const Lead = require('../../models/Lead');
 const User = require('../../models/User');
 
-const ITEMS_PER_PAGE = 30;
+const ITEMS_PER_PAGE = 10;
 
 // @route       POST api/leads/export
 // @description Create new lead
@@ -107,7 +107,6 @@ router.post('/', auth, async (req, res) => {
 		}
 		console.log('Getting all leads...');
 		const { unviewedLeads } = user;
-		let itemCount;
 		let totalItems;
 		const feed = await Lead.find({ plan })
 			.countDocuments()
@@ -118,6 +117,7 @@ router.post('/', auth, async (req, res) => {
 					.limit(ITEMS_PER_PAGE)
 					.sort({ 'data.date': -1 });
 			});
+		const lastUpdated = feed[0].data.date;
 		console.log(`Total items: ${totalItems}`);
 		// const planEndDate = user.subId[0].current_period_end;
 		if (feed.length === 0) {
@@ -146,13 +146,14 @@ router.post('/', auth, async (req, res) => {
 			return res.status(200).send({
 				feed,
 				unviewedLeads,
-				itemCount,
+				totalItems,
 				page,
 				hasNextPage: ITEMS_PER_PAGE * page < totalItems,
 				hasPreviousPage: page > 1,
 				nextPage: page + 1,
 				previousPage: page - 1,
 				lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+				lastUpdated,
 			});
 		}
 	} catch (error) {

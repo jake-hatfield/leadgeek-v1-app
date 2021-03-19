@@ -19,7 +19,7 @@ const initialState = {
 	pagination: {
 		feed: {
 			active: [],
-			itemCount: null,
+			totalItems: null,
 			page: 1,
 			hasNextPage: null,
 			hasPreviousPage: false,
@@ -43,7 +43,7 @@ const initialState = {
 			previousPage: null,
 		},
 	},
-	lastActive: null,
+	lastUpdated: null,
 	currentLead: null,
 	loading: true,
 };
@@ -61,22 +61,24 @@ export default function (state = initialState, action) {
 		case GET_LEADS:
 			const {
 				feed,
-				itemCount,
+				totalItems,
 				page,
 				hasNextPage,
 				hasPreviousPage,
 				nextPage,
 				previousPage,
 				lastPage,
+				lastUpdated,
 			} = payload.data;
 			return {
 				...state,
+				lastUpdated,
 				pagination: {
 					...state.pagination,
 					feed: {
 						...state.feed.pagination,
 						active: feed,
-						itemCount,
+						totalItems,
 						page,
 						hasNextPage,
 						hasPreviousPage,
@@ -185,7 +187,6 @@ export default function (state = initialState, action) {
 				...state,
 				loading: false,
 			};
-
 		default:
 			return {
 				...state,

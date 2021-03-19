@@ -15,6 +15,8 @@ const Leads = ({
 	type,
 	user,
 	currentLead,
+	totalItems,
+	lastUpdated,
 	authLoading,
 	leadLoading,
 	clearDetailedLead,
@@ -86,7 +88,7 @@ const Leads = ({
 										onChange={(e) => onSearchChange(e)}
 										type='text'
 										placeholder='Search by name, ASIN, store, etc.'
-										className='py-2 pl-10 pr-6 w-full rounded-lg text-sm text-gray-500 placeholder-gray-400 transition-all duration-100 ease-in-out focus:outline-none hover:shadow-outline focus:shadow-outline'
+										className='py-2 pl-10 pr-6 w-3/4 rounded-lg text-sm text-gray-500 placeholder-gray-400 transition-all duration-100 ease-in-out focus:outline-none hover:shadow-outline focus:shadow-outline'
 									/>
 									<svg
 										xmlns='http://www.w3.org/2000/svg'
@@ -124,9 +126,11 @@ const Leads = ({
 									</NavLink>
 								))}
 							</div>
-							<div className='py-2 px-3 rounded-lg bg-teal-300 font-semibold text-sm text-teal-600'>
-								287 leads
-							</div>
+							{totalItems && (
+								<div className='py-2 px-3 rounded-lg bg-teal-300 font-semibold text-sm text-teal-600'>
+									{totalItems} leads
+								</div>
+							)}
 						</div>
 					</nav>
 					<LeadTable
@@ -151,9 +155,9 @@ const Leads = ({
 };
 
 const mapStateToProps = (state, ownProps) => {
-	const { leads, pagination, type } = ownProps;
+	const { leads, pagination, type, totalItems } = ownProps;
 	const { user, loading: authLoading } = state.auth;
-	const { currentLead, page, loading: leadLoading } = state.leads;
+	const { currentLead, lastUpdated, loading: leadLoading } = state.leads;
 	return {
 		leads,
 		pagination,
@@ -161,7 +165,8 @@ const mapStateToProps = (state, ownProps) => {
 		user,
 		authLoading,
 		currentLead,
-		page,
+		totalItems,
+		lastUpdated,
 		leadLoading,
 	};
 };
