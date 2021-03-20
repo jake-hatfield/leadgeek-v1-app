@@ -56,7 +56,6 @@ const LeadRow = ({
 			}
 		}
 	}, [user]);
-
 	const viewDetailsHandler = () => {
 		newLead && setNewLead(false);
 		setShowDetails(!showDetails);
@@ -146,6 +145,8 @@ const LeadRow = ({
 					{/* horiztonal dots */}
 					<button
 						ref={wrapperRef}
+						onMouseEnter={() => setQuickView(true)}
+						onMouseLeave={() => !expandedView && setQuickView(false)}
 						onClick={(e) => {
 							e.stopPropagation();
 							setQuickView(expandedView ? false : true);
@@ -167,11 +168,16 @@ const LeadRow = ({
 						</svg>
 					</button>
 					{quickView && (
-						<div className='absolute transform -translate-x-14 bg-white rounded-l-lg shadow-sm text-gray-500'>
-							<div className='flex items-center'>
+						<div
+							ref={wrapperRef}
+							className='absolute transform -translate-x-14 bg-white rounded-l-lg shadow-sm text-gray-500'
+						>
+							<div ref={wrapperRef} className='flex items-center'>
 								{/* eye */}
 								<button
 									ref={wrapperRef}
+									onMouseEnter={() => setQuickView(true)}
+									onMouseLeave={() => !expandedView && setQuickView(false)}
 									onClick={(e) => {
 										e.stopPropagation();
 										setShowDetails(!showDetails);
@@ -196,6 +202,8 @@ const LeadRow = ({
 								{/* link */}
 								<button
 									ref={wrapperRef}
+									onMouseEnter={() => setQuickView(true)}
+									onMouseLeave={() => !expandedView && setQuickView(false)}
 									onClick={(e) => {
 										e.stopPropagation();
 										openLinkHandler(e, data.sourceLink, data.amzLink);
@@ -223,8 +231,9 @@ const LeadRow = ({
 							ref={wrapperRef}
 							className='absolute z-20 w-40 transform translate-y-24 -translate-x-16 bg-white rounded-lg shadow-md'
 						>
-							<div className='py-2 border-b border-gray-200'>
+							<div ref={wrapperRef} className='py-2 border-b border-gray-200'>
 								<button
+									ref={wrapperRef}
 									onClick={(e) => {
 										favoriteHandler(e);
 									}}
@@ -233,6 +242,7 @@ const LeadRow = ({
 									{!like ? 'Like lead' : 'Unlike lead'}
 								</button>
 								<button
+									ref={wrapperRef}
 									onClick={(e) => {
 										archiveHandler(e);
 									}}
@@ -241,7 +251,7 @@ const LeadRow = ({
 									Archive lead
 								</button>
 							</div>
-							<div className='py-2'>
+							<div ref={wrapperRef} className='py-2'>
 								<button
 									onClick={(e) =>
 										openLinkHandler(e, data.sourceLink, data.amzLink)

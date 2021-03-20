@@ -20,7 +20,9 @@ const Pagination = ({
 						to={`${hasPreviousPage && `?page=${previousPage}`}`}
 						onClick={() => setPage(previousPage, type)}
 						className={`${
-							hasPreviousPage ? 'hover:shadow-md' : 'cursor-default opacity-50'
+							hasPreviousPage
+								? 'hover:shadow-md'
+								: 'pointer-events-none opacity-50'
 						} ${buttonClasses}`}
 					>
 						Previous page
@@ -29,7 +31,7 @@ const Pagination = ({
 						to={`?page=${nextPage}`}
 						onClick={() => setPage(nextPage, type)}
 						className={`${
-							hasNextPage ? 'hover:shadow-md' : 'opacity-50'
+							hasNextPage ? 'hover:shadow-md' : 'pointer-events-none opacity-50'
 						} ${buttonClasses}`}
 					>
 						Next page
