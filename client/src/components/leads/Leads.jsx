@@ -145,6 +145,7 @@ const Leads = ({
 				{showDetails && (
 					<Details
 						clearDetailedLead={clearDetailedLead}
+						showDetails={showDetails}
 						setShowDetails={setShowDetails}
 						currentLead={currentLead}
 					/>
