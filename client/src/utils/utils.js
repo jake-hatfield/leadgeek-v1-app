@@ -80,3 +80,9 @@ export const calculateBSR = (currentRank, category) => {
 export const lengthChecker = (array) => {
 	return array.length > 99 ? '99+' : array.length;
 };
+
+export const openLinkHandler = (e, retailerLink, amzLink) => {
+	e.preventDefault();
+	window.open(retailerLink);
+	window.open(amzLink);
+};

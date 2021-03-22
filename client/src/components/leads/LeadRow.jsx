@@ -1,14 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
+
 import PropTypes from 'prop-types';
 // redux
 import { connect } from 'react-redux';
+import { DateTime } from 'luxon';
+
 import {
 	viewLead,
 	handleLikeLead,
 	setCurrentLead,
 } from '../../redux/actions/leads';
 // utils
-import { truncate, numberWithCommas, calculateBSR } from '../../utils/utils';
+import {
+	truncate,
+	numberWithCommas,
+	calculateBSR,
+	openLinkHandler,
+} from '../../utils/utils';
 
 const buttonClasses =
 	'py-1 px-3 w-full text-left font-semibold text-purple-600 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline';
@@ -56,6 +64,7 @@ const LeadRow = ({
 			}
 		}
 	}, [user]);
+	const datePosted = DateTime.fromISO(data.date).toFormat('LLL dd');
 	const viewDetailsHandler = () => {
 		newLead && setNewLead(false);
 		setShowDetails(!showDetails);
@@ -78,11 +87,7 @@ const LeadRow = ({
 		handleLikeLead(user._id, lead._id);
 		viewLead(user._id, lead._id);
 	};
-	const openLinkHandler = (e, sourceLink, amzLink) => {
-		e.preventDefault();
-		window.open(sourceLink);
-		window.open(amzLink);
-	};
+
 	return (
 		<tr
 			className='relative px-1 border-b border-gray-200 hover:bg-gray-100 transition-all duration-100 cursor-pointer'
@@ -90,14 +95,14 @@ const LeadRow = ({
 				viewDetailsHandler();
 			}}
 		>
-			<td className='p-2'>
+			<td className='p-2 text-center'>
 				{newLead && (
 					<span className='h-4 w-4 flex items-center justify-center rounded-full bg-teal-200'>
 						<span className='h-2 w-2 inline-block rounded-full bg-teal-400' />
 					</span>
 				)}
 			</td>
-			<td className='p-2 text-center text-gray-400'>
+			<td className='p-2 pl-0 text-center text-gray-400'>
 				<button
 					onClick={(e) => {
 						favoriteHandler(e);
@@ -139,101 +144,92 @@ const LeadRow = ({
 				</span>
 			</td>
 			<td className='p-2'>{numberWithCommas(data.monthlySales)}</td>
-			<td className='p-2'>{numberWithCommas(data.monthlySales)}</td>
+			<td className='p-2'>{datePosted}</td>
 			<td className='p-2'>
-				<div className='flex items-center justify-center rounded-r-lg focus:outline-none focus:shadow-outline'>
-					{/* horiztonal dots */}
-					<button
-						ref={wrapperRef}
+				<div ref={wrapperRef}>
+					<div
 						onMouseEnter={() => setQuickView(true)}
 						onMouseLeave={() => !expandedView && setQuickView(false)}
-						onClick={(e) => {
-							e.stopPropagation();
-							setQuickView(expandedView ? false : true);
-							setExpandedView(!expandedView);
-						}}
-						className={`${
-							quickView
-								? 'absolute z-10 p-2 bg-white shadow-sm rounded-r-lg'
-								: 'rounded-lg'
-						} p-1 text-gray-500 hover:text-gray-700 focus:outline-none focus:shadow-outline`}
+						className='flex items-center justify-center rounded-r-lg focus:outline-none focus:shadow-outline'
 					>
-						<svg
-							xmlns='http://www.w3.org/2000/svg'
-							viewBox='0 0 20 20'
-							fill='currentColor'
-							className='h-5 w-5'
+						<button
+							onClick={(e) => {
+								e.stopPropagation();
+								setExpandedView(!expandedView);
+							}}
+							className={`${
+								quickView
+									? 'absolute z-10 p-2 bg-white shadow-sm rounded-r-lg'
+									: 'rounded-lg'
+							} p-1 text-gray-500 hover:text-gray-700 focus:outline-none focus:shadow-outline`}
 						>
-							<path d='M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z' />
-						</svg>
-					</button>
-					{quickView && (
-						<div
-							ref={wrapperRef}
-							className='absolute transform -translate-x-14 bg-white rounded-l-lg shadow-sm text-gray-500'
-						>
-							<div ref={wrapperRef} className='flex items-center'>
-								{/* eye */}
-								<button
-									ref={wrapperRef}
-									onMouseEnter={() => setQuickView(true)}
-									onMouseLeave={() => !expandedView && setQuickView(false)}
-									onClick={(e) => {
-										e.stopPropagation();
-										setShowDetails(!showDetails);
-										setCurrentLead(lead);
-									}}
-									className='p-2 rounded-l-lg border-r border-gray-200 hover:text-gray-700 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-								>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										viewBox='0 0 20 20'
-										fill='currentColor'
-										className='h-5 w-5'
+							<svg
+								xmlns='http://www.w3.org/2000/svg'
+								viewBox='0 0 20 20'
+								fill='currentColor'
+								className='h-5 w-5'
+							>
+								<path d='M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z' />
+							</svg>
+						</button>
+						{quickView && (
+							<div className='absolute transform -translate-x-14 bg-white rounded-l-lg shadow-sm text-gray-500'>
+								<div className='flex items-center'>
+									{/* eye */}
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											setShowDetails(!showDetails);
+											setCurrentLead(lead);
+											setExpandedView(false);
+										}}
+										className='p-2 rounded-l-lg border-r border-gray-200 hover:text-gray-700 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 									>
-										<path d='M10 12a2 2 0 100-4 2 2 0 000 4z' />
-										<path
-											fillRule='evenodd'
-											d='M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z'
-											clipRule='evenodd'
-										/>
-									</svg>
-								</button>
-								{/* link */}
-								<button
-									ref={wrapperRef}
-									onMouseEnter={() => setQuickView(true)}
-									onMouseLeave={() => !expandedView && setQuickView(false)}
-									onClick={(e) => {
-										e.stopPropagation();
-										openLinkHandler(e, data.sourceLink, data.amzLink);
-									}}
-									className='p-2 border-r border-gray-200 hover:text-gray-700 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-								>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										viewBox='0 0 20 20'
-										fill='currentColor'
-										className='h-5 w-5 hover:text-gray-700'
+										<svg
+											xmlns='http://www.w3.org/2000/svg'
+											viewBox='0 0 20 20'
+											fill='currentColor'
+											className='h-5 w-5'
+										>
+											<path d='M10 12a2 2 0 100-4 2 2 0 000 4z' />
+											<path
+												fillRule='evenodd'
+												d='M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z'
+												clipRule='evenodd'
+											/>
+										</svg>
+									</button>
+									{/* link */}
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											openLinkHandler(e, data.retailerLink, data.amzLink);
+											setExpandedView(false);
+										}}
+										className='p-2 border-r border-gray-200 hover:text-gray-700 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 									>
-										<path
-											fillRule='evenodd'
-											d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z'
-											clipRule='evenodd'
-										/>
-									</svg>
-								</button>
+										<svg
+											xmlns='http://www.w3.org/2000/svg'
+											viewBox='0 0 20 20'
+											fill='currentColor'
+											className='h-5 w-5 hover:text-gray-700'
+										>
+											<path
+												fillRule='evenodd'
+												d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z'
+												clipRule='evenodd'
+											/>
+										</svg>
+									</button>
+								</div>
 							</div>
-						</div>
-					)}
+						)}
+					</div>
+					{/* horiztonal dots */}
 					{expandedView && (
-						<div
-							ref={wrapperRef}
-							className='absolute z-20 w-40 transform translate-y-24 -translate-x-16 bg-white rounded-lg shadow-md'
-						>
-							<div ref={wrapperRef} className='py-2 border-b border-gray-200'>
+						<div className='absolute right-0 z-20 w-40 transform translate-y-5 -translate-x-8 bg-white rounded-lg shadow-md'>
+							<div className='py-2 border-b border-gray-200'>
 								<button
-									ref={wrapperRef}
 									onClick={(e) => {
 										favoriteHandler(e);
 									}}
@@ -242,7 +238,6 @@ const LeadRow = ({
 									{!like ? 'Like lead' : 'Unlike lead'}
 								</button>
 								<button
-									ref={wrapperRef}
 									onClick={(e) => {
 										archiveHandler(e);
 									}}
@@ -251,10 +246,10 @@ const LeadRow = ({
 									Archive lead
 								</button>
 							</div>
-							<div ref={wrapperRef} className='py-2'>
+							<div className='py-2'>
 								<button
 									onClick={(e) =>
-										openLinkHandler(e, data.sourceLink, data.amzLink)
+										openLinkHandler(e, data.retailerLink, data.amzLink)
 									}
 									className={`${buttonClasses} flex items-center`}
 								>

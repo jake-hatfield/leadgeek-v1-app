@@ -13,7 +13,8 @@ const Pagination = ({
 	const buttonClasses =
 		'ml-4 py-2 px-3 rounded-lg shadow-sm text-sm font-semibold hover:text-gray-500 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline';
 	return (
-		!loading && (
+		!loading &&
+		(hasPreviousPage || hasNextPage) && (
 			<article className='flex justify-end mt-8 container'>
 				<div>
 					<Link

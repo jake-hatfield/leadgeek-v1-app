@@ -86,6 +86,7 @@ const LeadSchema = new Schema({
 		notes: {
 			type: String,
 		},
+		img: { type: String, required: true },
 		date: {
 			type: Date,
 			default: Date.now,

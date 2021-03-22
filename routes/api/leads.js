@@ -61,9 +61,11 @@ router.get('/export', auth, async (req, res) => {
 					competitorType: lead.competitorType,
 					variations: lead.variations,
 					cashback: lead.cashback,
+					asin: lead.asin,
 					weight: +lead.weight,
 					shipping: lead.shipping,
 					notes: lead.notes,
+					img: lead.img,
 					date: Date.now(),
 				},
 				plan: lead.plan,
@@ -72,8 +74,9 @@ router.get('/export', auth, async (req, res) => {
 			if (newLeads) {
 				Lead.insertMany(newLeads, function (err, leads) {
 					if (err) {
+						console.log(err);
 						let message =
-							"Leads weren't uploaded. Please check Google Sheets for duplicate _ids.";
+							"Leads weren't uploaded. Please check Google Sheets for duplicate _ids or missing attributes.";
 						console.log(message);
 						return res.status(200).send(message);
 					} else {
