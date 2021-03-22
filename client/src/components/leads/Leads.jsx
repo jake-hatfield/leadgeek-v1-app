@@ -3,11 +3,14 @@ import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 import { clearDetailedLead } from '../../redux/actions/leads';
 import { NavLink } from 'react-router-dom';
+import { DateTime } from 'luxon';
+import { CSVLink } from 'react-csv';
 
 import LeadTable from './LeadTable';
 import Pagination from '../layout/navigation/Pagination';
 import Details from './details/Details';
 import Button from '../layout/formField/Button';
+import axios from 'axios';
 
 const Leads = ({
 	leads,
@@ -26,6 +29,7 @@ const Leads = ({
 	const onSearchChange = (e) => {
 		setSearch(e.target.value);
 	};
+	const currentLocalDate = DateTime.now().setLocale('el').toLocaleString();
 	// toggle additional information
 	const [showDetails, setShowDetails] = useState(false);
 	const tools = [
@@ -45,16 +49,6 @@ const Leads = ({
 				<path
 					fillRule='evenodd'
 					d='M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z'
-					clipRule='evenodd'
-				/>
-			),
-		},
-		{
-			text: 'Export',
-			path: (
-				<path
-					fillRule='evenodd'
-					d='M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 k0 010-1.414z'
 					clipRule='evenodd'
 				/>
 			),
@@ -81,14 +75,16 @@ const Leads = ({
 				<section className='my-6'>
 					<header className='border-b border-gray-200'>
 						<div className='flex justify-between pb-2 container'>
-							<div className='w-2/3 flex items-center'>
+							<div className='flex items-center'>
 								<h1 className='text-3xl text-gray-900 font-bold'>Leads</h1>
-								<div className='w-full ml-32 relative z-0 text-gray-400'>
+							</div>
+							<div className='ml-32 w-full flex items-center justify-end text-gray-300'>
+								<div className='w-1/2 relative z-0 text-gray-400'>
 									<input
 										onChange={(e) => onSearchChange(e)}
 										type='text'
 										placeholder='Search by name, ASIN, store, etc.'
-										className='py-2 pl-10 pr-6 w-3/4 rounded-lg text-sm text-gray-500 placeholder-gray-400 transition-all duration-100 ease-in-out focus:outline-none hover:shadow-outline focus:shadow-outline'
+										className='py-2 pl-10 pr-6 w-full rounded-lg text-sm text-gray-500 placeholder-gray-400 transition-all duration-100 ease-in-out focus:outline-none hover:shadow-outline focus:shadow-outline'
 									/>
 									<svg
 										xmlns='http://www.w3.org/2000/svg'
@@ -103,11 +99,33 @@ const Leads = ({
 										/>
 									</svg>
 								</div>
-							</div>
-							<div className='w-1/3 flex items-center justify-end text-gray-300'>
 								{tools.map((tool, i) => (
 									<Button key={i} text={tool.text} path={tool.path} />
 								))}
+								<CSVLink
+									data={leads}
+									filename={`${
+										user.role || 'leadgeek'
+									}_plan_${currentLocalDate}.csv`}
+									target='_blank'
+									className='ml-4 py-2 px-3 flex items-center rounded-lg shadow-sm hover:shadow-md text-sm font-semibold hover:text-gray-500 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+								>
+									<span>
+										<svg
+											xmlns='http://www.w3.org/2000/svg'
+											viewBox='0 0 20 20'
+											fill='currentColor'
+											className='h-4 w-4'
+										>
+											<path
+												fillRule='evenodd'
+												d='M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
+												clipRule='evenodd'
+											/>
+										</svg>
+									</span>
+									<span className='ml-2'>Export Leads</span>
+								</CSVLink>
 							</div>
 						</div>
 					</header>

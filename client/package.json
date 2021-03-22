@@ -13,6 +13,7 @@
 		"dotenv": "^8.2.0",
 		"luxon": "^1.26.0",
 		"react": "^16.14.0",
+		"react-csv": "^2.0.3",
 		"react-dom": "^16.14.0",
 		"react-preloader-icon": "^0.4.1",
 		"react-redux": "^7.2.2",

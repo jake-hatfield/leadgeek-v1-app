@@ -122,7 +122,6 @@ router.post('/', auth, async (req, res) => {
 			});
 		const lastUpdated = feed[0].data.date;
 		console.log(`Total items: ${totalItems}`);
-		// const planEndDate = user.subId[0].current_period_end;
 		if (feed.length === 0) {
 			let message = 'There are no leads to show.';
 			console.log(message);
@@ -148,6 +147,7 @@ router.post('/', auth, async (req, res) => {
 			);
 			return res.status(200).send({
 				feed,
+				allFeedData,
 				unviewedLeads,
 				totalItems,
 				page,
