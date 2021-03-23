@@ -9,6 +9,7 @@ import ResetPassword from '../pages/ResetPassword';
 import Feed from '../pages/Feed';
 import Liked from '../pages/Liked';
 import Archived from '../pages/Archived';
+import Search from '../pages/Search';
 import Admin from '../pages/Admin';
 import Profile from '../pages/Profile';
 import Password from '../pages/Password';
@@ -29,6 +30,7 @@ const Routes = () => {
 			<PrivateRoute exact path='/leads' component={Feed} />
 			<PrivateRoute exact path='/leads/liked' component={Liked} />
 			<PrivateRoute exact path='/leads/archived' component={Archived} />
+			<PrivateRoute exact path='/search' component={Search} />
 			<PrivateRoute exact path='/account/profile' component={Profile} />
 			<PrivateRoute exact path='/account/password' component={Password} />
 			<PrivateRoute exact path='/admin' component={Admin} />

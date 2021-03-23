@@ -190,3 +190,8 @@ export const setPage = (page, type) => (dispatch) => {
 		console.log(error);
 	}
 };
+
+export const getSearchResults = (search) => async (dispatch) => {
+	const { data } = await axios.get('/api/search', { params: { q: search } });
+	console.log(data);
+};

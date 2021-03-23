@@ -147,7 +147,6 @@ router.post('/', auth, async (req, res) => {
 			);
 			return res.status(200).send({
 				feed,
-				allFeedData,
 				unviewedLeads,
 				totalItems,
 				page,

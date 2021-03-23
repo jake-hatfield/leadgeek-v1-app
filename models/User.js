@@ -19,44 +19,46 @@ const UserSchema = new Schema({
 		type: Date,
 		default: Date.now,
 	},
-	lastLoggedIn: {
+	lastLogin: {
 		type: Date,
 		required: true,
 		default: null,
 	},
-	customerId: {
-		type: String,
-		required: true,
-		unique: true,
-	},
-	subId: [
-		{
-			type: Object,
-			required: true,
-		},
-	],
-	planId: [
-		{
-			type: String,
-			required: true,
-		},
-	],
-	paymentMethod: {
-		type: Object,
-		required: true,
-	},
-	resetPasswordToken: {
+	// billing: {
+	// 	cusId: {
+	// 		type: String,
+	// 		required: true,
+	// 		unique: true,
+	// 	},
+	// 	subId: [
+	// 		{
+	// 			type: Object,
+	// 			required: true,
+	// 		},
+	// 	],
+	// 	planId: [
+	// 		{
+	// 			type: String,
+	// 			required: true,
+	// 		},
+	// 	],
+	// 	paymentMethod: {
+	// 		type: Object,
+	// 		required: true,
+	// 	},
+	// },
+	resetPwToken: {
 		type: String,
 		default: null,
 		unique: true,
 	},
-	resetPasswordExpires: {
+	resetPwExpires: {
 		type: Date,
 		default: null,
 	},
 	role: {
 		type: String,
-		enum: ['user', 'admin'],
+		enum: ['user', 'grow_1', 'pro_1', 'bundle_1', 'admin'],
 		default: 'user',
 		required: true,
 	},

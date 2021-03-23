@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const mongoose_fuzzy_searching = require('mongoose-fuzzy-searching');
 
 const LeadSchema = new Schema({
 	data: {
@@ -71,9 +72,6 @@ const LeadSchema = new Schema({
 		cashback: {
 			type: String,
 		},
-		asin: {
-			type: String,
-		},
 		competitorType: {
 			type: String,
 		},
@@ -97,6 +95,10 @@ const LeadSchema = new Schema({
 		enum: ['bundle_1', 'pro_1', 'grow_1'],
 		required: true,
 	},
+});
+
+LeadSchema.plugin(mongoose_fuzzy_searching, {
+	fields: [{ name: 'data', keys: ['title', 'brand', 'asin'] }],
 });
 
 module.exports = Lead = mongoose.model('lead', LeadSchema);

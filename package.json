@@ -22,6 +22,7 @@
 		"jsonwebtoken": "^8.5.1",
 		"mongodb-cli": "^1.0.0",
 		"mongoose": "^5.12.0",
+		"mongoose-fuzzy-searching": "^2.0.2",
 		"nodemailer": "^6.5.0",
 		"postcss-import": "^14.0.0",
 		"request": "^2.88.2",

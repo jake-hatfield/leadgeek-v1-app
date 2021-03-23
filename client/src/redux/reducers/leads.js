@@ -16,6 +16,7 @@ const initialState = {
 	feed: [],
 	liked: [],
 	archived: [],
+	search: [],
 	pagination: {
 		feed: {
 			active: [],
