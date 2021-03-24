@@ -9,7 +9,7 @@ const Lead = require('../../models/Lead');
 router.get('/', auth, async (req, res) => {
 	try {
 		const { q } = req.query;
-		const leads = await Lead.find({}).fuzzySearch(q);
+		const leads = await Lead.find({}).fuzzySearch(q).select('-plan');
 		return res.status(200).send(leads);
 	} catch (error) {
 		console.error(error.message);

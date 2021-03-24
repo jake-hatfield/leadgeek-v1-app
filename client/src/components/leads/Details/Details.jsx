@@ -407,6 +407,7 @@ const Details = ({
 											</div>
 										</div>
 									</article>
+									{/* Notes section */}
 									<article className='mt-4 text-gray-900'>
 										<header className='flex items-center pb-2 border-b border-gray-200'>
 											<h4 className='font-semibold'>Notes</h4>
