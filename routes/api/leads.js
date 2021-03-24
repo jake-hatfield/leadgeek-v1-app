@@ -97,7 +97,7 @@ router.get('/export', auth, async (req, res) => {
 });
 
 // @route       GET api/leads
-// @description Get all leads by plan
+// @description Get paginated leads by plan
 // @access      Private
 router.post('/', auth, async (req, res) => {
 	try {
@@ -108,7 +108,7 @@ router.post('/', auth, async (req, res) => {
 			console.log(message);
 			return res.status(404).send({ status: 'failure', message });
 		}
-		console.log('Getting all leads...');
+		console.log('Getting paginated leads...');
 		const { unviewedLeads } = user;
 		let totalItems;
 		const feed = await Lead.find({ plan })
@@ -156,6 +156,33 @@ router.post('/', auth, async (req, res) => {
 				previousPage: page - 1,
 				lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
 				lastUpdated,
+			});
+		}
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).send('Server error');
+	}
+});
+
+// @route       GET api/leads
+// @description Get all leads by plan
+// @access      Private
+router.post('/all', auth, async (req, res) => {
+	try {
+		const { plan } = req.body;
+
+		console.log('Getting all leads...');
+		const feed = await Lead.find({ plan })
+			.select('data -_id')
+			.sort({ 'data.date': -1 });
+		console.log(`Total items: ${feed.length}`);
+		if (feed.length === 0) {
+			let message = 'There are no leads to show.';
+			console.log(message);
+			return res.status(200).send({ message });
+		} else {
+			return res.status(200).send({
+				feed,
 			});
 		}
 	} catch (error) {

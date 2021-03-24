@@ -1,5 +1,6 @@
 import {
 	GET_LEADS,
+	GET_ALL_LEADS,
 	GET_LIKED_LEADS,
 	GET_ARCHIVED_LEADS,
 	VIEW_LEAD,
@@ -10,6 +11,8 @@ import {
 	SET_PAGE,
 	LOADING,
 	FINISHED_LOADING,
+	EXPORTING,
+	FINISHED_EXPORTING,
 } from './types';
 import axios from 'axios';
 import { setAlert } from './alert';
@@ -65,6 +68,36 @@ export const getLeads = (user, page) => async (dispatch) => {
 			});
 		}
 		return dispatch({ type: FINISHED_LOADING });
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const getAllLeads = (user) => async (dispatch) => {
+	try {
+		dispatch({ type: EXPORTING });
+		const { planId } = user;
+		let plan;
+		if (planId.includes(process.env.REACT_APP_BUNDLE_PRODUCT_ID)) {
+			plan = 'bundle_1';
+		} else if (planId.includes(process.env.REACT_APP_PRO_PRODUCT_ID)) {
+			plan = 'pro_1';
+		} else plan = 'grow_1';
+		const body = JSON.stringify({
+			plan,
+		});
+		const { data } = await axios.post('/api/leads/all', body, config);
+		if (data.message === 'There are no leads to show.') {
+			dispatch(setAlert(data.message, 'warning'));
+		} else {
+			dispatch({
+				type: GET_ALL_LEADS,
+				payload: {
+					data,
+				},
+			});
+		}
+		return dispatch({ type: FINISHED_EXPORTING });
 	} catch (error) {
 		console.log(error);
 	}

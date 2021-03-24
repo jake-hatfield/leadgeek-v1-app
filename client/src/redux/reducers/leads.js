@@ -1,5 +1,6 @@
 import {
 	GET_LEADS,
+	GET_ALL_LEADS,
 	GET_LIKED_LEADS,
 	SET_CURRENT_LEAD,
 	CLEAR_DETAILED_LEAD,
@@ -9,6 +10,8 @@ import {
 	GET_ARCHIVED_LEADS,
 	LOADING,
 	FINISHED_LOADING,
+	EXPORTING,
+	FINISHED_EXPORTING,
 	HANDLE_LIKE_LEAD,
 } from '../actions/types';
 
@@ -46,6 +49,7 @@ const initialState = {
 	},
 	lastUpdated: null,
 	currentLead: null,
+	exporting: false,
 	loading: true,
 };
 
@@ -88,6 +92,11 @@ export default function (state = initialState, action) {
 						lastPage,
 					},
 				},
+			};
+		case GET_ALL_LEADS:
+			return {
+				...state,
+				feed: payload.data.feed,
 			};
 		case GET_LIKED_LEADS:
 			return {
@@ -187,6 +196,16 @@ export default function (state = initialState, action) {
 			return {
 				...state,
 				loading: false,
+			};
+		case EXPORTING:
+			return {
+				...state,
+				exporting: true,
+			};
+		case FINISHED_EXPORTING:
+			return {
+				...state,
+				exporting: false,
 			};
 		default:
 			return {

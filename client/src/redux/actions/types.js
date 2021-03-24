@@ -1,6 +1,8 @@
 // utils
 export const LOADING = 'LOADING';
 export const FINISHED_LOADING = 'FINISHED_LOADING';
+export const EXPORTING = 'EXPORTING';
+export const FINISHED_EXPORTING = 'FINISHED_EXPORTING';
 export const SET_ALERT = 'SET_ALERT';
 export const REMOVE_ALERT = 'REMOVE_ALERT';
 // auth types
@@ -13,6 +15,7 @@ export const USER_LOADED = 'USER_LOADED';
 export const AUTH_ERROR = 'AUTH_ERROR';
 // leads types
 export const GET_LEADS = 'GET_LEADS';
+export const GET_ALL_LEADS = 'GET_ALL_LEADS';
 export const GET_LIKED_LEADS = 'GET_LIKED_LEADS';
 export const GET_ARCHIVED_LEADS = 'GET_ARCHIVED_LEADS';
 export const UPDATE_LEADS = 'UPDATE_LEADS';
