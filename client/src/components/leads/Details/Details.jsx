@@ -54,8 +54,6 @@ const Details = ({
 	showDetails,
 	setShowDetails,
 	currentLead,
-	user,
-	handleArchiveLead,
 }) => {
 	const [fullTitle, toggleFullTitle] = useState(false);
 	const [overviewActive, setOverviewActive] = useState(true);

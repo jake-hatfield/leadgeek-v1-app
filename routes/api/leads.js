@@ -101,7 +101,22 @@ router.get('/export', auth, async (req, res) => {
 // @access      Private
 router.post('/', auth, async (req, res) => {
 	try {
-		const { lastLoggedIn, _id, plan, page } = req.body;
+		const {
+			lastLoggedIn,
+			_id,
+			plan,
+			page,
+			filters: {
+				netProfit,
+				buyPrice,
+				sellPrice,
+				roi,
+				bsr,
+				monthlySales,
+				weight,
+			},
+		} = req.body;
+
 		const user = await User.findById({ _id });
 		if (!user) {
 			let message = 'There was an error finding a user with that id.';
@@ -115,7 +130,11 @@ router.post('/', auth, async (req, res) => {
 			.countDocuments()
 			.then((numLeads) => {
 				totalItems = numLeads;
-				return Lead.find({ plan, 'data.date': { $gte: user.dateCreated } })
+				return Lead.find({
+					plan,
+					'data.date': { $gte: user.dateCreated },
+					'data.netProfit': { $gte: +netProfit.min || 0 },
+				})
 					.skip((page - 1) * ITEMS_PER_PAGE)
 					.limit(ITEMS_PER_PAGE)
 					.sort({ 'data.date': -1 });

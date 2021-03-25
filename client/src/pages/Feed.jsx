@@ -6,9 +6,19 @@ import { getLeads } from '../redux/actions/leads';
 import AuthLayout from '../components/layout/AuthLayout';
 import Leads from '../components/leads/Leads';
 
-const Feed = ({ user, loading, isAuthenticated, pagination, getLeads }) => {
+const Feed = ({
+	user,
+	loading,
+	isAuthenticated,
+	pagination,
+	filters,
+	getLeads,
+}) => {
 	useEffect(() => {
-		!loading && isAuthenticated && user && getLeads(user, pagination.feed.page);
+		!loading &&
+			isAuthenticated &&
+			user &&
+			getLeads(user, pagination.feed.page, filters);
 	}, [loading, isAuthenticated, user && pagination.feed.page]);
 
 	return (
@@ -25,8 +35,8 @@ const Feed = ({ user, loading, isAuthenticated, pagination, getLeads }) => {
 
 const mapStateToProps = (state) => {
 	const { user, loading, isAuthenticated } = state.auth;
-	const { pagination } = state.leads;
-	return { user, loading, isAuthenticated, pagination };
+	const { pagination, filters } = state.leads;
+	return { user, loading, isAuthenticated, pagination, filters };
 };
 
 export default connect(mapStateToProps, { getLeads })(Feed);

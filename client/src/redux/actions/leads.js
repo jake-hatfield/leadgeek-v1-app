@@ -13,6 +13,7 @@ import {
 	FINISHED_LOADING,
 	EXPORTING,
 	FINISHED_EXPORTING,
+	SET_FILTER,
 } from './types';
 import axios from 'axios';
 import { setAlert } from './alert';
@@ -39,7 +40,7 @@ export const exportLeads = () => async (dispatch) => {
 	}
 };
 
-export const getLeads = (user, page) => async (dispatch) => {
+export const getLeads = (user, page, filters) => async (dispatch) => {
 	try {
 		dispatch({ type: LOADING });
 		const { _id, lastLoggedIn, planId, unviewedLeads } = user;
@@ -55,6 +56,7 @@ export const getLeads = (user, page) => async (dispatch) => {
 			plan,
 			unviewedLeads,
 			page,
+			filters,
 		});
 		const { data } = await axios.post('/api/leads', body, config);
 		if (data.message === 'There are no leads to show.') {
@@ -207,6 +209,29 @@ export const clearDetailedLead = () => (dispatch) => {
 	try {
 		dispatch({
 			type: CLEAR_DETAILED_LEAD,
+		});
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const setMinMaxFilter = (min, max, val) => (dispatch) => {
+	try {
+		if (min) {
+			let key = `${val}Min`;
+			localStorage.setItem(key, min);
+		}
+		if (max) {
+			let key = `${val}Max`;
+			localStorage.setItem(key, max);
+		}
+		dispatch({
+			type: `SET_${val.toUpperCase()}_FILTER`,
+			payload: {
+				min,
+				max,
+				val,
+			},
 		});
 	} catch (error) {
 		console.log(error);

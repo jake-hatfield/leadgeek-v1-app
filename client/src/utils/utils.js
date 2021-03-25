@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export function useStickyState(defaultValue, key) {
 	const [value, setValue] = React.useState(() => {
@@ -85,4 +85,18 @@ export const openLinkHandler = (e, retailerLink, amzLink) => {
 	e.preventDefault();
 	window.open(retailerLink);
 	window.open(amzLink);
+};
+
+export const useOutsideAlerter = (ref, setState_1, setState_2) => {
+	useEffect(() => {
+		function handleClickOutside(event) {
+			if (ref.current && !ref.current.contains(event.target)) {
+				setState_1(false);
+			}
+		}
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [ref]);
 };
