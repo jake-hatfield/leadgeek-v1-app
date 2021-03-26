@@ -7,7 +7,7 @@ const auth = require('../../middleware/auth');
 const Lead = require('../../models/Lead');
 const User = require('../../models/User');
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 20;
 
 // @route       POST api/leads/export
 // @description Create new lead
@@ -116,7 +116,7 @@ router.post('/', auth, async (req, res) => {
 				weight,
 			},
 		} = req.body;
-
+		console.log(req.body);
 		const user = await User.findById({ _id });
 		if (!user) {
 			let message = 'There was an error finding a user with that id.';
@@ -139,13 +139,13 @@ router.post('/', auth, async (req, res) => {
 					.limit(ITEMS_PER_PAGE)
 					.sort({ 'data.date': -1 });
 			});
-		const lastUpdated = feed[0].data.date;
-		console.log(`Total items: ${totalItems}`);
 		if (feed.length === 0) {
 			let message = 'There are no leads to show.';
 			console.log(message);
 			return res.status(200).send({ message });
 		} else {
+			const lastUpdated = feed[0].data.date;
+			console.log(`Total items: ${totalItems}`);
 			// see if any leads have been added since the user last logged in
 			const unviewed = await Lead.find({
 				plan,
@@ -189,7 +189,6 @@ router.post('/', auth, async (req, res) => {
 router.post('/all', auth, async (req, res) => {
 	try {
 		const { plan } = req.body;
-
 		console.log('Getting all leads...');
 		const feed = await Lead.find({ plan })
 			.select('data -_id')

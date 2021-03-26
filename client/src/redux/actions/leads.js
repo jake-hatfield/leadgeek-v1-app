@@ -7,13 +7,10 @@ import {
 	HANDLE_LIKE_LEAD,
 	HANDLE_ARCHIVE_LEAD,
 	SET_CURRENT_LEAD,
-	CLEAR_DETAILED_LEAD,
+	CLEAR_CURRENT_LEAD,
 	SET_PAGE,
 	LOADING,
 	FINISHED_LOADING,
-	EXPORTING,
-	FINISHED_EXPORTING,
-	SET_FILTER,
 } from './types';
 import axios from 'axios';
 import { setAlert } from './alert';
@@ -43,13 +40,13 @@ export const exportLeads = () => async (dispatch) => {
 export const getLeads = (user, page, filters) => async (dispatch) => {
 	try {
 		dispatch({ type: LOADING });
-		const { _id, lastLoggedIn, planId, unviewedLeads } = user;
+		const { _id, lastLoggedIn, role, unviewedLeads } = user;
 		let plan;
-		if (planId.includes(process.env.REACT_APP_BUNDLE_PRODUCT_ID)) {
+		if (role === 'admin') {
 			plan = 'bundle_1';
-		} else if (planId.includes(process.env.REACT_APP_PRO_PRODUCT_ID)) {
-			plan = 'pro_1';
-		} else plan = 'grow_1';
+		} else {
+			plan = role;
+		}
 		const body = JSON.stringify({
 			_id,
 			lastLoggedIn,
@@ -77,7 +74,6 @@ export const getLeads = (user, page, filters) => async (dispatch) => {
 
 export const getAllLeads = (user) => async (dispatch) => {
 	try {
-		dispatch({ type: EXPORTING });
 		const { planId } = user;
 		let plan;
 		if (planId.includes(process.env.REACT_APP_BUNDLE_PRODUCT_ID)) {
@@ -99,13 +95,12 @@ export const getAllLeads = (user) => async (dispatch) => {
 				},
 			});
 		}
-		return dispatch({ type: FINISHED_EXPORTING });
 	} catch (error) {
 		console.log(error);
 	}
 };
 
-export const populateLikedLeads = (leads, page) => async (dispatch) => {
+export const getLikedLeads = (leads, page) => async (dispatch) => {
 	try {
 		dispatch({ type: LOADING });
 		const body = JSON.stringify({ leads, page });
@@ -124,7 +119,7 @@ export const populateLikedLeads = (leads, page) => async (dispatch) => {
 	}
 };
 
-export const populateArchivedLeads = (leads, page) => async (dispatch) => {
+export const getArchivedLeads = (leads, page) => async (dispatch) => {
 	try {
 		dispatch({ type: LOADING });
 		const body = JSON.stringify({ leads, page });
@@ -205,33 +200,10 @@ export const setCurrentLead = (lead) => (dispatch) => {
 	}
 };
 
-export const clearDetailedLead = () => (dispatch) => {
+export const clearCurrentLead = () => (dispatch) => {
 	try {
 		dispatch({
-			type: CLEAR_DETAILED_LEAD,
-		});
-	} catch (error) {
-		console.log(error);
-	}
-};
-
-export const setMinMaxFilter = (min, max, val) => (dispatch) => {
-	try {
-		if (min) {
-			let key = `${val}Min`;
-			localStorage.setItem(key, min);
-		}
-		if (max) {
-			let key = `${val}Max`;
-			localStorage.setItem(key, max);
-		}
-		dispatch({
-			type: `SET_${val.toUpperCase()}_FILTER`,
-			payload: {
-				min,
-				max,
-				val,
-			},
+			type: CLEAR_CURRENT_LEAD,
 		});
 	} catch (error) {
 		console.log(error);

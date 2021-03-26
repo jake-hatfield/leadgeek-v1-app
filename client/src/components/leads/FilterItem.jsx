@@ -1,8 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 import { connect } from 'react-redux';
-import { setMinMaxFilter } from '../../redux/actions/leads';
-import { useOutsideAlerter } from '../../utils/utils';
+import { setAlert } from '../../redux/actions/alert';
+import {
+	setMinMaxFilter,
+	clearMinMaxFilter,
+} from '../../redux/actions/filters';
+import { useOutsideMouseup } from '../../utils/utils';
 
 const FilterItem = ({
 	title,
@@ -11,22 +15,55 @@ const FilterItem = ({
 	minDefault,
 	maxDefault,
 	val,
+	setAlert,
 	setMinMaxFilter,
+	clearMinMaxFilter,
 }) => {
 	const [toggleItem, setToggleItem] = useState(false);
 	const wrapperRef = useRef(null);
-	useOutsideAlerter(wrapperRef, setToggleItem);
+	useOutsideMouseup(wrapperRef, setToggleItem);
 	// todos:
-	// set logic so minimum filter can't be greater than maximum filter and alerts if so
+	// remove pill on filter deletion
 	// set logic to filter out letters and special characters (regex)
 	// set # of filters on button
 	// set showing # of filtered products of # of total products
+	// make it so that the input can be totally removed (backspace currently doesn't work)
 	const [filterData, setFilterData] = useState({
 		min: '' || minDefault,
 		max: '' || maxDefault,
 	});
-	const onChange = (e) =>
-		setFilterData({ ...filterData, [e.target.name]: e.target.value });
+	const onChange = (e) => {
+		if (e.target.value.match('^[0-9]+$') !== null) {
+			setFilterData({ ...filterData, [e.target.name]: e.target.value });
+		} else {
+			setAlert(
+				'Filter cannot contain letters or special characters.',
+				'danger'
+			);
+		}
+	};
+	const [minActive, setMinActive] = useState(null);
+	const [maxActive, setMaxActive] = useState(false);
+	const createPill = (min, max) => {
+		if (min > 0) {
+			setMinActive(min);
+		} else {
+			setMinActive(null);
+		}
+		if (max > 0) {
+			setMaxActive(max);
+		} else {
+			setMaxActive(null);
+		}
+	};
+	const clearPill = (min, max) => {
+		if (min) {
+			setMinActive(null);
+		}
+		if (max) {
+			setMaxActive(null);
+		}
+	};
 	return (
 		<div
 			ref={wrapperRef}
@@ -71,25 +108,67 @@ const FilterItem = ({
 				</div>
 				{toggleItem && (
 					<div className='mt-2'>
-						<div>
-							<div className='flex items-center w-min py-1 pl-3 pr-2 rounded-lg bg-purple-100 shadow-sm text-purple-600 text-sm'>
-								<span>Max:</span>
-								<span className='ml-1'>$12</span>
-								<button className='ml-2 p-1 rounded-lg transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										viewBox='0 0 20 20'
-										fill='currentColor'
-										className='h-4 w-4'
+						<div className='flex items-center'>
+							{(minActive || minDefault > 0) && (
+								<div className='flex items-center w-min py-1 pl-3 pr-2 rounded-lg bg-purple-100 shadow-sm text-purple-600 text-sm'>
+									<span>Min:</span>
+									<span className='ml-1'>${+minActive || +minDefault}</span>
+									<button
+										onClick={() => {
+											clearMinMaxFilter(null, +filterData.max, val, 'Min');
+											clearPill(+filterData.min, null);
+											setFilterData({ ...filterData, min: null });
+										}}
+										className='ml-1 p-1 rounded-lg hover:text-purple-800 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 									>
-										<path
-											fillRule='evenodd'
-											d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
-											clipRule='evenodd'
-										/>
-									</svg>
-								</button>
-							</div>
+										<svg
+											xmlns='http://www.w3.org/2000/svg'
+											viewBox='0 0 20 20'
+											fill='currentColor'
+											className='h-4 w-4'
+										>
+											<path
+												fillRule='evenodd'
+												d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+												clipRule='evenodd'
+											/>
+										</svg>
+									</button>
+								</div>
+							)}
+							{(maxActive || maxDefault > 0) && (
+								<div
+									className={`${
+										(maxActive || maxDefault > 0) &&
+										(minActive || minDefault > 0) &&
+										'ml-2'
+									} flex items-center w-min py-1 pl-3 pr-2 rounded-lg bg-purple-100 shadow-sm text-purple-600 text-sm`}
+								>
+									<span>Max:</span>
+									<span className='ml-1'>${+maxActive || +maxDefault}</span>
+									<button
+										onClick={() => {
+											clearMinMaxFilter(+filterData.min, null, val, 'Max');
+											clearPill(null, +filterData.max);
+											setFilterData({ ...filterData, max: null });
+										}}
+										className='ml-1 p-1 rounded-lg hover:text-purple-800 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+									>
+										<svg
+											xmlns='http://www.w3.org/2000/svg'
+											viewBox='0 0 20 20'
+											fill='currentColor'
+											className='h-4 w-4'
+										>
+											<path
+												fillRule='evenodd'
+												d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+												clipRule='evenodd'
+											/>
+										</svg>
+									</button>
+								</div>
+							)}
 						</div>
 						<div className='mt-3'>
 							<div className='font-semibold text-sm text-gray-700'>
@@ -98,14 +177,14 @@ const FilterItem = ({
 							<form
 								onSubmit={(e) => {
 									e.preventDefault();
-									setMinMaxFilter(filterData.min, filterData.max, val);
+									createPill(+filterData.min, +filterData.max, val);
+									setMinMaxFilter(+filterData.min, +filterData.max, val);
 								}}
 							>
 								<div className='mt-2 flex items-center justify-between'>
 									<input
 										name='min'
 										type='text'
-										value={filterData.min || minDefault || ''}
 										placeholder={'Min'}
 										onChange={onChange}
 										className='w-1/2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
@@ -129,7 +208,6 @@ const FilterItem = ({
 									<input
 										name='max'
 										type='text'
-										value={filterData.max || maxDefault || ''}
 										placeholder={'Max'}
 										onChange={onChange}
 										className='w-1/2 ml-2 p-2 bg-white rounded-lg  text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
@@ -137,7 +215,10 @@ const FilterItem = ({
 								</div>
 								<div className='mt-2 border-t border-gray-200'>
 									<div className='flex justify-end'>
-										<button className='mt-2 py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm shadow-sm hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'>
+										<button
+											type='sumbit'
+											className='mt-2 py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm shadow-sm hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										>
 											Set filter
 										</button>
 									</div>
@@ -163,4 +244,8 @@ const mapStateToProps = (state, ownProps) => {
 	return { title, subtitle, subtitleValue, minDefault, maxDefault, val };
 };
 
-export default connect(mapStateToProps, { setMinMaxFilter })(FilterItem);
+export default connect(mapStateToProps, {
+	setAlert,
+	setMinMaxFilter,
+	clearMinMaxFilter,
+})(FilterItem);

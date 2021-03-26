@@ -87,16 +87,36 @@ export const openLinkHandler = (e, retailerLink, amzLink) => {
 	window.open(amzLink);
 };
 
-export const useOutsideAlerter = (ref, setState_1, setState_2) => {
+export const useOutsideMousedown = (ref, setState_1, setState_2) => {
 	useEffect(() => {
 		function handleClickOutside(event) {
 			if (ref.current && !ref.current.contains(event.target)) {
 				setState_1(false);
+				if (setState_2) {
+					setState_2(false);
+				}
 			}
 		}
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [ref]);
+};
+
+export const useOutsideMouseup = (ref, setState_1, setState_2) => {
+	useEffect(() => {
+		function handleClickOutside(event) {
+			if (ref.current && !ref.current.contains(event.target)) {
+				setState_1(false);
+				if (setState_2) {
+					setState_2(false);
+				}
+			}
+		}
+		document.addEventListener('mouseup', handleClickOutside);
+		return () => {
+			document.removeEventListener('mouseup', handleClickOutside);
 		};
 	}, [ref]);
 };

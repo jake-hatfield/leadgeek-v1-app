@@ -3,12 +3,20 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 
 import FilterItem from './FilterItem';
-import { useOutsideAlerter } from '../../utils/utils';
+import { useOutsideMousedown } from '../../utils/utils';
 import { getLeads } from '../../redux/actions/leads';
+import { clearFilters } from '../../redux/actions/filters';
 
-const Filter = ({ user, filters, setFilter, filter, getLeads }) => {
+const Filter = ({
+	user,
+	filters,
+	setFilter,
+	filter,
+	getLeads,
+	clearFilters,
+}) => {
 	const wrapperRef = useRef(null);
-	useOutsideAlerter(wrapperRef, setFilter);
+	useOutsideMousedown(wrapperRef, setFilter);
 	// close modal on esc key
 	const keyPress = useCallback(
 		(e) => {
@@ -124,7 +132,13 @@ const Filter = ({ user, filters, setFilter, filter, getLeads }) => {
 				))}
 				<div className='border-t border-gray-200'>
 					<div className='flex justify-end py-2 px-4'>
-						<button className='font-semibold text-sm text-red-500'>
+						<button
+							onClick={() => {
+								clearFilters();
+								getLeads(user, 1, filters);
+							}}
+							className='font-semibold text-sm text-red-500'
+						>
 							Clear all
 						</button>
 					</div>
@@ -136,8 +150,8 @@ const Filter = ({ user, filters, setFilter, filter, getLeads }) => {
 
 const mapStateToProps = (state) => {
 	const { user } = state.auth;
-	const { filters } = state.leads;
+	const { filters } = state;
 	return { user, filters };
 };
 
-export default connect(mapStateToProps, { getLeads })(Filter);
+export default connect(mapStateToProps, { getLeads, clearFilters })(Filter);

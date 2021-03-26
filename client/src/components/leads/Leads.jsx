@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
 
 import { connect } from 'react-redux';
-import { getAllLeads, clearDetailedLead } from '../../redux/actions/leads';
+import { getAllLeads, clearCurrentLead } from '../../redux/actions/leads';
 import { NavLink } from 'react-router-dom';
 
 import Header from '../layout/navigation/Header';
@@ -25,7 +25,7 @@ const Leads = ({
 	authLoading,
 	leadLoading,
 	getAllLeads,
-	clearDetailedLead,
+	clearCurrentLead,
 }) => {
 	// toggle additional information
 	const [showDetails, setShowDetails] = useState(false);
@@ -142,9 +142,9 @@ const Leads = ({
 					/>
 					<Pagination pagination={pagination} type={type} />
 				</section>
-				{showDetails && (
+				{showDetails && currentLead && (
 					<Details
-						clearDetailedLead={clearDetailedLead}
+						clearCurrentLead={clearCurrentLead}
 						showDetails={showDetails}
 						setShowDetails={setShowDetails}
 						currentLead={currentLead}
@@ -174,6 +174,6 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 export default connect(mapStateToProps, {
-	clearDetailedLead,
+	clearCurrentLead,
 	getAllLeads,
 })(Leads);

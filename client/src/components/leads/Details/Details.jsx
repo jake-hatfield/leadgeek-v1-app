@@ -9,7 +9,7 @@ import React, {
 import { connect } from 'react-redux';
 import {
 	handleArchiveLead,
-	clearDetailedLead,
+	clearCurrentLead,
 } from '../../../redux/actions/leads';
 import { DateTime } from 'luxon';
 
@@ -50,10 +50,10 @@ const Note = ({ title, desc, nullState }) => {
 };
 
 const Details = ({
-	clearDetailedLead,
+	currentLead,
+	clearCurrentLead,
 	showDetails,
 	setShowDetails,
-	currentLead,
 }) => {
 	const [fullTitle, toggleFullTitle] = useState(false);
 	const [overviewActive, setOverviewActive] = useState(true);
@@ -145,7 +145,7 @@ const Details = ({
 							<div>
 								<button
 									onClick={() => {
-										clearDetailedLead();
+										clearCurrentLead();
 										setShowDetails(false);
 									}}
 									className='py-2 px-1 rounded-lg hover:text-gray-700 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
@@ -460,5 +460,5 @@ const mapStateToProps = (state, ownProps) => {
 
 export default connect(mapStateToProps, {
 	handleArchiveLead,
-	clearDetailedLead,
+	clearCurrentLead,
 })(Details);

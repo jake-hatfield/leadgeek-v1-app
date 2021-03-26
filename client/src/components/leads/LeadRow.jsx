@@ -16,6 +16,7 @@ import {
 	numberWithCommas,
 	calculateBSR,
 	openLinkHandler,
+	useOutsideMousedown,
 } from '../../utils/utils';
 
 const buttonClasses =
@@ -31,26 +32,12 @@ const LeadRow = ({
 	user,
 }) => {
 	const { data } = lead;
-	const wrapperRef = useRef(null);
-	const useOutsideAlerter = (ref) => {
-		useEffect(() => {
-			function handleClickOutside(event) {
-				if (ref.current && !ref.current.contains(event.target)) {
-					setQuickView(false);
-					setExpandedView(false);
-				}
-			}
-			document.addEventListener('mousedown', handleClickOutside);
-			return () => {
-				document.removeEventListener('mousedown', handleClickOutside);
-			};
-		}, [ref]);
-	};
-	useOutsideAlerter(wrapperRef);
 	const [like, setLike] = useState(false);
 	const [newLead, setNewLead] = useState(false);
 	const [quickView, setQuickView] = useState(false);
 	const [expandedView, setExpandedView] = useState(false);
+	const wrapperRef = useRef(null);
+	useOutsideMousedown(wrapperRef, setQuickView, setExpandedView);
 	useEffect(() => {
 		// set unviewed status
 		if (user.unviewedLeads.some((l) => l._id === lead._id)) {
