@@ -24,10 +24,8 @@ const FilterItem = ({
 	useOutsideMouseup(wrapperRef, setToggleItem);
 	// todos:
 	// remove pill on filter deletion
-	// set logic to filter out letters and special characters (regex)
 	// set # of filters on button
 	// set showing # of filtered products of # of total products
-	// make it so that the input can be totally removed (backspace currently doesn't work)
 	const [filterData, setFilterData] = useState({
 		min: '' || minDefault,
 		max: '' || maxDefault,
