@@ -5,6 +5,7 @@ import {
 	GET_ALL_LIKED_LEADS,
 	GET_ARCHIVED_LEADS,
 	GET_ALL_ARCHIVED_LEADS,
+	SET_SEARCH_RESULTS,
 	SET_CURRENT_LEAD,
 	CLEAR_CURRENT_LEAD,
 	SET_PAGE,
@@ -105,7 +106,7 @@ export default function (state = initialState, action) {
 		case GET_ALL_LEADS:
 			return {
 				...state,
-				feed: payload.data.feed,
+				feed: { ...state.feed, totalByIds: payload.data.feed },
 			};
 		case GET_LIKED_LEADS:
 			return {
@@ -139,6 +140,15 @@ export default function (state = initialState, action) {
 					previousPage: payload.previousPage,
 				},
 			};
+		case SET_SEARCH_RESULTS: {
+			console.log(payload);
+			return {
+				...state,
+				search: {
+					pageByIds: payload,
+				},
+			};
+		}
 		case SET_CURRENT_LEAD:
 			return {
 				...state,

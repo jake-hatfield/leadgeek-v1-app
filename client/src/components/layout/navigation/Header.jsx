@@ -6,11 +6,16 @@ import { useLocation } from 'react-router-dom';
 
 import { Redirect } from 'react-router';
 
-const Header = ({ title, getSearchResults }) => {
+const Header = ({
+	user: { _id, role },
+	search: { page },
+	title,
+	getSearchResults,
+}) => {
 	// search helpers
-	const [search, setSearch] = useState('');
+	const [searchValue, setSearchValue] = useState('');
 	const onSearchChange = (e) => {
-		setSearch(e.target.value);
+		setSearchValue(e.target.value);
 	};
 
 	const location = useLocation();
@@ -20,11 +25,13 @@ const Header = ({ title, getSearchResults }) => {
 		if (location.pathname !== '/search') {
 			setRedirect(true);
 		}
-		getSearchResults(search);
+		getSearchResults(searchValue, _id, role, page);
 	};
 
 	if (redirect) {
-		return <Redirect to={{ pathname: '/search', search: `?q=${search}` }} />;
+		return (
+			<Redirect to={{ pathname: '/search', search: `?q=${searchValue}` }} />
+		);
 	}
 
 	return (
@@ -35,8 +42,8 @@ const Header = ({ title, getSearchResults }) => {
 						{title || 'Leads'}
 					</h1>
 				</div>
-				<div className='ml-32 w-full flex items-center justify-end text-gray-300'>
-					<div className='w-64 relative z-0 text-gray-400'>
+				<div className='flex items-center justify-end text-gray-300'>
+					<div className='w-72 relative z-0 text-gray-400'>
 						<form
 							action='/search'
 							method='GET'
@@ -45,7 +52,7 @@ const Header = ({ title, getSearchResults }) => {
 							<input
 								type='text'
 								name='q'
-								placeholder='Search by title, brand, or ASIN...'
+								placeholder='Search by title, source, brand, or ASIN...'
 								onChange={onSearchChange}
 								className='py-2 pl-10 w-full rounded-lg text-sm text-gray-500 placeholder-gray-400 transition-all duration-100 ease-in-out focus:outline-none hover:shadow-outline focus:shadow-outline'
 							/>
@@ -70,9 +77,10 @@ const Header = ({ title, getSearchResults }) => {
 };
 
 const mapStateToProps = (state, ownProps) => {
-	const { loading, exporting } = state.leads;
+	const { user } = state.auth;
+	const { search } = state.leads;
 	const { title } = ownProps;
-	return { loading, exporting, title };
+	return { user, search, title };
 };
 
 export default connect(mapStateToProps, { getSearchResults })(Header);

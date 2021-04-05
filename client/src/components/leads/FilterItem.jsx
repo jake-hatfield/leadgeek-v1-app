@@ -31,13 +31,15 @@ const FilterItem = ({
 		max: '' || maxDefault,
 	});
 	const onChange = (e) => {
-		if (e.target.value.match('^[0-9]+$') !== null) {
-			setFilterData({ ...filterData, [e.target.name]: e.target.value });
-		} else {
-			setAlert(
-				'Filter cannot contain letters or special characters.',
-				'danger'
-			);
+		if (e.target.value) {
+			if (e.target.value.match(/^\d*\.?\d*$/) !== null) {
+				setFilterData({ ...filterData, [e.target.name]: e.target.value });
+			} else {
+				setAlert(
+					'Filter cannot contain letters or special characters.',
+					'danger'
+				);
+			}
 		}
 	};
 	const [minActive, setMinActive] = useState(null);
@@ -110,7 +112,7 @@ const FilterItem = ({
 							{(minActive || minDefault > 0) && (
 								<div className='flex items-center w-min py-1 pl-3 pr-2 rounded-lg bg-purple-100 shadow-sm text-purple-600 text-sm'>
 									<span>Min:</span>
-									<span className='ml-1'>${+minActive || +minDefault}</span>
+									<span className='ml-1'>{+minActive || +minDefault}</span>
 									<button
 										onClick={() => {
 											clearMinMaxFilter(null, +filterData.max, val, 'Min');
@@ -143,7 +145,7 @@ const FilterItem = ({
 									} flex items-center w-min py-1 pl-3 pr-2 rounded-lg bg-purple-100 shadow-sm text-purple-600 text-sm`}
 								>
 									<span>Max:</span>
-									<span className='ml-1'>${+maxActive || +maxDefault}</span>
+									<span className='ml-1'>{+maxActive || +maxDefault}</span>
 									<button
 										onClick={() => {
 											clearMinMaxFilter(+filterData.min, null, val, 'Max');

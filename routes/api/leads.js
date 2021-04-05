@@ -97,7 +97,7 @@ router.get('/export', auth, async (req, res) => {
 });
 
 // @route       GET api/leads
-// @description Get paginated leads by plan
+// @description Get paginated leads by plan and filters
 // @access      Private
 router.post('/', auth, async (req, res) => {
 	try {
@@ -116,7 +116,6 @@ router.post('/', auth, async (req, res) => {
 				weight,
 			},
 		} = req.body;
-		console.log(req.body);
 		const user = await User.findById({ _id });
 		if (!user) {
 			let message = 'There was an error finding a user with that id.';
@@ -131,9 +130,113 @@ router.post('/', auth, async (req, res) => {
 			.then((numLeads) => {
 				totalItems = numLeads;
 				return Lead.find({
-					plan,
-					'data.date': { $gte: user.dateCreated },
-					'data.netProfit': { $gte: +netProfit.min || 0 },
+					$and: [
+						{
+							plan,
+							'data.date': { $gte: user.dateCreated },
+						},
+						{
+							...(netProfit.min && {
+								'data.netProfit': { $gte: netProfit.min },
+							}),
+							...(netProfit.max && {
+								'data.netProfit': { $gte: netProfit.max },
+							}),
+							...(netProfit.min &&
+								netProfit.max && {
+									'data.netProfit': {
+										$gte: netProfit.min,
+										$lte: netProfit.max,
+									},
+								}),
+							...(buyPrice.min && {
+								'data.buyPrice': { $gte: buyPrice.min },
+							}),
+							...(buyPrice.max && {
+								'data.buyPrice': { $gte: buyPrice.max },
+							}),
+							...(buyPrice.min &&
+								buyPrice.max && {
+									'data.buyPrice': {
+										$gte: buyPrice.min,
+										$lte: buyPrice.max,
+									},
+								}),
+							...(sellPrice.min && {
+								'data.sellPrice': { $gte: sellPrice.min },
+							}),
+							...(sellPrice.max && {
+								'data.sellPrice': { $gte: sellPrice.max },
+							}),
+							...(sellPrice.min &&
+								sellPrice.max && {
+									'data.sellPrice': {
+										$gte: sellPrice.min,
+										$lte: sellPrice.max,
+									},
+								}),
+							...(roi.min && {
+								'data.roi': { $gte: roi.min },
+							}),
+							...(roi.max && {
+								'data.roi': { $gte: roi.max },
+							}),
+							...(roi.min &&
+								roi.max && {
+									'data.roi': {
+										$gte: roi.min,
+										$lte: roi.max,
+									},
+								}),
+							...(bsr.min && {
+								'data.bsr': { $gte: bsr.min },
+							}),
+							...(bsr.max && {
+								'data.bsr': { $gte: bsr.max },
+							}),
+							...(bsr.min &&
+								bsr.max && {
+									'data.bsr': {
+										$gte: bsr.min,
+										$lte: bsr.max,
+									},
+								}),
+							...(monthlySales.min && {
+								'data.monthlySales': {
+									$gte: monthlySales.min,
+								},
+							}),
+							...(monthlySales.max && {
+								'data.monthlySales': {
+									$lte: monthlySales.max,
+								},
+							}),
+							...(monthlySales.min &&
+								monthlySales.max && {
+									'data.monthlySales': {
+										$gte: monthlySales.min,
+										$lte: monthlySales.max,
+									},
+								}),
+							...(weight.min && {
+								'data.weight': {
+									$gte: weight.min,
+								},
+							}),
+							...(weight.max && {
+								'data.weight': {
+									$lte: weight.max,
+								},
+							}),
+							...(weight.min &&
+								weight.max && {
+									'data.weight': {
+										$gte: weight.min,
+										$lte: weight.max,
+									},
+								}),
+						},
+					],
 				})
 					.skip((page - 1) * ITEMS_PER_PAGE)
 					.limit(ITEMS_PER_PAGE)

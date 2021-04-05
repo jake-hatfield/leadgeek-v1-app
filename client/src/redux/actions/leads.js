@@ -11,6 +11,7 @@ import {
 	SET_PAGE,
 	LOADING,
 	FINISHED_LOADING,
+	SET_SEARCH_RESULTS,
 } from './types';
 import axios from 'axios';
 import { setAlert } from './alert';
@@ -221,7 +222,23 @@ export const setPage = (page, type) => (dispatch) => {
 	}
 };
 
-export const getSearchResults = (search) => async (dispatch) => {
+export const getSearchResults = (search, _id, role, page) => async (
+	dispatch
+) => {
+	let plan;
+	if (role === 'admin') {
+		plan = 'bundle_1';
+	} else {
+		plan = role;
+	}
+	const body = JSON.stringify({
+		_id,
+		plan,
+		page,
+	});
 	const { data } = await axios.get('/api/search', { params: { q: search } });
-	console.log(data);
+	dispatch({
+		type: SET_SEARCH_RESULTS,
+		payload: data,
+	});
 };

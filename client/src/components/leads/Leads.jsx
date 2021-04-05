@@ -84,7 +84,7 @@ const Leads = ({
 		user && (
 			<Fragment>
 				<section className='my-6'>
-					<Header title={headerTitle} user={user} leads={leads} />
+					<Header title={headerTitle} />
 					<nav className='mt-6 container'>
 						<div className='relative flex items-end justify-between pb-2 border-b border-gray-200'>
 							<div>
@@ -123,10 +123,10 @@ const Leads = ({
 									/>
 								)}
 								{filter && <Filter setFilter={setFilter} filter={filter} />}
-								{exportLeads && (
+								{exportLeads && feed.totalByIds && (
 									<ExportButton
 										user={user}
-										leads={feed}
+										leads={feed.totalByIds}
 										setExportLeads={setExportLeads}
 									/>
 								)}

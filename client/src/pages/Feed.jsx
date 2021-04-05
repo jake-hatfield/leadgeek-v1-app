@@ -24,9 +24,9 @@ const Feed = ({ user, loading, isAuthenticated, feed, filters, getLeads }) => {
 };
 
 const mapStateToProps = (state) => {
-	const { filters } = state;
 	const { user, loading, isAuthenticated } = state.auth;
 	const { feed } = state.leads;
+	const { filters } = state;
 	return { user, loading, isAuthenticated, feed, filters };
 };
 

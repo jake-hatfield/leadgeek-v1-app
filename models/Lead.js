@@ -98,7 +98,7 @@ const LeadSchema = new Schema({
 });
 
 LeadSchema.plugin(mongoose_fuzzy_searching, {
-	fields: [{ name: 'data', keys: ['title', 'brand', 'asin'] }],
+	fields: [{ name: 'data', keys: ['source', 'title', 'brand', 'asin'] }],
 });
 
 module.exports = Lead = mongoose.model('lead', LeadSchema);

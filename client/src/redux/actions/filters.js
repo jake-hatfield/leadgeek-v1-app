@@ -1,4 +1,4 @@
-import { CLEAR_FILTERS } from './types';
+import { CLEAR_FILTERS, SET_CATEGORY_FILTER } from './types';
 import { setAlert } from './alert';
 
 export const setMinMaxFilter = (min, max, val) => (dispatch) => {
@@ -23,8 +23,8 @@ export const setMinMaxFilter = (min, max, val) => (dispatch) => {
 			return dispatch({
 				type: `SET_${val.toUpperCase()}_FILTER`,
 				payload: {
-					min,
-					max,
+					min: +min,
+					max: +max,
 				},
 			});
 		}
@@ -40,9 +40,20 @@ export const clearMinMaxFilter = (min, max, val, minMax) => (dispatch) => {
 		return dispatch({
 			type: `CLEAR_${val.toUpperCase()}_FILTER`,
 			payload: {
-				min,
-				max,
+				min: +min,
+				max: +max,
 			},
+		});
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const setDropdownFilter = (newCategory) => (dispatch) => {
+	try {
+		return dispatch({
+			type: SET_CATEGORY_FILTER,
+			payload: { newCategory },
 		});
 	} catch (error) {
 		console.log(error);

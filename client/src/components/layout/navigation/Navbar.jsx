@@ -48,6 +48,7 @@ const Navbar = ({
 		user: { _id, role, unviewedLeads, likedLeads, archivedLeads },
 		loading,
 	},
+	logout,
 }) => {
 	// state & local storage
 	const [hover, setHover] = useState(false);
@@ -177,7 +178,6 @@ const Navbar = ({
 					</div>
 				))}
 			</aside>
-
 			<article>
 				{role === 'admin' && (
 					<nav className='mt-4 flex flex-col'>
@@ -197,7 +197,7 @@ const Navbar = ({
 				</nav>
 				<aside className='mt-16 text-gray-400'>
 					<button
-						onClick={() => setUserDropdown(true)}
+						onClick={() => logoutUser(logout)}
 						onMouseEnter={() => setHover(!hover)}
 						onMouseLeave={() => setHover(false)}
 						className='p-2 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
@@ -228,4 +228,4 @@ const mapStateToProps = (state) => {
 	return { auth };
 };
 
-export default connect(mapStateToProps)(Navbar);
+export default connect(mapStateToProps, { logout })(Navbar);

@@ -111,7 +111,9 @@ const Filter = ({
 		>
 			<div className='relative'>
 				<header className='pb-2 px-4 flex items-center justify-between'>
-					<h5 className='font-bold text-lg'>Filters</h5>
+					<div>
+						<h5 className='inline-block font-bold text-lg'>Filters</h5>
+					</div>
 					<button
 						onClick={() => getLeads(user, 1, filters)}
 						className='font-semibold text-sm text-purple-600 hover:text-gray-700 transition-colors duration-100 ease-in-out'
