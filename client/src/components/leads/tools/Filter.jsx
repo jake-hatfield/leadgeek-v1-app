@@ -3,9 +3,14 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 
 import FilterItem from './FilterItem';
-import { useOutsideMousedown } from '../../utils/utils';
-import { getLeads } from '../../redux/actions/leads';
-import { clearFilters } from '../../redux/actions/filters';
+import { useOutsideMousedown } from '../../../utils/utils';
+import { getLeads } from '../../../redux/actions/leads';
+import { clearFilters } from '../../../redux/actions/filters';
+
+// TODO:
+// Dropdown input on category field
+// Category redux action/reducer
+// Category filter in API
 
 const Filter = ({
 	user,

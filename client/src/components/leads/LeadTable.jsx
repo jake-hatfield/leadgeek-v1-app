@@ -3,7 +3,14 @@ import React from 'react';
 import LeadRow from './LeadRow';
 import Spinner from '../layout/Spinner';
 
-const LeadTable = ({ loading, leads, showDetails, setShowDetails, user }) => {
+const LeadTable = ({
+	loading,
+	leads,
+	showDetails,
+	setShowDetails,
+	user,
+	search,
+}) => {
 	return (
 		<section className='relative mt-10 container'>
 			{loading ? (
@@ -36,6 +43,8 @@ const LeadTable = ({ loading, leads, showDetails, setShowDetails, user }) => {
 						))}
 					</tbody>
 				</table>
+			) : search ? (
+				<div>No search results.</div>
 			) : (
 				<div>No leads to show!</div>
 			)}

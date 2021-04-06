@@ -108,7 +108,7 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 									Testimonial
 								</h3>
 								<p className='pt-2'>
-									Do you have 5 minutes? Submit a review on WebRetailer and
+									Do you have 2 minutes? Submit a review on WebRetailer and
 									receive a 15% discount on next month's subscription.
 								</p>
 								<div className='mt-4 mb-3'>

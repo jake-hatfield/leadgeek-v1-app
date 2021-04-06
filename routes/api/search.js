@@ -8,7 +8,6 @@ const Lead = require('../../models/Lead');
 // @access      Private
 router.get('/', auth, async (req, res) => {
 	try {
-		console.log(req.body);
 		const { q } = req.query;
 		const leads = await Lead.find({ plan: req.body.plan })
 			.fuzzySearch(q)

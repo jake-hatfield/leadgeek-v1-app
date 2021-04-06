@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 
 export function useStickyState(defaultValue, key) {
 	const [value, setValue] = React.useState(() => {

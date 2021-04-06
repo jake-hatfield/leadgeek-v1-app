@@ -214,7 +214,7 @@ const LeadRow = ({
 					</div>
 					{/* horiztonal dots */}
 					{expandedView && (
-						<div className='absolute right-0 z-20 w-40 transform translate-y-6 -translate-x-12 bg-white rounded-lg shadow-md'>
+						<div className='absolute right-0 z-20 w-40 transform translate-y-6 md:-translate-x-6 lg:-translate-x-8 xl:-translate-x-12 bg-white rounded-lg shadow-md'>
 							<div className='py-2 border-b border-gray-200'>
 								<button
 									onClick={(e) => {
