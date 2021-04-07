@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 
 import { useOutsideMousedown } from '../../../utils/utils';
 
@@ -9,7 +9,6 @@ import { useOutsideMousedown } from '../../../utils/utils';
 const Prep = ({ prep, setPrep }) => {
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setPrep);
-	// close modal on esc key
 	const keyPress = useCallback(
 		(e) => {
 			if (e.key === 'Escape' && prep) {
@@ -22,6 +21,9 @@ const Prep = ({ prep, setPrep }) => {
 		document.addEventListener('keydown', keyPress);
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
+
+	const [checked, setChecked] = useState(false);
+
 	return (
 		<article
 			ref={wrapperRef}
@@ -36,24 +38,30 @@ const Prep = ({ prep, setPrep }) => {
 						Apply
 					</button>
 				</header>
-				<div className='mt-2 px-4 flex items-center justify-between'>
-					<input
-						name='min'
-						type='checkbox'
-						placeholder={'Min'}
-						className='w-1/2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
-					/>
-					<input
-						name='min'
-						type='text'
-						placeholder={'Min'}
-						className='w-1/2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
-					/>
+				<div className='mt-2 py-2 px-4 flex items-center justify-between bg-gray-100'>
+					<label>
+						{checked ? 'Fee per lb' : 'Fee per unit'}
+						<input
+							name='fee'
+							type='text'
+							placeholder={checked ? 'Fee per lb' : 'Fee per unit'}
+							className='w-1/2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
+						/>
+					</label>
+					<label>
+						<input
+							name='checkbox'
+							type='checkbox'
+							checked={checked}
+							onClick={() => setChecked((prev) => !prev)}
+							className='w-4 p-2 bg-white rounded-md text-sm border border-gray-200 shadow-sm text-purple-600 focus:outline-none focus:shadow-outline'
+						/>
+					</label>
 				</div>
 				<div className='border-t border-gray-200'>
 					<div className='flex justify-end py-2 px-4'>
 						<button className='font-semibold text-sm text-red-500'>
-							Clear all
+							Clear
 						</button>
 					</div>
 				</div>

@@ -22,8 +22,35 @@ const FilterItem = ({
 	const [toggleItem, setToggleItem] = useState(false);
 	const wrapperRef = useRef(null);
 	useOutsideMouseup(wrapperRef, setToggleItem);
+	const [categories] = useState([
+		'Appliances',
+		'Arts. Crafts, & Sewing',
+		'Automotive Parts & Accessories',
+		'Baby',
+		'Beauty & Personal Care',
+		'Books',
+		'CDs & Vinyl',
+		'Cell Phones & Accessories',
+		'Clothing, Shoes & Jewelry',
+		'Computers',
+		'Electronics',
+		'Garden & Outdoor',
+		'Grocery & Gourmet Food',
+		'Handmade',
+		'Health,Household & Baby Care',
+		'Home & Kitchen',
+		'Industrial & Scientific',
+		'Luggage & Travel Gear',
+		'Movies & TV',
+		'Musical Instruments',
+		'Office Products',
+		'Pet Supplies',
+		'Sports & Outdoors',
+		'Tools & Home Improvement',
+		'Toys & Games',
+		'Video Games',
+	]);
 	// todos:
-	// remove pill on filter deletion
 	// set # of filters on button
 	// set showing # of filtered products of # of total products
 	const [filterData, setFilterData] = useState({
@@ -42,6 +69,8 @@ const FilterItem = ({
 			}
 		}
 	};
+	const [selectValue, setSelectValue] = useState('Appliances');
+	console.log(selectValue);
 	const [minActive, setMinActive] = useState(null);
 	const [maxActive, setMaxActive] = useState(false);
 	const createPill = (min, max) => {
@@ -170,61 +199,88 @@ const FilterItem = ({
 								</div>
 							)}
 						</div>
-						<div className='mt-3'>
-							<div className='font-semibold text-sm text-gray-700'>
-								{subtitle} range {subtitleValue}
-							</div>
-							<form
-								onSubmit={(e) => {
-									e.preventDefault();
-									createPill(+filterData.min, +filterData.max, val);
-									setMinMaxFilter(+filterData.min, +filterData.max, val);
-								}}
-							>
-								<div className='mt-2 flex items-center justify-between'>
-									<input
-										name='min'
-										type='text'
-										placeholder={'Min'}
-										onChange={onChange}
-										className='w-1/2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
-									/>
-									<span className='ml-2 text-gray-400'>
-										<svg
-											xmlns='http://www.w3.org/2000/svg'
-											fill='none'
-											viewBox='0 0 24 24'
-											stroke='currentColor'
-											className='w-5'
-										>
-											<path
-												strokeLinecap='round'
-												strokeLinejoin='round'
-												strokeWidth={2}
-												d='M18 12H6'
-											/>
-										</svg>
-									</span>
-									<input
-										name='max'
-										type='text'
-										placeholder={'Max'}
-										onChange={onChange}
-										className='w-1/2 ml-2 p-2 bg-white rounded-lg  text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
-									/>
+						{title !== 'Category' ? (
+							<div className='mt-3'>
+								<div className='font-semibold text-sm text-gray-700'>
+									{subtitle} range {subtitleValue}
 								</div>
-								<div className='mt-2 border-t border-gray-200'>
-									<div className='flex justify-end'>
-										<button
-											type='sumbit'
-											className='mt-2 py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm shadow-sm hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-										>
-											Set filter
-										</button>
+								<form
+									onSubmit={(e) => {
+										e.preventDefault();
+										createPill(+filterData.min, +filterData.max, val);
+										setMinMaxFilter(+filterData.min, +filterData.max, val);
+									}}
+								>
+									<div className='mt-2 flex items-center justify-between'>
+										<input
+											name='min'
+											type='text'
+											placeholder={'Min'}
+											onChange={onChange}
+											className='w-1/2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
+										/>
+										<span className='ml-2 text-gray-400'>
+											<svg
+												xmlns='http://www.w3.org/2000/svg'
+												fill='none'
+												viewBox='0 0 24 24'
+												stroke='currentColor'
+												className='w-5'
+											>
+												<path
+													strokeLinecap='round'
+													strokeLinejoin='round'
+													strokeWidth={2}
+													d='M18 12H6'
+												/>
+											</svg>
+										</span>
+										<input
+											name='max'
+											type='text'
+											placeholder={'Max'}
+											onChange={onChange}
+											className='w-1/2 ml-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
+										/>
 									</div>
+									<div className='mt-2 border-t border-gray-200'>
+										<div className='flex justify-end'>
+											<button
+												type='sumbit'
+												className='mt-2 py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm shadow-sm hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+											>
+												Set filter
+											</button>
+										</div>
+									</div>
+								</form>
+							</div>
+						) : (
+							<div className='mt-3'>
+								<div className='font-semibold text-sm text-gray-700'>
+									Select a category
 								</div>
-							</form>
-						</div>
+								<select
+									value={selectValue}
+									onChange={(e) => setSelectValue(e.currentTarget.value)}
+									className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm focus:outline-none focus:shadow-outline'
+								>
+									{categories.map((category, i) => (
+										<option key={i} value={category}>
+											{category}
+										</option>
+									))}
+								</select>
+								<div className='flex justify-end'>
+									<button
+										type='sumbit'
+										className='mt-2 py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm shadow-sm hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+									>
+										Set filter
+									</button>
+								</div>
+							</div>
+						)}
 					</div>
 				)}
 			</div>

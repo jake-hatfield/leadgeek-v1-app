@@ -164,5 +164,6 @@ module.exports = {
 			};
 			addComponents(container);
 		}),
+		require('@tailwindcss/forms'),
 	],
 };

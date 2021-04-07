@@ -1,5 +1,7 @@
 import React, { Fragment } from 'react';
 
+import { DateTime } from 'luxon';
+
 import AuthLayout from '../components/layout/AuthLayout';
 import Header from '../components/layout/navigation/Header';
 
@@ -15,7 +17,7 @@ const HelpItem = ({ title, desc, path, color, actions }) => {
 						<span className={color}>
 							<svg
 								xmlns='http://www.w3.org/2000/svg'
-								className='h-4 w-4'
+								className='h-5 w-5'
 								viewBox='0 0 20 20'
 								fill='currentColor'
 							>
@@ -25,8 +27,8 @@ const HelpItem = ({ title, desc, path, color, actions }) => {
 						<h3 className='ml-2 font-semibold text-gray-900'>{title}</h3>
 					</div>
 					<p className='mt-2 text-sm text-gray-700'>{desc}</p>
-					{actions.map((action) => (
-						<div className='mt-2'>
+					{actions.map((action, i) => (
+						<div key={i} className='mt-2'>
 							{action.external && (
 								<a
 									href={action.link}
@@ -44,7 +46,7 @@ const HelpItem = ({ title, desc, path, color, actions }) => {
 		</Fragment>
 	);
 };
-
+const dt = DateTime.now().toLocaleString(DateTime.DATETIME_MED);
 const Help = () => {
 	const helpItems = [
 		{
@@ -82,12 +84,12 @@ const Help = () => {
 			actions: [
 				{
 					title: 'Report a bug',
-					link: 'mailto:beta@leadgeek.io',
+					link: `mailto:software@leadgeek.io?subject=LeadGeek%20Bug%20Report%20${dt}`,
 					external: true,
 				},
 				{
 					title: 'Suggest a feature',
-					link: 'mailto:beta@leadgeek.io',
+					link: `mailto:software@leadgeek.io?subject=LeadGeek%20Feature%20Suggestion%20${dt}`,
 					external: true,
 				},
 			],
@@ -101,13 +103,13 @@ const Help = () => {
 					<div>
 						<h2 className='font-semibold text-xl text-gray-900'>Resources</h2>
 						<p>
-							Use these tools to get the help you need or offer feedback on our
-							software.
+							Use these resources to get help or offer feedback on our software.
 						</p>
 					</div>
 					<div className='mt-6 grid grid-cols-3 border-t border-b border-gray-200'>
-						{helpItems.map((item) => (
+						{helpItems.map((item, i) => (
 							<HelpItem
+								key={i}
 								title={item.title}
 								desc={item.desc}
 								path={item.path}
