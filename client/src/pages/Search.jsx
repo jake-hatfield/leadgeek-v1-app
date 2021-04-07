@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { connect } from 'react-redux';
 import { getLeads } from '../redux/actions/leads';
 
 import AuthLayout from '../components/layout/AuthLayout';
 import Leads from '../components/leads/Leads';
-const Search = ({ user, loading, search }) => {
+
+const Search = ({ search }) => {
 	return (
 		<AuthLayout>
 			<section className='my-6'>
@@ -22,9 +23,8 @@ const Search = ({ user, loading, search }) => {
 };
 
 const mapStateToProps = (state) => {
-	const { user, loading, isAuthenticated } = state.auth;
 	const { search } = state.leads;
-	return { user, loading, isAuthenticated, search };
+	return { search };
 };
 
 export default connect(mapStateToProps, { getLeads })(Search);

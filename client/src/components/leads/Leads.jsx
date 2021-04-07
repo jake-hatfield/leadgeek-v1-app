@@ -88,7 +88,7 @@ const Leads = ({
 		user && (
 			<Fragment>
 				<section className='my-6'>
-					<Header title={headerTitle} />
+					<Header title={headerTitle} searchActive={true} />
 					{!search && (
 						<nav className='mt-6 container'>
 							<div className='relative flex items-end justify-between pb-2 border-b border-gray-200'>

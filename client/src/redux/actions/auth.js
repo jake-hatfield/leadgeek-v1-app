@@ -255,3 +255,10 @@ export const cancelStripeSub = (customerId, subscriptionId) => async (
 		}
 	}
 };
+
+// Get all users (ADMIN)
+
+export const getAllUsers = () => async (dispatch) => {
+	const { data } = await axios.get('/api/users/get-all-users');
+	console.log(data);
+};

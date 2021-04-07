@@ -11,6 +11,7 @@ import Liked from '../pages/Liked';
 import Archived from '../pages/Archived';
 import Search from '../pages/Search';
 import Admin from '../pages/Admin';
+import Help from '../pages/Help';
 import Profile from '../pages/Profile';
 import Password from '../pages/Password';
 // utils
@@ -34,6 +35,7 @@ const Routes = () => {
 			<PrivateRoute exact path='/account/profile' component={Profile} />
 			<PrivateRoute exact path='/account/password' component={Password} />
 			<PrivateRoute exact path='/admin' component={Admin} />
+			<PrivateRoute exact path='/help' component={Help} />
 		</Fragment>
 	);
 };
