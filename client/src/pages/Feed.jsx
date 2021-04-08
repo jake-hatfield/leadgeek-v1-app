@@ -8,14 +8,17 @@ import Leads from '../components/leads/Leads';
 
 const Feed = ({ user, loading, isAuthenticated, feed, filters, getLeads }) => {
 	useEffect(() => {
-		!loading && isAuthenticated && user && getLeads(user, feed.page, filters);
-	}, [loading, isAuthenticated, user && feed.page]);
+		!loading &&
+			isAuthenticated &&
+			user &&
+			getLeads(user, feed.pagination.page, filters);
+	}, [loading, isAuthenticated, user && feed.pagination.page]);
 
 	return (
 		<AuthLayout>
 			<Leads
 				leads={feed.pageByIds}
-				pagination={feed}
+				pagination={feed.pagination}
 				totalItems={feed.totalItems}
 				type={'feed'}
 			/>

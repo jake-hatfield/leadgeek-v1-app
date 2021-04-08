@@ -116,6 +116,7 @@ router.post('/', auth, async (req, res) => {
 				weight,
 			},
 		} = req.body;
+		console.log(page);
 		const user = await User.findById({ _id });
 		if (!user) {
 			let message = 'There was an error finding a user with that id.';

@@ -11,12 +11,12 @@ const Pagination = ({
 	setPage,
 }) => {
 	const buttonClasses =
-		'ml-4 py-2 px-3 rounded-lg shadow-sm text-sm font-semibold hover:text-gray-500 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline';
+		'ml-4 py-2 px-3 rounded-lg shadow-sm text-sm font-semibold text-gray-500 hover:text-gray-600 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline';
 	return (
 		!loading &&
 		(hasPreviousPage || hasNextPage) && (
-			<article className='flex justify-end mt-8 container'>
-				<div>
+			<article className='flex justify-end mt-4 container'>
+				<div className='flex items-center'>
 					<Link
 						to={`${hasPreviousPage && `?page=${previousPage}`}`}
 						onClick={() => setPage(previousPage, type)}

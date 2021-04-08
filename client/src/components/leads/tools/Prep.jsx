@@ -1,5 +1,6 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 
+import { setAlert } from '../../../redux/actions/alert';
 import { useOutsideMousedown } from '../../../utils/utils';
 
 // set weight based fee
@@ -21,8 +22,24 @@ const Prep = ({ prep, setPrep }) => {
 		document.addEventListener('keydown', keyPress);
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
+	const [prepFee, setPrepFee] = useState(false);
+	const [checked, setChecked] = useState({
+		unit: null,
+		lb: null,
+	});
 
-	const [checked, setChecked] = useState(false);
+	const onChange = (e) => {
+		if (e.target.value) {
+			if (e.target.value.match(/^\d*\.?\d*$/) !== null) {
+				setPrepFee({ ...prepFee, [e.target.name]: e.target.value });
+			} else {
+				setAlert(
+					'Filter cannot contain letters or special characters.',
+					'danger'
+				);
+			}
+		}
+	};
 
 	return (
 		<article
@@ -38,25 +55,31 @@ const Prep = ({ prep, setPrep }) => {
 						Apply
 					</button>
 				</header>
-				<div className='mt-2 py-2 px-4 flex items-center justify-between bg-gray-100'>
-					<label>
-						{checked ? 'Fee per lb' : 'Fee per unit'}
-						<input
-							name='fee'
-							type='text'
-							placeholder={checked ? 'Fee per lb' : 'Fee per unit'}
-							className='w-1/2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
-						/>
-					</label>
-					<label>
-						<input
-							name='checkbox'
-							type='checkbox'
-							checked={checked}
-							onClick={() => setChecked((prev) => !prev)}
-							className='w-4 p-2 bg-white rounded-md text-sm border border-gray-200 shadow-sm text-purple-600 focus:outline-none focus:shadow-outline'
-						/>
-					</label>
+				<div className='py-2 px-4 bg-gray-100 font-semibold text-sm text-gray-700'>
+					<div>
+						<label className='flex items-center justify-between'>
+							Weight-based prep fee?
+							<input
+								name='checkbox'
+								type='checkbox'
+								checked={checked}
+								onClick={() => setChecked((prev) => !prev)}
+								className='w-4 p-2 bg-white rounded-md text-sm border border-gray-200 shadow-sm text-purple-600 focus:outline-none focus:shadow-outline'
+							/>
+						</label>
+					</div>
+					<div className='mt-3'>
+						<label>
+							{`${checked ? 'Fee per lb' : 'Fee per unit'} ($)`}
+							<input
+								name='fee'
+								type='text'
+								placeholder={checked ? 'eg. $0.10' : 'eg. $0.95'}
+								onChange={onChange}
+								className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
+							/>
+						</label>
+					</div>
 				</div>
 				<div className='border-t border-gray-200'>
 					<div className='flex justify-end py-2 px-4'>

@@ -45,7 +45,7 @@ const NavbarLink = ({ link, showMenu }) => {
 
 const Navbar = ({
 	auth: {
-		user: { _id, role, unviewedLeads, likedLeads, archivedLeads },
+		user: { _id, role },
 		loading,
 	},
 	logout,
@@ -170,7 +170,7 @@ const Navbar = ({
 		setUserDropdown(false);
 	};
 	return (
-		<nav className='fixed top-0 left-0 h-full min-h-screen w-16 py-16 px-3 flex flex-col justify-between bg-white border-r border-gray-200 text-gray-400'>
+		<nav className='fixed top-0 left-0 z-10 h-full min-h-screen w-16 py-16 px-3 flex flex-col justify-between bg-white border-r border-gray-200 text-gray-400'>
 			<aside>
 				{primaryLinks.map((link, i) => (
 					<div key={i} className='first:mt-0 mt-6'>

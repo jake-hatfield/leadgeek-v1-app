@@ -136,7 +136,7 @@ const FilterItem = ({
 					</button>
 				</div>
 				{toggleItem && (
-					<div className='mt-2'>
+					<div>
 						<div className='flex items-center'>
 							{(minActive || minDefault > 0) && (
 								<div className='flex items-center w-min py-1 pl-3 pr-2 rounded-lg bg-purple-100 shadow-sm text-purple-600 text-sm'>

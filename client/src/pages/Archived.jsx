@@ -13,7 +13,7 @@ const Archived = ({ user, loading, archived, getArchivedLeads }) => {
 		<AuthLayout>
 			<Leads
 				leads={archived.pageByIds}
-				pagination={archived}
+				pagination={archived.pagination}
 				type={'archived'}
 			/>
 		</AuthLayout>

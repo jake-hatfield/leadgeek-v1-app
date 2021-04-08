@@ -12,7 +12,11 @@ const Liked = ({ user, loading, liked, getLikedLeads }) => {
 	}, [user.likedLeads, liked.page]);
 	return (
 		<AuthLayout>
-			<Leads leads={liked.pageByIds} pagination={liked} type={'liked'} />
+			<Leads
+				leads={liked.pageByIds}
+				pagination={liked.pagination}
+				type={'liked'}
+			/>
 		</AuthLayout>
 	);
 };

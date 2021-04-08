@@ -15,7 +15,7 @@ const Spinner = ({ search }) => {
 			/>
 			{search && (
 				<div className='mt-8 font-semibold text-gray-600'>
-					Loading search results
+					Loading results...
 				</div>
 			)}
 		</div>

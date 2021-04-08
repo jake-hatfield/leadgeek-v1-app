@@ -49,6 +49,10 @@ const initialState = {
 		max: +localStorage.getItem('weightMax') || null,
 	},
 	category: [],
+	prep: {
+		unit: null,
+		lb: null,
+	},
 };
 
 export default function filterReducer(state = initialState, action) {

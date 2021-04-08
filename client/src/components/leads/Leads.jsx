@@ -87,7 +87,7 @@ const Leads = ({
 		!authLoading &&
 		user && (
 			<Fragment>
-				<section className='my-6'>
+				<section className='relative my-6'>
 					<Header title={headerTitle} searchActive={true} />
 					{!search && (
 						<nav className='mt-6 container'>

@@ -22,44 +22,56 @@ const initialState = {
 		totalAllIds: [],
 		pageByIds: [],
 		totalItems: null,
-		page: 1,
-		hasNextPage: null,
-		hasPreviousPage: false,
-		nextPage: null,
-		previousPage: null,
+		pagination: {
+			page: 1,
+			hasNextPage: null,
+			hasPreviousPage: false,
+			nextPage: null,
+			previousPage: null,
+			lastPage: null,
+		},
 	},
 	liked: {
 		totalByIds: [],
 		totalAllIds: [],
 		pageByIds: [],
 		totalItems: null,
-		page: 1,
-		hasNextPage: null,
-		hasPreviousPage: false,
-		nextPage: null,
-		previousPage: null,
+		pagination: {
+			page: 1,
+			hasNextPage: null,
+			hasPreviousPage: false,
+			nextPage: null,
+			previousPage: null,
+			lastPage: null,
+		},
 	},
 	archived: {
 		totalByIds: [],
 		totalAllIds: [],
 		pageByIds: [],
 		totalItems: null,
-		page: 1,
-		hasNextPage: null,
-		hasPreviousPage: false,
-		nextPage: null,
-		previousPage: null,
+		pagination: {
+			page: 1,
+			hasNextPage: null,
+			hasPreviousPage: false,
+			nextPage: null,
+			previousPage: null,
+			lastPage: null,
+		},
 	},
 	search: {
 		totalByIds: [],
 		totalAllIds: [],
 		pageByIds: [],
 		totalItems: null,
-		page: 1,
-		hasNextPage: null,
-		hasPreviousPage: false,
-		nextPage: null,
-		previousPage: null,
+		pagination: {
+			page: 1,
+			hasNextPage: null,
+			hasPreviousPage: false,
+			nextPage: null,
+			previousPage: null,
+			lastPage: null,
+		},
 	},
 	lastUpdated: null,
 	currentLead: null,
@@ -95,12 +107,13 @@ export default function (state = initialState, action) {
 					...state.feed,
 					pageByIds: feed,
 					totalItems,
-					page,
-					hasNextPage,
-					hasPreviousPage,
-					nextPage,
-					previousPage,
-					lastPage,
+					pagination: {
+						page,
+						hasNextPage,
+						hasPreviousPage,
+						nextPage,
+						previousPage,
+					},
 				},
 			};
 		case GET_ALL_LEADS:
@@ -141,7 +154,6 @@ export default function (state = initialState, action) {
 				},
 			};
 		case SET_SEARCH_RESULTS: {
-			console.log(payload);
 			return {
 				...state,
 				search: {
@@ -166,27 +178,27 @@ export default function (state = initialState, action) {
 				case 'feed': {
 					return {
 						...state,
-						pagination: {
-							...state.pagination,
-							feed: { ...state.pagination.feed, page: payload.page },
+						feed: {
+							...state.feed,
+							pagination: { ...state.feed.pagination, page: payload.page },
 						},
 					};
 				}
 				case 'liked': {
 					return {
 						...state,
-						pagination: {
-							...state.pagination,
-							liked: { ...state.pagination.liked, page: payload.page },
+						liked: {
+							...state.liked,
+							pagination: { ...state.liked.pagination, page: payload.page },
 						},
 					};
 				}
 				case 'archived': {
 					return {
 						...state,
-						pagination: {
-							...state.pagination,
-							archived: { ...state.pagination.archived, page: payload.page },
+						archived: {
+							...state.archived,
+							pagination: { ...state.archived.pagination, page: payload.page },
 						},
 					};
 				}
