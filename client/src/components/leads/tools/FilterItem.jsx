@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 
 import { connect } from 'react-redux';
 import { setAlert } from '../../../redux/actions/alert';
 import {
 	setMinMaxFilter,
 	clearMinMaxFilter,
+	setDropdownFilter,
 } from '../../../redux/actions/filters';
 import { useOutsideMouseup } from '../../../utils/utils';
 
@@ -17,6 +18,7 @@ const FilterItem = ({
 	val,
 	setAlert,
 	setMinMaxFilter,
+	setDropdownFilter,
 	clearMinMaxFilter,
 }) => {
 	const [toggleItem, setToggleItem] = useState(false);
@@ -24,7 +26,7 @@ const FilterItem = ({
 	useOutsideMouseup(wrapperRef, setToggleItem);
 	const [categories] = useState([
 		'Appliances',
-		'Arts. Crafts, & Sewing',
+		'Arts, Crafts, & Sewing',
 		'Automotive Parts & Accessories',
 		'Baby',
 		'Beauty & Personal Care',
@@ -69,8 +71,8 @@ const FilterItem = ({
 			}
 		}
 	};
+
 	const [selectValue, setSelectValue] = useState('Appliances');
-	console.log(selectValue);
 	const [minActive, setMinActive] = useState(null);
 	const [maxActive, setMaxActive] = useState(false);
 	const createPill = (min, max) => {
@@ -243,15 +245,13 @@ const FilterItem = ({
 											className='w-1/2 ml-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
 										/>
 									</div>
-									<div className='mt-2 border-t border-gray-200'>
-										<div className='flex justify-end'>
-											<button
-												type='sumbit'
-												className='mt-2 py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm shadow-sm hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-											>
-												Set filter
-											</button>
-										</div>
+									<div className='flex justify-end'>
+										<button
+											type='sumbit'
+											className='mt-2 py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm shadow-sm hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										>
+											Set filter
+										</button>
 									</div>
 								</form>
 							</div>
@@ -262,7 +262,10 @@ const FilterItem = ({
 								</div>
 								<select
 									value={selectValue}
-									onChange={(e) => setSelectValue(e.currentTarget.value)}
+									onChange={(e) => {
+										console.log(selectValue);
+										setSelectValue(e.currentTarget.value);
+									}}
 									className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm focus:outline-none focus:shadow-outline'
 								>
 									{categories.map((category, i) => (
@@ -273,6 +276,7 @@ const FilterItem = ({
 								</select>
 								<div className='flex justify-end'>
 									<button
+										onClick={(e) => setDropdownFilter(selectValue)}
 										type='sumbit'
 										className='mt-2 py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm shadow-sm hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 									>
@@ -303,5 +307,6 @@ const mapStateToProps = (state, ownProps) => {
 export default connect(mapStateToProps, {
 	setAlert,
 	setMinMaxFilter,
+	setDropdownFilter,
 	clearMinMaxFilter,
 })(FilterItem);

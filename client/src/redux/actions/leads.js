@@ -3,6 +3,7 @@ import {
 	GET_ALL_LEADS,
 	GET_LIKED_LEADS,
 	GET_ARCHIVED_LEADS,
+	NO_LEAD_RESULTS,
 	VIEW_LEAD,
 	HANDLE_LIKE_LEAD,
 	HANDLE_ARCHIVE_LEAD,
@@ -58,6 +59,7 @@ export const getLeads = (user, page, filters) => async (dispatch) => {
 		});
 		const { data } = await axios.post('/api/leads', body, config);
 		if (data.message === 'There are no leads to show.') {
+			dispatch({ type: NO_LEAD_RESULTS });
 			dispatch(setAlert(data.message, 'warning'));
 		} else {
 			dispatch({

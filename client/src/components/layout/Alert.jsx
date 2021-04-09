@@ -10,7 +10,7 @@ const Alert = ({ alerts }) => {
 				alerts.map((alert) => (
 					<div
 						key={alert.id}
-						className={`py-4 px-6 absolute top-0 z-10 w-full border-b-4 alert-${alert.alertType}`}
+						className={`py-4 px-6 absolute top-0 z-40 w-full border-b-4 alert-${alert.alertType}`}
 					>
 						{alert.msg}
 					</div>

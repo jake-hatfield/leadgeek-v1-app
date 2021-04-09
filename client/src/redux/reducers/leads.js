@@ -6,6 +6,7 @@ import {
 	GET_ARCHIVED_LEADS,
 	GET_ALL_ARCHIVED_LEADS,
 	SET_SEARCH_RESULTS,
+	NO_LEAD_RESULTS,
 	SET_CURRENT_LEAD,
 	CLEAR_CURRENT_LEAD,
 	SET_PAGE,
@@ -134,6 +135,15 @@ export default function (state = initialState, action) {
 					previousPage: payload.previousPage,
 				},
 			};
+		case NO_LEAD_RESULTS: {
+			return {
+				...state,
+				feed: {
+					...state.feed,
+					pageByIds: [],
+				},
+			};
+		}
 		case HANDLE_LIKE_LEAD:
 			const newLiked = liked.filter((lead) => lead._id !== payload.leadId);
 			return {

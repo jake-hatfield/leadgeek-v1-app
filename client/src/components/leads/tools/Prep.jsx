@@ -63,7 +63,7 @@ const Prep = ({ prep, setPrep }) => {
 								name='checkbox'
 								type='checkbox'
 								checked={checked}
-								onClick={() => setChecked((prev) => !prev)}
+								onChange={() => setChecked((prev) => !prev)}
 								className='w-4 p-2 bg-white rounded-md text-sm border border-gray-200 shadow-sm text-purple-600 focus:outline-none focus:shadow-outline'
 							/>
 						</label>

@@ -1,4 +1,4 @@
-import { CLEAR_FILTERS, SET_CATEGORY_FILTER } from './types';
+import { CLEAR_FILTERS, SET_CATEGORY_FILTER, SET_PREP_FILTER } from './types';
 import { setAlert } from './alert';
 
 export const setMinMaxFilter = (min, max, val) => (dispatch) => {
@@ -54,6 +54,17 @@ export const setDropdownFilter = (newCategory) => (dispatch) => {
 		return dispatch({
 			type: SET_CATEGORY_FILTER,
 			payload: { newCategory },
+		});
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const setPrepFilter = (val, type) => (dispatch) => {
+	try {
+		dispatch({
+			type: SET_PREP_FILTER,
+			payload: { val, type },
 		});
 	} catch (error) {
 		console.log(error);

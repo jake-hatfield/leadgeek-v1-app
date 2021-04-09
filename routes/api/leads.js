@@ -114,9 +114,10 @@ router.post('/', auth, async (req, res) => {
 				bsr,
 				monthlySales,
 				weight,
+				category,
 			},
 		} = req.body;
-		console.log(page);
+		console.log(category);
 		const user = await User.findById({ _id });
 		if (!user) {
 			let message = 'There was an error finding a user with that id.';
@@ -236,6 +237,11 @@ router.post('/', auth, async (req, res) => {
 										$lte: weight.max,
 									},
 								}),
+							...(category.length > 0 && {
+								'data.category': {
+									$in: category,
+								},
+							}),
 						},
 					],
 				})

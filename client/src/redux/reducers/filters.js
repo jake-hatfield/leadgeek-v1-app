@@ -7,6 +7,7 @@ import {
 	SET_MONTHLYSALES_FILTER,
 	SET_WEIGHT_FILTER,
 	SET_CATEGORY_FILTER,
+	SET_PREP_FILTER,
 	CLEAR_BUYPRICE_FILTER,
 	CLEAR_SELLPRICE_FILTER,
 	CLEAR_ROI_FILTER,
@@ -50,8 +51,8 @@ const initialState = {
 	},
 	category: [],
 	prep: {
-		unit: null,
-		lb: null,
+		unit: +localStorage.getItem('unitFee') || null,
+		lb: +localStorage.getItem('lbFee') || null,
 	},
 };
 
@@ -137,10 +138,15 @@ export default function filterReducer(state = initialState, action) {
 		}
 		case SET_CATEGORY_FILTER: {
 			const { newCategory } = payload;
+			console.log(newCategory);
 			return {
 				...state,
-				category: state.category.push(newCategory),
+				category: [...state.category, newCategory],
 			};
+		}
+		case SET_PREP_FILTER: {
+			const { val, type } = payload;
+			console.log(val, type);
 		}
 		case CLEAR_FILTERS: {
 			return {
@@ -173,9 +179,10 @@ export default function filterReducer(state = initialState, action) {
 					min: null,
 					max: null,
 				},
-				category: {
-					min: null,
-					max: null,
+				category: [],
+				prep: {
+					unit: null,
+					lb: null,
 				},
 			};
 		}
