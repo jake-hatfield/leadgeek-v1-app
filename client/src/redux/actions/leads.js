@@ -113,7 +113,7 @@ export const getLikedLeads = (leads, page) => async (dispatch) => {
 		} else {
 			dispatch({
 				type: GET_LIKED_LEADS,
-				payload: data,
+				payload: { data },
 			});
 		}
 		dispatch({ type: FINISHED_LOADING });
@@ -132,7 +132,7 @@ export const getArchivedLeads = (leads, page) => async (dispatch) => {
 		} else {
 			dispatch({
 				type: GET_ARCHIVED_LEADS,
-				payload: data,
+				payload: { data },
 			});
 		}
 		dispatch({ type: FINISHED_LOADING });

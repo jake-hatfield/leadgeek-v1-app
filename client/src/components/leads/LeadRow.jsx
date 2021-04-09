@@ -8,6 +8,7 @@ import { DateTime } from 'luxon';
 import {
 	viewLead,
 	handleLikeLead,
+	handleArchiveLead,
 	setCurrentLead,
 } from '../../redux/actions/leads';
 // utils
@@ -24,12 +25,15 @@ const buttonClasses =
 
 const LeadRow = ({
 	lead,
+	user,
 	viewLead,
-	handleLikeLead,
 	showDetails,
 	setShowDetails,
+	handleLikeLead,
+	handleArchiveLead,
 	setCurrentLead,
-	user,
+	unitFee,
+	weightFee,
 }) => {
 	const { data } = lead;
 	const [like, setLike] = useState(false);
@@ -70,8 +74,7 @@ const LeadRow = ({
 	const archiveHandler = (e) => {
 		e.stopPropagation();
 		newLead && setNewLead(false);
-		setLike(!like);
-		handleLikeLead(user._id, lead._id);
+		handleArchiveLead(user._id, lead._id);
 		viewLead(user._id, lead._id);
 	};
 
@@ -116,7 +119,7 @@ const LeadRow = ({
 			<td className='p-2'>{truncate(data.category, 28)}</td>
 			<td className='p-2'>
 				<span>$</span>
-				{data.netProfit.toFixed(2)}
+				{(data.netProfit - unitFee || weightFee || 0).toFixed(2)}
 				<span className='ml-1 text-gray-400 font-semibold uppercase'>USD</span>
 			</td>
 			<td className='p-2'>
@@ -286,8 +289,15 @@ LeadRow.propTypes = {
 	setCurrentLead: PropTypes.func.isRequired,
 };
 
-export default connect(null, {
+const mapStateToProps = (state, ownProps) => {
+	const { unit: unitFee, lb: weightFee } = state.filters.prep;
+	const { lead, user, showDetails, setShowDetails } = ownProps;
+	return { unitFee, weightFee, lead, user, showDetails, setShowDetails };
+};
+
+export default connect(mapStateToProps, {
 	viewLead,
 	handleLikeLead,
+	handleArchiveLead,
 	setCurrentLead,
 })(LeadRow);

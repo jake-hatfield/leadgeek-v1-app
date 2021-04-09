@@ -22,7 +22,6 @@ const initialState = {
 		totalByIds: [],
 		totalAllIds: [],
 		pageByIds: [],
-		totalItems: null,
 		pagination: {
 			page: 1,
 			hasNextPage: null,
@@ -30,13 +29,13 @@ const initialState = {
 			nextPage: null,
 			previousPage: null,
 			lastPage: null,
+			totalItems: null,
 		},
 	},
 	liked: {
 		totalByIds: [],
 		totalAllIds: [],
 		pageByIds: [],
-		totalItems: null,
 		pagination: {
 			page: 1,
 			hasNextPage: null,
@@ -44,13 +43,13 @@ const initialState = {
 			nextPage: null,
 			previousPage: null,
 			lastPage: null,
+			totalItems: null,
 		},
 	},
 	archived: {
 		totalByIds: [],
 		totalAllIds: [],
 		pageByIds: [],
-		totalItems: null,
 		pagination: {
 			page: 1,
 			hasNextPage: null,
@@ -58,13 +57,13 @@ const initialState = {
 			nextPage: null,
 			previousPage: null,
 			lastPage: null,
+			totalItems: null,
 		},
 	},
 	search: {
 		totalByIds: [],
 		totalAllIds: [],
 		pageByIds: [],
-		totalItems: null,
 		pagination: {
 			page: 1,
 			hasNextPage: null,
@@ -72,6 +71,7 @@ const initialState = {
 			nextPage: null,
 			previousPage: null,
 			lastPage: null,
+			totalItems: null,
 		},
 	},
 	lastUpdated: null,
@@ -83,22 +83,22 @@ export default function (state = initialState, action) {
 	const { liked } = state;
 	const { type, payload } = action;
 	switch (type) {
-		case USER_LOADED:
+		case USER_LOADED: {
 			return {
 				...state,
 				lastActive: payload.lastLoggedIn,
 				loading: false,
 			};
-		case GET_LEADS:
+		}
+		case GET_LEADS: {
 			const {
 				feed,
-				totalItems,
 				page,
 				hasNextPage,
 				hasPreviousPage,
 				nextPage,
 				previousPage,
-				lastPage,
+				totalItems,
 				lastUpdated,
 			} = payload.data;
 			return {
@@ -107,34 +107,75 @@ export default function (state = initialState, action) {
 				feed: {
 					...state.feed,
 					pageByIds: feed,
-					totalItems,
 					pagination: {
 						page,
 						hasNextPage,
 						hasPreviousPage,
 						nextPage,
 						previousPage,
+						totalItems,
 					},
 				},
 			};
-		case GET_ALL_LEADS:
+		}
+		case GET_ALL_LEADS: {
 			return {
 				...state,
 				feed: { ...state.feed, totalByIds: payload.data.feed },
 			};
-		case GET_LIKED_LEADS:
+		}
+		case GET_LIKED_LEADS: {
+			const {
+				likedLeads,
+				page,
+				hasNextPage,
+				hasPreviousPage,
+				nextPage,
+				previousPage,
+				totalItems,
+			} = payload.data;
 			return {
 				...state,
 				liked: {
 					...state.liked,
-					pageByIds: payload.likedLeads,
-					page: payload.page,
-					hasNextPage: payload.hasNextPage,
-					hasPreviousPage: payload.hasPreviousPage,
-					nextPage: payload.nextPage,
-					previousPage: payload.previousPage,
+					pageByIds: likedLeads,
+					pagination: {
+						page,
+						hasNextPage,
+						hasPreviousPage,
+						nextPage,
+						previousPage,
+						totalItems,
+					},
 				},
 			};
+		}
+		case GET_ARCHIVED_LEADS: {
+			const {
+				archivedLeads,
+				page,
+				hasNextPage,
+				hasPreviousPage,
+				nextPage,
+				previousPage,
+				totalItems,
+			} = payload.data;
+			return {
+				...state,
+				archived: {
+					...state.archived,
+					pageByIds: archivedLeads,
+					pagination: {
+						page,
+						hasNextPage,
+						hasPreviousPage,
+						nextPage,
+						previousPage,
+						totalItems,
+					},
+				},
+			};
+		}
 		case NO_LEAD_RESULTS: {
 			return {
 				...state,
@@ -144,25 +185,13 @@ export default function (state = initialState, action) {
 				},
 			};
 		}
-		case HANDLE_LIKE_LEAD:
+		case HANDLE_LIKE_LEAD: {
 			const newLiked = liked.filter((lead) => lead._id !== payload.leadId);
 			return {
 				...state,
 				liked: newLiked,
 			};
-		case GET_ARCHIVED_LEADS:
-			return {
-				...state,
-				archived: {
-					...state.archived,
-					pageByIds: payload.archivedLeads,
-					page: payload.page,
-					hasNextPage: payload.hasNextPage,
-					hasPreviousPage: payload.hasPreviousPage,
-					nextPage: payload.nextPage,
-					previousPage: payload.previousPage,
-				},
-			};
+		}
 		case SET_SEARCH_RESULTS: {
 			return {
 				...state,
@@ -171,18 +200,20 @@ export default function (state = initialState, action) {
 				},
 			};
 		}
-		case SET_CURRENT_LEAD:
+		case SET_CURRENT_LEAD: {
 			return {
 				...state,
 				currentLead: payload,
 			};
-		case CLEAR_CURRENT_LEAD:
+		}
+		case CLEAR_CURRENT_LEAD: {
 			return {
 				...state,
 				currentLead: null,
 				loading: false,
 			};
-		case SET_PAGE:
+		}
+		case SET_PAGE: {
 			const { type } = payload;
 			switch (type) {
 				case 'feed': {
@@ -218,23 +249,28 @@ export default function (state = initialState, action) {
 					};
 				}
 			}
-		case LOGOUT:
+		}
+		case LOGOUT: {
 			return {
 				...initialState,
 			};
-		case LOADING:
+		}
+		case LOADING: {
 			return {
 				...state,
 				loading: true,
 			};
-		case FINISHED_LOADING:
+		}
+		case FINISHED_LOADING: {
 			return {
 				...state,
 				loading: false,
 			};
-		default:
+		}
+		default: {
 			return {
 				...state,
 			};
+		}
 	}
 }

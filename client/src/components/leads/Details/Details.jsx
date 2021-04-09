@@ -128,7 +128,7 @@ const Details = ({
 			<div
 				ref={modalRef}
 				onClick={closeModal}
-				className='absolute top-0 right-0 z-10 h-full w-full bg-gray-900 opacity-25'
+				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
 			/>
 
 			<div className='fixed top-0 right-0 z-20 w-full max-w-3xl transform translate-y-4 -translate-x-12'>
