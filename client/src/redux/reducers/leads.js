@@ -186,10 +186,15 @@ export default function (state = initialState, action) {
 			};
 		}
 		case HANDLE_LIKE_LEAD: {
-			const newLiked = liked.filter((lead) => lead._id !== payload.leadId);
+			const newLiked = liked.pageByIds.filter(
+				(lead) => lead._id !== payload.leadId
+			);
 			return {
 				...state,
-				liked: newLiked,
+				liked: {
+					...state.liked,
+					pageByIds: newLiked,
+				},
 			};
 		}
 		case SET_SEARCH_RESULTS: {

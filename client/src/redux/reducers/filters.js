@@ -8,6 +8,7 @@ import {
 	SET_WEIGHT_FILTER,
 	SET_CATEGORY_FILTER,
 	SET_PREP_FILTER,
+	CLEAR_NETPROFIT_FILTER,
 	CLEAR_BUYPRICE_FILTER,
 	CLEAR_SELLPRICE_FILTER,
 	CLEAR_ROI_FILTER,
@@ -15,7 +16,7 @@ import {
 	CLEAR_MONTHLYSALES_FILTER,
 	CLEAR_WEIGHT_FILTER,
 	CLEAR_CATEGORY_FILTER,
-	CLEAR_NETPROFIT_FILTER,
+	CLEAR_PREP_FILTER,
 	CLEAR_FILTERS,
 } from '../actions/types';
 
@@ -55,8 +56,8 @@ const initialState = {
 	// 	lb: +localStorage.getItem('lbFee') || null,
 	// },
 	prep: {
-		unit: null,
-		lb: null,
+		unit: +localStorage.getItem('unitFee') || null,
+		lb: +localStorage.getItem('lbFee') || null,
 	},
 };
 
@@ -149,8 +150,33 @@ export default function filterReducer(state = initialState, action) {
 			};
 		}
 		case SET_PREP_FILTER: {
-			const { val, type } = payload;
-			console.log(val, type);
+			const { key, value } = payload;
+			if (key === 'unit') {
+				return {
+					...state,
+					prep: {
+						unit: +value,
+						lb: null,
+					},
+				};
+			} else {
+				return {
+					...state,
+					prep: {
+						unit: null,
+						lb: +value,
+					},
+				};
+			}
+		}
+		case CLEAR_PREP_FILTER: {
+			return {
+				...state,
+				prep: {
+					unit: null,
+					lb: null,
+				},
+			};
 		}
 		case CLEAR_FILTERS: {
 			return {

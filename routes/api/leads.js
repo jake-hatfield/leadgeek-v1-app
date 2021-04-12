@@ -117,7 +117,7 @@ router.post('/', auth, async (req, res) => {
 				category,
 			},
 		} = req.body;
-		console.log(category);
+		console.log(netProfit);
 		const user = await User.findById({ _id });
 		if (!user) {
 			let message = 'There was an error finding a user with that id.';
@@ -142,7 +142,7 @@ router.post('/', auth, async (req, res) => {
 								'data.netProfit': { $gte: netProfit.min },
 							}),
 							...(netProfit.max && {
-								'data.netProfit': { $gte: netProfit.max },
+								'data.netProfit': { $lte: netProfit.max },
 							}),
 							...(netProfit.min &&
 								netProfit.max && {
@@ -168,7 +168,7 @@ router.post('/', auth, async (req, res) => {
 								'data.sellPrice': { $gte: sellPrice.min },
 							}),
 							...(sellPrice.max && {
-								'data.sellPrice': { $gte: sellPrice.max },
+								'data.sellPrice': { $lte: sellPrice.max },
 							}),
 							...(sellPrice.min &&
 								sellPrice.max && {
@@ -181,7 +181,7 @@ router.post('/', auth, async (req, res) => {
 								'data.roi': { $gte: roi.min },
 							}),
 							...(roi.max && {
-								'data.roi': { $gte: roi.max },
+								'data.roi': { $lte: roi.max },
 							}),
 							...(roi.min &&
 								roi.max && {

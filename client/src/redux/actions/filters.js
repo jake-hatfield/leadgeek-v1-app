@@ -1,4 +1,9 @@
-import { CLEAR_FILTERS, SET_CATEGORY_FILTER, SET_PREP_FILTER } from './types';
+import {
+	CLEAR_FILTERS,
+	SET_CATEGORY_FILTER,
+	SET_PREP_FILTER,
+	CLEAR_PREP_FILTER,
+} from './types';
 import { setAlert } from './alert';
 
 export const setMinMaxFilter = (min, max, val) => (dispatch) => {
@@ -60,12 +65,39 @@ export const setDropdownFilter = (newCategory) => (dispatch) => {
 	}
 };
 
-export const setPrepFilter = (val, type) => (dispatch) => {
+export const setPrepFilter = (prepFee) => (dispatch) => {
 	try {
-		dispatch({
-			type: SET_PREP_FILTER,
-			payload: { val, type },
-		});
+		const key = Object.keys(prepFee)[0];
+		const value = Object.values(prepFee)[0];
+		if (!key) {
+			return dispatch(
+				setAlert(
+					'Please input a fee associated with your prep costs.',
+					'warning'
+				)
+			);
+		} else {
+			localStorage.setItem(`${key}Fee`, value);
+			dispatch({
+				type: SET_PREP_FILTER,
+				payload: { key, value },
+			});
+			return dispatch(
+				setAlert(
+					'Item prep fees were added. Adjusted product metrics are now displayed.',
+					'success'
+				)
+			);
+		}
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const clearPrepFilter = () => (dispatch) => {
+	try {
+		dispatch({ type: CLEAR_PREP_FILTER });
+		return dispatch(setAlert('Prep costs were cleared.', 'success'));
 	} catch (error) {
 		console.log(error);
 	}

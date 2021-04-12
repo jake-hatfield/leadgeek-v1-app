@@ -39,7 +39,6 @@ const Filter = ({
 		bsr,
 		monthlySales,
 		weight,
-		category,
 	} = filters;
 	const filterItems = [
 		{

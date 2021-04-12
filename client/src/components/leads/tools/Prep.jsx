@@ -1,13 +1,20 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 
+import { connect } from 'react-redux';
+import { getLeads } from '../../../redux/actions/leads';
+import { setPrepFilter, clearPrepFilter } from '../../../redux/actions/filters';
 import { setAlert } from '../../../redux/actions/alert';
 import { useOutsideMousedown } from '../../../utils/utils';
 
-// set weight based fee
-// set per item fee
-// calc difference in row?
-
-const Prep = ({ prep, setPrep }) => {
+const Prep = ({
+	prep,
+	setPrep,
+	user,
+	filters,
+	setPrepFilter,
+	clearPrepFilter,
+	getLeads,
+}) => {
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setPrep);
 	const keyPress = useCallback(
@@ -40,7 +47,6 @@ const Prep = ({ prep, setPrep }) => {
 			}
 		}
 	};
-
 	return (
 		<article
 			ref={wrapperRef}
@@ -51,7 +57,14 @@ const Prep = ({ prep, setPrep }) => {
 					<div>
 						<h5 className='inline-block font-bold text-lg'>Prep fees</h5>
 					</div>
-					<button className='font-semibold text-sm text-purple-600 hover:text-gray-700 transition-colors duration-100 ease-in-out'>
+					<button
+						onClick={() => {
+							setPrepFilter(prepFee);
+							getLeads(user, 1, filters);
+							setPrep((prev) => !prev);
+						}}
+						className='font-semibold text-sm text-purple-600 hover:text-gray-700 transition-colors duration-100 ease-in-out'
+					>
 						Apply
 					</button>
 				</header>
@@ -72,7 +85,7 @@ const Prep = ({ prep, setPrep }) => {
 						<label>
 							{`${checked ? 'Fee per lb' : 'Fee per unit'} ($)`}
 							<input
-								name='fee'
+								name={checked ? 'lb' : 'unit'}
 								type='text'
 								placeholder={checked ? 'eg. $0.10' : 'eg. $0.95'}
 								onChange={onChange}
@@ -83,7 +96,13 @@ const Prep = ({ prep, setPrep }) => {
 				</div>
 				<div className='border-t border-gray-200'>
 					<div className='flex justify-end py-2 px-4'>
-						<button className='font-semibold text-sm text-red-500'>
+						<button
+							onClick={() => {
+								clearPrepFilter();
+								getLeads(user, 1, filters);
+							}}
+							className='font-semibold text-sm text-red-500'
+						>
 							Clear
 						</button>
 					</div>
@@ -93,4 +112,15 @@ const Prep = ({ prep, setPrep }) => {
 	);
 };
 
-export default Prep;
+const mapStateToProps = (state, ownProps) => {
+	const { prep, setPrep } = ownProps;
+	const { user } = state.auth;
+	const { filters } = state;
+	return { prep, setPrep, user, filters };
+};
+
+export default connect(mapStateToProps, {
+	setPrepFilter,
+	clearPrepFilter,
+	getLeads,
+})(Prep);

@@ -33,7 +33,7 @@ const LeadRow = ({
 	handleArchiveLead,
 	setCurrentLead,
 	unitFee,
-	weightFee,
+	lbFee,
 }) => {
 	const { data } = lead;
 	const [like, setLike] = useState(false);
@@ -77,7 +77,6 @@ const LeadRow = ({
 		handleArchiveLead(user._id, lead._id);
 		viewLead(user._id, lead._id);
 	};
-
 	return (
 		<tr
 			className='relative px-1 border-b border-gray-200 hover:bg-gray-100 transition duration-100 cursor-pointer'
@@ -119,7 +118,7 @@ const LeadRow = ({
 			<td className='p-2'>{truncate(data.category, 28)}</td>
 			<td className='p-2'>
 				<span>$</span>
-				{(data.netProfit - unitFee || weightFee || 0).toFixed(2)}
+				{(data.netProfit - unitFee || lbFee * data.weight || 0).toFixed(2)}
 				<span className='ml-1 text-gray-400 font-semibold uppercase'>USD</span>
 			</td>
 			<td className='p-2'>
@@ -290,9 +289,9 @@ LeadRow.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-	const { unit: unitFee, lb: weightFee } = state.filters.prep;
+	const { unit: unitFee, lb: lbFee } = state.filters.prep;
 	const { lead, user, showDetails, setShowDetails } = ownProps;
-	return { unitFee, weightFee, lead, user, showDetails, setShowDetails };
+	return { unitFee, lbFee, lead, user, showDetails, setShowDetails };
 };
 
 export default connect(mapStateToProps, {

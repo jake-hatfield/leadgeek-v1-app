@@ -50,14 +50,14 @@ const AdminItem = ({
 					</div>
 					<p className='mt-2 text-sm text-gray-700'>{desc}</p>
 					<div className='mt-4'>
-						<Button
-							text={buttonText}
+						<button
 							onClick={() => {
 								showPopup((prev) => !prev);
 							}}
-							cta={cta}
-							path={buttonPath}
-						/>
+							className='link text-purple-500 hover:text-purple-600 rounded-lg transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+						>
+							{buttonText}
+						</button>
 					</div>
 				</div>
 			</article>

@@ -34,7 +34,7 @@ const HelpItem = ({ title, desc, path, color, actions }) => {
 									href={action.link}
 									target='_blank'
 									rel='noopener noreferrer'
-									className='link text-purple-500 hover:text-purple-600'
+									className='link text-purple-500 hover:text-purple-600 rounded-lg transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 								>
 									{action.title}
 								</a>
@@ -75,7 +75,7 @@ const Help = () => {
 		{
 			title: 'Software',
 			desc:
-				'This software is still in early-access, so we highly encourage you to report bugs or offer feature suggestions.',
+				'This software is still in early-access, so we highly encourage you to report bugs or offer feature suggestions. Help us make this better for you!',
 			path: (
 				<path
 					fillRule='evenodd'
