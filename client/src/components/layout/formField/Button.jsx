@@ -11,7 +11,7 @@ const Button = ({ text, onClick, ref, margin, path, cta }) => {
 				cta
 					? 'bg-purple-500 hover:bg-purple-600 text-white'
 					: 'text-gray-500 hover:text-gray-600'
-			}  transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline`}
+			}  transition duration-100 ease-in-out focus:outline-none focus:shadow-outline`}
 		>
 			{path && (
 				<svg

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 
 import { DateTime } from 'luxon';
 
@@ -46,8 +46,11 @@ const HelpItem = ({ title, desc, path, color, actions }) => {
 		</Fragment>
 	);
 };
-const dt = DateTime.now().toLocaleString(DateTime.DATETIME_MED);
 const Help = () => {
+	const [currentTime, setCurrentTime] = useState(0);
+	useEffect(() => {
+		setCurrentTime(DateTime.now().toLocaleString(DateTime.DATETIME_MED));
+	}, []);
 	const helpItems = [
 		{
 			title: 'Support',
@@ -84,12 +87,12 @@ const Help = () => {
 			actions: [
 				{
 					title: 'Report a bug',
-					link: `mailto:software@leadgeek.io?subject=LeadGeek%20Bug%20Report%20${dt}`,
+					link: `mailto:software@leadgeek.io?subject=LeadGeek%20Bug%20Report%20${currentTime}`,
 					external: true,
 				},
 				{
 					title: 'Suggest a feature',
-					link: `mailto:software@leadgeek.io?subject=LeadGeek%20Feature%20Suggestion%20${dt}`,
+					link: `mailto:software@leadgeek.io?subject=LeadGeek%20Feature%20Suggestion%20${currentTime}`,
 					external: true,
 				},
 			],

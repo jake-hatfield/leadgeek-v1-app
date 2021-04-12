@@ -56,7 +56,7 @@ const Header = ({
 									name='q'
 									placeholder='Search by title, source, brand, or ASIN...'
 									onChange={onSearchChange}
-									className='py-2 pl-10 w-full rounded-lg border-none text-sm text-gray-500 placeholder-gray-400 transition-all duration-100 ease-in-out focus:outline-none hover:shadow-outline focus:shadow-outline'
+									className='py-2 pl-10 w-full rounded-lg border-none text-sm text-gray-500 placeholder-gray-400 transition duration-100 ease-in-out focus:outline-none hover:shadow-outline focus:shadow-outline'
 								/>
 								<svg
 									xmlns='http://www.w3.org/2000/svg'

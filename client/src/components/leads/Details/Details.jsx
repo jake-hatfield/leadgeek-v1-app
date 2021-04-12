@@ -118,7 +118,7 @@ const Details = ({
 	}, []);
 
 	const buttonClasses =
-		'py-2 px-3 flex items-center rounded-lg shadow-sm hover:shadow-md font-semibold text-sm hover:text-gray-500 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline';
+		'py-2 px-3 flex items-center rounded-lg shadow-sm hover:shadow-md font-semibold text-sm hover:text-gray-500 transition duration-100 ease-in-out focus:outline-none focus:shadow-outline';
 
 	const descriptorClasses = 'flex justify-between';
 	const linkClasses = 'font-semibold text-purple-600 hover:text-gray-700';
@@ -154,7 +154,7 @@ const Details = ({
 									clearCurrentLead();
 									setShowDetails(false);
 								}}
-								className='py-2 px-1 rounded-lg hover:text-gray-700 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+								className='py-2 px-1 rounded-lg hover:text-gray-700 transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 							>
 								<svg
 									xmlns='http://www.w3.org/2000/svg'
@@ -183,7 +183,7 @@ const Details = ({
 									<img
 										src={data.img}
 										alt={data.title}
-										className='rounded-lg transition-all duration-100 ease-in-out focus:outline-none hover:shadow-outline focus:shadow-outline'
+										className='rounded-lg transition duration-100 ease-in-out focus:outline-none hover:shadow-outline focus:shadow-outline'
 									></img>
 								</a>
 							</div>
@@ -333,7 +333,7 @@ const Details = ({
 																		setCopiedText(false);
 																	}, 2000);
 																}}
-																className='ml-2 text-gray-400 hover:text-gray-700 rounded-sm transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+																className='ml-2 text-gray-400 hover:text-gray-700 rounded-sm transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 															>
 																<svg
 																	xmlns='http://www.w3.org/2000/svg'

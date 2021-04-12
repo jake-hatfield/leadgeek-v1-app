@@ -10,7 +10,7 @@ const NavbarLink = ({ link, showMenu }) => {
 	return (
 		<div v-for='item in items'>
 			<NavLink
-				className='p-2 relative w-full flex items-center justify-between rounded-lg group shadow-sm hover:text-purple-600 hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+				className='p-2 relative w-full flex items-center justify-between rounded-lg group shadow-sm hover:text-purple-600 hover:shadow-md transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 				onMouseEnter={() => setHover(!hover)}
 				onMouseLeave={() => setHover(false)}
 				to={link.link}
@@ -200,7 +200,7 @@ const Navbar = ({
 						onClick={() => logoutUser(logout)}
 						onMouseEnter={() => setHover(!hover)}
 						onMouseLeave={() => setHover(false)}
-						className='p-2 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+						className='p-2 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 					>
 						<span className='text-xl font-bold'>J</span>
 					</button>

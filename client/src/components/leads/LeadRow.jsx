@@ -80,7 +80,7 @@ const LeadRow = ({
 
 	return (
 		<tr
-			className='relative px-1 border-b border-gray-200 hover:bg-gray-100 transition-all duration-100 cursor-pointer'
+			className='relative px-1 border-b border-gray-200 hover:bg-gray-100 transition duration-100 cursor-pointer'
 			onClick={() => {
 				viewDetailsHandler();
 			}}
@@ -173,7 +173,7 @@ const LeadRow = ({
 											setCurrentLead(lead);
 											setExpandedView(false);
 										}}
-										className='p-2 rounded-l-lg border-r border-gray-200 hover:text-gray-700 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										className='p-2 rounded-l-lg border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 									>
 										<svg
 											xmlns='http://www.w3.org/2000/svg'
@@ -196,7 +196,7 @@ const LeadRow = ({
 											openLinkHandler(e, data.retailerLink, data.amzLink);
 											setExpandedView(false);
 										}}
-										className='p-2 border-r border-gray-200 hover:text-gray-700 transition-all duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										className='p-2 border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 									>
 										<svg
 											xmlns='http://www.w3.org/2000/svg'
