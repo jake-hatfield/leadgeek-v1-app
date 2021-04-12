@@ -37,6 +37,7 @@ const LeadRow = ({
 }) => {
 	const { data } = lead;
 	const [like, setLike] = useState(user.likedLeads.includes(lead._id));
+	const [archive, setArchive] = useState(user.archivedLeads.includes(lead._id));
 	const [newLead, setNewLead] = useState(false);
 	const [quickView, setQuickView] = useState(false);
 	const [expandedView, setExpandedView] = useState(false);
@@ -74,6 +75,7 @@ const LeadRow = ({
 	const archiveHandler = (e) => {
 		e.stopPropagation();
 		newLead && setNewLead(false);
+		setArchive(!archive);
 		handleArchiveLead(user._id, lead._id);
 		viewLead(user._id, lead._id);
 	};
@@ -232,7 +234,7 @@ const LeadRow = ({
 									}}
 									className={buttonClasses}
 								>
-									Archive lead
+									{!archive ? 'Archive lead' : 'Unarchive lead'}
 								</button>
 							</div>
 							<div className='py-2'>

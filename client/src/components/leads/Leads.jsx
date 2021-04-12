@@ -74,7 +74,7 @@ const Leads = ({
 			onClick: () => setPrep((prev) => !prev),
 			conditional: filters.prep.unit || filters.prep.lb,
 			conditionalDisplay: (
-				<span className='h-5 w-5 absolute top-0 right-0 flex items-center justify-center rounded-full bg-purple-500 text-xs text-white border-2 border-white transform translate-x-3'>
+				<span className='h-5 w-5 absolute top-0 right-0 flex items-center justify-center rounded-full bg-purple-500 text-xs text-white border-2 border-white transform -translate-y-2 translate-x-3'>
 					1
 				</span>
 			),
