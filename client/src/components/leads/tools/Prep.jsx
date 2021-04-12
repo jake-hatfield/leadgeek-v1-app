@@ -100,6 +100,7 @@ const Prep = ({
 							onClick={() => {
 								clearPrepFilter();
 								getLeads(user, 1, filters);
+								setPrep((prev) => !prev);
 							}}
 							className='font-semibold text-sm text-red-500'
 						>

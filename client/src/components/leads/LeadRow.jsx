@@ -36,7 +36,7 @@ const LeadRow = ({
 	lbFee,
 }) => {
 	const { data } = lead;
-	const [like, setLike] = useState(false);
+	const [like, setLike] = useState(user.likedLeads.includes(lead._id));
 	const [newLead, setNewLead] = useState(false);
 	const [quickView, setQuickView] = useState(false);
 	const [expandedView, setExpandedView] = useState(false);

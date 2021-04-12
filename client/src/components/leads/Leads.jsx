@@ -13,6 +13,7 @@ import Pagination from '../layout/navigation/Pagination';
 import Details from './details/Details';
 import Button from '../layout/formField/Button';
 import { setAlert } from '../../redux/actions/alert';
+import { clearFilters } from '../../redux/actions/filters';
 
 const Leads = ({
 	headerTitle,
@@ -22,6 +23,7 @@ const Leads = ({
 	search,
 	user,
 	feed,
+	filters,
 	currentLead,
 	totalItems,
 	authLoading,
@@ -70,6 +72,12 @@ const Leads = ({
 				/>
 			),
 			onClick: () => setPrep((prev) => !prev),
+			conditional: filters.prep.unit || filters.prep.lb,
+			conditionalDisplay: (
+				<span className='h-5 w-5 absolute top-0 right-0 flex items-center justify-center rounded-full bg-purple-500 text-xs text-white border-2 border-white transform translate-x-3'>
+					1
+				</span>
+			),
 		},
 	];
 
@@ -112,6 +120,8 @@ const Leads = ({
 											text={tool.text}
 											path={tool.path}
 											onClick={tool.onClick}
+											conditional={tool.conditional}
+											conditionalDisplay={tool.conditionalDisplay}
 											margin={true}
 										/>
 									))}
@@ -168,6 +178,7 @@ const mapStateToProps = (state, ownProps) => {
 	const { leads, pagination, type, totalItems } = ownProps;
 	const { user, loading: authLoading } = state.auth;
 	const { feed, currentLead, lastUpdated, loading: leadLoading } = state.leads;
+	const { filters } = state;
 	return {
 		leads,
 		pagination,
@@ -175,6 +186,7 @@ const mapStateToProps = (state, ownProps) => {
 		user,
 		authLoading,
 		feed,
+		filters,
 		currentLead,
 		totalItems,
 		lastUpdated,

@@ -15,6 +15,7 @@ import {
 	LOADING,
 	FINISHED_LOADING,
 	HANDLE_LIKE_LEAD,
+	HANDLE_ARCHIVE_LEAD,
 } from '../actions/types';
 
 const initialState = {
@@ -186,7 +187,7 @@ export default function (state = initialState, action) {
 			};
 		}
 		case HANDLE_LIKE_LEAD: {
-			const newLiked = liked.pageByIds.filter(
+			const newLiked = state.liked.pageByIds.filter(
 				(lead) => lead._id !== payload.leadId
 			);
 			return {
@@ -194,6 +195,18 @@ export default function (state = initialState, action) {
 				liked: {
 					...state.liked,
 					pageByIds: newLiked,
+				},
+			};
+		}
+		case HANDLE_ARCHIVE_LEAD: {
+			const newArchived = state.archived.pageByIds.filter(
+				(lead) => lead._id !== payload.leadId
+			);
+			return {
+				...state,
+				archived: {
+					...state.archived,
+					pageByIds: newArchived,
 				},
 			};
 		}
