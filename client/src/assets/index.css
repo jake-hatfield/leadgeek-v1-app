@@ -7,21 +7,9 @@ html {
 	@apply font-sans;
 }
 
-.app-container {
-	@apply w-full mx-8;
-}
-
 .content {
 	@apply ml-16;
 	width: calc(100%-64px);
-}
-
-.top-nav-active {
-	@apply bg-gray-900 text-white shadow-inner;
-}
-
-.account-nav-active {
-	@apply bg-gray-100;
 }
 
 .link {
@@ -32,10 +20,6 @@ html {
 
 .link:hover {
 	text-decoration-color: #5d55fa;
-}
-
-.negative-translate-x-14 {
-	translate-x: -3.5rem;
 }
 
 .alert-success {
