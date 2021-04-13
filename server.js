@@ -18,18 +18,14 @@ app.use('/api/posts', require('./routes/api/posts'));
 app.use('/api/leads', require('./routes/api/leads'));
 app.use('/api/search', require('./routes/api/search'));
 
+console.log(__dirname);
+
 // serve static assets in production
 if (process.env.NODE_ENV === 'production') {
 	// set static folder
 	app.use(express.static(path.join(__dirname, './client/build')));
 	app.get('*', (req, res) => {
-		res.sendFile(
-			path.join(__dirname, './client/build/index.html', function (err) {
-				if (err) {
-					res.status(500).send(err);
-				}
-			})
-		);
+		res.sendFile(path.join(__dirname, './client/build/index.html'));
 	});
 }
 
