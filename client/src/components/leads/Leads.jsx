@@ -10,7 +10,7 @@ import Prep from './tools/Prep';
 import ExportButton from './tools/ExportButton';
 import LeadTable from './LeadTable';
 import Pagination from '../layout/navigation/Pagination';
-import Details from './details/Details';
+import Details from './Details';
 import Button from '../layout/formField/Button';
 import { setAlert } from '../../redux/actions/alert';
 
