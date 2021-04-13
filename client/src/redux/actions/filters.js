@@ -96,6 +96,8 @@ export const setPrepFilter = (prepFee) => (dispatch) => {
 
 export const clearPrepFilter = () => (dispatch) => {
 	try {
+		let keysToRemove = ['unitFee', 'lbFee'];
+		keysToRemove.forEach((key) => localStorage.removeItem(key));
 		dispatch({ type: CLEAR_PREP_FILTER });
 		return dispatch(setAlert('Prep costs were cleared.', 'success'));
 	} catch (error) {

@@ -120,11 +120,15 @@ const LeadRow = ({
 			<td className='p-2'>{truncate(data.category, 28)}</td>
 			<td className='p-2'>
 				<span>$</span>
-				{(data.netProfit - unitFee || lbFee * data.weight || 0).toFixed(2)}
+				{(data.netProfit - (unitFee || lbFee * data.weight || 0)).toFixed(2)}
 				<span className='ml-1 text-gray-400 font-semibold uppercase'>USD</span>
 			</td>
 			<td className='p-2'>
-				{(data.roi.toFixed(2) * 100).toFixed(0)}
+				{(
+					((data.netProfit.toFixed(2) - (unitFee || lbFee * data.weight || 0)) /
+						data.buyPrice.toFixed(2)) *
+					100
+				).toFixed(0)}
 				<span className='ml-1 text-gray-400 font-semibold'>%</span>
 			</td>
 			<td className='p-2'>
