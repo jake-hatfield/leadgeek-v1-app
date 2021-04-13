@@ -5,6 +5,7 @@ import { getLeads } from '../redux/actions/leads';
 
 import AuthLayout from '../components/layout/AuthLayout';
 import Leads from '../components/leads/Leads';
+import Spinner from '../components/layout/Spinner';
 
 const Feed = ({ user, loading, isAuthenticated, feed, filters, getLeads }) => {
 	useEffect(() => {
@@ -14,7 +15,7 @@ const Feed = ({ user, loading, isAuthenticated, feed, filters, getLeads }) => {
 			getLeads(user, feed.pagination.page, filters);
 	}, [loading, isAuthenticated, user && feed.pagination.page]);
 
-	return (
+	return !loading && user ? (
 		<AuthLayout>
 			<Leads
 				leads={feed.pageByIds}
@@ -23,6 +24,8 @@ const Feed = ({ user, loading, isAuthenticated, feed, filters, getLeads }) => {
 				type={'feed'}
 			/>
 		</AuthLayout>
+	) : (
+		<Spinner text='Loading...' />
 	);
 };
 

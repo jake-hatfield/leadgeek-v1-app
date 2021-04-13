@@ -13,7 +13,6 @@ import Pagination from '../layout/navigation/Pagination';
 import Details from './details/Details';
 import Button from '../layout/formField/Button';
 import { setAlert } from '../../redux/actions/alert';
-import { clearFilters } from '../../redux/actions/filters';
 
 const Leads = ({
 	headerTitle,
@@ -25,7 +24,6 @@ const Leads = ({
 	feed,
 	filters,
 	currentLead,
-	totalItems,
 	authLoading,
 	leadLoading,
 	getAllLeads,
@@ -35,18 +33,24 @@ const Leads = ({
 	const [showDetails, setShowDetails] = useState(false);
 	const [filter, setFilter] = useState(false);
 	const [prep, setPrep] = useState(false);
+	const likedCount = user.likedLeads.length > 0 && user.likedLeads.length;
+	const archivedCount =
+		user.archivedLeads.length > 0 && user.archivedLeads.length;
 	const primaryLinks = [
 		{
 			title: 'Feed',
 			link: '',
+			count: null,
 		},
 		{
 			title: 'Liked',
 			link: '/liked',
+			count: likedCount,
 		},
 		{
 			title: 'Archived',
 			link: '/archived',
+			count: archivedCount,
 		},
 	];
 
@@ -106,10 +110,15 @@ const Leads = ({
 											key={i}
 											exact
 											to={`/leads${link.link}`}
-											className='pb-2 first:ml-0 ml-10 font-semibold text-lg text-gray-600 hover:text-gray-900 transition-colors duration-100 ease-in-out'
+											className='relative first:ml-0 ml-10 pb-2 font-semibold text-lg text-gray-600 hover:text-gray-900 group transition-colors duration-100 ease-in-out'
 											activeClassName='text-purple-500 hover:text-purple-500 border-b-2 border-purple-600'
 										>
-											{link.title}
+											<span>{link.title}</span>
+											{link.count && (
+												<span className='h-4 w-4 absolute top-0 right-0 flex items-center justify-center rounded-full bg-purple-500 group-hover:bg-purple-600 text-xs text-white transform -translate-y-3 translate-x-5'>
+													{link.count}
+												</span>
+											)}
 										</NavLink>
 									))}
 								</div>

@@ -53,6 +53,8 @@ const Note = ({ title, desc, nullState }) => {
 const Details = ({
 	currentLead,
 	user: { _id: userId, likedLeads: liked, archivedLeads: archived },
+	unitFee,
+	lbFee,
 	showDetails,
 	setShowDetails,
 	handleLikeLead,
@@ -100,12 +102,18 @@ const Details = ({
 	const primaryMetrics = [
 		{
 			title: 'Profit',
-			value: `$${data.netProfit.toFixed(2)}`,
+			value: (data.netProfit - (unitFee || lbFee * data.weight || 0)).toFixed(
+				2
+			),
 			subvalue: 'USD',
 		},
 		{
 			title: 'ROI',
-			value: (data.roi.toFixed(2) * 100).toFixed(0),
+			value: `${(
+				((data.netProfit.toFixed(2) - (unitFee || lbFee * data.weight || 0)) /
+					data.buyPrice.toFixed(2)) *
+				100
+			).toFixed(0)}`,
 			subvalue: '%',
 		},
 		{
@@ -497,7 +505,8 @@ const Details = ({
 const mapStateToProps = (state, ownProps) => {
 	const { setShowDetails, currentLead } = ownProps;
 	const { user } = state.auth;
-	return { setShowDetails, currentLead, user };
+	const { unit: unitFee, lb: lbFee } = state.filters.prep;
+	return { setShowDetails, currentLead, user, unitFee, lbFee };
 };
 
 export default connect(mapStateToProps, {

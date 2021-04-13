@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Preloader, Oval } from 'react-preloader-icon';
 
-const Spinner = ({ search }) => {
+const Spinner = ({ search, text }) => {
 	return (
 		<div className='flex flex-col items-center justify-center mt-12'>
 			<Preloader
@@ -15,7 +15,7 @@ const Spinner = ({ search }) => {
 			/>
 			{search && (
 				<div className='mt-8 font-semibold text-gray-600'>
-					Loading results...
+					{text || 'Loading results...'}
 				</div>
 			)}
 		</div>

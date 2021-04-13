@@ -64,6 +64,7 @@ module.exports = {
 			'even',
 			'odd',
 			'hover',
+			'group-hover',
 			'focus',
 		],
 		margin: [
