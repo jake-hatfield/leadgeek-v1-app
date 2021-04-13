@@ -11,7 +11,7 @@ const AuthLayout = ({ user, children }) => {
 			<Alert />
 			<div className='min-h-screen relative flex'>
 				{user && <Navbar />}
-				<main className='h-full content'>{children}</main>
+				<main className='h-full w-full content'>{children}</main>
 			</div>
 		</Fragment>
 	);
