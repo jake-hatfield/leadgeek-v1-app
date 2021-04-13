@@ -4,6 +4,8 @@
 	"description": "The web application for LeadGeek's arbitrage sourcing service.",
 	"main": "server.js",
 	"scripts": {
+		"build": "cd client && npm run build",
+		"install": "cd client && npm install",
 		"start": "node -r dotenv/config server",
 		"server": "nodemon server",
 		"client": "npm start --prefix client",
