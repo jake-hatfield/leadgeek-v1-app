@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getLikedLeads } from '../redux/actions/leads';
 
@@ -16,14 +17,23 @@ const Liked = ({ user, loading, liked, getLikedLeads }) => {
 				leads={liked.pageByIds}
 				pagination={liked.pagination}
 				type={'liked'}
+				user={user}
+				loading={loading}
 			/>
 		</AuthLayout>
 	);
 };
 
+Liked.propTypes = {
+	user: PropTypes.object.isRequired,
+	loading: PropTypes.bool.isRequired,
+	liked: PropTypes.object.isRequired,
+	getLikedLeads: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = (state) => {
-	const { user } = state.auth;
-	const { loading, liked } = state.leads;
+	const { user, loading } = state.auth;
+	const { liked } = state.leads;
 	return { user, loading, liked };
 };
 

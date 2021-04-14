@@ -1,9 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
 
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { DateTime } from 'luxon';
 
 import AuthLayout from '../components/layout/AuthLayout';
 import Header from '../components/layout/navigation/Header';
+import Spinner from '../components/layout/Spinner';
 
 const HelpItem = ({ title, desc, path, color, actions }) => {
 	return (
@@ -46,7 +49,17 @@ const HelpItem = ({ title, desc, path, color, actions }) => {
 		</Fragment>
 	);
 };
-const Help = () => {
+
+HelpItem.propTypes = {
+	title: PropTypes.string.isRequired,
+	desc: PropTypes.string.isRequired,
+	path: PropTypes.object.isRequired,
+	color: PropTypes.string.isRequired,
+	actions: PropTypes.array.isRequired,
+};
+
+const Help = ({ user, loading }) => {
+	const { _id: userId, role } = user;
 	const [currentTime, setCurrentTime] = useState(0);
 	useEffect(() => {
 		setCurrentTime(DateTime.now().toLocaleString(DateTime.DATETIME_MED));
@@ -98,33 +111,49 @@ const Help = () => {
 			],
 		},
 	];
+
 	return (
 		<AuthLayout>
-			<section className='my-6'>
-				<Header title={'Help panel'} />
-				<div className='mt-6 container'>
-					<div>
-						<h2 className='font-semibold text-xl text-gray-900'>Resources</h2>
-						<p>
-							Use these resources to get help or offer feedback on our software.
-						</p>
+			{!loading ? (
+				<section className='my-6'>
+					<Header title={'Help panel'} _id={userId} role={role} />
+					<div className='mt-6 container'>
+						<div>
+							<h2 className='font-semibold text-xl text-gray-900'>Resources</h2>
+							<p>
+								Use these resources to get help or offer feedback on our
+								software.
+							</p>
+						</div>
+						<div className='mt-6 grid grid-cols-3 border-t border-b border-gray-200'>
+							{helpItems.map((item, i) => (
+								<HelpItem
+									key={i}
+									title={item.title}
+									desc={item.desc}
+									path={item.path}
+									color={item.color}
+									actions={item.actions}
+								/>
+							))}
+						</div>
 					</div>
-					<div className='mt-6 grid grid-cols-3 border-t border-b border-gray-200'>
-						{helpItems.map((item, i) => (
-							<HelpItem
-								key={i}
-								title={item.title}
-								desc={item.desc}
-								path={item.path}
-								color={item.color}
-								actions={item.actions}
-							/>
-						))}
-					</div>
-				</div>
-			</section>
+				</section>
+			) : (
+				<Spinner />
+			)}
 		</AuthLayout>
 	);
 };
 
-export default Help;
+Help.propTypes = {
+	user: PropTypes.object.isRequired,
+	loading: PropTypes.bool.isRequired,
+};
+
+const mapStateToProps = (state) => {
+	const { user, loading } = state.auth;
+	return { user, loading };
+};
+
+export default connect(mapStateToProps)(Help);

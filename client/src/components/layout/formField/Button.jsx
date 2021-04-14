@@ -1,5 +1,7 @@
 import React from 'react';
 
+import PropTypes from 'prop-types';
+
 const Button = ({
 	text,
 	onClick,
@@ -36,6 +38,17 @@ const Button = ({
 			{conditional && conditionalDisplay}
 		</button>
 	);
+};
+
+Button.propTypes = {
+	text: PropTypes.string.isRequired,
+	onClick: PropTypes.func,
+	ref: PropTypes.any,
+	conditional: PropTypes.any,
+	conditionalDisplay: PropTypes.object,
+	margin: PropTypes.bool,
+	path: PropTypes.object,
+	cta: PropTypes.bool,
 };
 
 export default Button;

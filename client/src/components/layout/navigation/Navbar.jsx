@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+
+import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from '../../../redux/actions/auth';
 
 import AltDropdown from './AltDropdown';
+import { ReactComponent as LeadGeekLogo } from '../../../assets/images/svgs/leadgeek-logo-light.svg';
 
 const NavbarLink = ({ link, showMenu }) => {
 	const [hover, setHover] = useState(false);
@@ -43,13 +46,12 @@ const NavbarLink = ({ link, showMenu }) => {
 	);
 };
 
-const Navbar = ({
-	auth: {
-		user: { _id, role },
-		loading,
-	},
-	logout,
-}) => {
+NavbarLink.propTypes = {
+	link: PropTypes.object.isRequired,
+	showMenu: PropTypes.bool,
+};
+
+const Navbar = ({ _id, role, loading, logout }) => {
 	// state & local storage
 	const [hover, setHover] = useState(false);
 	const [userDropdown, setUserDropdown] = useState(false);
@@ -202,7 +204,9 @@ const Navbar = ({
 						onMouseLeave={() => setHover(false)}
 						className='p-2 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 					>
-						<span className='text-xl font-bold'>J</span>
+						<span className='h-6 w-6 text-xl font-bold'>
+							<LeadGeekLogo />
+						</span>
 					</button>
 					{userDropdown && (
 						<div className='absolute z-10 bottom-0 right-0 transform translate-x-48 text-gray-600'>
@@ -223,9 +227,10 @@ const Navbar = ({
 	);
 };
 
-const mapStateToProps = (state) => {
-	const { auth } = state;
-	return { auth };
+Navbar.propTypes = {
+	_id: PropTypes.string.isRequired,
+	role: PropTypes.string.isRequired,
+	loading: PropTypes.bool.isRequired,
 };
 
-export default connect(mapStateToProps, { logout })(Navbar);
+export default connect(null, { logout })(Navbar);

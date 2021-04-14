@@ -1,20 +1,21 @@
 import React from 'react';
 
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getLeads } from '../redux/actions/leads';
 
 import AuthLayout from '../components/layout/AuthLayout';
 import Leads from '../components/leads/Leads';
 
-const Search = ({ search }) => {
+const Search = ({ user, search }) => {
 	return (
 		<AuthLayout>
 			<section className='my-6'>
 				<Leads
-					headerTitle={'Search results'}
 					leads={search.pageByIds}
-					totalItems={search.length}
 					type={'search'}
+					user={user}
+					headerTitle={'Search results'}
 					search={true}
 				/>
 			</section>
@@ -22,9 +23,15 @@ const Search = ({ search }) => {
 	);
 };
 
+Search.propTypes = {
+	user: PropTypes.object.isRequired,
+	search: PropTypes.object.isRequired,
+};
+
 const mapStateToProps = (state) => {
+	const { user } = state.auth;
 	const { search } = state.leads;
-	return { search };
+	return { user, search };
 };
 
 export default connect(mapStateToProps, { getLeads })(Search);

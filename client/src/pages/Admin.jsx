@@ -1,8 +1,8 @@
 import React, { Fragment, useState, useRef } from 'react';
 
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { exportLeads } from '../redux/actions/leads';
-import { getAllUsers } from '../redux/actions/auth';
 
 import { useOutsideMousedown } from '../utils/utils';
 import AuthLayout from '../components/layout/AuthLayout';
@@ -16,9 +16,6 @@ const AdminItem = ({
 	path,
 	color,
 	buttonText,
-	buttonPath,
-	onClick,
-	cta,
 	popupHeading,
 	popupContent,
 }) => {
@@ -94,7 +91,18 @@ const AdminItem = ({
 	);
 };
 
-const Admin = ({ user, loading, exportLeads, getAllUsers }) => {
+AdminItem.propTypes = {
+	title: PropTypes.string.isRequired,
+	desc: PropTypes.string.isRequired,
+	path: PropTypes.object.isRequired,
+	color: PropTypes.string.isRequired,
+	buttonText: PropTypes.string.isRequired,
+	popupHeading: PropTypes.string.isRequired,
+	popupContent: PropTypes.object.isRequired,
+};
+
+const Admin = ({ user, loading, exportLeads }) => {
+	const { _id: userId, role } = user;
 	const adminItems = [
 		{
 			title: 'Export leads',
@@ -188,7 +196,7 @@ const Admin = ({ user, loading, exportLeads, getAllUsers }) => {
 			{!loading ? (
 				user.role === 'admin' ? (
 					<section className='my-6'>
-						<Header title={'Admin panel'} />
+						<Header title={'Admin panel'} _id={userId} role={role} />
 						<div className='mt-6 container'>
 							<div>
 								<h2 className='font-semibold text-xl text-gray-900'>
@@ -226,9 +234,15 @@ const Admin = ({ user, loading, exportLeads, getAllUsers }) => {
 	);
 };
 
+Admin.propTypes = {
+	user: PropTypes.object.isRequired,
+	loading: PropTypes.bool.isRequired,
+	exportLeads: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = (state) => {
 	const { user, loading } = state.auth;
 	return { user, loading };
 };
 
-export default connect(mapStateToProps, { exportLeads, getAllUsers })(Admin);
+export default connect(mapStateToProps, { exportLeads })(Admin);

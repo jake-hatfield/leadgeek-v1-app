@@ -1,5 +1,6 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getLeads } from '../../../redux/actions/leads';
 import { setPrepFilter, clearPrepFilter } from '../../../redux/actions/filters';
@@ -111,6 +112,16 @@ const Prep = ({
 			</div>
 		</article>
 	);
+};
+
+Prep.propTypes = {
+	prep: PropTypes.bool.isRequired,
+	setPrep: PropTypes.func.isRequired,
+	user: PropTypes.object.isRequired,
+	filters: PropTypes.object.isRequired,
+	setPrepFilter: PropTypes.func.isRequired,
+	clearPrepFilter: PropTypes.func.isRequired,
+	getLeads: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => {

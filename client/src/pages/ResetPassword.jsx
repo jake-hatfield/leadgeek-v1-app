@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 
+import PropTypes from 'prop-types';
 import { Redirect, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { resetPasswordValidation, updatePassword } from '../redux/actions/auth';
@@ -94,6 +95,13 @@ const ResetPasswordPage = ({
 			)}
 		</Layout>
 	);
+};
+
+ResetPasswordPage.propTypes = {
+	isAuthenticated: PropTypes.bool.isRequired,
+	loading: PropTypes.bool.isRequired,
+	validatedResetPasswordToken: PropTypes.bool.isRequired,
+	resetPasswordValidation: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({

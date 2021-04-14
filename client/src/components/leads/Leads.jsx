@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from 'react';
 
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getAllLeads, clearCurrentLead } from '../../redux/actions/leads';
 import { NavLink } from 'react-router-dom';
@@ -15,17 +16,16 @@ import Button from '../layout/formField/Button';
 import { setAlert } from '../../redux/actions/alert';
 
 const Leads = ({
-	headerTitle,
 	leads,
 	pagination,
 	type,
-	search,
 	user,
+	authLoading,
 	feed,
 	filters,
-	currentLead,
-	authLoading,
 	leadLoading,
+	currentLead,
+	search,
 	getAllLeads,
 	clearCurrentLead,
 }) => {
@@ -33,9 +33,10 @@ const Leads = ({
 	const [showDetails, setShowDetails] = useState(false);
 	const [filter, setFilter] = useState(false);
 	const [prep, setPrep] = useState(false);
-	const likedCount = user.likedLeads.length > 0 && user.likedLeads.length;
+	const { _id: userId, role, likedLeads, archivedLeads } = user;
+	const likedCount = likedLeads && likedLeads.length > 0 && likedLeads.length;
 	const archivedCount =
-		user.archivedLeads.length > 0 && user.archivedLeads.length;
+		archivedLeads && archivedLeads.length > 0 && archivedLeads.length;
 	const primaryLinks = [
 		{
 			title: 'Feed',
@@ -100,7 +101,7 @@ const Leads = ({
 		user && (
 			<Fragment>
 				<section className='relative my-6'>
-					<Header title={headerTitle} searchActive={true} />
+					<Header searchActive={true} _id={userId} role={role} />
 					{!search && (
 						<nav className='mt-6 container'>
 							<div className='relative flex items-end justify-between pb-2 border-b border-gray-200'>
@@ -148,8 +149,8 @@ const Leads = ({
 											margin={true}
 										/>
 									)}
-									{filter && <Filter setFilter={setFilter} filter={filter} />}
-									{prep && <Prep setPrep={setPrep} prep={prep} />}
+									{filter && <Filter filter={filter} setFilter={setFilter} />}
+									{prep && <Prep prep={prep} setPrep={setPrep} />}
 									{exportLeads && feed.totalByIds && (
 										<ExportButton
 											user={user}
@@ -168,14 +169,19 @@ const Leads = ({
 						setShowDetails={setShowDetails}
 						user={user}
 					/>
-					{!search && <Pagination pagination={pagination} type={type} />}
+					{!search && pagination && (
+						<Pagination pagination={pagination} type={type} />
+					)}
 				</section>
 				{showDetails && currentLead && (
 					<Details
-						clearCurrentLead={clearCurrentLead}
+						currentLead={currentLead}
+						userId={userId}
+						liked={likedLeads}
+						archived={archivedLeads}
 						showDetails={showDetails}
 						setShowDetails={setShowDetails}
-						currentLead={currentLead}
+						clearCurrentLead={clearCurrentLead}
 					/>
 				)}
 			</Fragment>
@@ -183,10 +189,24 @@ const Leads = ({
 	);
 };
 
+Leads.propTypes = {
+	leads: PropTypes.array.isRequired,
+	pagination: PropTypes.object.isRequired,
+	type: PropTypes.string.isRequired,
+	user: PropTypes.object.isRequired,
+	authLoading: PropTypes.bool.isRequired,
+	feed: PropTypes.object.isRequired,
+	filters: PropTypes.object.isRequired,
+	leadLoading: PropTypes.bool.isRequired,
+	currentLead: PropTypes.object,
+	search: PropTypes.bool,
+	getAllLeads: PropTypes.func.isRequired,
+	clearCurrentLead: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = (state, ownProps) => {
-	const { leads, pagination, type, totalItems } = ownProps;
-	const { user, loading: authLoading } = state.auth;
-	const { feed, currentLead, lastUpdated, loading: leadLoading } = state.leads;
+	const { leads, pagination, type, user, loading: authLoading } = ownProps;
+	const { feed, currentLead, loading: leadLoading } = state.leads;
 	const { filters } = state;
 	return {
 		leads,
@@ -196,14 +216,12 @@ const mapStateToProps = (state, ownProps) => {
 		authLoading,
 		feed,
 		filters,
-		currentLead,
-		totalItems,
-		lastUpdated,
 		leadLoading,
+		currentLead,
 	};
 };
 
 export default connect(mapStateToProps, {
-	clearCurrentLead,
 	getAllLeads,
+	clearCurrentLead,
 })(Leads);

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import PropTypes from 'prop-types';
 import { Preloader, Oval } from 'react-preloader-icon';
 
 const Spinner = ({ search, text }) => {
@@ -20,6 +21,11 @@ const Spinner = ({ search, text }) => {
 			)}
 		</div>
 	);
+};
+
+Spinner.propTypes = {
+	search: PropTypes.bool,
+	text: PropTypes.string,
 };
 
 export default Spinner;

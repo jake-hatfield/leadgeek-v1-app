@@ -6,6 +6,7 @@ import React, {
 	useState,
 } from 'react';
 
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
 	handleLikeLead,
@@ -33,6 +34,12 @@ const PrimaryMetric = ({ title, value, subvalue }) => {
 	);
 };
 
+PrimaryMetric.propTypes = {
+	title: PropTypes.string.isRequired,
+	value: PropTypes.number.isRequired,
+	subvalue: PropTypes.string.isRequired,
+};
+
 const Note = ({ title, desc, nullState }) => {
 	return (
 		<div className='flex items-end justify-between mt-2 pb-2 border-b border-gray-200'>
@@ -50,9 +57,17 @@ const Note = ({ title, desc, nullState }) => {
 	);
 };
 
+Note.propTypes = {
+	title: PropTypes.string.isRequired,
+	desc: PropTypes.string.isRequired,
+	nullState: PropTypes.string.isRequired,
+};
+
 const Details = ({
 	currentLead,
-	user: { _id: userId, likedLeads: liked, archivedLeads: archived },
+	userId,
+	liked,
+	archived,
 	unitFee,
 	lbFee,
 	showDetails,
@@ -102,14 +117,14 @@ const Details = ({
 	const primaryMetrics = [
 		{
 			title: 'Profit',
-			value: (data.netProfit - (unitFee || lbFee * data.weight || 0)).toFixed(
+			value: +(data.netProfit - (unitFee || lbFee * data.weight || 0)).toFixed(
 				2
 			),
 			subvalue: 'USD',
 		},
 		{
 			title: 'ROI',
-			value: `${(
+			value: +`${(
 				((data.netProfit.toFixed(2) - (unitFee || lbFee * data.weight || 0)) /
 					data.buyPrice.toFixed(2)) *
 				100
@@ -118,7 +133,7 @@ const Details = ({
 		},
 		{
 			title: 'Estimated sales',
-			value: numberWithCommas(data.monthlySales),
+			value: +numberWithCommas(data.monthlySales),
 			subvalue: '/ month',
 		},
 	];
@@ -501,11 +516,40 @@ const Details = ({
 	);
 };
 
+Details.propTypes = {
+	currentLead: PropTypes.object.isRequired,
+	userId: PropTypes.string.isRequired,
+	liked: PropTypes.array.isRequired,
+	archived: PropTypes.array.isRequired,
+	unitFee: PropTypes.number,
+	lbFee: PropTypes.number,
+	showDetails: PropTypes.bool.isRequired,
+	setShowDetails: PropTypes.func.isRequired,
+	handleLikeLead: PropTypes.func.isRequired,
+	handleArchiveLead: PropTypes.func.isRequired,
+	clearCurrentLead: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = (state, ownProps) => {
-	const { setShowDetails, currentLead } = ownProps;
-	const { user } = state.auth;
 	const { unit: unitFee, lb: lbFee } = state.filters.prep;
-	return { setShowDetails, currentLead, user, unitFee, lbFee };
+	const {
+		currentLead,
+		userId,
+		liked,
+		archived,
+		showDetails,
+		setShowDetails,
+	} = ownProps;
+	return {
+		currentLead,
+		userId,
+		liked,
+		archived,
+		unitFee,
+		lbFee,
+		showDetails,
+		setShowDetails,
+	};
 };
 
 export default connect(mapStateToProps, {

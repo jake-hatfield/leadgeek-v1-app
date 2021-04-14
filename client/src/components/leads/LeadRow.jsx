@@ -290,8 +290,16 @@ const LeadRow = ({
 };
 
 LeadRow.propTypes = {
+	lead: PropTypes.object.isRequired,
+	user: PropTypes.object.isRequired,
 	viewLead: PropTypes.func.isRequired,
+	showDetails: PropTypes.bool.isRequired,
+	setShowDetails: PropTypes.func.isRequired,
+	handleLikeLead: PropTypes.func.isRequired,
+	handleArchiveLead: PropTypes.func.isRequired,
 	setCurrentLead: PropTypes.func.isRequired,
+	unitFee: PropTypes.number,
+	lbFee: PropTypes.number,
 };
 
 const mapStateToProps = (state, ownProps) => {

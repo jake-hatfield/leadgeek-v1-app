@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getSearchResults } from '../../../redux/actions/leads';
 import { useLocation } from 'react-router-dom';
@@ -7,7 +8,8 @@ import { useLocation } from 'react-router-dom';
 import { Redirect } from 'react-router';
 
 const Header = ({
-	user: { _id, role },
+	_id,
+	role,
 	search: { page },
 	title,
 	searchActive,
@@ -81,11 +83,19 @@ const Header = ({
 	);
 };
 
+Header.propTypes = {
+	_id: PropTypes.string.isRequired,
+	role: PropTypes.string.isRequired,
+	page: PropTypes.number,
+	title: PropTypes.string,
+	searchActive: PropTypes.bool,
+	getSearchResults: PropTypes.func,
+};
+
 const mapStateToProps = (state, ownProps) => {
-	const { user } = state.auth;
 	const { search } = state.leads;
-	const { title } = ownProps;
-	return { user, search, title };
+	const { _id, role, title } = ownProps;
+	return { _id, role, search, title };
 };
 
 export default connect(mapStateToProps, { getSearchResults })(Header);

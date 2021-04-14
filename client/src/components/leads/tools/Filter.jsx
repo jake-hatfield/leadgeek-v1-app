@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import FilterItem from './FilterItem';
@@ -10,8 +11,8 @@ import { clearFilters } from '../../../redux/actions/filters';
 const Filter = ({
 	user,
 	filters,
-	setFilter,
 	filter,
+	setFilter,
 	getLeads,
 	clearFilters,
 }) => {
@@ -99,19 +100,16 @@ const Filter = ({
 		},
 		{
 			title: 'Category',
-			subtitle: 'Choose a category',
-			subtitleValue: null,
+			subtitle: 'Select a category',
 		},
 	];
-	useEffect(() => {
-		const filterCount = [netProfit, buyPrice];
-		const activeFilters = filterCount.reduce(
-			(r, o) => r + +!Object.values(o).includes(null),
-			0
-		);
-		console.log(filterCount);
-		console.log(activeFilters);
-	}, [netProfit, buyPrice]);
+	// useEffect(() => {
+	// 	const filterCount = [netProfit, buyPrice];
+	// 	const activeFilters = filterCount.reduce(
+	// 		(r, o) => r + +!Object.values(o).includes(null),
+	// 		0
+	// 	);
+	// }, [netProfit, buyPrice]);
 
 	return (
 		<article
@@ -159,10 +157,20 @@ const Filter = ({
 	);
 };
 
-const mapStateToProps = (state) => {
+Filter.propTypes = {
+	user: PropTypes.object.isRequired,
+	filters: PropTypes.object.isRequired,
+	filter: PropTypes.bool.isRequired,
+	setFilter: PropTypes.func.isRequired,
+	getLeads: PropTypes.func.isRequired,
+	clearFilters: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state, ownProps) => {
 	const { user } = state.auth;
 	const { filters } = state;
-	return { user, filters };
+	const { filter, setFilter } = ownProps;
+	return { user, filters, filter, setFilter };
 };
 
 export default connect(mapStateToProps, { getLeads, clearFilters })(Filter);

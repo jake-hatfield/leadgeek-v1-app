@@ -1,7 +1,7 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { setAlert } from '../../redux/actions/alert';
 import { cancelStripeSub } from '../../redux/actions/auth';
@@ -216,7 +216,7 @@ const Dashboard = ({
 				'danger'
 			);
 		}
-		let subscriptionId = user.subId[0].id;
+
 		// cancels subscription in stripe and updates to 'canceled' status in db
 		cancelStripeSub(customerId, 'sub_IvxscYyUQVlmT7');
 	};
@@ -349,6 +349,8 @@ const Dashboard = ({
 
 Dashboard.propTypes = {
 	auth: PropTypes.object.isRequired,
+	cancelStripeSub: PropTypes.func.isRequired,
+	setAlert: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({

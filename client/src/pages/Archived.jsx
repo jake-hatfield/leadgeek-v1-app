@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getArchivedLeads } from '../redux/actions/leads';
 
@@ -15,9 +17,18 @@ const Archived = ({ user, loading, archived, getArchivedLeads }) => {
 				leads={archived.pageByIds}
 				pagination={archived.pagination}
 				type={'archived'}
+				user={user}
+				loading={loading}
 			/>
 		</AuthLayout>
 	);
+};
+
+Archived.propTypes = {
+	user: PropTypes.object.isRequired,
+	loading: PropTypes.bool.isRequired,
+	archived: PropTypes.object.isRequired,
+	getArchivedLeads: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => {

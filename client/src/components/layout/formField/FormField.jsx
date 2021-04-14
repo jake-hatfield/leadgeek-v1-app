@@ -1,5 +1,7 @@
 import React from 'react';
 
+import PropTypes from 'prop-types';
+
 const FormField = ({
 	padding,
 	label,
@@ -34,6 +36,18 @@ const FormField = ({
 			</div>
 		</div>
 	);
+};
+
+FormField.propTypes = {
+	padding: PropTypes.string,
+	label: PropTypes.string,
+	labelSize: PropTypes.string,
+	type: PropTypes.string.isRequired,
+	name: PropTypes.string,
+	placeholder: PropTypes.string,
+	required: PropTypes.bool,
+	onChange: PropTypes.func,
+	disabled: PropTypes.bool,
 };
 
 export default FormField;

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { setAlert } from '../../../redux/actions/alert';
 import {
@@ -258,7 +259,7 @@ const FilterItem = ({
 						) : (
 							<div className='mt-3'>
 								<div className='font-semibold text-sm text-gray-700'>
-									Select a category
+									{subtitle}
 								</div>
 								<select
 									value={selectValue}
@@ -290,6 +291,19 @@ const FilterItem = ({
 			</div>
 		</div>
 	);
+};
+
+FilterItem.propTypes = {
+	title: PropTypes.string.isRequired,
+	subtitle: PropTypes.string,
+	subtitleValue: PropTypes.string,
+	minDefault: PropTypes.number,
+	maxDefault: PropTypes.number,
+	val: PropTypes.string,
+	setAlert: PropTypes.func.isRequired,
+	setMinMaxFilter: PropTypes.func.isRequired,
+	setDropdownFilter: PropTypes.func.isRequired,
+	clearMinMaxFilter: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => {

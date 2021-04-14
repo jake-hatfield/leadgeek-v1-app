@@ -1,14 +1,15 @@
 import React from 'react';
 
+import PropTypes from 'prop-types';
 import LeadRow from './LeadRow';
 import Spinner from '../layout/Spinner';
 
 const LeadTable = ({
-	loading,
 	leads,
+	loading,
+	user,
 	showDetails,
 	setShowDetails,
-	user,
 	search,
 }) => {
 	return (
@@ -50,6 +51,15 @@ const LeadTable = ({
 			)}
 		</section>
 	);
+};
+
+LeadTable.propTypes = {
+	leads: PropTypes.array.isRequired,
+	loading: PropTypes.bool.isRequired,
+	user: PropTypes.object.isRequired,
+	showDetails: PropTypes.bool.isRequired,
+	setShowDetails: PropTypes.func.isRequired,
+	search: PropTypes.bool,
 };
 
 export default LeadTable;
