@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 
 export function useStickyState(defaultValue, key) {
 	const [value, setValue] = React.useState(() => {
@@ -101,7 +101,7 @@ export const useOutsideMousedown = (ref, setState_1, setState_2) => {
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [ref]);
+	}, [ref, setState_1, setState_2]);
 };
 
 export const useOutsideMouseup = (ref, setState_1, setState_2) => {
@@ -118,5 +118,5 @@ export const useOutsideMouseup = (ref, setState_1, setState_2) => {
 		return () => {
 			document.removeEventListener('mouseup', handleClickOutside);
 		};
-	}, [ref]);
+	}, [ref, setState_1, setState_2]);
 };

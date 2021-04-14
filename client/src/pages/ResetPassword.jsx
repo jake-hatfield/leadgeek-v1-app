@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import { Redirect, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';

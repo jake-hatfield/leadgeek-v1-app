@@ -145,7 +145,6 @@ const Details = ({
 				onClick={closeModal}
 				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
 			/>
-
 			<div className='fixed top-0 right-0 z-20 w-full max-w-3xl transform translate-y-4 -translate-x-12'>
 				<div className='relative z-40 pt-6 pb-10 px-6 rounded-lg shadow-xl bg-white opacity-100'>
 					<header className='flex items-center justify-between border-b border-gray-200'>

@@ -22,7 +22,7 @@ const initialState = {
 	validatedResetPasswordToken: false,
 };
 
-export default function (state = initialState, action) {
+export default function authReducer(state = initialState, action) {
 	const { type, payload } = action;
 	switch (type) {
 		case USER_LOADED:

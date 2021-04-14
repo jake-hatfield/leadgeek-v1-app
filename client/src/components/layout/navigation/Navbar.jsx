@@ -53,7 +53,7 @@ const Navbar = ({
 	// state & local storage
 	const [hover, setHover] = useState(false);
 	const [userDropdown, setUserDropdown] = useState(false);
-	const [activeSubscription, setActiveSubscription] = useState('');
+	const [activeSubscription] = useState('');
 	// primary links
 	const svgClass = 'h6 w-6';
 	const primaryLinks = [

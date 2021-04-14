@@ -8,12 +8,11 @@ import Leads from '../components/leads/Leads';
 import Spinner from '../components/layout/Spinner';
 
 const Feed = ({ user, loading, isAuthenticated, feed, filters, getLeads }) => {
+	const { page } = feed.pagination;
+	const userAndPage = user && page;
 	useEffect(() => {
-		!loading &&
-			isAuthenticated &&
-			user &&
-			getLeads(user, feed.pagination.page, filters);
-	}, [loading, isAuthenticated, user && feed.pagination.page]);
+		!loading && isAuthenticated && user && getLeads(user, page, filters);
+	}, [loading, isAuthenticated, userAndPage]);
 
 	return !loading && user ? (
 		<AuthLayout>

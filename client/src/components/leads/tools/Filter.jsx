@@ -39,7 +39,6 @@ const Filter = ({
 		bsr,
 		monthlySales,
 		weight,
-		category,
 	} = filters;
 	const filterItems = [
 		{
@@ -104,15 +103,15 @@ const Filter = ({
 			subtitleValue: null,
 		},
 	];
-	const filterCount = [netProfit, buyPrice];
 	useEffect(() => {
+		const filterCount = [netProfit, buyPrice];
 		const activeFilters = filterCount.reduce(
 			(r, o) => r + +!Object.values(o).includes(null),
 			0
 		);
 		console.log(filterCount);
 		console.log(activeFilters);
-	}, [filterCount]);
+	}, [netProfit, buyPrice]);
 
 	return (
 		<article

@@ -224,20 +224,7 @@ export const setPage = (page, type) => (dispatch) => {
 	}
 };
 
-export const getSearchResults = (search, _id, role, page) => async (
-	dispatch
-) => {
-	let plan;
-	if (role === 'admin') {
-		plan = 'bundle_1';
-	} else {
-		plan = role;
-	}
-	const body = JSON.stringify({
-		_id,
-		plan,
-		page,
-	});
+export const getSearchResults = (search, _id) => async (dispatch) => {
 	const { data } = await axios.get('/api/search', { params: { q: search } });
 	dispatch({
 		type: SET_SEARCH_RESULTS,

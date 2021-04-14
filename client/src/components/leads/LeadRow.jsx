@@ -55,7 +55,7 @@ const LeadRow = ({
 				break;
 			}
 		}
-	}, [user]);
+	}, [user, lead._id]);
 	const datePosted = DateTime.fromISO(data.date).toFormat('LLL dd');
 	const viewDetailsHandler = () => {
 		newLead && setNewLead(false);

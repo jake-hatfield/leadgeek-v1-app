@@ -2,9 +2,7 @@ import {
 	GET_LEADS,
 	GET_ALL_LEADS,
 	GET_LIKED_LEADS,
-	GET_ALL_LIKED_LEADS,
 	GET_ARCHIVED_LEADS,
-	GET_ALL_ARCHIVED_LEADS,
 	SET_SEARCH_RESULTS,
 	NO_LEAD_RESULTS,
 	SET_CURRENT_LEAD,
@@ -80,8 +78,7 @@ const initialState = {
 	loading: true,
 };
 
-export default function (state = initialState, action) {
-	const { liked } = state;
+export default function leadsReducer(state = initialState, action) {
 	const { type, payload } = action;
 	switch (type) {
 		case USER_LOADED: {

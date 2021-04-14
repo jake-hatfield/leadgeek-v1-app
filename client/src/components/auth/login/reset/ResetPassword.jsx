@@ -77,7 +77,7 @@ const ResetPassword = ({
 	const onChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
-	const terriblePasswords = [
+	const passwordList = [
 		'123456',
 		'password',
 		'12345678',
@@ -180,6 +180,7 @@ const ResetPassword = ({
 		'matrix',
 		'minecraft',
 	];
+	const [terriblePasswords] = useState(passwordList);
 	useEffect(() => {
 		if (password_1 || password_2) {
 			setCommonPasswordValidated(false);

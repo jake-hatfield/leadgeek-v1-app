@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 
 import PropTypes from 'prop-types';
 import { Redirect, NavLink } from 'react-router-dom';
@@ -24,7 +24,7 @@ const Login = ({ login, isAuthenticated }) => {
 	};
 
 	if (isAuthenticated) {
-		return <Redirect to='/' />;
+		return <Redirect to='/leads' />;
 	}
 	return (
 		<Layout>
