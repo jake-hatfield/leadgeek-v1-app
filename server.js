@@ -18,16 +18,26 @@ app.use('/api/posts', require('./routes/api/posts'));
 app.use('/api/leads', require('./routes/api/leads'));
 app.use('/api/search', require('./routes/api/search'));
 
+function redirectWwwTraffic(req, res, next) {
+	if (req.headers.host.slice(0, 4) === 'www.') {
+		var newHost = req.headers.host.slice(4);
+		return res.redirect(301, req.protocol + '://' + newHost + req.originalUrl);
+	}
+	next();
+}
+
 // serve static assets in production
 if (process.env.NODE_ENV === 'production') {
-	// set static folder
-	app.use(express.static(path.join(__dirname, './client/build')));
 	// force https
 	app.use((req, res, next) => {
 		if (req.header('x-forwarded-proto') !== 'https')
 			res.redirect(`https://${req.header('host')}${req.url}`);
 		else next();
 	});
+	// 301 www to non-www
+	app.use(redirectWwwTraffic);
+	// set static folder
+	app.use(express.static(path.join(__dirname, './client/build')));
 	app.get('*', (req, res) => {
 		res.sendFile(path.join(__dirname, './client/build/index.html'));
 	});
