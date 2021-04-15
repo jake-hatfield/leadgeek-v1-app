@@ -13,7 +13,7 @@ import LeadTable from './LeadTable';
 import Pagination from '../layout/navigation/Pagination';
 import Details from './Details';
 import Button from '../layout/formField/Button';
-import { setAlert } from '../../redux/actions/alert';
+import { setAlert } from 'redux/actions/alert';
 
 const Leads = ({
 	leads,

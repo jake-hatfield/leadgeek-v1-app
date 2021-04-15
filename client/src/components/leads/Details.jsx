@@ -12,7 +12,7 @@ import {
 	handleLikeLead,
 	handleArchiveLead,
 	clearCurrentLead,
-} from '../../redux/actions/leads';
+} from 'redux/actions/leads';
 import { DateTime } from 'luxon';
 
 import {
@@ -20,7 +20,7 @@ import {
 	numberWithCommas,
 	calculateBSR,
 	openLinkHandler,
-} from '../../utils/utils';
+} from 'utils/utils';
 
 const PrimaryMetric = ({ title, value, subvalue }) => {
 	return (

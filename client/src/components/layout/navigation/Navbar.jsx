@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { logout } from '../../../redux/actions/auth';
+import { logout } from 'redux/actions/auth';
 
 import AltDropdown from './AltDropdown';
-import { ReactComponent as LeadGeekLogo } from '../../../assets/images/svgs/leadgeek-logo-light.svg';
+import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
 
 const NavbarLink = ({ link, showMenu }) => {
 	const [hover, setHover] = useState(false);

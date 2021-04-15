@@ -6,10 +6,10 @@ import { connect } from 'react-redux';
 import { forgotPassword } from '../redux/actions/auth';
 import { setAlert } from '../redux/actions/alert';
 
-import Layout from '../components/layout/Layout';
-import FormField from '../components/layout/formField/FormField';
-import LoginImage from '../components/auth/login/LoginImage';
-import { ReactComponent as LeadGeekLogo } from '../assets/images/svgs/leadgeek-logo-light.svg';
+import Layout from 'components/layout/Layout';
+import FormField from 'components/layout/formField/FormField';
+import LoginImage from 'components/auth/login/LoginImage';
+import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
 
 const ForgotPassword = ({ forgotPassword, setAlert }) => {
 	const [formData, setFormData] = useState({

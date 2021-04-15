@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import AuthLayout from '../components/layout/AuthLayout';
-import FormField from '../components/layout/formField/FormField';
-import Spinner from '../components/layout/Spinner';
+import AuthLayout from 'components/layout/AuthLayout';
+import FormField from 'components/layout/formField/FormField';
+import Spinner from 'components/layout/Spinner';
 
 const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 	const accountLinks = [

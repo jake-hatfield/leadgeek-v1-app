@@ -10,7 +10,7 @@ import {
 	handleLikeLead,
 	handleArchiveLead,
 	setCurrentLead,
-} from '../../redux/actions/leads';
+} from 'redux/actions/leads';
 // utils
 import {
 	truncate,
@@ -18,7 +18,7 @@ import {
 	calculateBSR,
 	openLinkHandler,
 	useOutsideMousedown,
-} from '../../utils/utils';
+} from 'utils/utils';
 
 const buttonClasses =
 	'py-1 px-3 w-full text-left font-semibold text-purple-600 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline';

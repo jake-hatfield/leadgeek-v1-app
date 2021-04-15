@@ -3,11 +3,11 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { setAlert } from '../../redux/actions/alert';
-import { cancelStripeSub } from '../../redux/actions/auth';
+import { setAlert } from 'redux/actions/alert';
+import { cancelStripeSub } from 'redux/actions/auth';
 
-import AuthLayout from '../components/layout/AuthLayout';
-import Spinner from '../../components/layout/Spinner';
+import AuthLayout from 'components/layout/AuthLayout';
+import Spinner from 'components/layout/Spinner';
 
 const Dashboard = ({
 	auth: { user, loading, isAuthenticated },

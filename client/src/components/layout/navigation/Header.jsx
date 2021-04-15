@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { getSearchResults } from '../../../redux/actions/leads';
-import { useLocation } from 'react-router-dom';
-
 import { Redirect } from 'react-router';
+import { connect } from 'react-redux';
+import { getSearchResults } from 'redux/actions/leads';
+import { useLocation } from 'react-router-dom';
 
 const Header = ({
 	_id,

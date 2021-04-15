@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getLikedLeads } from '../redux/actions/leads';
+import { getLikedLeads } from 'redux/actions/leads';
 
-import AuthLayout from '../components/layout/AuthLayout';
-import Leads from '../components/leads/Leads';
+import AuthLayout from 'components/layout/AuthLayout';
+import Leads from 'components/leads/Leads';
 
 const Liked = ({ user, loading, liked, getLikedLeads }) => {
 	useEffect(() => {

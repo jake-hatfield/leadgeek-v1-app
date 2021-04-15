@@ -2,13 +2,13 @@ import React, { Fragment, useState, useRef } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { exportLeads } from '../redux/actions/leads';
+import { exportLeads } from 'redux/actions/leads';
 
-import { useOutsideMousedown } from '../utils/utils';
-import AuthLayout from '../components/layout/AuthLayout';
-import Header from '../components/layout/navigation/Header';
-import Button from '../components/layout/formField/Button';
-import Spinner from '../components/layout/Spinner';
+import { useOutsideMousedown } from 'utils/utils';
+import AuthLayout from 'components/layout/AuthLayout';
+import Header from 'components/layout/navigation/Header';
+import Button from 'components/layout/formField/Button';
+import Spinner from 'components/layout/Spinner';
 
 const AdminItem = ({
 	title,

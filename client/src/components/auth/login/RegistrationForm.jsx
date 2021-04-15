@@ -3,11 +3,11 @@ import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { setAlert } from '../../../redux/actions/alert';
-import { register } from '../../../redux/actions/auth';
+import { setAlert } from 'redux/actions/alert';
+import { register } from 'redux/actions/auth';
 
-import FormField from '../../layout/formField/FormField';
-import ResetPassword from '../../auth/login/reset/ResetPassword';
+import FormField from 'components/layout/formField/FormField';
+import ResetPassword from './password/ResetPassword';
 
 const RegistrationForm = ({ setAlert, register, isAuthenticated }) => {
 	const [formData, setFormData] = useState({
@@ -43,8 +43,9 @@ const RegistrationForm = ({ setAlert, register, isAuthenticated }) => {
 			<form className='form' onSubmit={(e) => onSubmit(e)}>
 				<div className='form-group'>
 					<FormField
+						label='Name'
 						type='text'
-						placeholder='Name'
+						placeholder='Dave Saunders'
 						name='name'
 						value={name}
 						onChange={(e) => onChange(e)}
@@ -52,8 +53,9 @@ const RegistrationForm = ({ setAlert, register, isAuthenticated }) => {
 				</div>
 				<div className='form-group'>
 					<FormField
+						label='Email'
 						type='email'
-						placeholder='Email Address'
+						placeholder='dsaunders@gmail.com'
 						name='email'
 						value={email}
 						onChange={(e) => onChange(e)}

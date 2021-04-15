@@ -4,12 +4,12 @@ import PropTypes from 'prop-types';
 import { Redirect, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { resetPasswordValidation, updatePassword } from '../redux/actions/auth';
-import { setAlert } from '../redux/actions/alert';
+import { setAlert } from 'redux/actions/alert';
 
-import Layout from '../components/layout/Layout';
+import Layout from 'components/layout/Layout';
 import ResetPassword from './ResetPassword';
-import LoginImage from '../components/auth/login/LoginImage';
-import { ReactComponent as LeadGeekLogo } from '../assets/images/svgs/leadgeek-logo-light.svg';
+import LoginImage from 'components/auth/login/LoginImage';
+import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
 
 const ResetPasswordPage = ({
 	auth: { isAuthenticated, loading, validatedResetPasswordToken },

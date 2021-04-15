@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 
 import PropTypes from 'prop-types';
+
 import Alert from '../layout/Alert';
 
 const Layout = ({ children }) => {

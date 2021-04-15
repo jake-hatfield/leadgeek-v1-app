@@ -3,18 +3,18 @@ import React, { Fragment } from 'react';
 import { Route } from 'react-router-dom';
 
 // routes
-import Register from '../pages/Register';
-import Login from '../pages/Login';
-import ForgotPassword from '../pages/ForgotPassword';
-import ResetPassword from '../pages/ResetPassword';
-import Feed from '../pages/Feed';
-import Liked from '../pages/Liked';
-import Archived from '../pages/Archived';
-import Search from '../pages/Search';
-import Admin from '../pages/Admin';
-import Help from '../pages/Help';
-import Profile from '../pages/Profile';
-import Password from '../pages/Password';
+import Register from 'pages/Register';
+import Login from 'pages/Login';
+import ForgotPassword from 'pages/ForgotPassword';
+import ResetPassword from 'pages/ResetPassword';
+import Feed from 'pages/Feed';
+import Liked from 'pages/Liked';
+import Archived from 'pages/Archived';
+import Search from 'pages/Search';
+import Admin from 'pages/Admin';
+import Help from 'pages/Help';
+import Profile from 'pages/Profile';
+import Password from 'pages/Password';
 // utils
 import PrivateRoute from './PrivateRoute';
 

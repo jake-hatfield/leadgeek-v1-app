@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { DateTime } from 'luxon';
 
-import AuthLayout from '../components/layout/AuthLayout';
-import Header from '../components/layout/navigation/Header';
-import Spinner from '../components/layout/Spinner';
+import AuthLayout from 'components/layout/AuthLayout';
+import Header from 'components/layout/navigation/Header';
+import Spinner from 'components/layout/Spinner';
 
 const HelpItem = ({ title, desc, path, color, actions }) => {
 	return (

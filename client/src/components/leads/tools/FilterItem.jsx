@@ -2,13 +2,13 @@ import React, { useState, useRef } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { setAlert } from '../../../redux/actions/alert';
+import { setAlert } from 'redux/actions/alert';
 import {
 	setMinMaxFilter,
 	clearMinMaxFilter,
 	setDropdownFilter,
-} from '../../../redux/actions/filters';
-import { useOutsideMouseup } from '../../../utils/utils';
+} from 'redux/actions/filters';
+import { useOutsideMouseup } from 'utils/utils';
 
 const FilterItem = ({
 	title,

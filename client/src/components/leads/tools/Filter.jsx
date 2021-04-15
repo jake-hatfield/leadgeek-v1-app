@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import FilterItem from './FilterItem';
-import { useOutsideMousedown } from '../../../utils/utils';
-import { getLeads } from '../../../redux/actions/leads';
-import { clearFilters } from '../../../redux/actions/filters';
+import { useOutsideMousedown } from 'utils/utils';
+import { getLeads } from 'redux/actions/leads';
+import { clearFilters } from 'redux/actions/filters';
 
 const Filter = ({
 	user,
