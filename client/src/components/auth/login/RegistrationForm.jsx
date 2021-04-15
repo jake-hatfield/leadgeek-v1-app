@@ -6,7 +6,10 @@ import { connect } from 'react-redux';
 import { setAlert } from '../../../redux/actions/alert';
 import { register } from '../../../redux/actions/auth';
 
-const Register = ({ setAlert, register, isAuthenticated }) => {
+import FormField from '../../layout/formField/FormField';
+import ResetPassword from '../../auth/login/reset/ResetPassword';
+
+const RegistrationForm = ({ setAlert, register, isAuthenticated }) => {
 	const [formData, setFormData] = useState({
 		name: '',
 		email: '',
@@ -37,13 +40,9 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 	}
 	return (
 		<Fragment>
-			<h1 className='large text-primary'>Sign Up</h1>
-			<p className='lead'>
-				<i className='fas fa-user'></i> Create Your Account
-			</p>
 			<form className='form' onSubmit={(e) => onSubmit(e)}>
 				<div className='form-group'>
-					<input
+					<FormField
 						type='text'
 						placeholder='Name'
 						name='name'
@@ -52,7 +51,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 					/>
 				</div>
 				<div className='form-group'>
-					<input
+					<FormField
 						type='email'
 						placeholder='Email Address'
 						name='email'
@@ -60,24 +59,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 						onChange={(e) => onChange(e)}
 					/>
 				</div>
-				<div className='form-group'>
-					<input
-						type='password'
-						placeholder='Password'
-						name='password'
-						value={password}
-						onChange={(e) => onChange(e)}
-					/>
-				</div>
-				<div className='form-group'>
-					<input
-						type='password'
-						placeholder='Confirm Password'
-						name='password2'
-						value={password2}
-						onChange={(e) => onChange(e)}
-					/>
-				</div>
+				<ResetPassword email={email} />
 				<input type='submit' className='btn btn-primary' value='Register' />
 			</form>
 			<p className='my-1'>
@@ -87,7 +69,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 	);
 };
 
-Register.propTypes = {
+RegistrationForm.propTypes = {
 	setAlert: PropTypes.func.isRequired,
 	register: PropTypes.func.isRequired,
 	isAuthenticated: PropTypes.bool,
@@ -99,4 +81,6 @@ const mapStateToProps = (state) => ({
 	setAlert: state.alert,
 });
 
-export default connect(mapStateToProps, { setAlert, register })(Register);
+export default connect(mapStateToProps, { setAlert, register })(
+	RegistrationForm
+);

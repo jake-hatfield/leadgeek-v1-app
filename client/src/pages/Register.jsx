@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 
 import PropTypes from 'prop-types';
-import { Redirect, NavLink } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { login } from '../redux/actions/auth';
 
 import Layout from '../components/layout/Layout';
-import FormField from '../components/layout/formField/FormField';
-import LoginImage from '../components/auth/login/LoginImage';
+import RegistrationForm from '../components/auth/login/RegistrationForm';
 import { ReactComponent as LeadGeekLogo } from '../assets/images/svgs/leadgeek-logo-light.svg';
 
-const Login = ({ login, isAuthenticated }) => {
+const Register = ({ login, isAuthenticated }) => {
 	const [formData, setFormData] = useState({
 		email: '',
 		password: '',
@@ -30,7 +29,7 @@ const Login = ({ login, isAuthenticated }) => {
 		<Layout>
 			<section className='min-h-screen relative flex justify-center bg-gray-100'>
 				<div className='lg:hidden h-2 absolute inset-x-0 top-0 bg-purple-300' />
-				<div className='xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100'>
+				<div className='flex flex-col justify-between xl:h-screen w-full bg-gray-100'>
 					<div className='mt-6 hidden md:block container'>
 						<a href='https://leadgeek.io'>
 							<LeadGeekLogo className='inline-block w-16' />
@@ -41,49 +40,10 @@ const Login = ({ login, isAuthenticated }) => {
 							<header>
 								<LeadGeekLogo className='md:hidden w-16' />
 								<h1 className='text-2xl md:text-3xl lg:text-4xl font-black text-gray-900'>
-									Log in
+									Join the beta
 								</h1>
-								<div className='mt-2'>
-									<p className='inline-block'>Need a LeadGeek account?</p>
-									<a
-										href='https://leadgeek.io/signup'
-										className='mt-2 md:mt-0 md:ml-2 block md:inline-block link'
-									>
-										Join now
-									</a>
-								</div>
 							</header>
-							<form className='my-3' onSubmit={(e) => onSubmit(e)}>
-								<FormField
-									label='Email'
-									type='email'
-									placeholder='dsaunders@gmail.com'
-									name='email'
-									value={email}
-									onChange={onChange}
-									required
-								/>
-								<FormField
-									label='Password'
-									type='password'
-									placeholder='Password'
-									name='password'
-									value={password}
-									onChange={onChange}
-									minLength='6'
-								/>
-								<button
-									type='submit'
-									className='bg-purple-600 mt-4 py-2 w-full rounded-md text-white shadow-md hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline'
-								>
-									Log in
-								</button>
-								<div className='mt-4 text-sm text-gray-400 link'>
-									<NavLink exact to={'/reset/forgot-password'}>
-										Forgot password?
-									</NavLink>
-								</div>
-							</form>
+							<RegistrationForm />
 						</div>
 					</div>
 					<div className='mt-6 xl:mt-0 mb-6 container'>
@@ -91,13 +51,12 @@ const Login = ({ login, isAuthenticated }) => {
 						reserved.
 					</div>
 				</div>
-				<LoginImage />
 			</section>
 		</Layout>
 	);
 };
 
-Login.propTypes = {
+Register.propTypes = {
 	login: PropTypes.func.isRequired,
 	isAuthenticated: PropTypes.bool,
 };
@@ -106,4 +65,4 @@ const mapStateToProps = (state) => ({
 	isAuthenticated: state.auth.isAuthenticated,
 });
 
-export default connect(mapStateToProps, { login })(Login);
+export default connect(mapStateToProps, { login })(Register);

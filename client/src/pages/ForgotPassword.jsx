@@ -39,19 +39,21 @@ const ForgotPassword = ({ forgotPassword, setAlert }) => {
 							<LeadGeekLogo className='inline-block w-16' />
 						</a>
 					</div>
-					<div className='container'>
+					<div>
 						<div className='mt-12 md:mt-0 mx-auto py-4 lg:py-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
 							<header>
 								<LeadGeekLogo className='md:hidden w-16' />
 								<h1 className='text-2xl md:text-3xl lg:text-4xl font-black text-gray-900'>
 									Reset password
 								</h1>
-								<p className='inline-block'>
-									Don't worry, it happens to the best of us.
-								</p>
-								<p className='mt-2 inline-block'>
-									We'll send password reset instructions to the email below.
-								</p>
+								<div className='mt-2'>
+									<p className='inline-block'>
+										Don't worry, it happens to the best of us.
+									</p>
+									<p className='mt-2 inline-block'>
+										We'll send password reset instructions to the email below.
+									</p>
+								</div>
 							</header>
 							<form className='my-3' onSubmit={(e) => onSubmit(e)}>
 								<FormField

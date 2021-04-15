@@ -1,14 +1,17 @@
 import React, { Fragment, useState, useEffect } from 'react';
+
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { updatePassword } from '../../../../redux/actions/auth';
 import { setAlert } from '../../../../redux/actions/alert';
+
 import FormField from '../../../layout/formField/FormField';
 import { ReactComponent as Check } from '../../../../assets/images/svgs/check.svg';
 import { ReactComponent as X } from '../../../../assets/images/svgs/x.svg';
 
 const ResetPassword = ({
-	auth: { user, loading },
+	email,
+	loading,
 	updatePassword,
 	setAlert,
 	fullWidthButton,
@@ -188,7 +191,7 @@ const ResetPassword = ({
 				let splitString = string.split('@');
 				return splitString[0];
 			};
-			let emailBeforeAt = stringBeforeAt(user.email);
+			let emailBeforeAt = stringBeforeAt(email);
 			if (password_1.length >= 7 && password_2.length >= 7) {
 				setLengthValidated(true);
 				if (
@@ -220,7 +223,7 @@ const ResetPassword = ({
 				return;
 			}
 		}
-	}, [password_1, password_2, terriblePasswords, setAlert, user.email]);
+	}, [password_1, password_2, terriblePasswords, setAlert, email]);
 	const handleUpdatePassword = (e) => {
 		e.preventDefault();
 		if (!password_1 || !password_2) {
@@ -236,7 +239,7 @@ const ResetPassword = ({
 				return;
 			} else {
 				const password = password_1;
-				updatePassword(user.email, password);
+				updatePassword(email, password);
 				return;
 			}
 		}
@@ -302,10 +305,12 @@ ResetPassword.propTypes = {
 	setAlert: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => ({
-	auth: state.auth,
-	setAlert: state.alert,
-});
+const mapStateToProps = (state, ownProps) => {
+	const { loading } = state.auth;
+	const { setAlert } = state.alert;
+	const { email } = ownProps;
+	return { email, loading, setAlert };
+};
 
 export default connect(mapStateToProps, {
 	updatePassword,
