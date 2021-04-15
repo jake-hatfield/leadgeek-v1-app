@@ -15,14 +15,15 @@ const LoginImage = ({ auth: { isAuthenticated } }) => {
 						backgroundSize: 'cover',
 						position: 'relative',
 					}}
-					className='py-12 hidden xl:block h-screen xl:w-2/5'
+					className='py-12 hidden xl:block h-screen xl:w-3/5'
 				>
 					<header className='absolute top-0 left-0 h-screen container bg-gray-800 opacity-75 text-gray-200'>
-						<h2 className='mt-5 text-4xl font-black'>
-							Be able to access your leads from anywhere.
+						<h2 className='mt-16 text-4xl font-black'>
+							LeadGeek beta now open.
 						</h2>
 						<h3 className='mt-4 text-xl font-semibold'>
-							LeadGeek Android and iOS apps are in development.
+							Test out our new software with features that help you source leads
+							better than ever.
 						</h3>
 					</header>
 				</aside>

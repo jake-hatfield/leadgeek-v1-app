@@ -31,7 +31,7 @@ const AdminItem = ({
 				{popup && (
 					<div className='absolute z-10 top-0 right-0 h-screen w-full bg-gray-900 opacity-25' />
 				)}
-				<div className='h-full flex flex-col justify-between p-4 '>
+				<div className='h-full flex flex-col justify-between p-4'>
 					<div className='flex items-center'>
 						<span className={color}>
 							<svg
@@ -64,7 +64,9 @@ const AdminItem = ({
 					className='absolute inset-x-0 z-20 max-w-lg mt-6 mx-auto p-4 rounded-lg bg-white shadow-lg'
 				>
 					<div className='relative'>
-						<h2 className='text-xl font-bold text-gray-800'>{popupHeading}</h2>
+						<h2 className='pb-2 text-xl font-bold text-gray-800 border-b border-gray-200'>
+							{popupHeading}
+						</h2>
 						<button
 							onClick={() => showPopup((prev) => !prev)}
 							className='absolute top-0 right-0 mt-1'
