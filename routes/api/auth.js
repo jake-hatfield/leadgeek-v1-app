@@ -10,7 +10,7 @@ const stripeSecret = config.get('stripeTestSecret');
 const stripe = require('stripe')(stripeSecret);
 
 // @route       GET api/auth
-// @description Register user
+// @description Find user
 // @access      Public
 router.get('/', auth, async (req, res) => {
 	try {

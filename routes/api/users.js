@@ -6,75 +6,113 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const config = require('config');
-const { check, validationResult } = require('express-validator');
 const User = require('../../models/User');
-const stripeSecret = config.get('stripeTestSecret');
-const stripe = require('stripe')(stripeSecret);
+const stripeTestSecret = config.get('stripeTestSecret');
+const stripeSecret = config.get('stripeSecret');
+let stripeKey;
+if (process.env.NODE_ENV === 'production') {
+	stripeKey = stripeSecret;
+} else {
+	stripeKey = stripeTestSecret;
+}
+const stripe = require('stripe')(stripeKey);
 
 // @route       POST api/users
 // @description Register user
 // @access      Public
-router.post(
-	'/',
-	[
-		// validate name, email and pw
-		check('name', 'Name is required').not().isEmpty(),
-		check('email', 'Please include a valid email').isEmail(),
-		check(
-			'password',
-			'Please enter a password with 6 or more characters'
-		).isLength({ min: 6 }),
-	],
-	async (req, res) => {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) {
-			// there was a validation error, return the array to display in UI
-			return res.status(400).json({ errors: errors.array() });
-		}
-		// destructure name, email and pw out of the body
-		const { name, email, password } = req.body;
-
-		try {
-			// see if user exists
-			let user = await User.findOne({ email });
-			if (user) {
-				return res
-					.status(400)
-					.json({ errors: [{ msg: 'User already exists' }] });
-			}
-
-			user = new User({
-				name,
-				email,
-				password,
-			});
-			// encrypt password
-			const salt = await bcrypt.genSalt(10);
-			user.password = await bcrypt.hash(password, salt);
-			await user.save();
-			// return the JWT
-			const payload = {
-				user: {
-					id: user.id,
-				},
-			};
-
-			jwt.sign(
-				payload,
-				config.get('jwtSecret'),
-				{ expiresIn: 360000 },
-				(err, token) => {
-					if (err) throw err;
-					res.json({ token });
-				}
-			);
-		} catch (err) {
-			console.error(err.message);
-			// if there's an error, it's got to be with the server
-			res.status(500).send('Server error');
-		}
+router.post('/', async (req, res) => {
+	// destructure name, email and pw out of the body
+	const { name, email, password } = req.body;
+	if (!name || !email || !password) {
+		return res.status(400).json({
+			errors: [{ msg: 'Please make sure all required information is present' }],
+		});
 	}
-);
+	try {
+		// see if user exists in stripe
+		const stripeUser = await stripe.customers.list({ email });
+		if (stripeUser.data.length === 0) {
+			return res.status(400).json({
+				errors: [
+					{
+						msg:
+							"There's no LeadGeek subscription associated with that email. Please try another email or sign up for a plan.",
+					},
+				],
+			});
+		}
+		// see if user exists in db
+		let user = await User.findOne({ email });
+		if (user) {
+			return res.status(400).json({
+				errors: [
+					{
+						msg:
+							'An account already exists under that email. Please try a different email or log in.',
+					},
+				],
+			});
+		}
+		const userData = stripeUser.data[0];
+		// retrieve the payment method details
+		const userPM = await stripe.paymentMethods.list({
+			customer: userData.id,
+			type: 'card',
+		});
+		console.log(userPM);
+		user = new User({
+			name,
+			email,
+			password,
+			dateCreated: userData.created,
+			lastLogin: Date.now(),
+			subscription: {
+				cusId: userData.id,
+				subId: {
+					id: userData.subscriptions.data[0].id,
+					active: userData.subscriptions.data[0].active,
+				},
+				planId: userData.subscriptions.data[0].plan.id,
+			},
+			billing: {
+				paymentMethod: userData.invoice_settings.default_payment_method,
+				last4: userPM.data[0].card.last4,
+				brand: userPM.data[0].card.brand,
+			},
+		});
+		// encrypt password
+		const salt = await bcrypt.genSalt(10);
+		user.password = await bcrypt.hash(password, salt);
+		await user.save();
+		// return the JWT
+		const payload = {
+			user: {
+				id: user.id,
+			},
+		};
+
+		jwt.sign(
+			payload,
+			config.get('jwtSecret'),
+			{ expiresIn: 60 * 60 },
+			(err, token) => {
+				if (err) throw err;
+				res.json({ token });
+			}
+		);
+	} catch (err) {
+		console.error(err.message);
+		// if there's an error, it's got to be with the server
+		return res.status(500).json({
+			errors: [
+				{
+					msg:
+						'There was an error creating your account. Please try again later or contact support.',
+				},
+			],
+		});
+	}
+});
 
 // @route       POST api/users/forgotPassword
 // @description request forgot password

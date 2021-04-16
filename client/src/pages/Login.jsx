@@ -38,18 +38,18 @@ const Login = ({ login, isAuthenticated }) => {
 					<div className='container'>
 						<div className='mt-12 md:mt-0 mx-auto py-4 lg:py-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
 							<header>
-								<LeadGeekLogo className='md:hidden w-16' />
+								<LeadGeekLogo className='md:hidden w-12' />
 								<h1 className='pb-2 text-xl md:text-2xl lg:text-3xl font-black text-gray-900 border-b border-gray-200'>
 									Log in
 								</h1>
 								<div className='mt-2'>
 									<p className='inline-block'>Need a LeadGeek account?</p>
-									<Link
-										to={'/register'}
+									<a
+										href='https://leadgeek.io/signup'
 										className='mt-2 md:mt-0 md:ml-2 block md:inline-block link'
 									>
 										Join now
-									</Link>
+									</a>
 								</div>
 							</header>
 							<form className='my-3' onSubmit={(e) => onSubmit(e)}>

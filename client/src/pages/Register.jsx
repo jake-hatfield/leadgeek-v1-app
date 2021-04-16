@@ -192,10 +192,10 @@ const Register = ({ isAuthenticated, register, setAlert }) => {
 		'minecraft',
 	];
 
-	const { fName, lName, email, password } = formData;
-
 	const onChange = (e) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value.trim() });
+	const { fName, lName, email, password } = formData;
+
 	useEffect(() => {
 		if (email) {
 			if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
@@ -270,39 +270,38 @@ const Register = ({ isAuthenticated, register, setAlert }) => {
 					<div className='container'>
 						<div className='mt-12 md:mt-0 mx-auto py-4 lg:py-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
 							<header className='pb-2 border-b border-gray-200'>
-								<LeadGeekLogo className='md:hidden w-16' />
+								<LeadGeekLogo className='md:hidden w-12' />
 								<h1 className='text-xl md:text-2xl lg:text-3xl font-black text-gray-900'>
 									Create an account
 								</h1>
+								<h2>{fName}</h2>
 							</header>
 							<form className='form' onSubmit={(e) => onSubmit(e)}>
 								<div className='md:flex justify-between'>
 									<FormField
-										name='firstName'
+										name='fName'
 										label='First name'
 										type='text'
 										placeholder='Dave'
 										value={fName}
 										onChange={onChange}
-										required
 									/>
 									<FormField
-										name='lastName'
+										name='lName'
 										label='Last name'
 										type='text'
 										placeholder='Saunders'
 										value={lName}
 										width='md:ml-4'
 										onChange={onChange}
-										required
 									/>
 								</div>
 								<div className='form-group'>
 									<FormField
+										name='email'
 										label='Email'
 										type='email'
 										placeholder='dsaunders@gmail.com'
-										name='email'
 										value={email}
 										onChange={(e) => onChange(e)}
 									/>

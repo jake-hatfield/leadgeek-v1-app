@@ -37,7 +37,7 @@ const ForgotPassword = ({ forgotPassword, setAlert }) => {
 				<div className='xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100'>
 					<div className='mt-6 hidden md:block container'>
 						<a href='https://leadgeek.io'>
-							<LeadGeekLogo className='inline-block w-16' />
+							<LeadGeekLogo className='inline-block w-12' />
 						</a>
 					</div>
 					<div>

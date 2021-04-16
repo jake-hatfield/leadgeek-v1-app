@@ -24,29 +24,40 @@ const UserSchema = new Schema({
 		required: true,
 		default: null,
 	},
-	// billing: {
-	// 	cusId: {
-	// 		type: String,
-	// 		required: true,
-	// 		unique: true,
-	// 	},
-	// 	subId: [
-	// 		{
-	// 			type: Object,
-	// 			required: true,
-	// 		},
-	// 	],
-	// 	planId: [
-	// 		{
-	// 			type: String,
-	// 			required: true,
-	// 		},
-	// 	],
-	// 	paymentMethod: {
-	// 		type: Object,
-	// 		required: true,
-	// 	},
-	// },
+	subscription: {
+		cusId: {
+			type: String,
+			required: true,
+			unique: true,
+		},
+		subIds: [
+			{
+				id: { type: String, required: true, unique: true },
+				active: { type: Boolean, required: true },
+			},
+		],
+		planIds: [
+			{
+				type: String,
+				required: true,
+			},
+		],
+	},
+	billing: {
+		paymentMethod: {
+			type: Object,
+			required: true,
+			unique: true,
+		},
+		last4: {
+			type: String,
+			required: true,
+		},
+		brand: {
+			type: String,
+			required: true,
+		},
+	},
 	resetPwToken: {
 		type: String,
 		default: null,
@@ -58,7 +69,7 @@ const UserSchema = new Schema({
 	},
 	role: {
 		type: String,
-		enum: ['user', 'grow_1', 'pro_1', 'bundle_1', 'admin'],
+		enum: ['user', 'grow', 'pro', 'bundle', 'admin'],
 		default: 'user',
 		required: true,
 	},
