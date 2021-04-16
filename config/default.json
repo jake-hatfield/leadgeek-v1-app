@@ -1,8 +1,6 @@
 {
 	"mongoURI": "mongodb+srv://Jake:KIp@sslol7788123@leadgeek.0asxt.mongodb.net/LeadGeek?retryWrites=true&w=majority",
 	"jwtSecret": "mysecrettoken",
-	"githubClientId": "65316981dcda87b8f398",
-	"githubSecret": "aa8d37f531d39537aa2fc9ec1498e0bdacfefbfb",
 	"stripeSecret": "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",
 	"stripePublishable": "pk_live_51HF2gpDdWoP4Ck9R0lY6Fq0fJFvngsNp3DxnOkadAf0QpYWPVyTIQBvvgrwlFcj7PdzayGSlo65v8IUjjlF6944D0068EPn3wN",
 	"stripeTestSecret": "sk_test_51HF2gpDdWoP4Ck9RQjCKZsDrvydigroixaCEfwsARdYmqr7RYWUJObpoLwQjWNwYel1wSqWrkXugIzaNe9xpwAXl00y3LfKcRI",
