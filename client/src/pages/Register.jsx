@@ -22,7 +22,7 @@ const Register = ({ isAuthenticated, register, setAlert }) => {
 		email: '',
 		password: '',
 	});
-	const [isProcessing, setProcessingTo] = useState(false);
+	const [processing, setProcessing] = useState(false);
 
 	const [passwordShown, setPasswordShown] = useState(false);
 	const togglePasswordVisibility = () => {
@@ -253,7 +253,7 @@ const Register = ({ isAuthenticated, register, setAlert }) => {
 		const lastNameCapitalized =
 			lName.charAt(0).toUpperCase() + lName.substring(1).toLowerCase();
 		const name = `${firstNameCapitalized} ${lastNameCapitalized}`;
-		register(fName, email, password);
+		register(name, email, password);
 	};
 
 	if (isAuthenticated) {
