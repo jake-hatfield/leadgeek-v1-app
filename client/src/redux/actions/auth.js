@@ -104,7 +104,7 @@ export const forgotPassword = (email) => async (dispatch) => {
 		if (res.data.msg === 'Password recovery email sent successfully') {
 			dispatch(
 				setAlert(
-					`An email has been sent to ${email} if an account is associated. Please also check your spam folder.`,
+					`An email has been sent to ${email} if an account is associated. Please also be sure to check your spam folder.`,
 					'success'
 				)
 			);

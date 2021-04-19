@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const config = require('config');
+const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 
 module.exports = function (req, res, next) {
 	// get token from header
@@ -14,7 +14,7 @@ module.exports = function (req, res, next) {
 
 	// verify token
 	try {
-		jwt.verify(token, config.get('jwtSecret'), (error, decoded) => {
+		jwt.verify(token, jwtSecret, (error, decoded) => {
 			if (error) {
 				return res.status(401).json({ msg: 'Token is not valid' });
 			} else {

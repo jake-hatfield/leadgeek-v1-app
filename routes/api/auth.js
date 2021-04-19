@@ -3,10 +3,10 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const auth = require('../../middleware/auth');
 const jwt = require('jsonwebtoken');
-const config = require('config');
+const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 const { check, validationResult } = require('express-validator');
 const User = require('../../models/User');
-const stripeSecret = config.get('stripeTestSecret');
+const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
 const stripe = require('stripe')(stripeSecret);
 
 // @route       GET api/auth
@@ -78,15 +78,10 @@ router.post(
 				},
 			};
 
-			jwt.sign(
-				payload,
-				config.get('jwtSecret'),
-				{ expiresIn: 60 * 60 },
-				(err, token) => {
-					if (err) throw err;
-					res.json({ token });
-				}
-			);
+			jwt.sign(payload, jwtSecret, { expiresIn: 60 * 60 }, (err, token) => {
+				if (err) throw err;
+				res.json({ token });
+			});
 		} catch (err) {
 			console.error(err.message);
 			// if there's an error, it's got to be with the server

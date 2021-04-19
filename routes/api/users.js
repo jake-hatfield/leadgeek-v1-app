@@ -1,21 +1,13 @@
-require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
-const config = require('config');
+const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 const User = require('../../models/User');
-const stripeTestSecret = config.get('stripeTestSecret');
-const stripeSecret = config.get('stripeSecret');
-let stripeKey;
-if (process.env.NODE_ENV === 'production') {
-	stripeKey = stripeSecret;
-} else {
-	stripeKey = stripeTestSecret;
-}
-const stripe = require('stripe')(stripeKey);
+const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
+const stripe = require('stripe')(stripeSecret);
 
 // @route       POST api/users
 // @description Register user
@@ -59,7 +51,6 @@ router.post('/', async (req, res) => {
 			customer: userData.id,
 			type: 'card',
 		});
-		console.log(userPM);
 		user = new User({
 			name,
 			email,
@@ -91,15 +82,10 @@ router.post('/', async (req, res) => {
 			},
 		};
 
-		jwt.sign(
-			payload,
-			config.get('jwtSecret'),
-			{ expiresIn: 60 * 60 },
-			(err, token) => {
-				if (err) throw err;
-				res.json({ token });
-			}
-		);
+		jwt.sign(payload, jwtSecret, { expiresIn: 60 * 60 }, (err, token) => {
+			if (err) throw err;
+			res.json({ token });
+		});
 	} catch (err) {
 		console.error(err.message);
 		// if there's an error, it's got to be with the server
@@ -145,6 +131,7 @@ router.post('/forgotPassword', async (req, res) => {
 					console.log(result);
 				}
 			});
+			console.log(process.env.REACT_APP_EMAIL_ADDRESS);
 			const transporter = nodemailer.createTransport({
 				name: 'improvmx',
 				host: 'smtp.improvmx.com',

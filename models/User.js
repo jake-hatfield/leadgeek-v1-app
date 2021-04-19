@@ -45,7 +45,7 @@ const UserSchema = new Schema({
 	},
 	billing: {
 		paymentMethod: {
-			type: Object,
+			type: String,
 			required: true,
 			unique: true,
 		},
