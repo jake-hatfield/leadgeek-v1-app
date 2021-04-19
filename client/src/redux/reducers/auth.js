@@ -66,6 +66,7 @@ export default function authReducer(state = initialState, action) {
 		case REMOVE_RESET_PASSWORD_TOKEN:
 			return {
 				...state,
+				user: {},
 				validatedResetPwToken: false,
 			};
 		case VIEW_LEAD: {

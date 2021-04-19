@@ -24,7 +24,7 @@ const ResetPasswordPage = ({
 		resetPwValidation(resetPwToken);
 	}, []);
 	if (isAuthenticated) {
-		return <Redirect to='/' />;
+		return <Redirect to='/leads' />;
 	}
 	return !loading ? (
 		<Layout>

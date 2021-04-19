@@ -165,6 +165,7 @@ export const updatePassword = (email, password) => async (dispatch) => {
 			if (res.data === 'Password was successfully updated') {
 				dispatch(setAlert('Password was successfully updated!', 'success'));
 				dispatch({ type: REMOVE_RESET_PASSWORD_TOKEN });
+				dispatch(login(email, password));
 				dispatch({ type: LOGIN_SUCCESS });
 				localStorage.removeItem('resetPwToken');
 			} else {

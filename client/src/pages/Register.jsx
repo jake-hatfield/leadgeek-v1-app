@@ -22,7 +22,6 @@ const Register = ({ isAuthenticated, register, setAlert }) => {
 		email: '',
 		password: '',
 	});
-	const [processing, setProcessing] = useState(false);
 
 	const [passwordShown, setPasswordShown] = useState(false);
 	const togglePasswordVisibility = () => {
