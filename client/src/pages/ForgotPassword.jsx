@@ -43,7 +43,7 @@ const ForgotPassword = ({ forgotPassword, setAlert }) => {
 					<div>
 						<div className='mt-12 md:mt-0 mx-auto py-4 lg:py-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
 							<header>
-								<LeadGeekLogo className='md:hidden w-16' />
+								<LeadGeekLogo className='md:hidden w-12' />
 								<h1 className='pb-2 text-xl md:text-2xl lg:text-3xl font-black text-gray-900 border-b border-gray-200'>
 									Reset password
 								</h1>

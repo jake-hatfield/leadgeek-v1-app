@@ -12,7 +12,7 @@ import {
 	SET_RESET_PASSWORD_TOKEN,
 	REMOVE_RESET_PASSWORD_TOKEN,
 } from './types';
-import { setResetPasswordToken } from '../../utils/authTokens';
+import { setResetPwToken } from '../../utils/authTokens';
 
 const config = {
 	headers: {
@@ -109,7 +109,7 @@ export const forgotPassword = (email) => async (dispatch) => {
 				)
 			);
 			const { token } = res.data;
-			setResetPasswordToken(token);
+			setResetPwToken(token);
 		}
 	} catch (error) {
 		// make sure people can't guess user's password by trial and error
@@ -133,15 +133,8 @@ export const forgotPassword = (email) => async (dispatch) => {
 };
 
 // reset password validation
-export const resetPasswordValidation = (resetPasswordToken) => async (
-	dispatch
-) => {
-	const config = {
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	};
-	const body = JSON.stringify({ resetPasswordToken });
+export const resetPwValidation = (resetPwToken) => async (dispatch) => {
+	const body = JSON.stringify({ resetPwToken });
 	try {
 		dispatch({
 			type: CHECK_RESET_PASSWORD_TOKEN,
@@ -156,6 +149,8 @@ export const resetPasswordValidation = (resetPasswordToken) => async (
 				type: SET_RESET_PASSWORD_TOKEN,
 				payload: res.data.user,
 			});
+		} else {
+			return dispatch(setAlert('Password could not be reset', 'danger'));
 		}
 	} catch (error) {
 		console.log(error);
@@ -164,11 +159,6 @@ export const resetPasswordValidation = (resetPasswordToken) => async (
 
 // update password
 export const updatePassword = (email, password) => async (dispatch) => {
-	const config = {
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	};
 	const body = JSON.stringify({ email, password });
 	try {
 		axios.put('/api/users/updatePassword', body, config).then((res) => {
@@ -176,7 +166,7 @@ export const updatePassword = (email, password) => async (dispatch) => {
 				dispatch(setAlert('Password was successfully updated!', 'success'));
 				dispatch({ type: REMOVE_RESET_PASSWORD_TOKEN });
 				dispatch({ type: LOGIN_SUCCESS });
-				localStorage.removeItem('resetPasswordToken');
+				localStorage.removeItem('resetPwToken');
 			} else {
 				dispatch(
 					setAlert(
@@ -198,11 +188,6 @@ export const updatePassword = (email, password) => async (dispatch) => {
 // update stripe sub information in mongo
 const updateStripeSubInDb = (customerId, subscription) => async (dispatch) => {
 	try {
-		const config = {
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		};
 		const body = JSON.stringify({ customerId, subscription });
 		const res = await axios.post(
 			'/api/users/update-db-subscription',
@@ -223,11 +208,6 @@ export const cancelStripeSub = (customerId, subscriptionId) => async (
 	dispatch
 ) => {
 	try {
-		const config = {
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		};
 		const body = JSON.stringify({ subscriptionId });
 		const res = await axios.post(
 			'/api/users/cancel-subscription',

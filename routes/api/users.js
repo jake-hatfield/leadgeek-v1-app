@@ -107,6 +107,7 @@ router.post('/forgotPassword', async (req, res) => {
 	try {
 		const { email } = req.body;
 		if (email === '') {
+			console.log('No email sent.');
 			res.status(400).send('Email required');
 		}
 		let user = await User.findOne({ email });
@@ -117,21 +118,20 @@ router.post('/forgotPassword', async (req, res) => {
 		} else {
 			const token = crypto.randomBytes(20).toString('hex');
 			const updatedData = {
-				resetPasswordToken: token,
-				resetPasswordExpires: Date.now() + 3600000,
+				resetPwToken: token,
+				resetPwExpires: Date.now() + 3600000,
 			};
 			// update the user's token and token expiration date
 			User.findOneAndUpdate({ email }, updatedData).then(function (
-				error,
-				result
+				result,
+				error
 			) {
-				if (error) {
-					console.log(error);
+				if (!error) {
+					console.log(`Success updating user: ${result}`);
 				} else {
-					console.log(result);
+					console.log(`Error updating user: ${error}`);
 				}
 			});
-			console.log(process.env.REACT_APP_EMAIL_ADDRESS);
 			const transporter = nodemailer.createTransport({
 				name: 'improvmx',
 				host: 'smtp.improvmx.com',
@@ -162,9 +162,6 @@ router.post('/forgotPassword', async (req, res) => {
 					console.error('There was an error sending the email: ', err);
 				} else {
 					console.log('Email sent successfully. Here are the details:', res);
-					return res
-						.status(200)
-						.json('Password recovery email sent successfully');
 				}
 			});
 			return res
@@ -180,28 +177,28 @@ router.post('/forgotPassword', async (req, res) => {
 // @route       GET api/users/resetPasswordValidation
 // @description validate password reset token
 // @access      Public
-router.post('/resetPasswordValidation', (req, res) => {
+router.post('/resetPasswordValidation', async (req, res) => {
 	try {
 		console.log('Searching for user password reset token...');
-		User.findOne({
-			resetPasswordToken: req.body.resetPasswordToken,
-			resetPasswordExpires: {
-				$gt: Date.now(),
+		let user = await User.findOne({
+			resetPwToken: req.body.resetPasswordToken,
+			resetPwExpires: {
+				$gte: Date.now(),
 			},
-		}).then((user) => {
-			if (user === null) {
-				console.error('Token not found.');
-				res.status(400).json({
-					errors: [{ msg: 'Password reset link expired or invalid' }],
-				});
-			} else {
-				console.log('Token found!');
-				res.status(200).send({
-					user: user.email,
-					msg: 'Password reset link was validated',
-				});
-			}
 		});
+
+		if (!user) {
+			console.error('Token not found.');
+			return res.status(400).json({
+				errors: [{ msg: 'Password reset link expired or invalid' }],
+			});
+		} else {
+			console.log('Token found!');
+			return res.status(200).send({
+				user: user.email,
+				msg: 'Password reset link was validated',
+			});
+		}
 	} catch (error) {
 		console.error(error);
 	}
@@ -213,7 +210,7 @@ router.post('/resetPasswordValidation', (req, res) => {
 router.put('/updatePassword', async (req, res) => {
 	const { email, password } = req.body;
 	try {
-		let user = User.findOne({
+		let user = await User.findOne({
 			email,
 		});
 		if (user) {

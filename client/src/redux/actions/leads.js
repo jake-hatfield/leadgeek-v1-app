@@ -45,7 +45,7 @@ export const getLeads = (user, page, filters) => async (dispatch) => {
 		const { _id, lastLoggedIn, role, unviewedLeads } = user;
 		let plan;
 		if (role === 'admin') {
-			plan = 'bundle_1';
+			plan = 'bundle';
 		} else {
 			plan = role;
 		}
@@ -77,13 +77,13 @@ export const getLeads = (user, page, filters) => async (dispatch) => {
 
 export const getAllLeads = (user) => async (dispatch) => {
 	try {
-		const { planId } = user;
+		const { role } = user;
 		let plan;
-		if (planId.includes(process.env.REACT_APP_BUNDLE_PRODUCT_ID)) {
-			plan = 'bundle_1';
-		} else if (planId.includes(process.env.REACT_APP_PRO_PRODUCT_ID)) {
-			plan = 'pro_1';
-		} else plan = 'grow_1';
+		if (role === 'admin') {
+			plan = 'bundle';
+		} else {
+			plan = role;
+		}
 		const body = JSON.stringify({
 			plan,
 		});

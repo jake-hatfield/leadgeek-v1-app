@@ -59,10 +59,12 @@ router.get('/export', auth, async (req, res) => {
 					bsr30: +lead.bsr30,
 					bsr90: +lead.bsr90,
 					competitorType: lead.competitorType,
+					price30: lead.price30,
+					price90: lead.price90,
 					variations: lead.variations,
 					cashback: lead.cashback,
-					asin: lead.asin,
 					weight: +lead.weight,
+					asin: lead.asin,
 					shipping: lead.shipping,
 					notes: lead.notes,
 					img: lead.img,
@@ -117,6 +119,7 @@ router.post('/', auth, async (req, res) => {
 				category,
 			},
 		} = req.body;
+
 		const user = await User.findById({ _id });
 		if (!user) {
 			let message = 'There was an error finding a user with that id.';
@@ -126,14 +129,21 @@ router.post('/', auth, async (req, res) => {
 		console.log('Getting paginated leads...');
 		const { unviewedLeads } = user;
 		let totalItems;
-		const feed = await Lead.find({ plan })
+		let planFilter = [];
+		if (plan === 'bundle') {
+			planFilter = ['grow', 'pro'];
+		} else {
+			planFilter = [plan.toString()];
+		}
+		console.log(planFilter);
+		const feed = await Lead.find({ plan: { $in: planFilter } })
 			.countDocuments()
 			.then((numLeads) => {
 				totalItems = numLeads;
 				return Lead.find({
 					$and: [
 						{
-							plan,
+							plan: { $in: planFilter },
 							'data.date': { $gte: user.dateCreated },
 						},
 						{
@@ -257,7 +267,7 @@ router.post('/', auth, async (req, res) => {
 			console.log(`Total items: ${totalItems}`);
 			// see if any leads have been added since the user last logged in
 			const unviewed = await Lead.find({
-				plan,
+				plan: { $in: planFilter },
 				'data.date': { $gte: lastLoggedIn },
 			}).select('_id');
 			// if any new leads, add them to the DB

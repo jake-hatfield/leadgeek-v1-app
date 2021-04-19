@@ -197,16 +197,21 @@ const Navbar = ({ _id, role, loading, logout }) => {
 						</div>
 					))}
 				</nav>
-				<aside className='mt-16 text-gray-400'>
+				<aside className='relative mt-16 text-gray-400'>
 					<button
 						onClick={() => logoutUser(logout)}
-						onMouseEnter={() => setHover(!hover)}
+						onMouseEnter={() => setHover((prev) => !prev)}
 						onMouseLeave={() => setHover(false)}
 						className='p-2 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 					>
 						<span className='h-6 w-6 text-xl font-bold'>
 							<LeadGeekLogo />
 						</span>
+						{hover && (
+							<div className='mt-2 p-2 absolute left-0 z-20 transform -translate-y-1 translate-x-12 rounded-lg bg-gray-800 shadow-md text-white text-sm whitespace-no-wrap'>
+								Log out
+							</div>
+						)}
 					</button>
 					{userDropdown && (
 						<div className='absolute z-10 bottom-0 right-0 transform translate-x-48 text-gray-600'>

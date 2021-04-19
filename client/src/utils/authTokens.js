@@ -10,13 +10,13 @@ export const setAuthToken = (token) => {
 	}
 };
 
-export const setResetPasswordToken = (token) => {
+export const setResetPwToken = (token) => {
 	if (token) {
 		axios.defaults.headers.common['x-auth-token'] = token;
-		localStorage.setItem('resetPasswordToken', token);
+		localStorage.setItem('resetPwToken', token);
 	} else {
 		delete axios.defaults.headers.common['x-auth-token'];
-		localStorage.removeItem('resetPasswordToken');
+		localStorage.removeItem('resetPwToken');
 	}
 };
 

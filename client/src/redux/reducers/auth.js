@@ -6,8 +6,8 @@ import {
 	LOGOUT,
 	USER_LOADED,
 	AUTH_ERROR,
-	SET_RESET_PASSWORD_TOKEN,
 	CHECK_RESET_PASSWORD_TOKEN,
+	SET_RESET_PASSWORD_TOKEN,
 	REMOVE_RESET_PASSWORD_TOKEN,
 	VIEW_LEAD,
 	HANDLE_LIKE_LEAD,
@@ -19,7 +19,7 @@ const initialState = {
 	loading: true,
 	isAuthenticated: false,
 	user: {},
-	validatedResetPasswordToken: false,
+	validatedResetPwToken: false,
 };
 
 export default function authReducer(state = initialState, action) {
@@ -48,8 +48,8 @@ export default function authReducer(state = initialState, action) {
 				token: null,
 				loading: false,
 				isAuthenticated: false,
-				activeSubscription: null,
-				user: null,
+				user: {},
+				validatedResetPwToken: false,
 			};
 		case CHECK_RESET_PASSWORD_TOKEN:
 			return {
@@ -59,14 +59,14 @@ export default function authReducer(state = initialState, action) {
 		case SET_RESET_PASSWORD_TOKEN:
 			return {
 				...state,
-				user: { email: payload },
+				user: { ...state.user, email: payload },
 				loading: false,
-				validatedResetPasswordToken: true,
+				validatedResetPwToken: true,
 			};
 		case REMOVE_RESET_PASSWORD_TOKEN:
 			return {
 				...state,
-				validatedResetPasswordToken: false,
+				validatedResetPwToken: false,
 			};
 		case VIEW_LEAD: {
 			return {

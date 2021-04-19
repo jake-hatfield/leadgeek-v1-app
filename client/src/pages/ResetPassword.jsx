@@ -1,45 +1,52 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 import { Redirect, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { resetPasswordValidation, updatePassword } from '../redux/actions/auth';
-import { setAlert } from 'redux/actions/alert';
+import { resetPwValidation } from 'redux/actions/auth';
 
 import Layout from 'components/layout/Layout';
-import ResetPassword from './ResetPassword';
+import ResetPassword from 'components/auth/login/password/ResetPassword';
 import LoginImage from 'components/auth/login/LoginImage';
+import Spinner from 'components/layout/Spinner';
 import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
 
 const ResetPasswordPage = ({
-	auth: { isAuthenticated, loading, validatedResetPasswordToken },
-	resetPasswordValidation,
+	email,
+	loading,
+	isAuthenticated,
+	validatedResetPwToken,
+	resetPwValidation,
 }) => {
-	const resetPasswordToken = localStorage.resetPasswordToken;
+	const [resetPwToken] = useState(localStorage.resetPwToken);
 	// check for valid token
 	useEffect(() => {
-		resetPasswordValidation(resetPasswordToken);
-	}, [resetPasswordToken, resetPasswordValidation]);
+		resetPwValidation(resetPwToken);
+	}, []);
 	if (isAuthenticated) {
 		return <Redirect to='/' />;
 	}
-	return (
+	return !loading ? (
 		<Layout>
-			{!loading && validatedResetPasswordToken ? (
+			{validatedResetPwToken ? (
 				<section className='h-screen relative flex justify-center bg-gray-100'>
 					<div className='lg:hidden h-2 absolute inset-x-0 top-0 bg-purple-300' />
 					<div className='xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100'>
 						<div className='mt-6 hidden md:block container'>
 							<a href='https://leadgeek.io'>
-								<LeadGeekLogo className='inline-block w-16' />
+								<LeadGeekLogo className='inline-block w-12' />
 							</a>
 						</div>
 						<div className='container'>
 							<div className='mt-12 md:mt-0 mx-auto py-4 lg:py-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
-								<h1 className='text-2xl md:text-3xl lg:text-4xl font-black text-gray-900'>
+								<h1 className='text-xl md:text-2xl lg:text-3xl font-black text-gray-900'>
 									Reset password
 								</h1>
-								<ResetPassword fullWidthButton={true} />
+								<ResetPassword
+									email={email}
+									loading={loading}
+									fullWidthButton={true}
+								/>
 							</div>
 						</div>
 						<div className='mt-6 xl:mt-0 mb-6 container'>
@@ -55,7 +62,7 @@ const ResetPasswordPage = ({
 					<div className='xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100'>
 						<div className='mt-6 hidden md:block container'>
 							<a href='https://leadgeek.io'>
-								<LeadGeekLogo className='inline-block w-16' />
+								<LeadGeekLogo className='inline-block w-12' />
 							</a>
 						</div>
 						<div className='container'>
@@ -86,31 +93,36 @@ const ResetPasswordPage = ({
 							</div>
 						</div>
 						<div className='mt-6 xl:mt-0 mb-6 container'>
-							&copy; 2020 - {new Date().getFullYear()} LeadGeek, Inc. All rights
-							reserved.
+							&copy; 2020 - {new Date().getFullYear()} LekadGeek, Inc. All
+							rights reserved.
 						</div>
 					</div>
 					<LoginImage />
 				</section>
 			)}
 		</Layout>
+	) : (
+		<Spinner />
 	);
 };
 
 ResetPasswordPage.propTypes = {
 	isAuthenticated: PropTypes.bool.isRequired,
 	loading: PropTypes.bool.isRequired,
-	validatedResetPasswordToken: PropTypes.bool.isRequired,
-	resetPasswordValidation: PropTypes.func.isRequired,
+	validatedResetPwToken: PropTypes.bool.isRequired,
+	resetPwValidation: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => ({
-	auth: state.auth,
-	setAlert: state.alert,
-});
+const mapStateToProps = (state) => {
+	const {
+		user: { email },
+		loading,
+		isAuthenticated,
+		validatedResetPwToken,
+	} = state.auth;
+	return { email, loading, isAuthenticated, validatedResetPwToken };
+};
 
 export default connect(mapStateToProps, {
-	resetPasswordValidation,
-	updatePassword,
-	setAlert,
+	resetPwValidation,
 })(ResetPasswordPage);

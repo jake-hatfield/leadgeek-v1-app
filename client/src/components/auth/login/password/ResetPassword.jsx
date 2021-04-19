@@ -10,11 +10,11 @@ import { ReactComponent as Check } from 'assets/images/svgs/check.svg';
 import { ReactComponent as X } from 'assets/images/svgs/x.svg';
 
 const ResetPassword = ({
-	email,
 	loading,
+	email,
+	fullWidthButton,
 	updatePassword,
 	setAlert,
-	fullWidthButton,
 }) => {
 	const [formData, setFormData] = useState({
 		password_1: '',
@@ -251,65 +251,64 @@ const ResetPassword = ({
 		}
 	};
 	return (
-		<Fragment>
-			{!loading && (
-				<article className='pt-2'>
-					<header>
-						<div className='inline-block'>
-							In order to protect your account, please make sure your password:
-							<ul className='mt-4'>
-								{securityMeasureBullets.map((bullet, i) => (
-									<li key={i} className='mt-1 flex'>
-										<span>{bullet.svg}</span>
-										<span className='ml-2'>{bullet.content}</span>
-									</li>
-								))}
-							</ul>
-						</div>
-					</header>
-					<form className='my-3' onSubmit={(e) => onSubmit(e)}>
-						<FormField
-							label='New Password'
-							type='password'
-							placeholder='Create a new password'
-							name='password_1'
-							onChange={(e) => onChange(e)}
-							minLength={7}
-						/>
-						<FormField
-							label='Confirm Password'
-							type='password'
-							placeholder='Enter the password again'
-							name='password_2'
-							onChange={(e) => onChange(e)}
-							minLength={7}
-						/>
-						<button
-							type='submit'
-							className={`mt-4 py-2 px-4 ${
-								fullWidthButton && 'w-full'
-							} rounded-md text-white shadow-md bg-purple-600  hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline`}
-						>
-							Reset password
-						</button>
-					</form>
-				</article>
-			)}
-		</Fragment>
+		!loading && (
+			<article className='pt-2'>
+				<header>
+					<div className='inline-block'>
+						In order to protect your account, please make sure your password:
+						<ul className='mt-4'>
+							{securityMeasureBullets.map((bullet, i) => (
+								<li key={i} className='mt-1 flex'>
+									<span>{bullet.svg}</span>
+									<span className='ml-2'>{bullet.content}</span>
+								</li>
+							))}
+						</ul>
+					</div>
+				</header>
+				<form className='my-3' onSubmit={(e) => onSubmit(e)}>
+					<FormField
+						label='New Password'
+						type='password'
+						placeholder='Create a new password'
+						name='password_1'
+						onChange={(e) => onChange(e)}
+						minLength={7}
+					/>
+					<FormField
+						label='Confirm Password'
+						type='password'
+						placeholder='Enter the password again'
+						name='password_2'
+						onChange={(e) => onChange(e)}
+						minLength={7}
+					/>
+					<button
+						type='submit'
+						className={`mt-4 py-2 px-4 ${
+							fullWidthButton && 'w-full'
+						} rounded-md text-white shadow-md bg-purple-600  hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline`}
+					>
+						Reset password
+					</button>
+				</form>
+			</article>
+		)
 	);
 };
 
 ResetPassword.propTypes = {
-	auth: PropTypes.object.isRequired,
+	loading: PropTypes.bool.isRequired,
+	email: PropTypes.string.isRequired,
+	fullWidthButton: PropTypes.bool,
 	updatePassword: PropTypes.func.isRequired,
 	setAlert: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => {
-	const { loading } = state.auth;
 	const { setAlert } = state.alert;
-	const { email } = ownProps;
-	return { email, loading, setAlert };
+	const { loading, email, fullWidthButton } = ownProps;
+	return { loading, email, fullWidthButton, setAlert };
 };
 
 export default connect(mapStateToProps, {

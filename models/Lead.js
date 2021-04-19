@@ -62,9 +62,11 @@ const LeadSchema = new Schema({
 		},
 		weight: {
 			type: Number,
+			required: true,
 		},
 		asin: {
 			type: String,
+			required: true,
 		},
 		promo: {
 			type: String,
@@ -74,6 +76,7 @@ const LeadSchema = new Schema({
 		},
 		competitorType: {
 			type: String,
+			required: true,
 		},
 		shipping: {
 			type: String,
@@ -90,11 +93,13 @@ const LeadSchema = new Schema({
 			default: Date.now,
 		},
 	},
-	plan: {
-		type: String,
-		enum: ['bundle_1', 'pro_1', 'grow_1'],
-		required: true,
-	},
+	plan: [
+		{
+			type: String,
+			enum: ['pro', 'grow'],
+			required: true,
+		},
+	],
 });
 
 LeadSchema.plugin(mongoose_fuzzy_searching, {
