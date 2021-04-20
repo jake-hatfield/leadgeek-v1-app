@@ -149,7 +149,7 @@ router.post('/forgotPassword', async (req, res) => {
 			if (process.env.NODE_ENV === 'development') {
 				url = `http://${req.headers.host}`;
 			} else {
-				url = `https://${req.headers.host}`;
+				url = `https://app.leadgeek.io`;
 			}
 			console.log(url);
 			const mailOptions = {

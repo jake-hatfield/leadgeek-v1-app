@@ -3,19 +3,25 @@ import React, { Fragment, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { exportLeads } from 'redux/actions/leads';
+import { getAllUsers } from 'redux/actions/users';
+import { DateTime } from 'luxon';
 
-import { useOutsideMousedown } from 'utils/utils';
+import { useOutsideMousedown, capitalize } from 'utils/utils';
 import AuthLayout from 'components/layout/AuthLayout';
 import Header from 'components/layout/navigation/Header';
 import Button from 'components/layout/formField/Button';
 import Spinner from 'components/layout/Spinner';
+import { ReactComponent as Check } from 'assets/images/svgs/check.svg';
+import { ReactComponent as X } from 'assets/images/svgs/x.svg';
 
 const AdminItem = ({
+	width,
 	title,
 	desc,
 	path,
 	color,
 	buttonText,
+	additionalFunction,
 	popupHeading,
 	popupContent,
 }) => {
@@ -50,6 +56,7 @@ const AdminItem = ({
 						<button
 							onClick={() => {
 								showPopup((prev) => !prev);
+								additionalFunction && additionalFunction();
 							}}
 							className='link text-purple-500 hover:text-purple-600 rounded-lg transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
 						>
@@ -61,7 +68,9 @@ const AdminItem = ({
 			{popup && (
 				<div
 					ref={wrapperRef}
-					className='absolute inset-x-0 z-20 max-w-lg mt-6 mx-auto p-4 rounded-lg bg-white shadow-lg'
+					className={`absolute top-0 inset-x-0 z-20 max-h-screen ${
+						width || 'max-w-lg'
+					} mt-8 mx-auto p-4 rounded-lg bg-white shadow-lg`}
 				>
 					<div className='relative'>
 						<h2 className='pb-2 text-xl font-bold text-gray-800 border-b border-gray-200'>
@@ -94,17 +103,25 @@ const AdminItem = ({
 };
 
 AdminItem.propTypes = {
+	width: PropTypes.string,
 	title: PropTypes.string.isRequired,
 	desc: PropTypes.string.isRequired,
 	path: PropTypes.object.isRequired,
 	color: PropTypes.string.isRequired,
 	buttonText: PropTypes.string.isRequired,
+	additionalFunction: PropTypes.func,
 	popupHeading: PropTypes.string.isRequired,
 	popupContent: PropTypes.object.isRequired,
 };
 
-const Admin = ({ user, loading, exportLeads }) => {
-	const { _id: userId, role } = user;
+const Admin = ({
+	userId,
+	role,
+	loading,
+	userList,
+	exportLeads,
+	getAllUsers,
+}) => {
 	const adminItems = [
 		{
 			title: 'Export leads',
@@ -157,6 +174,7 @@ const Admin = ({ user, loading, exportLeads }) => {
 			),
 		},
 		{
+			width: 'w-full max-w-3xl',
 			title: 'View members',
 			desc: 'See a list of all past and present LeadGeek members.',
 			path: (
@@ -164,6 +182,7 @@ const Admin = ({ user, loading, exportLeads }) => {
 			),
 			color: 'text-teal-500',
 			buttonText: 'View all members',
+			additionalFunction: () => getAllUsers(),
 			buttonPath: (
 				<g>
 					<path d='M10 12a2 2 0 100-4 2 2 0 000 4z' />
@@ -185,8 +204,65 @@ const Admin = ({ user, loading, exportLeads }) => {
 								<th className='p-2'>Email</th>
 								<th className='p-2'>Plan</th>
 								<th className='p-2'>Status</th>
+								<th className='p-2'>Stripe</th>
+								<th className='p-2'>Last login</th>
 							</tr>
 						</thead>
+						<tbody className='mt-4 text-gray-700'>
+							{userList.map((user) => (
+								<tr
+									key={user._id}
+									className='text-sm border-b border-gray-200 '
+								>
+									<td className='py-1 px-2'>{user.name}</td>
+									<td className='py-1 px-2'>
+										<a
+											href={`mailto:${user.email}`}
+											target='_blank'
+											rel='noopener noreferrer'
+											className='link text-purple-500 hover:text-purple-600'
+										>
+											{user.email}
+										</a>
+									</td>
+									<td className='py-1 px-2'>{capitalize(user.role)}</td>
+									<td className='py-1 px-2'>
+										{user.subscription.subIds[0].active ? (
+											<Check className='inline-block h-4 w-4 text-teal-500 bg-teal-200 rounded-full' />
+										) : (
+											<X className='inline-block h-4 w-4 text-red-500 bg-red-200 rounded-full' />
+										)}
+									</td>
+									<td className='py-1 px-2'>
+										<a
+											href={`https://dashboard.stripe.com/customers/${user.subscription.cusId}`}
+											target='_blank'
+											rel='noopener noreferrer'
+											className='text-gray-500 hover:text-gray-600 transition-colors duration-100 ease-in-out'
+										>
+											<svg
+												xmlns='http://www.w3.org/2000/svg'
+												className='h-5 w-5'
+												viewBox='0 0 20 20'
+												fill='currentColor'
+											>
+												<path d='M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z' />
+												<path
+													fillRule='evenodd'
+													d='M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z'
+													clipRule='evenodd'
+												/>
+											</svg>
+										</a>
+									</td>
+									<td className='py-1 px-2'>
+										{user.lastLogin
+											? DateTime.fromISO(user.lastLogin).toFormat('LLL dd, t')
+											: '-'}
+									</td>
+								</tr>
+							))}
+						</tbody>
 					</table>
 				</Fragment>
 			),
@@ -196,7 +272,7 @@ const Admin = ({ user, loading, exportLeads }) => {
 	return (
 		<AuthLayout>
 			{!loading ? (
-				user.role === 'admin' ? (
+				role === 'admin' ? (
 					<section className='my-6'>
 						<Header title={'Admin panel'} _id={userId} role={role} />
 						<div className='mt-6 container'>
@@ -210,11 +286,13 @@ const Admin = ({ user, loading, exportLeads }) => {
 								{adminItems.map((item, i) => (
 									<AdminItem
 										key={i}
+										width={item.width}
 										title={item.title}
 										desc={item.desc}
 										path={item.path}
 										color={item.color}
 										buttonText={item.buttonText}
+										additionalFunction={item.additionalFunction}
 										buttonPath={item.buttonPath}
 										cta={item.cta}
 										popupHeading={item.popupHeading}
@@ -243,8 +321,12 @@ Admin.propTypes = {
 };
 
 const mapStateToProps = (state) => {
-	const { user, loading } = state.auth;
-	return { user, loading };
+	const {
+		user: { _id: userId, role },
+		loading,
+	} = state.auth;
+	const { allUsers: userList } = state.users;
+	return { userId, role, loading, userList };
 };
 
-export default connect(mapStateToProps, { exportLeads })(Admin);
+export default connect(mapStateToProps, { exportLeads, getAllUsers })(Admin);

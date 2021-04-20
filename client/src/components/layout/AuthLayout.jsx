@@ -10,12 +10,12 @@ const AuthLayout = ({ user, isAuthenticated, loading, children }) => {
 	return (
 		<Fragment>
 			<Alert />
-			<div className='min-h-screen relative flex'>
-				{user && isAuthenticated && (
+			{!loading && user && isAuthenticated && (
+				<div className='min-h-screen relative flex'>
 					<Navbar _id={user._id} role={user.role} loading={loading} />
-				)}
-				<main className='h-full w-full content'>{children}</main>
-			</div>
+					<main className='h-full w-full content'>{children}</main>
+				</div>
+			)}
 		</Fragment>
 	);
 };

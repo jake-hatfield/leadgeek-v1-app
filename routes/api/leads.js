@@ -119,7 +119,6 @@ router.post('/', auth, async (req, res) => {
 				category,
 			},
 		} = req.body;
-
 		const user = await User.findById({ _id });
 		if (!user) {
 			let message = 'There was an error finding a user with that id.';

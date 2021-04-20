@@ -90,10 +90,10 @@ router.post(
 	}
 );
 
-// @route       POST api/auth/getStripeSubscriptions
+// @route       POST api/auth/get-stripe-subscriptions
 // @description Check for and return stripe subscriptions
 // @access      Public
-router.post('/getStripeSubscriptions', async (req, res) => {
+router.post('/get-stripe-subscriptions', async (req, res) => {
 	try {
 		const email = req.body.email;
 		const user = await User.findOne({ email });
@@ -140,6 +140,14 @@ router.post('/getStripeSubscriptions', async (req, res) => {
 	} catch (error) {
 		console.log(error);
 		return res.status(500).send('Server error');
+	}
+});
+
+router.get('/get-all-users', async (req, res) => {
+	try {
+		await User.find({}, (err, users) => res.send(users));
+	} catch (error) {
+		console.log(error);
 	}
 });
 

@@ -11,6 +11,10 @@ export function useStickyState(defaultValue, key) {
 	return [value, setValue];
 }
 
+export function capitalize(s) {
+	return s[0].toUpperCase() + s.slice(1);
+}
+
 export function truncate(str, n) {
 	return str.length > n ? str.substr(0, n - 1) + '...' : str;
 }
