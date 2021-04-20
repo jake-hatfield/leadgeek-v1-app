@@ -135,7 +135,6 @@ router.post('/', auth, async (req, res) => {
 		} else {
 			planFilter = [plan.toString()];
 		}
-		console.log(planFilter);
 		const feed = await Lead.find({ plan: { $in: planFilter } })
 			.countDocuments()
 			.then((numLeads) => {
@@ -309,7 +308,13 @@ router.post('/all', auth, async (req, res) => {
 	try {
 		const { plan } = req.body;
 		console.log('Getting all leads...');
-		const feed = await Lead.find({ plan })
+		let planFilter = [];
+		if (plan === 'bundle') {
+			planFilter = ['grow', 'pro'];
+		} else {
+			planFilter = [plan.toString()];
+		}
+		const feed = await Lead.find({ plan: { $in: planFilter } })
 			.select('data -_id')
 			.sort({ 'data.date': -1 });
 		console.log(`Total items: ${feed.length}`);

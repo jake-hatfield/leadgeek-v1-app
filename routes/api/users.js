@@ -145,6 +145,13 @@ router.post('/forgotPassword', async (req, res) => {
 					rejectUnauthorized: false,
 				},
 			});
+			let url;
+			if (process.env.NODE_ENV === 'development') {
+				url = `http://${req.headers.host}`;
+			} else {
+				url = `https://${req.headers.host}`;
+			}
+			console.log(url);
 			const mailOptions = {
 				from: '"LeadGeek Support" <support@leadgeek.io>',
 				to: `${user.name} <${user.email}>`,
@@ -152,7 +159,7 @@ router.post('/forgotPassword', async (req, res) => {
 				text:
 					'You are receiving this email because you (or someone else) have requested to reset your LeadGeek account password. \n\n' +
 					'Please click on the following link, or paste this into your browser to complete the password reset process within one hour of receiving this email: \n\n' +
-					`http://localhost:3000/reset/reset-password/${token} \n\n` +
+					`${url}/reset/reset-password/${token} \n\n` +
 					// `https://leadgeek.io/reset/reset-password/${token} \n\n` +
 					'If you did not request this, please ignore this email and you password will remain unchanged. \n',
 			};
