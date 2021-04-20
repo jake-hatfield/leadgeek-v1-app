@@ -45,7 +45,7 @@ const Note = ({ title, desc, nullState }) => {
 		<div className='flex items-end justify-between mt-2 pb-2 border-b border-gray-200'>
 			<div>{title}</div>
 			{desc ? (
-				<div className='py-1 px-2 rounded-lg bg-teal-200 text-xs text-teal-600'>
+				<div className='py-1 px-2 rounded-lg bg-gray-800 text-xs text-white shadow-md hover:bg-gray-900 hover:shadow-lg transition duration-100 ease-in-out'>
 					{desc}
 				</div>
 			) : (
@@ -79,6 +79,7 @@ const Details = ({
 	const [fullTitle, toggleFullTitle] = useState(false);
 	const [overviewActive, setOverviewActive] = useState(true);
 	const { data } = currentLead;
+	// prevent scroll while active
 	useEffect(() => {
 		document.body.style.overflow = 'hidden';
 		return () => {
@@ -105,11 +106,26 @@ const Details = ({
 		document.addEventListener('keydown', keyPress);
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
-
 	const [like, setLike] = useState(
-		liked.includes(currentLead._id) ? true : false
+		liked.some((lead) => lead._id === currentLead._id) ? true : false
 	);
-	const [archive, setArchive] = useState(archived.includes(currentLead._id));
+	useEffect(() => {
+		if (liked.some((lead) => lead._id === currentLead._id)) {
+			setLike(true);
+		} else {
+			setLike(false);
+		}
+	}, [liked]);
+	const [archive, setArchive] = useState(
+		archived.some((lead) => lead._id === currentLead._id) ? true : false
+	);
+	useEffect(() => {
+		if (archived.some((lead) => lead._id === currentLead._id)) {
+			setArchive(true);
+		} else {
+			setArchive(false);
+		}
+	}, [archived]);
 
 	const primaryLinks = [
 		{ title: 'Overview', onClick: () => setOverviewActive(true) },
@@ -146,8 +162,10 @@ const Details = ({
 		setNoteCount(notes.filter((note) => note !== ''));
 	};
 	useEffect(() => {
-		checkNotes();
-	}, []);
+		if (currentLead) {
+			checkNotes();
+		}
+	}, [currentLead]);
 	const buttonClasses =
 		'py-2 px-3 flex items-center rounded-lg shadow-sm hover:shadow-md font-semibold text-sm hover:text-gray-500 transition duration-100 ease-in-out focus:outline-none focus:shadow-outline';
 	const descriptorClasses = 'flex justify-between';
@@ -242,12 +260,23 @@ const Details = ({
 											<button
 												onClick={() => {
 													handleLikeLead(userId, currentLead._id);
-													setLike((prev) => !prev);
-													console.log(like);
 												}}
 												className={`${buttonClasses} hover:text-gray-700`}
 											>
 												{like ? (
+													<svg
+														xmlns='http://www.w3.org/2000/svg'
+														viewBox='0 0 20 20'
+														fill='currentColor'
+														className='h-4 w-4'
+													>
+														<path
+															fillRule='evenodd'
+															d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
+															clipRule='evenodd'
+														/>
+													</svg>
+												) : (
 													<svg
 														xmlns='http://www.w3.org/2000/svg'
 														fill='none'
@@ -262,32 +291,31 @@ const Details = ({
 															d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
 														/>
 													</svg>
-												) : (
-													<svg
-														xmlns='http://www.w3.org/2000/svg'
-														viewBox='0 0 20 20'
-														fill='currentColor'
-														className='h-4 w-4'
-													>
-														<path
-															fillRule='evenodd'
-															d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
-															clipRule='evenodd'
-														/>
-													</svg>
 												)}
 
-												<span className='ml-2'>Like</span>
+												<span className='ml-2'>{like ? 'Unlike' : 'Like'}</span>
 											</button>
 											<button
 												onClick={() => {
 													handleArchiveLead(userId, currentLead._id);
-													setArchive((prev) => !prev);
 												}}
 												className={`${buttonClasses} ml-4 hover:text-gray-700`}
 											>
 												{archive ? (
-													'yeet'
+													<svg
+														xmlns='http://www.w3.org/2000/svg'
+														viewBox='0 0 24 24'
+														fill='currentColor'
+														stroke='currentColor'
+														className='h-4 w-4'
+													>
+														<path
+															strokeLinecap='round'
+															strokeLinejoin='round'
+															strokeWidth={2}
+															d='M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z'
+														/>
+													</svg>
 												) : (
 													<svg
 														xmlns='http://www.w3.org/2000/svg'
@@ -305,7 +333,9 @@ const Details = ({
 													</svg>
 												)}
 
-												<span className='ml-2'>Archive</span>
+												<span className='ml-2'>
+													{archive ? 'Unarchive' : 'Archive'}
+												</span>
 											</button>
 										</div>
 										<button
@@ -477,9 +507,9 @@ const Details = ({
 										<span
 											className={`${
 												noteCount.length > 0
-													? 'bg-teal-200 text-teal-600'
+													? 'bg-gray-800 text-white'
 													: 'bg-gray-100 text-gray-500'
-											} ml-2 py-1 px-2 rounded-lg shadow-sm text-sm`}
+											} ml-2 py-1 px-2 rounded-lg shadow-sm text-xs`}
 										>
 											{noteCount.length}
 										</span>

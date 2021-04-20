@@ -6,8 +6,10 @@ import Spinner from '../layout/Spinner';
 
 const LeadTable = ({
 	leads,
-	loading,
 	user,
+	liked,
+	archived,
+	loading,
 	showDetails,
 	setShowDetails,
 	search,
@@ -37,9 +39,11 @@ const LeadTable = ({
 							<LeadRow
 								key={lead._id}
 								lead={lead}
+								user={user}
+								liked={liked}
+								archived={archived}
 								showDetails={showDetails}
 								setShowDetails={setShowDetails}
-								user={user}
 							/>
 						))}
 					</tbody>

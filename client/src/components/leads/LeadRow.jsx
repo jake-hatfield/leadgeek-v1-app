@@ -26,6 +26,8 @@ const buttonClasses =
 const LeadRow = ({
 	lead,
 	user,
+	liked,
+	archived,
 	viewLead,
 	showDetails,
 	setShowDetails,
@@ -36,8 +38,6 @@ const LeadRow = ({
 	lbFee,
 }) => {
 	const { data } = lead;
-	const [like, setLike] = useState(user.likedLeads.includes(lead._id));
-	const [archive, setArchive] = useState(user.archivedLeads.includes(lead._id));
 	const [newLead, setNewLead] = useState(false);
 	const [quickView, setQuickView] = useState(false);
 	const [expandedView, setExpandedView] = useState(false);
@@ -65,17 +65,35 @@ const LeadRow = ({
 		setQuickView(false);
 		setExpandedView(false);
 	};
+	const [like, setLike] = useState(
+		liked.some((l) => l._id === lead._id) ? true : false
+	);
+	useEffect(() => {
+		if (liked.some((l) => l._id === lead._id)) {
+			setLike(true);
+		} else {
+			setLike(false);
+		}
+	}, [liked]);
+	const [archive, setArchive] = useState(
+		archived.some((l) => l._id === lead._id) ? true : false
+	);
+	useEffect(() => {
+		if (archived.some((l) => l._id === lead._id)) {
+			setArchive(true);
+		} else {
+			setArchive(false);
+		}
+	}, [archived]);
 	const favoriteHandler = (e) => {
 		e.stopPropagation();
 		newLead && setNewLead(false);
-		setLike(!like);
 		handleLikeLead(user._id, lead._id);
 		viewLead(user._id, lead._id);
 	};
 	const archiveHandler = (e) => {
 		e.stopPropagation();
 		newLead && setNewLead(false);
-		setArchive(!archive);
 		handleArchiveLead(user._id, lead._id);
 		viewLead(user._id, lead._id);
 	};

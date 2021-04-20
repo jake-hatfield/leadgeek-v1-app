@@ -19,6 +19,7 @@ const Leads = ({
 	leads,
 	pagination,
 	type,
+	headerTitle,
 	user,
 	authLoading,
 	feed,
@@ -101,7 +102,12 @@ const Leads = ({
 		user && (
 			<Fragment>
 				<section className='relative my-6'>
-					<Header searchActive={true} _id={userId} role={role} />
+					<Header
+						headerTitle={headerTitle}
+						searchActive={true}
+						_id={userId}
+						role={role}
+					/>
 					{!search && (
 						<nav className='mt-6 container'>
 							<div className='relative flex items-end justify-between pb-2 border-b border-gray-200'>
@@ -164,10 +170,12 @@ const Leads = ({
 					)}
 					<LeadTable
 						leads={leads}
+						user={user}
+						liked={likedLeads}
+						archived={archivedLeads}
 						loading={leadLoading}
 						showDetails={showDetails}
 						setShowDetails={setShowDetails}
-						user={user}
 					/>
 					{!search && pagination && (
 						<Pagination pagination={pagination} type={type} />
@@ -193,6 +201,7 @@ Leads.propTypes = {
 	leads: PropTypes.array.isRequired,
 	pagination: PropTypes.object.isRequired,
 	type: PropTypes.string.isRequired,
+	headerTitle: PropTypes.string,
 	user: PropTypes.object.isRequired,
 	authLoading: PropTypes.bool.isRequired,
 	feed: PropTypes.object.isRequired,

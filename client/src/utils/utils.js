@@ -124,7 +124,3 @@ export const useOutsideMouseup = (ref, setState_1, setState_2) => {
 		};
 	}, [ref, setState_1, setState_2]);
 };
-
-export const checkActiveStatus = (arr, _id) => {
-    if
-};
