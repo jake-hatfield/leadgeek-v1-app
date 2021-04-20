@@ -1,27 +1,20 @@
 import React, { useEffect } from 'react';
 
-export function useStickyState(defaultValue, key) {
-	const [value, setValue] = React.useState(() => {
-		const stickyValue = window.localStorage.getItem(key);
-		return stickyValue !== null ? JSON.parse(stickyValue) : defaultValue;
-	});
-	React.useEffect(() => {
-		window.localStorage.setItem(key, JSON.stringify(value));
-	}, [key, value]);
-	return [value, setValue];
-}
-
-export function capitalize(s) {
+export const capitalize = (s) => {
 	return s[0].toUpperCase() + s.slice(1);
-}
+};
 
-export function truncate(str, n) {
+export const truncate = (str, n) => {
 	return str.length > n ? str.substr(0, n - 1) + '...' : str;
-}
+};
 
-export function numberWithCommas(x) {
+export const numberWithCommas = (x) => {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
+};
+
+export const lengthChecker = (array) => {
+	return array.length > 99 ? '99+' : array.length;
+};
 
 // bsr / category % calculator
 export const calculateBSR = (currentRank, category) => {
@@ -81,15 +74,22 @@ export const calculateBSR = (currentRank, category) => {
 	return bsrPercentage;
 };
 
-export const lengthChecker = (array) => {
-	return array.length > 99 ? '99+' : array.length;
-};
-
 export const openLinkHandler = (e, retailerLink, amzLink) => {
 	e.preventDefault();
 	window.open(retailerLink);
 	window.open(amzLink);
 };
+
+export function useStickyState(defaultValue, key) {
+	const [value, setValue] = React.useState(() => {
+		const stickyValue = window.localStorage.getItem(key);
+		return stickyValue !== null ? JSON.parse(stickyValue) : defaultValue;
+	});
+	React.useEffect(() => {
+		window.localStorage.setItem(key, JSON.stringify(value));
+	}, [key, value]);
+	return [value, setValue];
+}
 
 export const useOutsideMousedown = (ref, setState_1, setState_2) => {
 	useEffect(() => {
@@ -123,4 +123,8 @@ export const useOutsideMouseup = (ref, setState_1, setState_2) => {
 			document.removeEventListener('mouseup', handleClickOutside);
 		};
 	}, [ref, setState_1, setState_2]);
+};
+
+export const checkActiveStatus = (arr, _id) => {
+    if
 };
