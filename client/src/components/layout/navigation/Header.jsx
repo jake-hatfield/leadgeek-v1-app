@@ -8,6 +8,7 @@ import { getSearchResults } from 'redux/actions/leads';
 const Header = ({
 	_id,
 	role,
+	dateCreated,
 	search: { page },
 	title,
 	searchActive,
@@ -26,7 +27,7 @@ const Header = ({
 		if (location.pathname !== '/search') {
 			setRedirect(true);
 		}
-		getSearchResults(searchValue, _id, role, page);
+		getSearchResults(searchValue, role, dateCreated);
 	};
 
 	if (redirect) {
@@ -92,8 +93,8 @@ Header.propTypes = {
 
 const mapStateToProps = (state, ownProps) => {
 	const { search } = state.leads;
-	const { _id, role, title } = ownProps;
-	return { _id, role, search, title };
+	const { _id, role, dateCreated, title } = ownProps;
+	return { _id, role, dateCreated, search, title };
 };
 
 export default connect(mapStateToProps, { getSearchResults })(Header);

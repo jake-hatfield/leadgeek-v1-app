@@ -34,7 +34,7 @@ const Leads = ({
 	const [showDetails, setShowDetails] = useState(false);
 	const [filter, setFilter] = useState(false);
 	const [prep, setPrep] = useState(false);
-	const { _id: userId, role, likedLeads, archivedLeads } = user;
+	const { _id: userId, role, dateCreated, likedLeads, archivedLeads } = user;
 	const likedCount = likedLeads && likedLeads.length > 0 && likedLeads.length;
 	const archivedCount =
 		archivedLeads && archivedLeads.length > 0 && archivedLeads.length;
@@ -103,10 +103,11 @@ const Leads = ({
 			<Fragment>
 				<section className='relative my-6'>
 					<Header
-						headerTitle={headerTitle}
+						title={headerTitle}
 						searchActive={true}
 						_id={userId}
 						role={role}
+						dateCreated={dateCreated}
 					/>
 					{!search && (
 						<nav className='mt-6 container'>

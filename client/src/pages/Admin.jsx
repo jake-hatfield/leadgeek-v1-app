@@ -78,7 +78,7 @@ const AdminItem = ({
 						</h2>
 						<button
 							onClick={() => showPopup((prev) => !prev)}
-							className='absolute top-0 right-0 mt-1'
+							className='absolute top-0 right-0 mt-1 hover:text-gray-600 transition duration-100 ease-in-out'
 						>
 							<svg
 								xmlns='http://www.w3.org/2000/svg'

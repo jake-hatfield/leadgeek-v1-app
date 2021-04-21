@@ -43,16 +43,10 @@ export const getLeads = (user, page, filters) => async (dispatch) => {
 	try {
 		dispatch({ type: LOADING });
 		const { _id, lastLoggedIn, role, unviewedLeads } = user;
-		let plan;
-		if (role === 'admin') {
-			plan = 'bundle';
-		} else {
-			plan = role;
-		}
 		const body = JSON.stringify({
 			_id,
 			lastLoggedIn,
-			plan,
+			plan: role,
 			unviewedLeads,
 			page,
 			filters,
@@ -77,15 +71,10 @@ export const getLeads = (user, page, filters) => async (dispatch) => {
 
 export const getAllLeads = (user) => async (dispatch) => {
 	try {
-		const { role } = user;
-		let plan;
-		if (role === 'admin') {
-			plan = 'bundle';
-		} else {
-			plan = role;
-		}
+		const { role, dateCreated } = user;
 		const body = JSON.stringify({
-			plan,
+			plan: role,
+			dateCreated,
 		});
 		const { data } = await axios.post('/api/leads/all', body, config);
 		if (data.message === 'There are no leads to show.') {
@@ -224,8 +213,9 @@ export const setPage = (page, type) => (dispatch) => {
 	}
 };
 
-export const getSearchResults = (search, _id) => async (dispatch) => {
-	const { data } = await axios.get('/api/search', { params: { q: search } });
+export const getSearchResults = (q, plan, dateCreated) => async (dispatch) => {
+	const body = JSON.stringify({ q, plan, dateCreated });
+	const { data } = await axios.post('/api/search', body, config);
 	dispatch({
 		type: SET_SEARCH_RESULTS,
 		payload: data,

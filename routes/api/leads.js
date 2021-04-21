@@ -70,7 +70,7 @@ router.get('/export', auth, async (req, res) => {
 					img: lead.img,
 					date: Date.now(),
 				},
-				plan: lead.plan,
+				plan: lead.plan.split(','),
 				_id: lead._id,
 			}));
 			if (newLeads) {
@@ -129,12 +129,15 @@ router.post('/', auth, async (req, res) => {
 		const { unviewedLeads } = user;
 		let totalItems;
 		let planFilter = [];
-		if (plan === 'bundle') {
+		if (plan === 'bundle' || plan === 'admin') {
 			planFilter = ['grow', 'pro'];
 		} else {
 			planFilter = [plan.toString()];
 		}
-		const feed = await Lead.find({ plan: { $in: planFilter } })
+		const feed = await Lead.find({
+			plan: { $in: planFilter },
+			'data.date': { $gte: user.dateCreated },
+		})
 			.countDocuments()
 			.then((numLeads) => {
 				totalItems = numLeads;
@@ -305,15 +308,17 @@ router.post('/', auth, async (req, res) => {
 // @access      Private
 router.post('/all', auth, async (req, res) => {
 	try {
-		const { plan } = req.body;
+		const { plan, dateCreated } = req.body;
 		console.log('Getting all leads...');
-		let planFilter = [];
-		if (plan === 'bundle') {
+		if (plan === 'bundle' || plan === 'admin') {
 			planFilter = ['grow', 'pro'];
 		} else {
 			planFilter = [plan.toString()];
 		}
-		const feed = await Lead.find({ plan: { $in: planFilter } })
+		const feed = await Lead.find({
+			plan: { $in: planFilter },
+			'data.date': { $gte: dateCreated },
+		})
 			.select('data -_id')
 			.sort({ 'data.date': -1 });
 		console.log(`Total items: ${feed.length}`);
