@@ -9,10 +9,9 @@ const Lead = require('../../models/Lead');
 router.post('/', auth, async (req, res) => {
 	try {
 		const { q, plan, dateCreated } = req.body;
-		console.log(dateCreated);
 		let planFilter = [];
 		if (plan === 'bundle' || plan === 'admin') {
-			planFilter = ['grow', 'pro'];
+			planFilter = ['bundle'];
 		} else {
 			planFilter = [plan.toString()];
 		}
@@ -22,7 +21,6 @@ router.post('/', auth, async (req, res) => {
 		})
 			.fuzzySearch(q)
 			.select('-plan');
-		console.log(leads);
 		return res.status(200).send(leads);
 	} catch (error) {
 		console.error(error.message);

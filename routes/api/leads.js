@@ -59,16 +59,16 @@ router.get('/export', auth, async (req, res) => {
 					bsr30: +lead.bsr30,
 					bsr90: +lead.bsr90,
 					competitorType: lead.competitorType,
-					price30: lead.price30,
-					price90: lead.price90,
+					price30: +lead.price30,
+					price90: +lead.price90,
 					variations: lead.variations,
 					cashback: lead.cashback,
 					weight: +lead.weight,
-					asin: lead.asin,
 					shipping: lead.shipping,
 					notes: lead.notes,
 					img: lead.img,
-					date: Date.now(),
+					date: lead.date || Date.now(),
+					asin: lead.asin,
 				},
 				plan: lead.plan.split(','),
 				_id: lead._id,
@@ -130,7 +130,7 @@ router.post('/', auth, async (req, res) => {
 		let totalItems;
 		let planFilter = [];
 		if (plan === 'bundle' || plan === 'admin') {
-			planFilter = ['grow', 'pro'];
+			planFilter = ['bundle'];
 		} else {
 			planFilter = [plan.toString()];
 		}
@@ -145,7 +145,9 @@ router.post('/', auth, async (req, res) => {
 					$and: [
 						{
 							plan: { $in: planFilter },
-							'data.date': { $gte: user.dateCreated },
+							...(plan !== 'admin' && {
+								'data.date': { $gte: user.dateCreated },
+							}),
 						},
 						{
 							...(netProfit.min && {
@@ -311,7 +313,7 @@ router.post('/all', auth, async (req, res) => {
 		const { plan, dateCreated } = req.body;
 		console.log('Getting all leads...');
 		if (plan === 'bundle' || plan === 'admin') {
-			planFilter = ['grow', 'pro'];
+			planFilter = ['bundle'];
 		} else {
 			planFilter = [plan.toString()];
 		}

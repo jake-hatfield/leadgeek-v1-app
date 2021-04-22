@@ -46,15 +46,23 @@ const LeadSchema = new Schema({
 		},
 		bsr30: {
 			type: Number,
-			required: true,
+			default: null,
 		},
 		bsr90: {
 			type: Number,
-			required: true,
+			default: null,
 		},
 		category: {
 			type: String,
 			required: true,
+		},
+		price30: {
+			type: Number,
+			default: null,
+		},
+		price90: {
+			type: Number,
+			default: null,
 		},
 		brand: {
 			type: String,
@@ -96,7 +104,7 @@ const LeadSchema = new Schema({
 	plan: [
 		{
 			type: String,
-			enum: ['pro', 'grow'],
+			enum: ['bundle', 'pro', 'grow'],
 			required: true,
 		},
 	],
