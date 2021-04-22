@@ -17,10 +17,13 @@ router.post('/', auth, async (req, res) => {
 		}
 		const leads = await Lead.find({
 			plan: { $in: planFilter },
-			'data.date': { $gte: dateCreated },
+			...(plan !== 'admin' && {
+				'data.date': { $gte: user.dateCreated },
+			}),
 		})
 			.fuzzySearch(q)
 			.select('-plan');
+		console.log(leads);
 		return res.status(200).send(leads);
 	} catch (error) {
 		console.error(error.message);

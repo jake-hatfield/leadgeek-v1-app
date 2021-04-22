@@ -216,6 +216,7 @@ export const setPage = (page, type) => (dispatch) => {
 export const getSearchResults = (q, plan, dateCreated) => async (dispatch) => {
 	const body = JSON.stringify({ q, plan, dateCreated });
 	const { data } = await axios.post('/api/search', body, config);
+	console.log(data);
 	dispatch({
 		type: SET_SEARCH_RESULTS,
 		payload: data,
