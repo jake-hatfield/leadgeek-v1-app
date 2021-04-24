@@ -136,7 +136,9 @@ router.post('/', auth, async (req, res) => {
 		}
 		const feed = await Lead.find({
 			plan: { $in: planFilter },
-			'data.date': { $gte: user.dateCreated },
+			...(plan !== 'admin' && {
+				'data.date': { $gte: user.dateCreated },
+			}),
 		})
 			.countDocuments()
 			.then((numLeads) => {

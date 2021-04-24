@@ -241,7 +241,7 @@ const Details = ({
 										onMouseLeave={() => toggleFullTitle(false)}
 										className='inline-block font-bold text-lg text-gray-900'
 									>
-										{truncate(data.title, 57)}
+										{truncate(data.title, 55)}
 									</h3>
 									{fullTitle && (
 										<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-28 rounded-md shadow-md bg-gray-800 text-white text-sm'>
