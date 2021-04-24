@@ -49,6 +49,8 @@ export const calculateBSR = (currentRank, category) => {
 		totalItems = 59108947;
 	} else if (category.includes('Industrial')) {
 		totalItems = 9915828;
+	} else if (category.includes('Dining')) {
+		totalItems = 59108947;
 	} else if (category.includes('Movies')) {
 		totalItems = 3426934;
 	} else if (category.includes('Musical')) {
