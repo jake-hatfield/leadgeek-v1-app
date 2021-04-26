@@ -181,15 +181,16 @@ const Navbar = ({ _id, role, loading, logout }) => {
 				))}
 			</aside>
 			<article>
-				{role === 'admin' && (
-					<nav className='mt-4 flex flex-col'>
-						{adminLinks.map((link, i) => (
-							<div key={i} className='first:mt-0 mt-6'>
-								<NavbarLink link={link} />
-							</div>
-						))}
-					</nav>
-				)}
+				{role === 'admin' ||
+					(role === 'master' && (
+						<nav className='mt-4 flex flex-col'>
+							{adminLinks.map((link, i) => (
+								<div key={i} className='first:mt-0 mt-6'>
+									<NavbarLink link={link} />
+								</div>
+							))}
+						</nav>
+					))}
 				<nav className='mt-4 flex flex-col'>
 					{secondaryLinks.map((link, i) => (
 						<div key={i} className='first:mt-0 mt-6'>

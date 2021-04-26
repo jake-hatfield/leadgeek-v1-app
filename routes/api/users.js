@@ -82,7 +82,7 @@ router.post('/', async (req, res) => {
 			},
 		};
 
-		jwt.sign(payload, jwtSecret, { expiresIn: 60 * 60 }, (err, token) => {
+		jwt.sign(payload, jwtSecret, { expiresIn: 60 * 120 }, (err, token) => {
 			if (err) throw err;
 			res.json({ token });
 		});

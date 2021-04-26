@@ -129,14 +129,16 @@ router.post('/', auth, async (req, res) => {
 		const { unviewedLeads } = user;
 		let totalItems;
 		let planFilter = [];
-		if (plan === 'bundle' || plan === 'admin') {
+		if (plan === 'bundle' || plan === 'admin' || plan === 'master') {
 			planFilter = ['bundle'];
 		} else {
 			planFilter = [plan.toString()];
 		}
+		console.log(planFilter);
+		console.log(user.dateCreated);
 		const feed = await Lead.find({
 			plan: { $in: planFilter },
-			...(plan !== 'admin' && {
+			...((plan !== 'admin' || plan !== 'master') && {
 				'data.date': { $gte: user.dateCreated },
 			}),
 		})
@@ -147,7 +149,7 @@ router.post('/', auth, async (req, res) => {
 					$and: [
 						{
 							plan: { $in: planFilter },
-							...(plan !== 'admin' && {
+							...((plan !== 'admin' || plan !== 'master') && {
 								'data.date': { $gte: user.dateCreated },
 							}),
 						},
@@ -314,14 +316,14 @@ router.post('/all', auth, async (req, res) => {
 	try {
 		const { plan, dateCreated } = req.body;
 		console.log('Getting all leads...');
-		if (plan === 'bundle' || plan === 'admin') {
+		if (plan === 'bundle' || plan === 'admin' || plan === 'master') {
 			planFilter = ['bundle'];
 		} else {
 			planFilter = [plan.toString()];
 		}
 		const feed = await Lead.find({
 			plan: { $in: planFilter },
-			...(plan !== 'admin' && {
+			...((plan !== 'admin' || plan !== 'master') && {
 				'data.date': { $gte: dateCreated },
 			}),
 		})

@@ -11,6 +11,7 @@ import {
 	CHECK_RESET_PASSWORD_TOKEN,
 	SET_RESET_PASSWORD_TOKEN,
 	REMOVE_RESET_PASSWORD_TOKEN,
+	SURROGATE_USER,
 } from './types';
 import { setResetPwToken } from '../../utils/authTokens';
 
@@ -184,6 +185,15 @@ export const updatePassword = (email, password) => async (dispatch) => {
 			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
 		}
 	}
+};
+
+export const surrogateUser = (id) => async (dispatch) => {
+	const body = JSON.stringify({ id });
+	const { data } = await axios.post('/api/auth/surrogate-user', body, config);
+	dispatch({
+		type: SURROGATE_USER,
+		payload: { data },
+	});
 };
 
 // update stripe sub information in mongo

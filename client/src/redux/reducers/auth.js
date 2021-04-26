@@ -2,6 +2,7 @@ import {
 	REGISTER_SUCCESS,
 	REGISTER_FAIL,
 	LOGIN_SUCCESS,
+	SURROGATE_USER,
 	LOGIN_FAIL,
 	LOGOUT,
 	USER_LOADED,
@@ -39,6 +40,13 @@ export default function authReducer(state = initialState, action) {
 				...payload,
 				isAuthenticated: true,
 			};
+		case SURROGATE_USER: {
+			return {
+				...state,
+				token: payload.data.token,
+				user: payload.data.user,
+			};
+		}
 		case REGISTER_FAIL:
 		case AUTH_ERROR:
 		case LOGIN_FAIL:
@@ -87,6 +95,7 @@ export default function authReducer(state = initialState, action) {
 				user: { ...state.user, archivedLeads: payload.leads },
 				loading: false,
 			};
+
 		default:
 			return state;
 	}

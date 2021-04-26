@@ -8,6 +8,7 @@ import {
 	SET_CURRENT_LEAD,
 	CLEAR_CURRENT_LEAD,
 	SET_PAGE,
+	SURROGATE_USER,
 	LOGOUT,
 	USER_LOADED,
 	LOADING,
@@ -283,6 +284,8 @@ export default function leadsReducer(state = initialState, action) {
 				}
 			}
 		}
+
+		case SURROGATE_USER:
 		case LOGOUT: {
 			return {
 				...initialState,

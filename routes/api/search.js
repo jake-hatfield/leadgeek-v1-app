@@ -12,14 +12,14 @@ router.post('/', auth, async (req, res) => {
 	try {
 		const { q, plan, dateCreated, page } = req.body;
 		let planFilter = [];
-		if (plan === 'bundle' || plan === 'admin') {
+		if (plan === 'bundle' || plan === 'admin' || plan === 'master') {
 			planFilter = ['bundle'];
 		} else {
 			planFilter = [plan.toString()];
 		}
 		const leads = await Lead.fuzzySearch(q, {
 			plan: { $in: planFilter },
-			...(plan !== 'admin' && {
+			...((plan !== 'admin' || plan !== 'master') && {
 				'data.date': { $gte: dateCreated },
 			}),
 		})

@@ -6,12 +6,10 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 const { check, validationResult } = require('express-validator');
 const User = require('../../models/User');
-const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
-const stripe = require('stripe')(stripeSecret);
 
 // @route       GET api/auth
 // @description Find user
-// @access      Public
+// @access      Private
 router.get('/', auth, async (req, res) => {
 	try {
 		const user = await User.findById(req.user.id).select('-password');
@@ -46,7 +44,7 @@ router.post(
 			let user = await User.findOne({ email });
 			if (!user) {
 				return res.status(400).json({
-					erorrs: [
+					errors: [
 						{
 							msg:
 								'Email & password combination not correct. Please try again or reset your password.',
@@ -78,7 +76,7 @@ router.post(
 				},
 			};
 
-			jwt.sign(payload, jwtSecret, { expiresIn: 60 * 60 }, (err, token) => {
+			jwt.sign(payload, jwtSecret, { expiresIn: 60 * 120 }, (err, token) => {
 				if (err) throw err;
 				res.json({ token });
 			});
@@ -89,6 +87,49 @@ router.post(
 		}
 	}
 );
+
+// @route       POST api/auth/surrogate-user
+// @description Log in as user for administrative purposes
+// @access      Private
+router.post('/surrogate-user', auth, async (req, res) => {
+	try {
+		const { id } = req.body;
+		if (id) {
+			let user = await User.findOne({ _id: id });
+			if (!user) {
+				return res.status(400).json({
+					errors: [
+						{
+							msg:
+								'Email & password combination not correct. Please try again or reset your password.',
+						},
+					],
+				});
+			}
+			// return the JWT
+			const payload = {
+				user: {
+					id,
+				},
+			};
+			jwt.sign(payload, jwtSecret, { expiresIn: 60 * 120 }, (err, token) => {
+				if (err) throw err;
+				res.json({ token, user });
+			});
+		} else {
+			return res.status(200).json({
+				errors: [
+					{
+						msg: 'No user found.',
+					},
+				],
+			});
+		}
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server error');
+	}
+});
 
 // @route       POST api/auth/get-stripe-subscriptions
 // @description Check for and return stripe subscriptions
@@ -101,7 +142,7 @@ router.post('/get-stripe-subscriptions', async (req, res) => {
 			let message = 'No user found';
 			console.log(message);
 			return res.status(400).json({
-				erorrs: [
+				errors: [
 					{
 						msg: message,
 					},
@@ -111,7 +152,7 @@ router.post('/get-stripe-subscriptions', async (req, res) => {
 			let message = 'No Stripe customer is associated with this email.';
 			console.log(message);
 			return res.status(400).json({
-				erorrs: [
+				errors: [
 					{
 						msg: message,
 					},
@@ -124,7 +165,7 @@ router.post('/get-stripe-subscriptions', async (req, res) => {
 				let message = 'Incomplete user information';
 				console.log(message);
 				return res.status(400).json({
-					erorrs: [
+					errors: [
 						{
 							msg: message,
 						},

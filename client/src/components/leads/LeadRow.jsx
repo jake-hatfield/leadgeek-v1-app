@@ -142,7 +142,7 @@ const LeadRow = ({
 			>
 				{truncate(data.title, 31)}
 				{titleHover && (
-					<div className='absolute top-0 z-10 p-2 transform translate-y-10 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+					<div className='absolute top-0 z-10 p-2 transform translate-y-12 rounded-md shadow-md bg-gray-800 text-white text-sm'>
 						{data.title}
 					</div>
 				)}

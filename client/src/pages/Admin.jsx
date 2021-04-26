@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { exportLeads } from 'redux/actions/leads';
 import { getAllUsers } from 'redux/actions/users';
+import { surrogateUser } from 'redux/actions/auth';
 import { DateTime } from 'luxon';
 
 import { useOutsideMousedown, capitalize } from 'utils/utils';
@@ -121,6 +122,7 @@ const Admin = ({
 	userList,
 	exportLeads,
 	getAllUsers,
+	surrogateUser,
 }) => {
 	const adminItems = [
 		{
@@ -205,7 +207,7 @@ const Admin = ({
 								<th className='p-2'>Plan</th>
 								<th className='p-2'>Status</th>
 								<th className='p-2'>Stripe</th>
-								<th className='p-2'>Last login</th>
+								<th className='p-2'>Surrogate</th>
 							</tr>
 						</thead>
 						<tbody className='mt-4 text-gray-700'>
@@ -225,7 +227,9 @@ const Admin = ({
 											{user.email}
 										</a>
 									</td>
-									<td className='py-1 px-2'>{capitalize(user.role)}</td>
+									<td className='flex items-center justify-between py-1 px-2'>
+										{capitalize(user.role)}
+									</td>
 									<td className='py-1 px-2'>
 										{user.subscription.subIds[0].active ? (
 											<Check className='inline-block h-4 w-4 text-teal-500 bg-teal-200 rounded-full' />
@@ -256,9 +260,17 @@ const Admin = ({
 										</a>
 									</td>
 									<td className='py-1 px-2'>
-										{user.lastLogin
+										{/* {user.lastLogin
 											? DateTime.fromISO(user.lastLogin).toFormat('LLL dd, t')
-											: '-'}
+											: '-'} */}
+										<button
+											onClick={() =>
+												role === 'master' && surrogateUser(user._id)
+											}
+											className='py-1 px-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-white shadow-sm hover:shadow-md transition-colors duration-100 ease-in-out'
+										>
+											<div>Login</div>
+										</button>
 									</td>
 								</tr>
 							))}
@@ -272,7 +284,7 @@ const Admin = ({
 	return (
 		<AuthLayout>
 			{!loading ? (
-				role === 'admin' ? (
+				role === 'admin' || role === 'master' ? (
 					<section className='my-6'>
 						<Header title={'Admin panel'} _id={userId} role={role} />
 						<div className='mt-6 container'>
@@ -329,4 +341,8 @@ const mapStateToProps = (state) => {
 	return { userId, role, loading, userList };
 };
 
-export default connect(mapStateToProps, { exportLeads, getAllUsers })(Admin);
+export default connect(mapStateToProps, {
+	exportLeads,
+	getAllUsers,
+	surrogateUser,
+})(Admin);
