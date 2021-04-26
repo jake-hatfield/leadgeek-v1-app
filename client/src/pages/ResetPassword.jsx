@@ -9,10 +9,11 @@ import Layout from 'components/layout/Layout';
 import ResetPassword from 'components/auth/login/password/ResetPassword';
 import LoginImage from 'components/auth/login/LoginImage';
 import Spinner from 'components/layout/Spinner';
+import UnAuthFooter from 'components/layout/navigation/UnAuthFooter';
 import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
 
 const ResetPasswordPage = ({
-	email,
+	user,
 	loading,
 	isAuthenticated,
 	validatedResetPwToken,
@@ -43,7 +44,7 @@ const ResetPasswordPage = ({
 									Reset password
 								</h1>
 								<ResetPassword
-									email={email}
+									email={user.email}
 									loading={loading}
 									fullWidthButton={true}
 								/>
@@ -92,10 +93,7 @@ const ResetPasswordPage = ({
 								</header>
 							</div>
 						</div>
-						<div className='mt-6 xl:mt-0 mb-6 container'>
-							&copy; 2020 - {new Date().getFullYear()} LekadGeek, Inc. All
-							rights reserved.
-						</div>
+						<UnAuthFooter />
 					</div>
 					<LoginImage />
 				</section>
@@ -114,13 +112,8 @@ ResetPasswordPage.propTypes = {
 };
 
 const mapStateToProps = (state) => {
-	const {
-		user: { email },
-		loading,
-		isAuthenticated,
-		validatedResetPwToken,
-	} = state.auth;
-	return { email, loading, isAuthenticated, validatedResetPwToken };
+	const { user, loading, isAuthenticated, validatedResetPwToken } = state.auth;
+	return { user, loading, isAuthenticated, validatedResetPwToken };
 };
 
 export default connect(mapStateToProps, {

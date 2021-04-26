@@ -127,11 +127,12 @@ router.post('/forgotPassword', async (req, res) => {
 				error
 			) {
 				if (!error) {
-					console.log(`Success updating user: ${result}`);
+					console.log('Success updating user');
 				} else {
 					console.log(`Error updating user: ${error}`);
 				}
 			});
+
 			const transporter = nodemailer.createTransport({
 				name: 'improvmx',
 				host: 'smtp.improvmx.com',
@@ -144,14 +145,14 @@ router.post('/forgotPassword', async (req, res) => {
 				tls: {
 					rejectUnauthorized: false,
 				},
+				debug: true,
 			});
 			let url;
-			if (process.env.NODE_ENV === 'development') {
-				url = `http://${req.headers.host}`;
-			} else {
+			if (process.env.NODE_ENV === 'production') {
 				url = `https://app.leadgeek.io`;
+			} else {
+				url = `http://localhost:3000`;
 			}
-			console.log(url);
 			const mailOptions = {
 				from: '"LeadGeek Support" <support@leadgeek.io>',
 				to: `${user.name} <${user.email}>`,
@@ -164,16 +165,30 @@ router.post('/forgotPassword', async (req, res) => {
 					'If you did not request this, please ignore this email and you password will remain unchanged. \n',
 			};
 			console.log('Sending email...');
-			transporter.sendMail(mailOptions, (err, res) => {
-				if (err) {
-					console.error('There was an error sending the email: ', err);
+			transporter.verify(function (error, success) {
+				if (error) {
+					console.log(error);
 				} else {
-					console.log('Email sent successfully. Here are the details:', res);
+					console.log('Server is ready to take our messages');
+					transporter.sendMail(mailOptions, (err, res) => {
+						if (err) {
+							console.error('There was an error sending the email: ', err);
+							return res.status(200).json({
+								msg: 'There was an error sending the password recovery email',
+							});
+						} else {
+							console.log(
+								'Email sent successfully. Here are the details:',
+								res
+							);
+						}
+					});
+					return res.status(200).json({
+						msg: 'Password recovery email sent successfully',
+						token,
+					});
 				}
 			});
-			return res
-				.status(200)
-				.json({ msg: 'Password recovery email sent successfully', token });
 		}
 	} catch (error) {
 		console.error(error.message);
@@ -188,7 +203,7 @@ router.post('/resetPasswordValidation', async (req, res) => {
 	try {
 		console.log('Searching for user password reset token...');
 		let user = await User.findOne({
-			resetPwToken: req.body.resetPasswordToken,
+			resetPwToken: req.body.resetPwToken,
 			resetPwExpires: {
 				$gte: Date.now(),
 			},
@@ -227,8 +242,8 @@ router.put('/updatePassword', async (req, res) => {
 			const newHashedPassword = await bcrypt.hash(password, salt);
 			await user.updateOne({
 				password: newHashedPassword,
-				resetPasswordToken: null,
-				resetPasswordExpires: null,
+				resetPwToken: null,
+				resetPwExpires: null,
 			});
 			console.log('Password was succesfully updated');
 			return res.status(200).send('Password was successfully updated');
