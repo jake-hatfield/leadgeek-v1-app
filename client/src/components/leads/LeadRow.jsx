@@ -105,13 +105,13 @@ const LeadRow = ({
 				viewDetailsHandler();
 			}}
 		>
-			<td className='p-2 text-center'>
+			{/* <td className='p-2 text-center'>
 				{newLead && (
 					<span className='h-4 w-4 flex items-center justify-center rounded-full bg-teal-200'>
 						<span className='h-2 w-2 inline-block rounded-full bg-teal-400' />
 					</span>
 				)}
-			</td>
+			</td> */}
 			<td className='p-2 pl-0 text-center text-gray-400'>
 				<button
 					onClick={(e) => {

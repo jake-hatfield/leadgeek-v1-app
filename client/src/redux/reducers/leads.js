@@ -208,10 +208,28 @@ export default function leadsReducer(state = initialState, action) {
 			};
 		}
 		case SET_SEARCH_RESULTS: {
+			const {
+				leads,
+				page,
+				hasNextPage,
+				hasPreviousPage,
+				nextPage,
+				previousPage,
+				totalItems,
+			} = payload.data;
 			return {
 				...state,
 				search: {
-					pageByIds: payload,
+					...state.search,
+					pageByIds: leads,
+					pagination: {
+						page,
+						hasNextPage,
+						hasPreviousPage,
+						nextPage,
+						previousPage,
+						totalItems,
+					},
 				},
 			};
 		}

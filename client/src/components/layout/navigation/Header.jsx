@@ -6,10 +6,11 @@ import { connect } from 'react-redux';
 import { getSearchResults } from 'redux/actions/leads';
 
 const Header = ({
-	_id,
 	role,
 	dateCreated,
-	search: { page },
+	search: {
+		pagination: { page },
+	},
 	title,
 	searchActive,
 	getSearchResults,
@@ -27,7 +28,7 @@ const Header = ({
 		if (location.pathname !== '/search') {
 			setRedirect(true);
 		}
-		getSearchResults(searchValue, role, dateCreated);
+		getSearchResults(searchValue, role, dateCreated, page);
 	};
 
 	if (redirect) {

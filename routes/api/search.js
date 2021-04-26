@@ -3,28 +3,44 @@ const router = express.Router();
 const auth = require('../../middleware/auth');
 const Lead = require('../../models/Lead');
 
+const ITEMS_PER_PAGE = 20;
+
 // @route       POST api/search
 // @description Seach all leads a user has access to
 // @access      Private
 router.post('/', auth, async (req, res) => {
 	try {
-		const { q, plan, dateCreated } = req.body;
+		const { q, plan, dateCreated, page } = req.body;
 		let planFilter = [];
 		if (plan === 'bundle' || plan === 'admin') {
 			planFilter = ['bundle'];
 		} else {
 			planFilter = [plan.toString()];
 		}
-		const leads = await Lead.find({
+		const leads = await Lead.fuzzySearch(q, {
 			plan: { $in: planFilter },
 			...(plan !== 'admin' && {
-				'data.date': { $gte: user.dateCreated },
+				'data.date': { $gte: dateCreated },
 			}),
 		})
-			.fuzzySearch(q)
-			.select('-plan');
-		console.log(leads);
-		return res.status(200).send(leads);
+			.select('-plan')
+			.skip((page - 1) * ITEMS_PER_PAGE)
+			.limit(ITEMS_PER_PAGE);
+		const totalItems = await Lead.fuzzySearch(q, {
+			plan: { $in: planFilter },
+			...(plan !== 'admin' && {
+				'data.date': { $gte: dateCreated },
+			}),
+		}).countDocuments();
+		return res.status(200).send({
+			leads,
+			page,
+			hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+			hasPreviousPage: page > 1,
+			nextPage: page + 1,
+			previousPage: page - 1,
+			lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+		});
 	} catch (error) {
 		console.error(error.message);
 		return res.status(500).send('Server error');

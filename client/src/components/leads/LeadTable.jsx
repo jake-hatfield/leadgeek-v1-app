@@ -22,7 +22,7 @@ const LeadTable = ({
 				<table className='w-full table-auto' id='leads'>
 					<thead className='border-b border-gray-200'>
 						<tr className='text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
-							<th className='p-2' />
+							{/* <th className='p-2' /> */}
 							<th className='p-2' />
 							<th className='p-2'>Title</th>
 							<th className='p-2'>Category</th>

@@ -213,12 +213,15 @@ export const setPage = (page, type) => (dispatch) => {
 	}
 };
 
-export const getSearchResults = (q, plan, dateCreated) => async (dispatch) => {
-	const body = JSON.stringify({ q, plan, dateCreated });
+export const getSearchResults = (q, plan, dateCreated, page) => async (
+	dispatch
+) => {
+	dispatch({ type: LOADING });
+	const body = JSON.stringify({ q, plan, dateCreated, page });
 	const { data } = await axios.post('/api/search', body, config);
-	console.log(data);
 	dispatch({
 		type: SET_SEARCH_RESULTS,
-		payload: data,
+		payload: { data },
 	});
+	return dispatch({ type: FINISHED_LOADING });
 };

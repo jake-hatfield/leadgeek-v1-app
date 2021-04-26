@@ -178,9 +178,7 @@ const Leads = ({
 						showDetails={showDetails}
 						setShowDetails={setShowDetails}
 					/>
-					{!search && pagination && (
-						<Pagination pagination={pagination} type={type} />
-					)}
+					{pagination && <Pagination pagination={pagination} type={type} />}
 				</section>
 				{showDetails && currentLead && (
 					<Details
