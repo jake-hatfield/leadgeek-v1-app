@@ -41,6 +41,7 @@ const LeadRow = ({
 	const [newLead, setNewLead] = useState(false);
 	const [quickView, setQuickView] = useState(false);
 	const [expandedView, setExpandedView] = useState(false);
+	const [titleHover, setTitleHover] = useState(false);
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setQuickView, setExpandedView);
 	useEffect(() => {
@@ -134,7 +135,18 @@ const LeadRow = ({
 					</svg>
 				</button>
 			</td>
-			<td className='p-2 font-semibold'>{truncate(data.title, 40)}</td>
+			<td
+				onMouseEnter={() => setTitleHover(true)}
+				onMouseLeave={() => setTitleHover(false)}
+				className='relative p-2 font-semibold'
+			>
+				{truncate(data.title, 31)}
+				{titleHover && (
+					<div className='absolute top-0 z-10 p-2 transform translate-y-10 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+						{data.title}
+					</div>
+				)}
+			</td>
 			<td className='p-2'>{truncate(data.category, 28)}</td>
 			<td className='p-2'>
 				<span>$</span>
