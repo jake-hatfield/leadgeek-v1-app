@@ -10,16 +10,16 @@ const ITEMS_PER_PAGE = 20;
 // @access      Private
 router.post('/', auth, async (req, res) => {
 	try {
-		const { q, plan, dateCreated, page } = req.body;
-		let planFilter = [];
-		if (plan === 'bundle' || plan === 'admin' || plan === 'master') {
-			planFilter = ['bundle'];
-		} else {
-			planFilter = [plan.toString()];
+		const { q, role, dateCreated, page } = req.body;
+		let roleFilter = [role.toString()];
+		let administrator;
+		const administrativeRoles = ['master', 'admin'];
+		if (administrativeRoles.indexOf(role) >= 0) {
+			administrator = true;
 		}
 		const leads = await Lead.fuzzySearch(q, {
-			plan: { $in: planFilter },
-			...((plan !== 'admin' || plan !== 'master') && {
+			...(!administrator && { plan: { $in: roleFilter } }),
+			...(!administrator && {
 				'data.date': { $gte: dateCreated },
 			}),
 		})
@@ -27,8 +27,8 @@ router.post('/', auth, async (req, res) => {
 			.skip((page - 1) * ITEMS_PER_PAGE)
 			.limit(ITEMS_PER_PAGE);
 		const totalItems = await Lead.fuzzySearch(q, {
-			plan: { $in: planFilter },
-			...(plan !== 'admin' && {
+			...(!administrator && { plan: { $in: roleFilter } }),
+			...(!administrator && {
 				'data.date': { $gte: dateCreated },
 			}),
 		}).countDocuments();

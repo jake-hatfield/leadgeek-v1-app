@@ -10,7 +10,7 @@ const User = require('../../models/User');
 const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
 const stripe = require('stripe')(stripeSecret);
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 25;
 
 // @route       POST api/users
 // @description Register user

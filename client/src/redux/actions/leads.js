@@ -46,7 +46,7 @@ export const getLeads = (user, page, filters) => async (dispatch) => {
 		const body = JSON.stringify({
 			_id,
 			lastLoggedIn,
-			plan: role,
+			role,
 			unviewedLeads,
 			page,
 			filters,
@@ -73,7 +73,7 @@ export const getAllLeads = (user) => async (dispatch) => {
 	try {
 		const { role, dateCreated } = user;
 		const body = JSON.stringify({
-			plan: role,
+			role,
 			dateCreated,
 		});
 		const { data } = await axios.post('/api/leads/all', body, config);
@@ -213,11 +213,11 @@ export const setPage = (page, type) => (dispatch) => {
 	}
 };
 
-export const getSearchResults = (q, plan, dateCreated, page) => async (
+export const getSearchResults = (q, role, dateCreated, page) => async (
 	dispatch
 ) => {
 	dispatch({ type: LOADING });
-	const body = JSON.stringify({ q, plan, dateCreated, page });
+	const body = JSON.stringify({ q, role, dateCreated, page });
 	const { data } = await axios.post('/api/search', body, config);
 	dispatch({
 		type: SET_SEARCH_RESULTS,

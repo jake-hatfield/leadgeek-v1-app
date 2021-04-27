@@ -106,7 +106,7 @@ router.post('/', auth, async (req, res) => {
 		const {
 			lastLoggedIn,
 			_id,
-			plan,
+			role,
 			page,
 			filters: {
 				netProfit,
@@ -128,15 +128,16 @@ router.post('/', auth, async (req, res) => {
 		console.log('Getting paginated leads...');
 		const { unviewedLeads } = user;
 		let totalItems;
-		let planFilter = [];
-		if (plan === 'bundle' || plan === 'admin' || plan === 'master') {
-			planFilter = ['bundle'];
-		} else {
-			planFilter = [plan.toString()];
+		let roleFilter = [role.toString()];
+		let administrator;
+		const administrativeRoles = ['master', 'admin'];
+		if (administrativeRoles.indexOf(role) >= 0) {
+			administrator = true;
 		}
+
 		const feed = await Lead.find({
-			plan: { $in: planFilter },
-			...((plan !== 'admin' || plan !== 'master') && {
+			...(!administrator && { plan: { $in: roleFilter } }),
+			...(!administrator && {
 				'data.date': { $gte: user.dateCreated },
 			}),
 		})
@@ -146,8 +147,8 @@ router.post('/', auth, async (req, res) => {
 				return Lead.find({
 					$and: [
 						{
-							plan: { $in: planFilter },
-							...((plan !== 'admin' || plan !== 'master') && {
+							...(!administrator && { plan: { $in: roleFilter } }),
+							...(!administrator && {
 								'data.date': { $gte: user.dateCreated },
 							}),
 						},
@@ -271,10 +272,13 @@ router.post('/', auth, async (req, res) => {
 			const lastUpdated = feed[0].data.date;
 			console.log(`Total items: ${totalItems}`);
 			// see if any leads have been added since the user last logged in
-			const unviewed = await Lead.find({
-				plan: { $in: planFilter },
-				'data.date': { $gte: lastLoggedIn },
-			}).select('_id');
+			// const unviewed = await Lead.find({
+			// 	...(!administrator && { plan: { $in: roleFilter } }),
+			// 	...(!administrator && {
+			// 		'data.date': { $gte: lastLoggedIn },
+			// 	}),
+			// }).select('_id');
+			let unviewed = [];
 			// if any new leads, add them to the DB
 			if (unviewed.length > 0) {
 				console.log('Adding new unviewed products...');
@@ -312,16 +316,17 @@ router.post('/', auth, async (req, res) => {
 // @access      Private
 router.post('/all', auth, async (req, res) => {
 	try {
-		const { plan, dateCreated } = req.body;
+		const { role, dateCreated } = req.body;
 		console.log('Getting all leads...');
-		if (plan === 'bundle' || plan === 'admin' || plan === 'master') {
-			planFilter = ['bundle'];
-		} else {
-			planFilter = [plan.toString()];
+		let roleFilter = [role.toString()];
+		let administrator;
+		const administrativeRoles = ['master', 'admin'];
+		if (administrativeRoles.indexOf(role) >= 0) {
+			administrator = true;
 		}
 		const feed = await Lead.find({
-			plan: { $in: planFilter },
-			...((plan !== 'admin' || plan !== 'master') && {
+			...(!administrator && { plan: { $in: roleFilter } }),
+			...(!administrator && {
 				'data.date': { $gte: dateCreated },
 			}),
 		})
