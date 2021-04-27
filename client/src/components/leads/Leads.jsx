@@ -13,6 +13,7 @@ import LeadTable from './LeadTable';
 import Pagination from '../layout/navigation/Pagination';
 import Details from './Details';
 import Button from '../layout/formField/Button';
+import Spinner from 'components/layout/Spinner';
 import { setAlert } from 'redux/actions/alert';
 
 const Leads = ({
@@ -158,13 +159,20 @@ const Leads = ({
 									)}
 									{filter && <Filter filter={filter} setFilter={setFilter} />}
 									{prep && <Prep prep={prep} setPrep={setPrep} />}
-									{exportLeads && feed.totalByIds && (
-										<ExportButton
-											user={user}
-											leads={feed.totalByIds}
-											setExportLeads={setExportLeads}
-										/>
-									)}
+									{exportLeads &&
+										(feed.totalByIds.length > 0 ? (
+											<ExportButton
+												user={user}
+												leads={feed.totalByIds}
+												setExportLeads={setExportLeads}
+											/>
+										) : (
+											<Spinner
+												noMargin={true}
+												divWidth={'w-28'}
+												spinnerWidth={'sm'}
+											/>
+										))}
 								</div>
 							</div>
 						</nav>

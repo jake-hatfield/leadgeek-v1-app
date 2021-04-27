@@ -328,7 +328,6 @@ router.post('/all', auth, async (req, res) => {
 			.select('data -_id')
 			.sort({ 'data.date': -1 });
 		console.log(`Total items: ${feed.length}`);
-		console.log(feed);
 		if (feed.length === 0) {
 			let message = 'There are no leads to show.';
 			console.log(message);

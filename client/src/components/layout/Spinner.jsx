@@ -3,12 +3,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Preloader, Oval } from 'react-preloader-icon';
 
-const Spinner = ({ search, text }) => {
+const Spinner = ({ divWidth, spinnerWidth, noMargin, search, text }) => {
 	return (
-		<div className='flex flex-col items-center justify-center mt-12'>
+		<div
+			className={`${divWidth} flex flex-col items-center justify-center ${
+				!noMargin && 'mt-12'
+			}`}
+		>
 			<Preloader
 				use={Oval}
-				size={35}
+				size={spinnerWidth === 'sm' ? 20 : spinnerWidth === 'md' ? 35 : 45}
 				strokeWidth={6}
 				strokeColor='#5d55fa'
 				duration={500}
