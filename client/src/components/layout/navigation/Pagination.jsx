@@ -14,7 +14,7 @@ const Pagination = ({ pagination, type, loading, setPage }) => {
 		totalItems,
 	} = pagination;
 	const buttonClasses =
-		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold text-gray-500 hover:text-gray-600 transition duration-100 ease-in-out focus:outline-none focus:shadow-outline';
+		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold text-gray-500 hover:text-gray-600 transition duration-100 ease-in-out ring-purple';
 	return (
 		!loading &&
 		(hasPreviousPage || hasNextPage) && (

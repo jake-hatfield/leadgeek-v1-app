@@ -26,12 +26,12 @@ const PasswordFormField = ({
 					placeholder={placeholder}
 					required={required}
 					onChange={onChange}
-					className='mt-1 p-2 w-full rounded-md  text-sm border border-gray-200 shadow-xs placeholder-gray-300 focus:outline-none focus:shadow-outline'
+					className='mt-1 p-2 w-full rounded-md  text-sm border border-gray-200 shadow-xs placeholder-gray-300 ring-purple'
 				/>
 				<button
 					onClick={toggle}
 					type='button'
-					className='mt-4 mr-2 absolute right-0 rounded-md text-gray-400 focus:outline-none focus:shadow-outline'
+					className='mt-4 mr-2 absolute right-0 rounded-md text-gray-400 ring-purple'
 				>
 					{passwordShown ? (
 						<EyeClosed className='h-4' />

@@ -73,7 +73,7 @@ const Login = ({ login, isAuthenticated }) => {
 								/>
 								<button
 									type='submit'
-									className='mt-4 py-2 w-full rounded-md font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-sm hover:shadow-md transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+									className='mt-4 py-2 w-full rounded-md font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-sm hover:shadow-md transition-colors duration-100 ease-in-out ring-purple'
 								>
 									Log in
 								</button>

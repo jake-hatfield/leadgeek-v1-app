@@ -21,7 +21,7 @@ import {
 } from 'utils/utils';
 
 const buttonClasses =
-	'py-1 px-3 w-full text-left font-semibold text-purple-600 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline';
+	'py-1 px-3 w-full text-left font-semibold text-purple-600 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-100 ease-in-out ring-gray';
 
 const LeadRow = ({
 	lead,
@@ -117,7 +117,7 @@ const LeadRow = ({
 					onClick={(e) => {
 						favoriteHandler(e);
 					}}
-					className='p-1 rounded-md focus:outline-none focus:shadow-outline align-middle'
+					className='p-1 rounded-md ring-purple align-middle'
 				>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
@@ -185,7 +185,7 @@ const LeadRow = ({
 					<div
 						onMouseEnter={() => setQuickView(true)}
 						onMouseLeave={() => !expandedView && setQuickView(false)}
-						className='flex items-center justify-center rounded-r-lg focus:outline-none focus:shadow-outline'
+						className='flex items-center justify-center rounded-r-lg ring-gray'
 					>
 						<button
 							onClick={(e) => {
@@ -196,7 +196,7 @@ const LeadRow = ({
 								quickView
 									? 'absolute z-10 p-2 bg-white shadow-sm rounded-r-lg'
 									: 'rounded-lg'
-							} p-1 text-gray-500 hover:text-gray-700 focus:outline-none focus:shadow-outline`}
+							} p-1 text-gray-500 hover:text-gray-700 ring-gray`}
 						>
 							<svg
 								xmlns='http://www.w3.org/2000/svg'
@@ -218,7 +218,7 @@ const LeadRow = ({
 											setCurrentLead(lead);
 											setExpandedView(false);
 										}}
-										className='p-2 rounded-l-lg border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										className='p-2 rounded-l-lg border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 									>
 										<svg
 											xmlns='http://www.w3.org/2000/svg'
@@ -241,7 +241,7 @@ const LeadRow = ({
 											openLinkHandler(e, data.retailerLink, data.amzLink);
 											setExpandedView(false);
 										}}
-										className='p-2 border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										className='p-2 border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 									>
 										<svg
 											xmlns='http://www.w3.org/2000/svg'
