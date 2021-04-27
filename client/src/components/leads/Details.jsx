@@ -161,6 +161,16 @@ const Details = ({
 	const checkNotes = () => {
 		setNoteCount(notes.filter((note) => note !== ''));
 	};
+	const [identifyingText, setIdentifyingText] = useState('');
+
+	useEffect(() => {
+		if (data.asin.startsWith('B', 0)) {
+			setIdentifyingText('ASIN');
+		} else {
+			setIdentifyingText('ISBN');
+		}
+	}, [identifyingText]);
+
 	useEffect(() => {
 		if (currentLead) {
 			checkNotes();
@@ -395,7 +405,7 @@ const Details = ({
 											<div>{`$${data.buyPrice.toFixed(2) || '-'}`}</div>
 										</div>
 										<div className={`${descriptorClasses} relative`}>
-											<div>ASIN</div>
+											<div>{identifyingText}</div>
 											<div className='flex items-center'>
 												{data.asin ? (
 													<a
@@ -455,7 +465,9 @@ const Details = ({
 														</svg>
 													)}
 													<span className={copiedText ? 'ml-1' : null}>
-														{copiedText ? 'ASIN copied' : 'Copy ASIN'}
+														{copiedText
+															? `${identifyingText} copied`
+															: `Copy ${identifyingText}`}
 													</span>
 												</div>
 											)}
