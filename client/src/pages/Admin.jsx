@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useRef } from 'react';
+import React, { Fragment, useState, useEffect, useRef } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -11,6 +11,7 @@ import { useOutsideMousedown, capitalize } from 'utils/utils';
 import AuthLayout from 'components/layout/AuthLayout';
 import Header from 'components/layout/navigation/Header';
 import Button from 'components/layout/formField/Button';
+import Pagination from 'components/layout/navigation/Pagination';
 import Spinner from 'components/layout/Spinner';
 import { ReactComponent as Check } from 'assets/images/svgs/check.svg';
 import { ReactComponent as X } from 'assets/images/svgs/x.svg';
@@ -115,15 +116,105 @@ AdminItem.propTypes = {
 	popupContent: PropTypes.object.isRequired,
 };
 
-const Admin = ({
-	userId,
+const UserTable = ({
 	role,
+	allUsers,
+	pagination,
+	getAllUsers,
+	surrogateUser,
+}) => {
+	useEffect(() => {
+		getAllUsers(pagination.page);
+	}, [pagination.page]);
+	return (
+		<Fragment>
+			<table className='w-full mt-4 table-auto'>
+				<thead className='border-b border-gray-200'>
+					<tr className='font-semibold text-left text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
+						<th className='p-2'>Name</th>
+						<th className='p-2'>Email</th>
+						<th className='p-2'>Plan</th>
+						<th className='p-2'>Status</th>
+						<th className='p-2'>Stripe</th>
+						<th className='p-2'>Surrogate</th>
+					</tr>
+				</thead>
+				<tbody className='mt-4 text-gray-700'>
+					{allUsers.map((user) => (
+						<tr
+							key={user._id}
+							className='text-sm border-b border-gray-200 hover:bg-gray-100'
+						>
+							<td className='py-1 px-2'>{user.name}</td>
+							<td className='py-1 px-2'>
+								<a
+									href={`mailto:${user.email}`}
+									target='_blank'
+									rel='noopener noreferrer'
+									className='link text-purple-500 hover:text-purple-600'
+								>
+									{user.email}
+								</a>
+							</td>
+							<td className='py-1 px-2'>{capitalize(user.role)}</td>
+							<td className='py-1 px-2'>
+								{user.subscription.subIds[0].active ? (
+									<Check className='inline-block h-4 w-4 text-teal-500 bg-teal-200 rounded-full' />
+								) : (
+									<X className='inline-block h-4 w-4 text-red-500 bg-red-200 rounded-full' />
+								)}
+							</td>
+							<td className='py-1 px-2'>
+								<a
+									href={`https://dashboard.stripe.com/customers/${user.subscription.cusId}`}
+									target='_blank'
+									rel='noopener noreferrer'
+									className='text-gray-500 hover:text-gray-600 transition-colors duration-100 ease-in-out'
+								>
+									<svg
+										xmlns='http://www.w3.org/2000/svg'
+										className='h-5 w-5'
+										viewBox='0 0 20 20'
+										fill='currentColor'
+									>
+										<path d='M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z' />
+										<path
+											fillRule='evenodd'
+											d='M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z'
+											clipRule='evenodd'
+										/>
+									</svg>
+								</a>
+							</td>
+							<td className='py-1 px-2'>
+								{/* {user.lastLogin
+											? DateTime.fromISO(user.lastLogin).toFormat('LLL dd, t')
+											: '-'} */}
+								<button
+									onClick={() => role === 'master' && surrogateUser(user._id)}
+									className='py-1 px-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-white shadow-sm hover:shadow-md transition-colors duration-100 ease-in-out'
+								>
+									<div>Login</div>
+								</button>
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+			{allUsers && <Pagination pagination={pagination} />}
+		</Fragment>
+	);
+};
+
+const Admin = ({
+	user,
 	loading,
-	userList,
+	users: { allUsers, pagination, loading: userLoading },
 	exportLeads,
 	getAllUsers,
 	surrogateUser,
 }) => {
+	const { _id: userId, role } = Object(user);
 	const adminItems = [
 		{
 			title: 'Export leads',
@@ -184,7 +275,7 @@ const Admin = ({
 			),
 			color: 'text-teal-500',
 			buttonText: 'View all members',
-			additionalFunction: () => getAllUsers(),
+			additionalFunction: () => getAllUsers(pagination.page),
 			buttonPath: (
 				<g>
 					<path d='M10 12a2 2 0 100-4 2 2 0 000 4z' />
@@ -198,85 +289,13 @@ const Admin = ({
 			cta: false,
 			popupHeading: 'LeadGeek members',
 			popupContent: (
-				<Fragment>
-					<table className='mt-4 w-full table-auto'>
-						<thead className='border-b border-gray-200'>
-							<tr className='font-semibold text-left text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
-								<th className='p-2'>Name</th>
-								<th className='p-2'>Email</th>
-								<th className='p-2'>Plan</th>
-								<th className='p-2'>Status</th>
-								<th className='p-2'>Stripe</th>
-								<th className='p-2'>Surrogate</th>
-							</tr>
-						</thead>
-						<tbody className='mt-4 text-gray-700'>
-							{userList.map((user) => (
-								<tr
-									key={user._id}
-									className='text-sm border-b border-gray-200 '
-								>
-									<td className='py-1 px-2'>{user.name}</td>
-									<td className='py-1 px-2'>
-										<a
-											href={`mailto:${user.email}`}
-											target='_blank'
-											rel='noopener noreferrer'
-											className='link text-purple-500 hover:text-purple-600'
-										>
-											{user.email}
-										</a>
-									</td>
-									<td className='flex items-center justify-between py-1 px-2'>
-										{capitalize(user.role)}
-									</td>
-									<td className='py-1 px-2'>
-										{user.subscription.subIds[0].active ? (
-											<Check className='inline-block h-4 w-4 text-teal-500 bg-teal-200 rounded-full' />
-										) : (
-											<X className='inline-block h-4 w-4 text-red-500 bg-red-200 rounded-full' />
-										)}
-									</td>
-									<td className='py-1 px-2'>
-										<a
-											href={`https://dashboard.stripe.com/customers/${user.subscription.cusId}`}
-											target='_blank'
-											rel='noopener noreferrer'
-											className='text-gray-500 hover:text-gray-600 transition-colors duration-100 ease-in-out'
-										>
-											<svg
-												xmlns='http://www.w3.org/2000/svg'
-												className='h-5 w-5'
-												viewBox='0 0 20 20'
-												fill='currentColor'
-											>
-												<path d='M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z' />
-												<path
-													fillRule='evenodd'
-													d='M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z'
-													clipRule='evenodd'
-												/>
-											</svg>
-										</a>
-									</td>
-									<td className='py-1 px-2'>
-										{/* {user.lastLogin
-											? DateTime.fromISO(user.lastLogin).toFormat('LLL dd, t')
-											: '-'} */}
-										<button
-											onClick={() =>
-												role === 'master' && surrogateUser(user._id)
-											}
-											className='py-1 px-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-white shadow-sm hover:shadow-md transition-colors duration-100 ease-in-out'
-										>
-											<div>Login</div>
-										</button>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</Fragment>
+				<UserTable
+					role={role}
+					allUsers={allUsers}
+					pagination={pagination}
+					getAllUsers={getAllUsers}
+					surrogateUser={surrogateUser}
+				/>
 			),
 		},
 	];
@@ -333,12 +352,9 @@ Admin.propTypes = {
 };
 
 const mapStateToProps = (state) => {
-	const {
-		user: { _id: userId, role },
-		loading,
-	} = state.auth;
-	const { allUsers: userList } = state.users;
-	return { userId, role, loading, userList };
+	const { user, loading } = state.auth;
+	const { users } = state;
+	return { user, loading, users };
 };
 
 export default connect(mapStateToProps, {

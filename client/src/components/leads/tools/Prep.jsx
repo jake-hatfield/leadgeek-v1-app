@@ -64,23 +64,23 @@ const Prep = ({
 							getLeads(user, 1, filters);
 							setPrep((prev) => !prev);
 						}}
-						className='font-semibold text-sm text-purple-600 hover:text-gray-700 transition-colors duration-100 ease-in-out'
+						className='font-semibold text-sm text-purple-500 rounded-sm hover:text-purple-600 transition-colors duration-100 ease-in-out ring-purple'
 					>
 						Apply
 					</button>
 				</header>
 				<div className='py-2 px-4 bg-gray-100 font-semibold text-sm text-gray-700'>
-					<div>
+					<div className='flex items-center justify-between'>
 						<label className='flex items-center justify-between'>
 							Weight-based prep fee?
-							<input
-								name='checkbox'
-								type='checkbox'
-								checked={checked}
-								onChange={() => setChecked((prev) => !prev)}
-								className='w-4 p-2 bg-white rounded-md text-sm border border-gray-200 shadow-sm text-purple-600 focus:outline-none focus:shadow-outline'
-							/>
 						</label>
+						<input
+							name='checkbox'
+							type='checkbox'
+							checked={checked}
+							onChange={() => setChecked((prev) => !prev)}
+							className='w-4 p-2 bg-white rounded-md text-sm text-purple-600 ring-purple'
+						/>
 					</div>
 					<div className='mt-3'>
 						<label>
@@ -90,7 +90,7 @@ const Prep = ({
 								type='text'
 								placeholder={checked ? 'eg. $0.10' : 'eg. $0.95'}
 								onChange={onChange}
-								className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 focus:outline-none focus:shadow-outline'
+								className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 ring-purple'
 							/>
 						</label>
 					</div>
@@ -103,7 +103,7 @@ const Prep = ({
 								getLeads(user, 1, filters);
 								setPrep((prev) => !prev);
 							}}
-							className='font-semibold text-sm text-red-500'
+							className='font-semibold text-sm text-red-500 rounded-sm ring-red'
 						>
 							Clear
 						</button>

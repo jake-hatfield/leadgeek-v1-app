@@ -114,7 +114,7 @@ const FilterItem = ({
 							e.stopPropagation();
 							setToggleItem((prev) => !prev);
 						}}
-						className='p-1 rounded-lg text-gray-500 hover:text-gray-700 transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+						className='p-1 rounded-lg text-gray-500 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
@@ -144,14 +144,17 @@ const FilterItem = ({
 							{(minActive || minDefault > 0) && (
 								<div className='flex items-center w-min py-1 pl-3 pr-2 rounded-lg bg-purple-100 shadow-sm text-purple-600 text-sm'>
 									<span>Min:</span>
-									<span className='ml-1'>{+minActive || +minDefault}</span>
+									<span className='ml-1'>
+										{+minActive ||
+											(val === 'roi' ? +minDefault * 100 : +minDefault)}
+									</span>
 									<button
 										onClick={() => {
 											clearMinMaxFilter(null, +filterData.max, val, 'Min');
 											clearPill(+filterData.min, null);
 											setFilterData({ ...filterData, min: null });
 										}}
-										className='ml-1 p-1 rounded-lg hover:text-purple-800 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										className='ml-1 p-1 rounded-lg hover:text-purple-800 transition-colors duration-100 ease-in-out focus:outline-none'
 									>
 										<svg
 											xmlns='http://www.w3.org/2000/svg'
@@ -177,14 +180,17 @@ const FilterItem = ({
 									} flex items-center w-min py-1 pl-3 pr-2 rounded-lg bg-purple-100 shadow-sm text-purple-600 text-sm`}
 								>
 									<span>Max:</span>
-									<span className='ml-1'>{+maxActive || +maxDefault}</span>
+									<span className='ml-1'>
+										{+maxActive ||
+											(val === 'roi' ? +maxDefault * 100 : +maxDefault)}
+									</span>
 									<button
 										onClick={() => {
 											clearMinMaxFilter(+filterData.min, null, val, 'Max');
 											clearPill(null, +filterData.max);
 											setFilterData({ ...filterData, max: null });
 										}}
-										className='ml-1 p-1 rounded-lg hover:text-purple-800 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+										className='ml-1 p-1 rounded-lg hover:text-purple-800 transition-colors duration-100 ease-in-out focus:outline-none'
 									>
 										<svg
 											xmlns='http://www.w3.org/2000/svg'

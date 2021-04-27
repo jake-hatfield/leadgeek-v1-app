@@ -103,13 +103,6 @@ const Filter = ({
 			subtitle: 'Select a category',
 		},
 	];
-	// useEffect(() => {
-	// 	const filterCount = [netProfit, buyPrice];
-	// 	const activeFilters = filterCount.reduce(
-	// 		(r, o) => r + +!Object.values(o).includes(null),
-	// 		0
-	// 	);
-	// }, [netProfit, buyPrice]);
 
 	return (
 		<article
@@ -123,7 +116,7 @@ const Filter = ({
 					</div>
 					<button
 						onClick={() => getLeads(user, 1, filters)}
-						className='font-semibold text-sm text-purple-600 hover:text-gray-700 transition-colors duration-100 ease-in-out'
+						className='font-semibold text-sm text-purple-500 rounded-sm hover:text-purple-600 transition-colors duration-100 ease-in-out ring-purple'
 					>
 						Apply
 					</button>
@@ -146,7 +139,7 @@ const Filter = ({
 								clearFilters();
 								getLeads(user, 1, filters);
 							}}
-							className='font-semibold text-sm text-red-500'
+							className='font-semibold text-sm text-red-500 rounded-sm ring-red'
 						>
 							Clear all
 						</button>

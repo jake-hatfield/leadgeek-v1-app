@@ -184,12 +184,4 @@ router.post('/get-stripe-subscriptions', async (req, res) => {
 	}
 });
 
-router.get('/get-all-users', async (req, res) => {
-	try {
-		await User.find({}, (err, users) => res.send(users));
-	} catch (error) {
-		console.log(error);
-	}
-});
-
 module.exports = router;

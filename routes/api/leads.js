@@ -134,8 +134,6 @@ router.post('/', auth, async (req, res) => {
 		} else {
 			planFilter = [plan.toString()];
 		}
-		console.log(planFilter);
-		console.log(user.dateCreated);
 		const feed = await Lead.find({
 			plan: { $in: planFilter },
 			...((plan !== 'admin' || plan !== 'master') && {

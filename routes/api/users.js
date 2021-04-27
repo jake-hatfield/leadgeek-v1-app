@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../../middleware/auth');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
@@ -8,6 +9,8 @@ const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 const User = require('../../models/User');
 const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
 const stripe = require('stripe')(stripeSecret);
+
+const ITEMS_PER_PAGE = 15;
 
 // @route       POST api/users
 // @description Register user
@@ -97,6 +100,44 @@ router.post('/', async (req, res) => {
 				},
 			],
 		});
+	}
+});
+
+router.post('/get-all-users', auth, async (req, res) => {
+	try {
+		const { page } = req.body;
+		const users = await User.find({})
+			.countDocuments()
+			.then((numUsers) => {
+				totalItems = numUsers;
+				return User.find({})
+					.skip((page - 1) * ITEMS_PER_PAGE)
+					.limit(ITEMS_PER_PAGE)
+					.sort({ dateCreated: -1 });
+			});
+		if (users.length > 0) {
+			return res.status(200).send({
+				users,
+				page,
+				hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+				hasPreviousPage: page > 1,
+				nextPage: page + 1,
+				previousPage: page - 1,
+				lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+				totalItems,
+			});
+		} else {
+			return res.status(400).json({
+				errors: [
+					{
+						msg:
+							'There was an error fetching all users. You done something wrong, boy.',
+					},
+				],
+			});
+		}
+	} catch (error) {
+		console.log(error);
 	}
 });
 

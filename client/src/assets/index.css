@@ -33,3 +33,15 @@ html {
 .alert-warning {
 	@apply bg-purple-100 text-purple-600 border-purple-600;
 }
+
+.ring-purple {
+	@apply focus:outline-none focus:ring focus:ring-purple-300;
+}
+
+.ring-red {
+	@apply focus:outline-none focus:ring focus:ring-red-200;
+}
+
+.ring-gray {
+	@apply focus:outline-none focus:ring focus:ring-gray-300;
+}

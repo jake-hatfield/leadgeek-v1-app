@@ -25,6 +25,7 @@ const LeadTable = ({
 							{/* <th className='p-2' /> */}
 							<th className='p-2' />
 							<th className='p-2'>Title</th>
+							{/* <th className='p-2'>Properties</th> */}
 							<th className='p-2'>Category</th>
 							<th className='p-2'>Profit</th>
 							<th className='p-2'>ROI</th>

@@ -13,7 +13,7 @@ const NavbarLink = ({ link, showMenu }) => {
 	return (
 		<div v-for='item in items'>
 			<NavLink
-				className='p-2 relative w-full flex items-center justify-between rounded-lg group shadow-sm hover:text-purple-600 hover:shadow-md transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+				className='p-2 relative w-full flex items-center justify-between rounded-lg group shadow-sm hover:text-purple-600 hover:shadow-md transition duration-100 ease-in-out ring-purple'
 				onMouseEnter={() => setHover(!hover)}
 				onMouseLeave={() => setHover(false)}
 				to={link.link}

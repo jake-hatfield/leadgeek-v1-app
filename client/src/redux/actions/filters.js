@@ -8,6 +8,7 @@ import { setAlert } from './alert';
 
 export const setMinMaxFilter = (min, max, val) => (dispatch) => {
 	try {
+		console.log(val);
 		if (max && min >= max) {
 			return dispatch(
 				setAlert(
@@ -16,20 +17,33 @@ export const setMinMaxFilter = (min, max, val) => (dispatch) => {
 				)
 			);
 		}
+		let calculatedMinValue;
+		let calculatedMaxValue;
 		if (min > 0) {
+			if (val === 'roi') {
+				calculatedMinValue = min / 100;
+			} else {
+				calculatedMinValue = min;
+			}
 			let key = `${val}Min`;
-			localStorage.setItem(key, min);
+			localStorage.setItem(key, calculatedMinValue);
 		}
 		if (max > 0) {
+			if (val === 'roi') {
+				calculatedMaxValue = max / 100;
+			} else {
+				calculatedMaxValue = max;
+			}
 			let key = `${val}Max`;
-			localStorage.setItem(key, max);
+			localStorage.setItem(key, calculatedMaxValue);
 		}
+		console.log(calculatedMinValue, calculatedMaxValue);
 		if (min || max) {
 			return dispatch({
 				type: `SET_${val.toUpperCase()}_FILTER`,
 				payload: {
-					min: +min,
-					max: +max,
+					min: +calculatedMinValue,
+					max: +calculatedMaxValue,
 				},
 			});
 		}
