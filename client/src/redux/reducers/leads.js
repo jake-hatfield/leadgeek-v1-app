@@ -223,7 +223,7 @@ export default function leadsReducer(state = initialState, action) {
 					...state.search,
 					pageByIds: leads,
 					pagination: {
-						page,
+						page: 1,
 						hasNextPage,
 						hasPreviousPage,
 						nextPage,
@@ -234,19 +234,19 @@ export default function leadsReducer(state = initialState, action) {
 				},
 			};
 		}
-		case CLEAR_CURRENT_SEARCH: {
-			return {
-				...state,
-				search: {
-					...state.search,
-					pageByIds: [],
-					pagination: {
-						page: 1,
-						...initialState,
-					},
-				},
-			};
-		}
+		// case CLEAR_CURRENT_SEARCH: {
+		// 	return {
+		// 		...state,
+		// 		search: {
+		// 			...state.search,
+		// 			pageByIds: [],
+		// 			pagination: {
+		// 				...initialState.search.pagination,
+		// 				page: 1,
+		// 			},
+		// 		},
+		// 	};
+		// }
 		case SET_CURRENT_LEAD: {
 			return {
 				...state,

@@ -218,7 +218,7 @@ export const getSearchResults = (q, role, dateCreated, page) => async (
 	dispatch
 ) => {
 	dispatch({ type: LOADING });
-	dispatch({ type: CLEAR_CURRENT_SEARCH });
+	// dispatch({ type: CLEAR_CURRENT_SEARCH });
 	const body = JSON.stringify({ q, role, dateCreated, page });
 	const { data } = await axios.post('/api/search', body, config);
 	dispatch({
