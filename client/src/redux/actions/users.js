@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { GET_ALL_USERS } from './types';
+import { GET_ALL_USERS, SET_PAGE, LOADING, FINISHED_LOADING } from './types';
+import { setAlert } from './alert';
 
 const config = {
 	headers: {
@@ -9,6 +10,7 @@ const config = {
 
 // Get all users (ADMIN)
 export const getAllUsers = (page) => async (dispatch) => {
+	dispatch({ type: LOADING });
 	const body = JSON.stringify({ page });
 	const { data } = await axios.post('/api/users/get-all-users', body, config);
 	if (data.users.length > 0) {
@@ -16,5 +18,19 @@ export const getAllUsers = (page) => async (dispatch) => {
 			type: GET_ALL_USERS,
 			payload: { data },
 		});
+	} else {
+		dispatch(setAlert('There was an error retreiving users.', 'danger'));
+	}
+	return dispatch({ type: FINISHED_LOADING });
+};
+
+export const setPage = (page, type) => (dispatch) => {
+	try {
+		dispatch({
+			type: SET_PAGE,
+			payload: { page, type },
+		});
+	} catch (error) {
+		console.log(error);
 	}
 };

@@ -1,4 +1,10 @@
-import { GET_ALL_USERS, LOGOUT } from '../actions/types';
+import {
+	GET_ALL_USERS,
+	SET_PAGE,
+	LOADING,
+	FINISHED_LOADING,
+	LOGOUT,
+} from '../actions/types';
 
 const initialState = {
 	allUsers: [],
@@ -29,7 +35,6 @@ export default function userReducer(state = initialState, action) {
 			return {
 				...state,
 				allUsers: users,
-				loading: false,
 				pagination: {
 					page,
 					hasNextPage,
@@ -38,6 +43,34 @@ export default function userReducer(state = initialState, action) {
 					previousPage,
 					totalItems,
 				},
+			};
+		}
+		case SET_PAGE: {
+			const { type } = payload;
+			switch (type) {
+				case 'users': {
+					return {
+						...state,
+						pagination: { ...state.pagination, page: payload.page },
+					};
+				}
+				default: {
+					return {
+						...state,
+					};
+				}
+			}
+		}
+		case LOADING: {
+			return {
+				...state,
+				loading: true,
+			};
+		}
+		case FINISHED_LOADING: {
+			return {
+				...state,
+				loading: false,
 			};
 		}
 		case LOGOUT: {

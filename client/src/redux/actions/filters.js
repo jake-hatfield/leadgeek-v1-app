@@ -139,7 +139,7 @@ export const clearFilters = () => (dispatch) => {
 		];
 		keysToRemove.forEach((key) => localStorage.removeItem(key));
 		dispatch({ type: CLEAR_FILTERS });
-		return dispatch(setAlert('All filters cleared!', 'success'));
+		return dispatch(setAlert('All filters were cleared.', 'success'));
 	} catch (error) {
 		console.log(error);
 	}

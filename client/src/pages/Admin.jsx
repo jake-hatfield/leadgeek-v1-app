@@ -3,9 +3,8 @@ import React, { Fragment, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { exportLeads } from 'redux/actions/leads';
-import { getAllUsers } from 'redux/actions/users';
+import { getAllUsers, setPage } from 'redux/actions/users';
 import { surrogateUser } from 'redux/actions/auth';
-import { DateTime } from 'luxon';
 
 import { useOutsideMousedown, capitalize } from 'utils/utils';
 import AuthLayout from 'components/layout/AuthLayout';
@@ -60,7 +59,7 @@ const AdminItem = ({
 								showPopup((prev) => !prev);
 								additionalFunction && additionalFunction();
 							}}
-							className='link text-purple-500 hover:text-purple-600 rounded-lg transition duration-100 ease-in-out focus:outline-none focus:shadow-outline'
+							className='link text-purple-500 hover:text-purple-600 rounded-lg transition duration-100 ease-in-out ring-purple'
 						>
 							{buttonText}
 						</button>
@@ -72,15 +71,17 @@ const AdminItem = ({
 					ref={wrapperRef}
 					className={`absolute top-0 inset-x-0 z-20 max-h-screen ${
 						width || 'max-w-lg'
-					} mt-8 mx-auto p-4 rounded-lg bg-white shadow-lg`}
+					} mt-8 mx-auto p-6 rounded-lg bg-white shadow-lg`}
 				>
-					<div className='relative'>
-						<h2 className='pb-2 text-xl font-bold text-gray-800 border-b border-gray-200'>
-							{popupHeading}
-						</h2>
+					<div className='relative pb-1 border-b border-gray-200'>
+						<div className='flex items-center'>
+							<h2 className='text-xl font-bold text-gray-800'>
+								{popupHeading}
+							</h2>
+						</div>
 						<button
 							onClick={() => showPopup((prev) => !prev)}
-							className='absolute top-0 right-0 mt-1 hover:text-gray-600 transition duration-100 ease-in-out'
+							className='absolute top-0 right-0 mt-2 hover:text-gray-600 rounded-md transition duration-100 ease-in-out ring-gray'
 						>
 							<svg
 								xmlns='http://www.w3.org/2000/svg'
@@ -120,88 +121,107 @@ const UserTable = ({
 	role,
 	allUsers,
 	pagination,
+	loading,
 	getAllUsers,
 	surrogateUser,
+	setPage,
 }) => {
 	useEffect(() => {
 		getAllUsers(pagination.page);
 	}, [pagination.page]);
+	const type = 'users';
 	return (
 		<Fragment>
-			<table className='w-full mt-4 table-auto'>
-				<thead className='border-b border-gray-200'>
-					<tr className='font-semibold text-left text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
-						<th className='p-2'>Name</th>
-						<th className='p-2'>Email</th>
-						<th className='p-2'>Plan</th>
-						<th className='p-2'>Status</th>
-						<th className='p-2'>Stripe</th>
-						<th className='p-2'>Surrogate</th>
-					</tr>
-				</thead>
-				<tbody className='mt-4 text-gray-700'>
-					{allUsers.map((user) => (
-						<tr
-							key={user._id}
-							className='text-sm border-b border-gray-200 hover:bg-gray-100'
-						>
-							<td className='py-1 px-2'>{user.name}</td>
-							<td className='py-1 px-2'>
-								<a
-									href={`mailto:${user.email}`}
-									target='_blank'
-									rel='noopener noreferrer'
-									className='link text-purple-500 hover:text-purple-600'
+			{!loading ? (
+				<div>
+					<table className='w-full mt-4 table-auto'>
+						<thead className='border-b border-gray-200'>
+							<tr className='font-semibold text-left text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
+								<th className='p-2'>Name</th>
+								<th className='p-2'>Email</th>
+								<th className='p-2'>Plan</th>
+								<th className='p-2'>Status</th>
+								<th className='p-2'>Stripe</th>
+								<th className='p-2'>Surrogate</th>
+							</tr>
+						</thead>
+						<tbody className='mt-4 text-gray-700'>
+							{allUsers.map((user) => (
+								<tr
+									key={user._id}
+									className='text-sm border-b border-gray-200 hover:bg-gray-100'
 								>
-									{user.email}
-								</a>
-							</td>
-							<td className='py-1 px-2'>{capitalize(user.role)}</td>
-							<td className='py-1 px-2'>
-								{user.subscription.subIds[0].active ? (
-									<Check className='inline-block h-4 w-4 text-teal-500 bg-teal-200 rounded-full' />
-								) : (
-									<X className='inline-block h-4 w-4 text-red-500 bg-red-200 rounded-full' />
-								)}
-							</td>
-							<td className='py-1 px-2'>
-								<a
-									href={`https://dashboard.stripe.com/customers/${user.subscription.cusId}`}
-									target='_blank'
-									rel='noopener noreferrer'
-									className='text-gray-500 hover:text-gray-600 transition-colors duration-100 ease-in-out'
-								>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										className='h-5 w-5'
-										viewBox='0 0 20 20'
-										fill='currentColor'
-									>
-										<path d='M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z' />
-										<path
-											fillRule='evenodd'
-											d='M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z'
-											clipRule='evenodd'
-										/>
-									</svg>
-								</a>
-							</td>
-							<td className='py-1 px-2'>
-								{/* {user.lastLogin
-											? DateTime.fromISO(user.lastLogin).toFormat('LLL dd, t')
-											: '-'} */}
-								<button
-									onClick={() => role === 'master' && surrogateUser(user._id)}
-									className='py-1 px-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-white shadow-sm hover:shadow-md transition-colors duration-100 ease-in-out'
-								>
-									<div>Login</div>
-								</button>
-							</td>
-						</tr>
-					))}
-				</tbody>
-			</table>
-			{allUsers && <Pagination pagination={pagination} />}
+									<td className='py-1 px-2'>{user.name}</td>
+									<td className='py-1 px-2'>
+										<a
+											href={`mailto:${user.email}`}
+											target='_blank'
+											rel='noopener noreferrer'
+											className='link text-purple-500 hover:text-purple-600'
+										>
+											{user.email}
+										</a>
+									</td>
+									<td className='py-1 px-2'>{capitalize(user.role)}</td>
+									<td className='py-1 px-2'>
+										{user.subscription.subIds[0].active ? (
+											<Check className='inline-block h-4 w-4 text-teal-500 bg-teal-200 rounded-full' />
+										) : (
+											<X className='inline-block h-4 w-4 text-red-500 bg-red-200 rounded-full' />
+										)}
+									</td>
+									<td className='py-1 px-2'>
+										<a
+											href={`https://dashboard.stripe.com/customers/${user.subscription.cusId}`}
+											target='_blank'
+											rel='noopener noreferrer'
+											className='text-gray-500 hover:text-gray-600 transition-colors duration-100 ease-in-out'
+										>
+											<svg
+												xmlns='http://www.w3.org/2000/svg'
+												className='h-5 w-5'
+												viewBox='0 0 20 20'
+												fill='currentColor'
+											>
+												<path d='M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z' />
+												<path
+													fillRule='evenodd'
+													d='M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z'
+													clipRule='evenodd'
+												/>
+											</svg>
+										</a>
+									</td>
+									<td className='py-1 px-2'>
+										{/* {user.lastLogin
+                                            ? DateTime.fromISO(user.lastLogin).toFormat('LLL dd, t')
+                                            : '-'} */}
+										<button
+											onClick={() =>
+												role === 'master' && surrogateUser(user._id)
+											}
+											className='py-1 px-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-white shadow-sm hover:shadow-md transition-colors duration-100 ease-in-out'
+										>
+											<div>Login</div>
+										</button>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+					{allUsers && (
+						<Pagination
+							pagination={pagination}
+							type={type}
+							loading={loading}
+							setPage={setPage}
+							noPadding={true}
+						/>
+					)}
+				</div>
+			) : (
+				<Spinner text='Loading users...' />
+			)}
 		</Fragment>
 	);
 };
@@ -213,6 +233,7 @@ const Admin = ({
 	exportLeads,
 	getAllUsers,
 	surrogateUser,
+	setPage,
 }) => {
 	const { _id: userId, role } = Object(user);
 	const adminItems = [
@@ -265,6 +286,7 @@ const Admin = ({
 					/>
 				</Fragment>
 			),
+			search: false,
 		},
 		{
 			width: 'w-full max-w-3xl',
@@ -293,8 +315,10 @@ const Admin = ({
 					role={role}
 					allUsers={allUsers}
 					pagination={pagination}
+					loading={userLoading}
 					getAllUsers={getAllUsers}
 					surrogateUser={surrogateUser}
+					setPage={setPage}
 				/>
 			),
 		},
@@ -361,4 +385,5 @@ export default connect(mapStateToProps, {
 	exportLeads,
 	getAllUsers,
 	surrogateUser,
+	setPage,
 })(Admin);

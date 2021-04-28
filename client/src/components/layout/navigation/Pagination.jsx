@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-const Pagination = ({ pagination, type, loading, setPage }) => {
+const Pagination = ({ pagination, type, loading, noPadding, setPage }) => {
 	const {
 		hasNextPage,
 		hasPreviousPage,
@@ -16,7 +16,11 @@ const Pagination = ({ pagination, type, loading, setPage }) => {
 	return (
 		!loading &&
 		(hasPreviousPage || hasNextPage) && (
-			<article className='flex items-center justify-between mt-4 container'>
+			<article
+				className={`flex items-center justify-between mt-4 ${
+					!noPadding && 'container'
+				}`}
+			>
 				{totalItems ? (
 					<div className='text-sm font-semibold'>Total items: {totalItems}</div>
 				) : (

@@ -301,7 +301,6 @@ export default function leadsReducer(state = initialState, action) {
 				}
 			}
 		}
-
 		case SURROGATE_USER:
 		case LOGOUT: {
 			return {
