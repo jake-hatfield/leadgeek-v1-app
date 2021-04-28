@@ -15,7 +15,7 @@ const Search = ({ user, loading, search, getSearchResults }) => {
 		!loading &&
 			user &&
 			searchValue &&
-			getSearchResults(searchValue, role, dateCreated, page);
+			getSearchResults(searchValue, role, dateCreated, page, false);
 	}, [page]);
 
 	return (

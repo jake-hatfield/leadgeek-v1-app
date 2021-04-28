@@ -29,8 +29,7 @@ const Header = ({
 			if (location.pathname !== '/search') {
 				setRedirect(true);
 			}
-			console.log(searchValue);
-			return getSearchResults(searchValue, role, dateCreated, page);
+			return getSearchResults(searchValue, role, dateCreated, 1, true);
 		} else {
 			setAlert('Please enter a search value', 'danger');
 		}
