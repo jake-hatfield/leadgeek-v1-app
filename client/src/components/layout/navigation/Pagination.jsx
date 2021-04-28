@@ -1,9 +1,8 @@
 import React from 'react';
 
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { setPage } from 'redux/actions/leads';
+import { Link, useLocation } from 'react-router-dom';
+import qs from 'query-string';
 
 const Pagination = ({ pagination, type, loading, setPage }) => {
 	const {
@@ -13,6 +12,16 @@ const Pagination = ({ pagination, type, loading, setPage }) => {
 		previousPage,
 		totalItems,
 	} = pagination;
+	const location = useLocation();
+	const queryParam = qs.parse(location.search);
+	const previousQueryParam = {
+		...queryParam,
+		page: previousPage,
+	};
+	const nextQueryParam = {
+		...queryParam,
+		page: nextPage,
+	};
 	const buttonClasses =
 		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold text-gray-500 hover:text-gray-600 transition duration-100 ease-in-out ring-purple';
 	return (
@@ -27,7 +36,10 @@ const Pagination = ({ pagination, type, loading, setPage }) => {
 
 				<div className='flex items-center'>
 					<Link
-						to={`${hasPreviousPage && `?page=${previousPage}`}`}
+						to={{
+							pathname: '/search',
+							search: qs.stringify(previousQueryParam),
+						}}
 						onClick={() => setPage(previousPage, type)}
 						className={`${
 							hasPreviousPage
@@ -38,7 +50,7 @@ const Pagination = ({ pagination, type, loading, setPage }) => {
 						Previous page
 					</Link>
 					<Link
-						to={`?page=${nextPage}`}
+						to={{ pathname: '/search', search: qs.stringify(nextQueryParam) }}
 						onClick={() => setPage(nextPage, type)}
 						className={`${
 							hasNextPage
@@ -61,14 +73,4 @@ Pagination.propTypes = {
 	setPage: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state, ownProps) => {
-	const { loading } = state.leads;
-	const { pagination, type } = ownProps;
-	return {
-		pagination,
-		type,
-		loading,
-	};
-};
-
-export default connect(mapStateToProps, { setPage })(Pagination);
+export default Pagination;

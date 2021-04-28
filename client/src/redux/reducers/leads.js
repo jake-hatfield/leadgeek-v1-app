@@ -15,6 +15,7 @@ import {
 	FINISHED_LOADING,
 	HANDLE_LIKE_LEAD,
 	HANDLE_ARCHIVE_LEAD,
+	CLEAR_CURRENT_SEARCH,
 } from '../actions/types';
 
 const initialState = {
@@ -73,10 +74,8 @@ const initialState = {
 			lastPage: null,
 			totalItems: null,
 		},
+		searchValue: null,
 	},
-	lastUpdated: null,
-	currentLead: null,
-	loading: true,
 };
 
 export default function leadsReducer(state = initialState, action) {
@@ -231,6 +230,20 @@ export default function leadsReducer(state = initialState, action) {
 						previousPage,
 						totalItems,
 					},
+					searchValue: payload.q,
+				},
+			};
+		}
+		case CLEAR_CURRENT_SEARCH: {
+			return {
+				...state,
+				search: {
+					...state.search,
+					pageByIds: [],
+					pagination: {
+						page: 1,
+						...initialState,
+					},
 				},
 			};
 		}
@@ -274,6 +287,15 @@ export default function leadsReducer(state = initialState, action) {
 						archived: {
 							...state.archived,
 							pagination: { ...state.archived.pagination, page: payload.page },
+						},
+					};
+				}
+				case 'search': {
+					return {
+						...state,
+						search: {
+							...state.search,
+							pagination: { ...state.search.pagination, page: payload.page },
 						},
 					};
 				}

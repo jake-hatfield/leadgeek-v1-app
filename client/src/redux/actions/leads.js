@@ -13,6 +13,7 @@ import {
 	LOADING,
 	FINISHED_LOADING,
 	SET_SEARCH_RESULTS,
+	CLEAR_CURRENT_SEARCH,
 } from './types';
 import axios from 'axios';
 import { setAlert } from './alert';
@@ -217,11 +218,12 @@ export const getSearchResults = (q, role, dateCreated, page) => async (
 	dispatch
 ) => {
 	dispatch({ type: LOADING });
+	dispatch({ type: CLEAR_CURRENT_SEARCH });
 	const body = JSON.stringify({ q, role, dateCreated, page });
 	const { data } = await axios.post('/api/search', body, config);
 	dispatch({
 		type: SET_SEARCH_RESULTS,
-		payload: { data },
+		payload: { data, q },
 	});
 	return dispatch({ type: FINISHED_LOADING });
 };

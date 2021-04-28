@@ -1,40 +1,42 @@
 import React, { useState } from 'react';
 
 import PropTypes from 'prop-types';
-import { useLocation, Redirect } from 'react-router-dom';
+import { Redirect, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { getSearchResults } from 'redux/actions/leads';
+import { setAlert } from 'redux/actions/alert';
 
 const Header = ({
 	role,
 	dateCreated,
-	search: {
-		pagination: { page },
-	},
+	page,
 	title,
 	searchActive,
 	getSearchResults,
+	setAlert,
 }) => {
 	// search helpers
 	const [searchValue, setSearchValue] = useState('');
 	const onSearchChange = (e) => {
 		setSearchValue(e.target.value);
 	};
-
-	const location = useLocation();
 	const [redirect, setRedirect] = useState(false);
+	const location = useLocation();
 	const handleSearchSubmit = async (e) => {
 		e.preventDefault();
-		if (location.pathname !== '/search') {
-			setRedirect(true);
+
+		if (searchValue) {
+			if (location.pathname !== '/search') {
+				setRedirect(true);
+			}
+			return getSearchResults(searchValue, role, dateCreated, page);
+		} else {
+			setAlert('Please enter a search value', 'danger');
 		}
-		getSearchResults(searchValue, role, dateCreated, page);
 	};
 
 	if (redirect) {
-		return (
-			<Redirect to={{ pathname: '/search', search: `?q=${searchValue}` }} />
-		);
+		return <Redirect to={{ pathname: '/search' }} />;
 	}
 
 	return (
@@ -93,9 +95,8 @@ Header.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-	const { search } = state.leads;
-	const { _id, role, dateCreated, title } = ownProps;
-	return { _id, role, dateCreated, search, title };
+	const { _id, role, dateCreated, page, currentSearchParam, title } = ownProps;
+	return { _id, role, dateCreated, page, currentSearchParam, title };
 };
 
-export default connect(mapStateToProps, { getSearchResults })(Header);
+export default connect(mapStateToProps, { getSearchResults, setAlert })(Header);

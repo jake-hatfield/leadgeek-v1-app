@@ -12,7 +12,8 @@ const LeadTable = ({
 	loading,
 	showDetails,
 	setShowDetails,
-	search,
+	type,
+	currentSearchParam,
 }) => {
 	return (
 		<section className='relative mt-10 container'>
@@ -49,7 +50,7 @@ const LeadTable = ({
 						))}
 					</tbody>
 				</table>
-			) : search ? (
+			) : type === 'search' && !currentSearchParam ? (
 				<div>No search results.</div>
 			) : (
 				<div>No leads to show!</div>

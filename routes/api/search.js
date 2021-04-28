@@ -17,7 +17,10 @@ router.post('/', auth, async (req, res) => {
 		if (administrativeRoles.indexOf(role) >= 0) {
 			administrator = true;
 		}
-		const leads = await Lead.fuzzySearch(q, {
+		const leads = await Lead.fuzzySearch({
+			query: q,
+			prefixOnly: true,
+			exact: true,
 			...(!administrator && { plan: { $in: roleFilter } }),
 			...(!administrator && {
 				'data.date': { $gte: dateCreated },
@@ -26,7 +29,10 @@ router.post('/', auth, async (req, res) => {
 			.select('-plan')
 			.skip((page - 1) * ITEMS_PER_PAGE)
 			.limit(ITEMS_PER_PAGE);
-		const totalItems = await Lead.fuzzySearch(q, {
+		const totalItems = await Lead.fuzzySearch({
+			query: q,
+			prefixOnly: true,
+			exact: true,
 			...(!administrator && { plan: { $in: roleFilter } }),
 			...(!administrator && {
 				'data.date': { $gte: dateCreated },
@@ -40,6 +46,7 @@ router.post('/', auth, async (req, res) => {
 			nextPage: page + 1,
 			previousPage: page - 1,
 			lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+			totalItems,
 		});
 	} catch (error) {
 		console.error(error.message);

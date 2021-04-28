@@ -2,7 +2,12 @@ import React, { Fragment, useState } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getAllLeads, clearCurrentLead } from '../../redux/actions/leads';
+import {
+	getAllLeads,
+	clearCurrentLead,
+	setPage,
+} from '../../redux/actions/leads';
+import { setAlert } from 'redux/actions/alert';
 import { NavLink } from 'react-router-dom';
 
 import Header from '../layout/navigation/Header';
@@ -14,7 +19,6 @@ import Pagination from '../layout/navigation/Pagination';
 import Details from './Details';
 import Button from '../layout/formField/Button';
 import Spinner from 'components/layout/Spinner';
-import { setAlert } from 'redux/actions/alert';
 
 const Leads = ({
 	leads,
@@ -30,6 +34,7 @@ const Leads = ({
 	search,
 	getAllLeads,
 	clearCurrentLead,
+	setPage,
 }) => {
 	// toggle additional information
 	const [showDetails, setShowDetails] = useState(false);
@@ -97,13 +102,13 @@ const Leads = ({
 			setAlert('Error exporting leads, please try again', 'danger');
 		}
 	};
-
 	return (
 		!authLoading &&
 		user && (
 			<Fragment>
 				<section className='relative my-6'>
 					<Header
+						page={pagination.page}
 						title={headerTitle}
 						searchActive={true}
 						_id={userId}
@@ -185,8 +190,16 @@ const Leads = ({
 						loading={leadLoading}
 						showDetails={showDetails}
 						setShowDetails={setShowDetails}
+						type={type}
 					/>
-					{pagination && <Pagination pagination={pagination} type={type} />}
+					{pagination && (
+						<Pagination
+							pagination={pagination}
+							type={type}
+							loading={leadLoading}
+							setPage={setPage}
+						/>
+					)}
 				</section>
 				{showDetails && currentLead && (
 					<Details
@@ -221,12 +234,22 @@ Leads.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-	const { leads, pagination, type, user, loading: authLoading } = ownProps;
+	const {
+		leads,
+		pagination,
+		headerTitle,
+		currentSearchParam,
+		type,
+		user,
+		loading: authLoading,
+	} = ownProps;
 	const { feed, currentLead, loading: leadLoading } = state.leads;
 	const { filters } = state;
 	return {
 		leads,
 		pagination,
+		headerTitle,
+		currentSearchParam,
 		type,
 		user,
 		authLoading,
@@ -240,4 +263,5 @@ const mapStateToProps = (state, ownProps) => {
 export default connect(mapStateToProps, {
 	getAllLeads,
 	clearCurrentLead,
+	setPage,
 })(Leads);
