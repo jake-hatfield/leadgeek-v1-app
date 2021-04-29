@@ -105,25 +105,25 @@ router.post('/', async (req, res) => {
 
 router.post('/get-all-users', auth, async (req, res) => {
 	try {
-		const { page } = req.body;
+		const { page, itemLimit } = req.body;
 		const users = await User.find({})
 			.countDocuments()
 			.then((numUsers) => {
 				totalItems = numUsers;
 				return User.find({})
-					.skip((page - 1) * ITEMS_PER_PAGE)
-					.limit(ITEMS_PER_PAGE)
+					.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
+					.limit(itemLimit || ITEMS_PER_PAGE)
 					.sort({ dateCreated: -1 });
 			});
 		if (users.length > 0) {
 			return res.status(200).send({
 				users,
 				page,
-				hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
 				hasPreviousPage: page > 1,
 				nextPage: page + 1,
 				previousPage: page - 1,
-				lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+				lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
 				totalItems,
 			});
 		} else {

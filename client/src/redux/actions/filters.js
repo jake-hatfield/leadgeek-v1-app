@@ -3,12 +3,12 @@ import {
 	SET_CATEGORY_FILTER,
 	SET_PREP_FILTER,
 	CLEAR_PREP_FILTER,
+	SET_ITEM_LIMIT,
 } from './types';
 import { setAlert } from './alert';
 
 export const setMinMaxFilter = (min, max, val) => (dispatch) => {
 	try {
-		console.log(val);
 		if (max && min >= max) {
 			return dispatch(
 				setAlert(
@@ -140,6 +140,26 @@ export const clearFilters = () => (dispatch) => {
 		keysToRemove.forEach((key) => localStorage.removeItem(key));
 		dispatch({ type: CLEAR_FILTERS });
 		return dispatch(setAlert('All filters were cleared.', 'success'));
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const setItemLimit = (type, itemLimit) => async (dispatch) => {
+	try {
+		if (itemLimit) {
+			let typeFilter;
+			if (type === 'feed' || type === 'liked' || type === 'archived') {
+				typeFilter = 'leadsLimit';
+			} else {
+				typeFilter = `${type}Limit`;
+			}
+			localStorage.setItem(typeFilter, itemLimit);
+			return dispatch({
+				type: SET_ITEM_LIMIT,
+				payload: { typeFilter, itemLimit },
+			});
+		}
 	} catch (error) {
 		console.log(error);
 	}

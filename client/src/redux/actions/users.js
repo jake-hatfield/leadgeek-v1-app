@@ -9,9 +9,9 @@ const config = {
 };
 
 // Get all users (ADMIN)
-export const getAllUsers = (page) => async (dispatch) => {
+export const getAllUsers = (page, itemLimit) => async (dispatch) => {
 	dispatch({ type: LOADING });
-	const body = JSON.stringify({ page });
+	const body = JSON.stringify({ page, itemLimit });
 	const { data } = await axios.post('/api/users/get-all-users', body, config);
 	if (data.users.length > 0) {
 		dispatch({
@@ -20,6 +20,7 @@ export const getAllUsers = (page) => async (dispatch) => {
 		});
 	} else {
 		dispatch(setAlert('There was an error retreiving users.', 'danger'));
+		dispatch({ type: FINISHED_LOADING });
 	}
 	return dispatch({ type: FINISHED_LOADING });
 };

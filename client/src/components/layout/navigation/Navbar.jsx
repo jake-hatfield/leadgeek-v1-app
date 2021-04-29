@@ -203,13 +203,13 @@ const Navbar = ({ _id, role, loading, logout }) => {
 						onClick={() => logoutUser(logout)}
 						onMouseEnter={() => setHover((prev) => !prev)}
 						onMouseLeave={() => setHover(false)}
-						className='p-2 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
+						className='p-2 h-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
 					>
 						<span className='h-6 w-6 text-xl font-bold'>
 							<LeadGeekLogo />
 						</span>
 						{hover && (
-							<div className='mt-2 p-2 absolute left-0 z-20 transform -translate-y-1 translate-x-12 rounded-lg bg-gray-800 shadow-md text-white text-sm whitespace-no-wrap'>
+							<div className='w-16 mt-2 p-2 absolute left-0 z-20 transform -translate-y-1 translate-x-12 rounded-lg bg-gray-800 shadow-md text-white text-sm whitespace-no-wrap'>
 								Log out
 							</div>
 						)}

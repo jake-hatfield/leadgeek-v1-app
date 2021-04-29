@@ -7,7 +7,7 @@ const auth = require('../../middleware/auth');
 const Lead = require('../../models/Lead');
 const User = require('../../models/User');
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 15;
 
 // @route       POST api/leads/export
 // @description Create new lead
@@ -104,7 +104,6 @@ router.get('/export', auth, async (req, res) => {
 router.post('/', auth, async (req, res) => {
 	try {
 		const {
-			lastLoggedIn,
 			_id,
 			role,
 			page,
@@ -117,6 +116,7 @@ router.post('/', auth, async (req, res) => {
 				monthlySales,
 				weight,
 				category,
+				itemLimits: { leadsLimit: itemLimit },
 			},
 		} = req.body;
 		const user = await User.findById({ _id });
@@ -260,8 +260,8 @@ router.post('/', auth, async (req, res) => {
 						},
 					],
 				})
-					.skip((page - 1) * ITEMS_PER_PAGE)
-					.limit(ITEMS_PER_PAGE)
+					.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
+					.limit(itemLimit || ITEMS_PER_PAGE)
 					.sort({ 'data.date': -1 });
 			});
 		if (feed.length === 0) {
@@ -297,11 +297,11 @@ router.post('/', auth, async (req, res) => {
 				unviewedLeads,
 				totalItems,
 				page,
-				hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
 				hasPreviousPage: page > 1,
 				nextPage: page + 1,
 				previousPage: page - 1,
-				lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+				lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
 				lastUpdated,
 			});
 		}
@@ -372,14 +372,14 @@ router.post('/view', auth, async (req, res) => {
 // @access      Private
 router.post('/liked', auth, async (req, res) => {
 	try {
-		const { leads, page } = req.body;
+		const { leads, page, itemLimit } = req.body;
 		const likedLeads = await Lead.find({ _id: { $in: leads } })
 			.countDocuments()
 			.then((numLeads) => {
 				totalItems = numLeads;
 				return Lead.find({ _id: { $in: leads } })
-					.skip((page - 1) * ITEMS_PER_PAGE)
-					.limit(ITEMS_PER_PAGE)
+					.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
+					.limit(itemLimit || ITEMS_PER_PAGE)
 					.sort({ 'data.date': -1 });
 			});
 		if (likedLeads.length === 0) {
@@ -393,11 +393,12 @@ router.post('/liked', auth, async (req, res) => {
 				message,
 				likedLeads,
 				page,
-				hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
 				hasPreviousPage: page > 1,
 				nextPage: page + 1,
 				previousPage: page - 1,
-				lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+				lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
+				totalItems,
 			});
 		}
 	} catch (error) {
@@ -411,14 +412,14 @@ router.post('/liked', auth, async (req, res) => {
 // @access      Private
 router.post('/archived', auth, async (req, res) => {
 	try {
-		const { leads, page } = req.body;
+		const { leads, page, itemLimit } = req.body;
 		const archivedLeads = await Lead.find({ _id: { $in: leads } })
 			.countDocuments()
 			.then((numLeads) => {
 				totalItems = numLeads;
 				return Lead.find({ _id: { $in: leads } })
-					.skip((page - 1) * ITEMS_PER_PAGE)
-					.limit(ITEMS_PER_PAGE)
+					.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
+					.limit(itemLimit || ITEMS_PER_PAGE)
 					.sort({ 'data.date': -1 });
 			});
 		if (archivedLeads.length === 0) {
@@ -432,11 +433,12 @@ router.post('/archived', auth, async (req, res) => {
 				message,
 				archivedLeads,
 				page,
-				hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
 				hasPreviousPage: page > 1,
 				nextPage: page + 1,
 				previousPage: page - 1,
-				lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+				lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
+				totalItems,
 			});
 		}
 	} catch (error) {

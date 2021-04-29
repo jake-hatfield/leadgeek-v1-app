@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { exportLeads } from 'redux/actions/leads';
 import { getAllUsers, setPage } from 'redux/actions/users';
+import { setItemLimit } from 'redux/actions/filters';
 import { surrogateUser } from 'redux/actions/auth';
 
 import { useOutsideMousedown, capitalize } from 'utils/utils';
@@ -121,14 +122,16 @@ const UserTable = ({
 	role,
 	allUsers,
 	pagination,
+	usersLimit,
 	loading,
 	getAllUsers,
 	surrogateUser,
 	setPage,
+	setItemLimit,
 }) => {
 	useEffect(() => {
-		getAllUsers(pagination.page);
-	}, [pagination.page]);
+		getAllUsers(pagination.page, usersLimit);
+	}, [pagination.page, usersLimit]);
 	const type = 'users';
 	return (
 		<Fragment>
@@ -200,7 +203,7 @@ const UserTable = ({
 											onClick={() =>
 												role === 'master' && surrogateUser(user._id)
 											}
-											className='py-1 px-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-white shadow-sm hover:shadow-md transition-colors duration-100 ease-in-out'
+											className='py-1 px-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-white shadow-sm hover:shadow-md transition-colors duration-100 ease-in-out ring-purple'
 										>
 											<div>Login</div>
 										</button>
@@ -213,8 +216,10 @@ const UserTable = ({
 						<Pagination
 							pagination={pagination}
 							type={type}
+							itemLimit={usersLimit}
 							loading={loading}
 							setPage={setPage}
+							setItemLimit={setItemLimit}
 							noPadding={true}
 						/>
 					)}
@@ -230,10 +235,12 @@ const Admin = ({
 	user,
 	loading,
 	users: { allUsers, pagination, loading: userLoading },
+	usersLimit,
 	exportLeads,
 	getAllUsers,
 	surrogateUser,
 	setPage,
+	setItemLimit,
 }) => {
 	const { _id: userId, role } = Object(user);
 	const adminItems = [
@@ -297,7 +304,7 @@ const Admin = ({
 			),
 			color: 'text-teal-500',
 			buttonText: 'View all members',
-			additionalFunction: () => getAllUsers(pagination.page),
+			additionalFunction: () => getAllUsers(pagination.page, usersLimit),
 			buttonPath: (
 				<g>
 					<path d='M10 12a2 2 0 100-4 2 2 0 000 4z' />
@@ -315,10 +322,12 @@ const Admin = ({
 					role={role}
 					allUsers={allUsers}
 					pagination={pagination}
+					usersLimit={usersLimit}
 					loading={userLoading}
 					getAllUsers={getAllUsers}
 					surrogateUser={surrogateUser}
 					setPage={setPage}
+					setItemLimit={setItemLimit}
 				/>
 			),
 		},
@@ -378,7 +387,8 @@ Admin.propTypes = {
 const mapStateToProps = (state) => {
 	const { user, loading } = state.auth;
 	const { users } = state;
-	return { user, loading, users };
+	const { usersLimit } = state.filters.itemLimits;
+	return { user, loading, users, usersLimit };
 };
 
 export default connect(mapStateToProps, {
@@ -386,4 +396,5 @@ export default connect(mapStateToProps, {
 	getAllUsers,
 	surrogateUser,
 	setPage,
+	setItemLimit,
 })(Admin);

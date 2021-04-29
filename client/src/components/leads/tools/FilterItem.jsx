@@ -273,7 +273,7 @@ const FilterItem = ({
 										console.log(selectValue);
 										setSelectValue(e.currentTarget.value);
 									}}
-									className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm ring-purple minimal-scrollbar'
+									className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-200 cursor-pointer shadow-sm ring-purple minimal-scrollbar'
 								>
 									{categories.map((category, i) => (
 										<option

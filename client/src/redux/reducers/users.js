@@ -36,6 +36,7 @@ export default function userReducer(state = initialState, action) {
 				...state,
 				allUsers: users,
 				pagination: {
+					...state.pagination,
 					page,
 					hasNextPage,
 					hasPreviousPage,

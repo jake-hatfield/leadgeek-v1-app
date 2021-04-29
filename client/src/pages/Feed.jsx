@@ -12,16 +12,21 @@ import Spinner from 'components/layout/Spinner';
 const Feed = ({ user, loading, isAuthenticated, feed, filters, getLeads }) => {
 	const componentReady = !loading && user && isAuthenticated;
 	const { page } = feed.pagination;
+	const { leadsLimit: itemLimit } = filters.itemLimits;
 	const userAndPage = user && page;
 	useEffect(() => {
-		!loading && isAuthenticated && user && getLeads(user, page, filters);
-	}, [loading, isAuthenticated, userAndPage]);
+		!loading &&
+			isAuthenticated &&
+			user &&
+			getLeads(user, page, filters, itemLimit);
+	}, [loading, isAuthenticated, userAndPage, itemLimit]);
 	return componentReady ? (
 		<AuthLayout>
 			<Leads
 				leads={feed.pageByIds}
 				pagination={feed.pagination}
 				type={'feed'}
+				itemLimit={itemLimit}
 				user={user}
 				loading={loading}
 			/>

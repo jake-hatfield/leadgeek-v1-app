@@ -93,10 +93,10 @@ export const getAllLeads = (user) => async (dispatch) => {
 	}
 };
 
-export const getLikedLeads = (leads, page) => async (dispatch) => {
+export const getLikedLeads = (leads, page, itemLimit) => async (dispatch) => {
 	try {
 		dispatch({ type: LOADING });
-		const body = JSON.stringify({ leads, page });
+		const body = JSON.stringify({ leads, page, itemLimit });
 		const { data } = await axios.post('/api/leads/liked', body, config);
 		if (data.message === 'You have not liked any leads.') {
 			dispatch(setAlert(data.message, 'warning'));
@@ -112,10 +112,12 @@ export const getLikedLeads = (leads, page) => async (dispatch) => {
 	}
 };
 
-export const getArchivedLeads = (leads, page) => async (dispatch) => {
+export const getArchivedLeads = (leads, page, itemLimit) => async (
+	dispatch
+) => {
 	try {
 		dispatch({ type: LOADING });
-		const body = JSON.stringify({ leads, page });
+		const body = JSON.stringify({ leads, page, itemLimit });
 		const { data } = await axios.post('/api/leads/archived', body, config);
 		if (data.message === 'You have not archived any leads.') {
 			dispatch(setAlert(data.message, 'warning'));
@@ -203,6 +205,27 @@ export const clearCurrentLead = () => (dispatch) => {
 	}
 };
 
+export const getSearchResults = (
+	q,
+	role,
+	dateCreated,
+	page,
+	newSearch,
+	itemLimit
+) => async (dispatch) => {
+	dispatch({ type: LOADING });
+	if (newSearch) {
+		dispatch({ type: CLEAR_CURRENT_SEARCH });
+	}
+	const body = JSON.stringify({ q, role, dateCreated, page, itemLimit });
+	const { data } = await axios.post('/api/search', body, config);
+	dispatch({
+		type: SET_SEARCH_RESULTS,
+		payload: { data, q },
+	});
+	return dispatch({ type: FINISHED_LOADING });
+};
+
 export const setPage = (page, type) => (dispatch) => {
 	try {
 		dispatch({
@@ -214,22 +237,7 @@ export const setPage = (page, type) => (dispatch) => {
 	}
 };
 
-export const getSearchResults = (
-	q,
-	role,
-	dateCreated,
-	page,
-	newSearch
-) => async (dispatch) => {
-	dispatch({ type: LOADING });
-	if (newSearch) {
-		dispatch({ type: CLEAR_CURRENT_SEARCH });
+export const setItemLimit = (itemLimit) => async (dispatch) => {
+	if (itemLimit) {
 	}
-	const body = JSON.stringify({ q, role, dateCreated, page });
-	const { data } = await axios.post('/api/search', body, config);
-	dispatch({
-		type: SET_SEARCH_RESULTS,
-		payload: { data, q },
-	});
-	return dispatch({ type: FINISHED_LOADING });
 };

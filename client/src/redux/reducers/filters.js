@@ -8,6 +8,7 @@ import {
 	SET_WEIGHT_FILTER,
 	SET_CATEGORY_FILTER,
 	SET_PREP_FILTER,
+	SET_ITEM_LIMIT,
 	CLEAR_NETPROFIT_FILTER,
 	CLEAR_BUYPRICE_FILTER,
 	CLEAR_SELLPRICE_FILTER,
@@ -57,6 +58,11 @@ const initialState = {
 	prep: {
 		unit: +localStorage.getItem('unitFee') || null,
 		lb: +localStorage.getItem('lbFee') || null,
+	},
+	itemLimits: {
+		leadsLimit: +localStorage.getItem('leadsLimit') || 15,
+		searchLimit: +localStorage.getItem('searchLimit') || 15,
+		usersLimit: +localStorage.getItem('usersLimit') || 15,
 	},
 };
 
@@ -142,7 +148,6 @@ export default function filterReducer(state = initialState, action) {
 		}
 		case SET_CATEGORY_FILTER: {
 			const { newCategory } = payload;
-			console.log(newCategory);
 			return {
 				...state,
 				category: [...state.category, newCategory],
@@ -168,6 +173,44 @@ export default function filterReducer(state = initialState, action) {
 				};
 			}
 		}
+		case SET_ITEM_LIMIT: {
+			const { typeFilter, itemLimit: newLimit } = payload;
+			switch (typeFilter) {
+				case 'leadsLimit': {
+					return {
+						...state,
+						itemLimits: {
+							...state.itemLimits,
+							leadsLimit: +newLimit,
+						},
+					};
+				}
+				case 'searchLimit': {
+					return {
+						...state,
+						itemLimits: {
+							...state.itemLimits,
+							searchLimit: +newLimit,
+						},
+					};
+				}
+				case 'usersLimit': {
+					console.log('usersLimit');
+					return {
+						...state,
+						itemLimits: {
+							...state.itemLimits,
+							usersLimit: +newLimit,
+						},
+					};
+				}
+				default: {
+					return {
+						...state,
+					};
+				}
+			}
+		}
 		case CLEAR_PREP_FILTER: {
 			return {
 				...state,
@@ -179,6 +222,7 @@ export default function filterReducer(state = initialState, action) {
 		}
 		case CLEAR_FILTERS: {
 			return {
+				...state,
 				count: null,
 				netProfit: {
 					min: null,

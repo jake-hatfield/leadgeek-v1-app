@@ -138,6 +138,7 @@ export default function leadsReducer(state = initialState, action) {
 					...state.liked,
 					pageByIds: likedLeads,
 					pagination: {
+						...state.liked.pagination,
 						page,
 						hasNextPage,
 						hasPreviousPage,
@@ -164,6 +165,7 @@ export default function leadsReducer(state = initialState, action) {
 					...state.archived,
 					pageByIds: archivedLeads,
 					pagination: {
+						...state.archived.pagination,
 						page,
 						hasNextPage,
 						hasPreviousPage,

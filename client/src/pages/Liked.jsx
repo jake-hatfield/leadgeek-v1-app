@@ -7,16 +7,26 @@ import { getLikedLeads } from 'redux/actions/leads';
 import AuthLayout from 'components/layout/AuthLayout';
 import Leads from 'components/leads/Leads';
 
-const Liked = ({ user, loading, liked, getLikedLeads }) => {
+const Liked = ({
+	user,
+	loading,
+	pageByIds,
+	pagination,
+	itemLimit,
+	getLikedLeads,
+}) => {
+	console.log(pagination.page);
+	const { likedLeads } = Object(user);
 	useEffect(() => {
-		!loading && user && getLikedLeads(user.likedLeads, liked.page);
-	}, [user.likedLeads, liked.page]);
+		!loading && user && getLikedLeads(likedLeads, pagination.page, itemLimit);
+	}, [likedLeads, pagination.page, itemLimit]);
 	return (
 		<AuthLayout>
 			<Leads
-				leads={liked.pageByIds}
-				pagination={liked.pagination}
+				leads={pageByIds}
+				pagination={pagination}
 				type={'liked'}
+				itemLimit={itemLimit}
 				user={user}
 				loading={loading}
 			/>
@@ -33,8 +43,9 @@ Liked.propTypes = {
 
 const mapStateToProps = (state) => {
 	const { user, loading } = state.auth;
-	const { liked } = state.leads;
-	return { user, loading, liked };
+	const { pageByIds, pagination } = state.leads.liked;
+	const { leadsLimit: itemLimit } = state.filters.itemLimits;
+	return { user, loading, pageByIds, pagination, itemLimit };
 };
 
 export default connect(mapStateToProps, { getLikedLeads })(Liked);

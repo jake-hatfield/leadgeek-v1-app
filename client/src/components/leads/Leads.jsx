@@ -2,11 +2,8 @@ import React, { Fragment, useState } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-	getAllLeads,
-	clearCurrentLead,
-	setPage,
-} from '../../redux/actions/leads';
+import { getAllLeads, clearCurrentLead, setPage } from 'redux/actions/leads';
+import { setItemLimit } from 'redux/actions/filters';
 import { setAlert } from 'redux/actions/alert';
 import { NavLink } from 'react-router-dom';
 
@@ -24,6 +21,7 @@ const Leads = ({
 	leads,
 	pagination,
 	type,
+	itemLimit,
 	headerTitle,
 	user,
 	authLoading,
@@ -35,6 +33,7 @@ const Leads = ({
 	getAllLeads,
 	clearCurrentLead,
 	setPage,
+	setItemLimit,
 }) => {
 	// toggle additional information
 	const [showDetails, setShowDetails] = useState(false);
@@ -198,6 +197,8 @@ const Leads = ({
 							type={type}
 							loading={leadLoading}
 							setPage={setPage}
+							itemLimit={itemLimit}
+							setItemLimit={setItemLimit}
 						/>
 					)}
 				</section>
@@ -240,6 +241,7 @@ const mapStateToProps = (state, ownProps) => {
 		headerTitle,
 		currentSearchParam,
 		type,
+		itemLimit,
 		user,
 		loading: authLoading,
 	} = ownProps;
@@ -251,6 +253,7 @@ const mapStateToProps = (state, ownProps) => {
 		headerTitle,
 		currentSearchParam,
 		type,
+		itemLimit,
 		user,
 		authLoading,
 		feed,
@@ -264,4 +267,5 @@ export default connect(mapStateToProps, {
 	getAllLeads,
 	clearCurrentLead,
 	setPage,
+	setItemLimit,
 })(Leads);

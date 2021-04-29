@@ -7,16 +7,27 @@ import { getArchivedLeads } from 'redux/actions/leads';
 import AuthLayout from 'components/layout/AuthLayout';
 import Leads from 'components/leads/Leads';
 
-const Archived = ({ user, loading, archived, getArchivedLeads }) => {
+const Archived = ({
+	user,
+	loading,
+	pageByIds,
+	pagination,
+	itemLimit,
+	getArchivedLeads,
+}) => {
+	const { archivedLeads } = Object(user);
 	useEffect(() => {
-		!loading && user && getArchivedLeads(user.archivedLeads, archived.page);
-	}, [user.archivedLeads, archived.page]);
+		!loading &&
+			user &&
+			getArchivedLeads(archivedLeads, pagination.page, itemLimit);
+	}, [archivedLeads, pagination.page, itemLimit]);
 	return (
 		<AuthLayout>
 			<Leads
-				leads={archived.pageByIds}
-				pagination={archived.pagination}
+				leads={pageByIds}
+				pagination={pagination}
 				type={'archived'}
+				itemLimit={itemLimit}
 				user={user}
 				loading={loading}
 			/>
@@ -33,8 +44,9 @@ Archived.propTypes = {
 
 const mapStateToProps = (state) => {
 	const { user, loading } = state.auth;
-	const { archived } = state.leads;
-	return { user, loading, archived };
+	const { pageByIds, pagination } = state.leads.archived;
+	const { leadsLimit: itemLimit } = state.filters.itemLimits;
+	return { user, loading, pageByIds, pagination, itemLimit };
 };
 
 export default connect(mapStateToProps, { getArchivedLeads })(Archived);
