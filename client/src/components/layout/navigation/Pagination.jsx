@@ -13,6 +13,7 @@ const Pagination = ({ pagination, type, loading, noPadding, setPage }) => {
 	} = pagination;
 	const buttonClasses =
 		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold text-gray-500 hover:text-gray-600 transition duration-100 ease-in-out ring-purple';
+	const itemsFrom = previousPage ? 1 : 0;
 	return (
 		!loading &&
 		(hasPreviousPage || hasNextPage) && (
@@ -21,21 +22,24 @@ const Pagination = ({ pagination, type, loading, noPadding, setPage }) => {
 					!noPadding && 'container'
 				}`}
 			>
-				{totalItems ? (
-					<div className='text-sm font-semibold'>Total items: {totalItems}</div>
-				) : (
-					<div />
-				)}
-
+				<div>selector</div>
 				<div className='flex items-center'>
+					{totalItems ? (
+						<div className='text-sm font-semibold'>
+							Showing {itemsFrom} to {previousPage || 1 * 20} of {totalItems}{' '}
+							items
+						</div>
+					) : (
+						<div />
+					)}
 					<Link
 						to={`${hasPreviousPage && `?page=${previousPage}`}`}
 						onClick={() => setPage(previousPage, type)}
 						className={`${
 							hasPreviousPage
 								? 'hover:shadow-md hover:text-gray-700'
-								: 'pointer-events-none opacity-50'
-						} ${buttonClasses}`}
+								: 'pointer-events-none bg-gray-200 opacity-50'
+						} ${buttonClasses} ml-8`}
 					>
 						Previous
 					</Link>
@@ -45,7 +49,7 @@ const Pagination = ({ pagination, type, loading, noPadding, setPage }) => {
 						className={`${
 							hasNextPage
 								? 'hover:shadow-md hover:text-gray-700'
-								: 'pointer-events-none opacity-50'
+								: 'pointer-events-none bg-gray-200 opacity-50'
 						} ${buttonClasses} ml-4`}
 					>
 						Next
