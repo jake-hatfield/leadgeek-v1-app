@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 
 const Pagination = ({ pagination, type, loading, noPadding, setPage }) => {
 	const {
+		page,
 		hasNextPage,
 		hasPreviousPage,
 		nextPage,
@@ -13,7 +14,8 @@ const Pagination = ({ pagination, type, loading, noPadding, setPage }) => {
 	} = pagination;
 	const buttonClasses =
 		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold text-gray-500 hover:text-gray-600 transition duration-100 ease-in-out ring-purple';
-	const itemsFrom = previousPage ? 1 : 0;
+	const itemsFrom = previousPage ? previousPage * 20 + 1 : previousPage + 1;
+	const itemsTo = page * 20;
 	return (
 		!loading &&
 		(hasPreviousPage || hasNextPage) && (
@@ -22,12 +24,11 @@ const Pagination = ({ pagination, type, loading, noPadding, setPage }) => {
 					!noPadding && 'container'
 				}`}
 			>
-				<div>selector</div>
-				<div className='flex items-center'>
+				<div />
+				<div className='flex items-center text-gray-600'>
 					{totalItems ? (
-						<div className='text-sm font-semibold'>
-							Showing {itemsFrom} to {previousPage || 1 * 20} of {totalItems}{' '}
-							items
+						<div className='text-sm'>
+							Showing {itemsFrom} to {itemsTo} of {totalItems} items
 						</div>
 					) : (
 						<div />
