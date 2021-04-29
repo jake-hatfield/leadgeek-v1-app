@@ -37,7 +37,7 @@ const Pagination = ({ pagination, type, loading, noPadding, setPage }) => {
 								: 'pointer-events-none opacity-50'
 						} ${buttonClasses}`}
 					>
-						Previous page
+						Previous
 					</Link>
 					<Link
 						to={`?page=${nextPage}`}
@@ -48,7 +48,7 @@ const Pagination = ({ pagination, type, loading, noPadding, setPage }) => {
 								: 'pointer-events-none opacity-50'
 						} ${buttonClasses} ml-4`}
 					>
-						Next page
+						Next
 					</Link>
 				</div>
 			</article>

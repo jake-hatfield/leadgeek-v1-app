@@ -12,7 +12,7 @@
 		"server": "nodemon server",
 		"client": "npm start --prefix client",
 		"dev": "dotenv -e .env.development concurrently \"npm run server\" \"npm run client\"",
-		"build": "dotenv -e .env.production cd client && npm run build",
+		"build": "cd client && npm run build",
 		"heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
 	},
 	"author": "Jake Hatfield",

@@ -166,5 +166,6 @@ module.exports = {
 			addComponents(container);
 		}),
 		require('@tailwindcss/forms'),
+		require('tailwind-scrollbar'),
 	],
 };
