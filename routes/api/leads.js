@@ -129,13 +129,13 @@ router.post('/', auth, async (req, res) => {
 		console.log('Getting paginated leads...');
 		const { unviewedLeads } = user;
 		let totalItems;
+		let lastUpdated;
 		let roleFilter = [role.toString()];
 		let administrator;
 		const administrativeRoles = ['master', 'admin'];
 		if (administrativeRoles.indexOf(role) >= 0) {
 			administrator = true;
 		}
-
 		const feed = await Lead.find({
 			...(!administrator && { plan: { $in: roleFilter } }),
 			...(!administrator && {
@@ -145,6 +145,9 @@ router.post('/', auth, async (req, res) => {
 			.countDocuments()
 			.then((numLeads) => {
 				totalItems = numLeads;
+				Lead.findOne({}, {}, { sort: { 'data.date': -1 } }, (err, res) => {
+					lastUpdated = res.data.date;
+				});
 				return Lead.find({
 					$and: [
 						{
@@ -284,6 +287,7 @@ router.post('/', auth, async (req, res) => {
 				nextPage: page + 1,
 				previousPage: page - 1,
 				lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
+				lastUpdated,
 			});
 		}
 	} catch (error) {

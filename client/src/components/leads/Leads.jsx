@@ -8,7 +8,7 @@ import {
 	setPage,
 	setLoading,
 } from 'redux/actions/leads';
-import { setItemLimit } from 'redux/actions/filters';
+import { setItemLimit, setDateLimit } from 'redux/actions/filters';
 import { setAlert } from 'redux/actions/alert';
 import { NavLink } from 'react-router-dom';
 import { DateTime } from 'luxon';
@@ -34,13 +34,15 @@ const Leads = ({
 	authLoading,
 	feed,
 	filters,
-	leadLoading,
 	currentLead,
+	leadLoading,
+	lastUpdated,
 	search,
 	getAllLeads,
 	clearCurrentLead,
 	setPage,
 	setItemLimit,
+	setDateLimit,
 	setLoading,
 }) => {
 	// toggle additional information
@@ -188,7 +190,15 @@ const Leads = ({
 											margin={true}
 										/>
 									)}
-									{date && <DatePicker date={date} setDate={setDate} />}
+									{date && (
+										<DatePicker
+											date={date}
+											setDate={setDate}
+											dateCreated={user.dateCreated}
+											lastUpdated={lastUpdated}
+											setDateLimit={setDateLimit}
+										/>
+									)}
 									{filter && <Filter filter={filter} setFilter={setFilter} />}
 									{prep && <Prep prep={prep} setPrep={setPrep} />}
 									{exportLeads &&
@@ -273,7 +283,7 @@ const mapStateToProps = (state, ownProps) => {
 		user,
 		loading: authLoading,
 	} = ownProps;
-	const { feed, currentLead, loading: leadLoading } = state.leads;
+	const { feed, currentLead, loading: leadLoading, lastUpdated } = state.leads;
 	const { filters } = state;
 	return {
 		leads,
@@ -286,8 +296,9 @@ const mapStateToProps = (state, ownProps) => {
 		authLoading,
 		feed,
 		filters,
-		leadLoading,
 		currentLead,
+		leadLoading,
+		lastUpdated,
 	};
 };
 
@@ -296,5 +307,6 @@ export default connect(mapStateToProps, {
 	clearCurrentLead,
 	setPage,
 	setItemLimit,
+	setDateLimit,
 	setLoading,
 })(Leads);

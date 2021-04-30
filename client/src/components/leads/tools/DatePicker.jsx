@@ -4,7 +4,13 @@ import { DateTime } from 'luxon';
 
 import { useOutsideMousedown } from 'utils/utils';
 
-const DatePicker = ({ date, setDate }) => {
+const DatePicker = ({
+	date,
+	setDate,
+	dateCreated,
+	lastUpdated,
+	setDateLimit,
+}) => {
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setDate);
 	// close modal on esc key
@@ -20,13 +26,18 @@ const DatePicker = ({ date, setDate }) => {
 		document.addEventListener('keydown', keyPress);
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
-	const mostRecentDay = DateTime.fromISO('2021-04-30T13:34:00.000Z');
+	const nowISO = DateTime.now().toISO();
+	const mostRecentDay = DateTime.fromISO(lastUpdated || DateTime.now());
 	const previousDay = mostRecentDay.minus({ days: 1 });
 	const lastFiveStart = mostRecentDay.minus({ days: 5 });
 	const last30Start = mostRecentDay.minus({ days: 30 });
-	const lastDay = DateTime.fromISO('2021-04-30T13:34:00.000Z');
+	const lastDay = DateTime.fromISO(dateCreated);
 	const dateOptions = [
-		{ title: 'Most recent day', dateString: mostRecentDay.toFormat('LLL dd') },
+		{
+			title: 'Most recent day',
+			dateString: mostRecentDay.toFormat('LLL dd'),
+			setDateLimit: () => setDateLimit(mostRecentDay.toISO(), null),
+		},
 		{ title: 'Previous day', dateString: previousDay.toFormat('LLL dd') },
 		{
 			title: 'Last 5 days',
@@ -42,9 +53,9 @@ const DatePicker = ({ date, setDate }) => {
 		},
 		{
 			title: 'All time',
-			dateString: `${lastDay.toFormat('LLL dd')} - ${mostRecentDay.toFormat(
-				'LLL dd'
-			)}`,
+			dateString: `${lastDay.toFormat(
+				'LLL dd, yyyy'
+			)} - ${mostRecentDay.toFormat('LLL dd')}`,
 		},
 	];
 	return (
@@ -61,9 +72,7 @@ const DatePicker = ({ date, setDate }) => {
 				{dateOptions.map((dateOption, i) => (
 					<li key={i} className='list-none'>
 						<button
-							onClick={() => {
-								// setLeadDate();
-							}}
+							onClick={dateOption.setDateLimit}
 							className='w-full py-2 px-4 flex items-center justify-between border-t border-gray-200 hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
 						>
 							<span className='font-semibold text-sm text-gray-700'>

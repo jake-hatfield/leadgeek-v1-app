@@ -37,7 +37,6 @@ export const setMinMaxFilter = (min, max, val) => (dispatch) => {
 			let key = `${val}Max`;
 			localStorage.setItem(key, calculatedMaxValue);
 		}
-		console.log(calculatedMinValue, calculatedMaxValue);
 		if (min || max) {
 			return dispatch({
 				type: `SET_${val.toUpperCase()}_FILTER`,
@@ -160,6 +159,14 @@ export const setItemLimit = (type, itemLimit) => async (dispatch) => {
 				payload: { typeFilter, itemLimit },
 			});
 		}
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const setDateLimit = (min, max) => async (dispatch) => {
+	try {
+		console.log(min, max);
 	} catch (error) {
 		console.log(error);
 	}

@@ -32,7 +32,6 @@ const initialState = {
 			lastPage: null,
 			totalItems: null,
 		},
-		lastUpdated: null,
 	},
 	liked: {
 		totalByIds: [],
@@ -47,7 +46,6 @@ const initialState = {
 			lastPage: null,
 			totalItems: null,
 		},
-		lastUpdated: null,
 	},
 	archived: {
 		totalByIds: [],
@@ -62,7 +60,6 @@ const initialState = {
 			lastPage: null,
 			totalItems: null,
 		},
-		lastUpdated: null,
 	},
 	search: {
 		totalByIds: [],
@@ -79,6 +76,7 @@ const initialState = {
 		},
 		searchValue: null,
 	},
+	lastUpdated: null,
 };
 
 export default function leadsReducer(state = initialState, action) {
@@ -100,6 +98,7 @@ export default function leadsReducer(state = initialState, action) {
 				nextPage,
 				previousPage,
 				totalItems,
+				lastUpdated,
 			} = payload.data;
 			return {
 				...state,
@@ -115,6 +114,7 @@ export default function leadsReducer(state = initialState, action) {
 						totalItems,
 					},
 				},
+				lastUpdated,
 			};
 		}
 		case GET_ALL_LEADS: {
