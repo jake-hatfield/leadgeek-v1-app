@@ -7,7 +7,7 @@ const Spinner = ({ divWidth, spinnerWidth, noMargin, search, text }) => {
 	return (
 		<div
 			className={`${divWidth} flex flex-col items-center justify-center ${
-				!noMargin && 'mt-12'
+				!noMargin && 'mt-16'
 			}`}
 		>
 			<Preloader

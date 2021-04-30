@@ -2,12 +2,19 @@ import React, { Fragment, useState } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getAllLeads, clearCurrentLead, setPage } from 'redux/actions/leads';
+import {
+	getAllLeads,
+	clearCurrentLead,
+	setPage,
+	setLoading,
+} from 'redux/actions/leads';
 import { setItemLimit } from 'redux/actions/filters';
 import { setAlert } from 'redux/actions/alert';
 import { NavLink } from 'react-router-dom';
+import { DateTime } from 'luxon';
 
 import Header from '../layout/navigation/Header';
+import DatePicker from './tools/DatePicker';
 import Filter from './tools/Filter';
 import Prep from './tools/Prep';
 import ExportButton from './tools/ExportButton';
@@ -34,9 +41,11 @@ const Leads = ({
 	clearCurrentLead,
 	setPage,
 	setItemLimit,
+	setLoading,
 }) => {
 	// toggle additional information
 	const [showDetails, setShowDetails] = useState(false);
+	const [date, setDate] = useState(false);
 	const [filter, setFilter] = useState(false);
 	const [prep, setPrep] = useState(false);
 	const { _id: userId, role, dateCreated, likedLeads, archivedLeads } = user;
@@ -91,7 +100,6 @@ const Leads = ({
 			),
 		},
 	];
-
 	const [exportLeads, setExportLeads] = useState(false);
 	const handleExport = async () => {
 		try {
@@ -123,6 +131,7 @@ const Leads = ({
 											key={i}
 											exact
 											to={`/leads${link.link}`}
+											onClick={() => setLoading()}
 											className='relative first:ml-0 ml-10 pb-2 font-semibold text-lg text-gray-600 hover:text-gray-900 group transition-colors duration-100 ease-in-out'
 											activeClassName='text-purple-500 hover:text-purple-500 border-b-2 border-purple-600'
 										>
@@ -136,6 +145,24 @@ const Leads = ({
 									))}
 								</div>
 								<div className='flex items-center'>
+									{/* <Button
+										text={
+											`${
+												DateTime.fromISO(user.dateCreated).toFormat(
+													'LLL dd, yyyy'
+												) || 'Jan 1, 2021'
+											} - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
+											'All leads'
+										}
+										path={
+											<path
+												fillRule='evenodd'
+												d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z'
+												clipRule='evenodd'
+											/>
+										}
+										onClick={() => setDate((prev) => !prev)}
+									/> */}
 									{tools.map((tool, i) => (
 										<Button
 											key={i}
@@ -161,6 +188,7 @@ const Leads = ({
 											margin={true}
 										/>
 									)}
+									{date && <DatePicker date={date} setDate={setDate} />}
 									{filter && <Filter filter={filter} setFilter={setFilter} />}
 									{prep && <Prep prep={prep} setPrep={setPrep} />}
 									{exportLeads &&
@@ -268,4 +296,5 @@ export default connect(mapStateToProps, {
 	clearCurrentLead,
 	setPage,
 	setItemLimit,
+	setLoading,
 })(Leads);

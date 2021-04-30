@@ -21,7 +21,7 @@ const Button = ({
 			} relative py-2 px-3 flex items-center rounded-lg shadow-sm hover:shadow-md text-sm font-semibold ${
 				cta
 					? 'bg-purple-500 hover:bg-purple-600 text-white'
-					: 'text-gray-500 hover:text-gray-600'
+					: 'text-gray-500 hover:text-gray-700'
 			}  transition duration-100 ease-in-out ring-purple`}
 		>
 			{path && (
@@ -34,7 +34,7 @@ const Button = ({
 					{path}
 				</svg>
 			)}
-			<span className='ml-2'>{text}</span>
+			<span className={`ml-2 ${!cta && 'text-gray-600'}`}>{text}</span>
 			{conditional && conditionalDisplay}
 		</button>
 	);

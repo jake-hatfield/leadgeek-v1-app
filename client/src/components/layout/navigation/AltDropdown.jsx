@@ -19,7 +19,7 @@ function MoreDropdown({
 				onKeyPress={() => toggle(!open)}
 				onMouseEnter={() => open === false && toggle(!open)}
 				onMouseLeave={() => open === true && toggle(!open)}
-				className='inline-flex space-x-1 text-gray-500 text-base leading-6 font-medium hover:text-gray-700 focus:outline-none focus:text-gray-700 transition ease-in-out duration-200 md:cursor-default'
+				className='inline-flex space-x-1 text-gray-600 text-base leading-6 font-medium hover:text-gray-700 focus:outline-none focus:text-gray-700 transition ease-in-out duration-200 md:cursor-default'
 			>
 				<div
 					className={`${
@@ -40,7 +40,7 @@ function MoreDropdown({
 											<p className='text-sm leading-6 font-semibold text-gray-700'>
 												{item.title}
 											</p>
-											<p className='text-sm leading-5 font-normal text-gray-500'>
+											<p className='text-sm leading-5 font-normal text-gray-600'>
 												{item.description}
 											</p>
 										</div>
@@ -68,7 +68,7 @@ function MoreDropdown({
 										<p className='text-sm leading-6 font-semibold text-gray-700'>
 											Log Out
 										</p>
-										<p className='text-sm leading-5 font-normal text-gray-500'>
+										<p className='text-sm leading-5 font-normal text-gray-600'>
 											Securely log out of your LeadGeek account
 										</p>
 									</div>

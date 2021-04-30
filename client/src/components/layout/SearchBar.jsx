@@ -8,7 +8,7 @@ const SearchBar = ({
 }) => {
 	return (
 		<div className='flex items-center justify-end text-gray-300'>
-			<div className='w-72 relative z-0 text-gray-400'>
+			<div className='w-72 relative z-0 text-gray-600'>
 				<form
 					action={`/${route || 'search'}`}
 					method='GET'
@@ -19,7 +19,7 @@ const SearchBar = ({
 						name='q'
 						placeholder={placeholder || 'Enter a search...'}
 						onChange={onSearchChange}
-						className='py-2 pl-10 w-full rounded-lg border-none text-sm text-gray-500 placeholder-gray-400 transition duration-100 ease-in-out ring-purple'
+						className='py-2 pl-10 w-full rounded-lg border-none text-sm placeholder-gray-600 transition duration-100 ease-in-out ring-purple'
 					/>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'

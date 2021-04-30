@@ -3,14 +3,14 @@ import { BrowserRouter as Router, Switch } from 'react-router-dom';
 // redux
 import { Provider } from 'react-redux';
 import store from './store';
-import { loadUser } from './redux/actions/auth';
-import setAuthToken from './utils/authTokens';
+import { loadUser } from 'redux/actions/auth';
+import setAuthToken from 'utils/authTokens';
 // stripe
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 // routes
 import Routes from './routes/Routes';
-import { LOGOUT } from './redux/actions/types';
+import { LOGOUT } from 'redux/actions/types';
 
 const App = () => {
 	useEffect(() => {

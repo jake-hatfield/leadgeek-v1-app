@@ -51,10 +51,6 @@ const initialState = {
 		max: +localStorage.getItem('weightMax') || null,
 	},
 	category: [],
-	// prep: {
-	// 	unit: +localStorage.getItem('unitFee') || null,
-	// 	lb: +localStorage.getItem('lbFee') || null,
-	// },
 	prep: {
 		unit: +localStorage.getItem('unitFee') || null,
 		lb: +localStorage.getItem('lbFee') || null,
@@ -64,6 +60,7 @@ const initialState = {
 		searchLimit: +localStorage.getItem('searchLimit') || 15,
 		usersLimit: +localStorage.getItem('usersLimit') || 15,
 	},
+	dateLimits: { min: null, max: null },
 };
 
 export default function filterReducer(state = initialState, action) {

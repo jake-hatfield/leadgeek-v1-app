@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 import PropTypes from 'prop-types';
-// redux
 import { connect } from 'react-redux';
-import { DateTime } from 'luxon';
-
 import {
 	viewLead,
 	handleLikeLead,
 	handleArchiveLead,
 	setCurrentLead,
 } from 'redux/actions/leads';
-// utils
+import { DateTime } from 'luxon';
+
 import {
 	truncate,
 	numberWithCommas,

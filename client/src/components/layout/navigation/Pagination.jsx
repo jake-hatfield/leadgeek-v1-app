@@ -21,7 +21,7 @@ const Pagination = ({
 		totalItems,
 	} = pagination;
 	const buttonClasses =
-		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold text-gray-500 hover:text-gray-600 transition duration-100 ease-in-out ring-purple';
+		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold text-gray-600 hover:text-gray-700 transition duration-100 ease-in-out ring-purple';
 	const itemsFrom = previousPage
 		? previousPage * (itemLimit || 15) + 1
 		: previousPage + 1;
@@ -38,7 +38,7 @@ const Pagination = ({
 					!noPadding && 'container'
 				} text-gray-600`}
 			>
-				{totalItems && (
+				{totalItems > 0 && (
 					<div className='flex items-center text-sm'>
 						<span>View</span>
 						<select
@@ -62,7 +62,6 @@ const Pagination = ({
 						<span>results per page</span>
 					</div>
 				)}
-
 				<div className='flex items-center'>
 					{totalItems ? (
 						<div className='text-sm'>

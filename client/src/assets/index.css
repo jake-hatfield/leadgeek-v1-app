@@ -23,11 +23,11 @@ html {
 }
 
 .alert-success {
-	@apply bg-teal-100 text-teal-400 border-teal-400;
+	@apply bg-teal-100 text-teal-700 border-teal-700;
 }
 
 .alert-danger {
-	@apply bg-red-200 text-red-500 border-red-500;
+	@apply bg-red-200 text-red-600 border-red-600;
 }
 
 .alert-warning {

@@ -100,12 +100,11 @@ export const getLikedLeads = (leads, page, itemLimit) => async (dispatch) => {
 		const { data } = await axios.post('/api/leads/liked', body, config);
 		if (data.message === 'You have not liked any leads.') {
 			dispatch(setAlert(data.message, 'warning'));
-		} else {
-			dispatch({
-				type: GET_LIKED_LEADS,
-				payload: { data },
-			});
 		}
+		dispatch({
+			type: GET_LIKED_LEADS,
+			payload: { data },
+		});
 		dispatch({ type: FINISHED_LOADING });
 	} catch (error) {
 		console.log(error);
@@ -121,12 +120,11 @@ export const getArchivedLeads = (leads, page, itemLimit) => async (
 		const { data } = await axios.post('/api/leads/archived', body, config);
 		if (data.message === 'You have not archived any leads.') {
 			dispatch(setAlert(data.message, 'warning'));
-		} else {
-			dispatch({
-				type: GET_ARCHIVED_LEADS,
-				payload: { data },
-			});
 		}
+		dispatch({
+			type: GET_ARCHIVED_LEADS,
+			payload: { data },
+		});
 		dispatch({ type: FINISHED_LOADING });
 	} catch (error) {
 		console.log(error);
@@ -239,5 +237,13 @@ export const setPage = (page, type) => (dispatch) => {
 
 export const setItemLimit = (itemLimit) => async (dispatch) => {
 	if (itemLimit) {
+	}
+};
+
+export const setLoading = () => async (dispatch) => {
+	try {
+		dispatch({ type: LOADING });
+	} catch (error) {
+		console.log(error);
 	}
 };

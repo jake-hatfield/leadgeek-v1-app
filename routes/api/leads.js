@@ -117,6 +117,7 @@ router.post('/', auth, async (req, res) => {
 				weight,
 				category,
 				itemLimits: { leadsLimit: itemLimit },
+				dateLimits: { min: minDate, max: maxDate },
 			},
 		} = req.body;
 		const user = await User.findById({ _id });
@@ -269,26 +270,7 @@ router.post('/', auth, async (req, res) => {
 			console.log(message);
 			return res.status(200).send({ message });
 		} else {
-			const lastUpdated = feed[0].data.date;
 			console.log(`Total items: ${totalItems}`);
-			// see if any leads have been added since the user last logged in
-			// const unviewed = await Lead.find({
-			// 	...(!administrator && { plan: { $in: roleFilter } }),
-			// 	...(!administrator && {
-			// 		'data.date': { $gte: lastLoggedIn },
-			// 	}),
-			// }).select('_id');
-			let unviewed = [];
-			// if any new leads, add them to the DB
-			if (unviewed.length > 0) {
-				console.log('Adding new unviewed products...');
-				// see if they're already in the user's unviewed leads
-				const newUnviewed = unviewed.filter(
-					(lead) => unviewedLeads.map((l) => l._id) !== lead._id
-				);
-				user.unviewedLeads = newUnviewed;
-				await user.save();
-			}
 			console.log(
 				`Successfully queried + paginated ${feed.length} database leads.`
 			);
@@ -302,7 +284,6 @@ router.post('/', auth, async (req, res) => {
 				nextPage: page + 1,
 				previousPage: page - 1,
 				lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
-				lastUpdated,
 			});
 		}
 	} catch (error) {
@@ -382,25 +363,25 @@ router.post('/liked', auth, async (req, res) => {
 					.limit(itemLimit || ITEMS_PER_PAGE)
 					.sort({ 'data.date': -1 });
 			});
+		let message;
 		if (likedLeads.length === 0) {
-			let message = 'You have not liked any leads.';
+			message = 'You have not liked any leads.';
 			console.log(message);
-			return res.status(200).send({ message });
 		} else {
-			let message = `Successfully queried ${likedLeads.length} liked leads.`;
+			message = `Successfully queried ${likedLeads.length} liked leads.`;
 			console.log(message);
-			return res.status(200).send({
-				message,
-				likedLeads,
-				page,
-				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
-				hasPreviousPage: page > 1,
-				nextPage: page + 1,
-				previousPage: page - 1,
-				lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
-				totalItems,
-			});
 		}
+		return res.status(200).send({
+			message,
+			likedLeads,
+			page,
+			hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
+			hasPreviousPage: page > 1,
+			nextPage: page + 1,
+			previousPage: page - 1,
+			lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
+			totalItems,
+		});
 	} catch (error) {
 		console.log(error.message);
 		return res.status(500).send('Sever error');
@@ -422,25 +403,25 @@ router.post('/archived', auth, async (req, res) => {
 					.limit(itemLimit || ITEMS_PER_PAGE)
 					.sort({ 'data.date': -1 });
 			});
+		let message;
 		if (archivedLeads.length === 0) {
-			let message = 'You have not archived any leads.';
+			message = 'You have not archived any leads.';
 			console.log(message);
-			return res.status(200).send({ message });
 		} else {
 			let message = `Successfully queried ${archivedLeads.length} archived leads.`;
 			console.log(message);
-			return res.status(200).send({
-				message,
-				archivedLeads,
-				page,
-				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
-				hasPreviousPage: page > 1,
-				nextPage: page + 1,
-				previousPage: page - 1,
-				lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
-				totalItems,
-			});
 		}
+		return res.status(200).send({
+			message,
+			archivedLeads,
+			page,
+			hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
+			hasPreviousPage: page > 1,
+			nextPage: page + 1,
+			previousPage: page - 1,
+			lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
+			totalItems,
+		});
 	} catch (error) {
 		console.log(error.message);
 		return res.status(500).send('Sever error');

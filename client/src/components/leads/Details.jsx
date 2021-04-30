@@ -49,7 +49,7 @@ const Note = ({ title, desc, nullState }) => {
 					{desc}
 				</div>
 			) : (
-				<div className='py-1 px-2 rounded-lg bg-gray-100 text-xs text-gray-500'>
+				<div className='py-1 px-2 rounded-lg bg-gray-100 text-xs text-gray-600'>
 					{nullState}
 				</div>
 			)}
@@ -177,7 +177,7 @@ const Details = ({
 		}
 	}, [currentLead]);
 	const buttonClasses =
-		'py-2 px-3 flex items-center rounded-lg shadow-sm hover:shadow-md font-semibold text-sm hover:text-gray-500 transition duration-100 ease-in-out ring-gray';
+		'py-2 px-3 flex items-center rounded-lg shadow-sm hover:shadow-md font-semibold text-sm text-gray-600 hover:text-gray-700 transition duration-100 ease-in-out ring-gray';
 	const descriptorClasses = 'flex justify-between';
 	const linkClasses = 'font-semibold text-purple-600 hover:text-gray-700';
 
@@ -189,7 +189,7 @@ const Details = ({
 				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
 			/>
 			<div className='fixed top-0 right-0 z-20 w-full max-w-3xl transform translate-y-4 -translate-x-12'>
-				<div className='relative z-40 pt-6 pb-10 px-6 rounded-lg shadow-xl bg-white opacity-100'>
+				<div className='relative z-40 p-6 rounded-lg shadow-xl bg-white opacity-100'>
 					<header className='flex items-center justify-between border-b border-gray-200'>
 						<div>
 							{primaryLinks.map((link, i) => (
@@ -520,7 +520,7 @@ const Details = ({
 											className={`${
 												noteCount.length > 0
 													? 'bg-gray-800 text-white'
-													: 'bg-gray-100 text-gray-500'
+													: 'bg-gray-100 text-gray-600'
 											} ml-2 py-1 px-2 rounded-lg shadow-sm text-xs`}
 										>
 											{noteCount.length}
@@ -541,6 +541,11 @@ const Details = ({
 											title={'Variations'}
 											desc={data.variations}
 											nullState={'No variation suggestions'}
+										/>
+										<Note
+											title={'Seller notes'}
+											desc={data.notes}
+											nullState={'No seller notes'}
 										/>
 										<Note
 											title={'Shipping'}

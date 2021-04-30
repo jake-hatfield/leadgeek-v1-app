@@ -15,7 +15,6 @@ const Liked = ({
 	itemLimit,
 	getLikedLeads,
 }) => {
-	console.log(pagination.page);
 	const { likedLeads } = Object(user);
 	useEffect(() => {
 		!loading && user && getLikedLeads(likedLeads, pagination.page, itemLimit);

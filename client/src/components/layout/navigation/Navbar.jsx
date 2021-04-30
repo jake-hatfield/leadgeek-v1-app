@@ -13,7 +13,7 @@ const NavbarLink = ({ link, showMenu }) => {
 	return (
 		<div v-for='item in items'>
 			<NavLink
-				className='p-2 relative w-full flex items-center justify-between rounded-lg group shadow-sm hover:text-purple-600 hover:shadow-md transition duration-100 ease-in-out ring-purple'
+				className='p-2 relative w-full flex items-center justify-between rounded-lg group shadow-sm text-gray-500 hover:text-purple-600 hover:shadow-md transition duration-100 ease-in-out ring-purple'
 				onMouseEnter={() => setHover(!hover)}
 				onMouseLeave={() => setHover(false)}
 				to={link.link}
@@ -31,7 +31,7 @@ const NavbarLink = ({ link, showMenu }) => {
 								? `bg-purple-600 text-white`
 								: link.title === 'Liked'
 								? `bg-teal-200 text-teal-600`
-								: `bg-gray-100 text-gray-500`
+								: `bg-gray-100 text-gray-600`
 						}  rounded-full text-xs font-semibold`}
 					>
 						{link.notifications
@@ -57,7 +57,7 @@ const Navbar = ({ _id, role, loading, logout }) => {
 	const [userDropdown, setUserDropdown] = useState(false);
 	const [activeSubscription] = useState('');
 	// primary links
-	const svgClass = 'h6 w-6';
+	const svgClass = 'h-6 w-6';
 	const primaryLinks = [
 		// {
 		// 	title: 'Dashboard',

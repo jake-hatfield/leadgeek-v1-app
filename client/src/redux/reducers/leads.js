@@ -32,6 +32,7 @@ const initialState = {
 			lastPage: null,
 			totalItems: null,
 		},
+		lastUpdated: null,
 	},
 	liked: {
 		totalByIds: [],
@@ -46,6 +47,7 @@ const initialState = {
 			lastPage: null,
 			totalItems: null,
 		},
+		lastUpdated: null,
 	},
 	archived: {
 		totalByIds: [],
@@ -60,6 +62,7 @@ const initialState = {
 			lastPage: null,
 			totalItems: null,
 		},
+		lastUpdated: null,
 	},
 	search: {
 		totalByIds: [],
@@ -97,11 +100,9 @@ export default function leadsReducer(state = initialState, action) {
 				nextPage,
 				previousPage,
 				totalItems,
-				lastUpdated,
 			} = payload.data;
 			return {
 				...state,
-				lastUpdated,
 				feed: {
 					...state.feed,
 					pageByIds: feed,
