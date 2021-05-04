@@ -3,13 +3,16 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { DateTime } from 'luxon';
 
 import { useOutsideMousedown } from 'utils/utils';
+import { setPage } from 'redux/actions/leads';
 
 const DatePicker = ({
 	date,
 	setDate,
 	dateCreated,
 	lastUpdated,
+	type,
 	setDateLimit,
+	setPage,
 }) => {
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setDate);
@@ -26,7 +29,6 @@ const DatePicker = ({
 		document.addEventListener('keydown', keyPress);
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
-	const nowISO = DateTime.now().toISO();
 	const mostRecentDay = DateTime.fromISO(lastUpdated || DateTime.now());
 	const previousDay = mostRecentDay.minus({ days: 1 });
 	const lastFiveStart = mostRecentDay.minus({ days: 5 });
@@ -36,26 +38,79 @@ const DatePicker = ({
 		{
 			title: 'Most recent day',
 			dateString: mostRecentDay.toFormat('LLL dd'),
-			setDateLimit: () => setDateLimit(mostRecentDay.toISO(), null),
+			onClick: () => {
+				setDateLimit(
+					mostRecentDay.toISODate(),
+					null,
+					mostRecentDay.toFormat('LLL dd, yyyy')
+				);
+				setPage(1, type);
+				setDate(false);
+			},
 		},
-		{ title: 'Previous day', dateString: previousDay.toFormat('LLL dd') },
+		{
+			title: 'Previous day',
+			dateString: previousDay.toFormat('LLL dd'),
+			onClick: () => {
+				setDateLimit(
+					previousDay.startOf('day'),
+					previousDay.endOf('day'),
+					previousDay.toFormat('LLL dd, yyyy')
+				);
+				setPage(1, type);
+				setDate(false);
+			},
+		},
 		{
 			title: 'Last 5 days',
 			dateString: `${lastFiveStart.toFormat(
 				'LLL dd'
 			)} - ${mostRecentDay.toFormat('LLL dd')}`,
+			onClick: () => {
+				setDateLimit(
+					lastFiveStart.toISODate(),
+					null,
+					`${lastFiveStart.toFormat('LLL dd, yyyy')} - ${mostRecentDay.toFormat(
+						'LLL dd'
+					)}`
+				);
+				setPage(1, type);
+				setDate(false);
+			},
 		},
 		{
 			title: 'Last 30 days',
 			dateString: `${last30Start.toFormat('LLL dd')} - ${mostRecentDay.toFormat(
 				'LLL dd'
 			)}`,
+			onClick: () => {
+				setDateLimit(
+					last30Start.toISODate(),
+					mostRecentDay.toISO(),
+					`${last30Start.toFormat('LLL dd, yyyy')} - ${mostRecentDay.toFormat(
+						'LLL dd'
+					)}`
+				);
+				setPage(1, type);
+				setDate(false);
+			},
 		},
 		{
 			title: 'All time',
 			dateString: `${lastDay.toFormat(
 				'LLL dd, yyyy'
 			)} - ${mostRecentDay.toFormat('LLL dd')}`,
+			onClick: () => {
+				setDateLimit(
+					lastDay.toISODate(),
+					mostRecentDay.toISO(),
+					`${lastDay.toFormat('LLL dd, yyyy')} - ${mostRecentDay.toFormat(
+						'LLL dd'
+					)}`
+				);
+				setPage(1, type);
+				setDate(false);
+			},
 		},
 	];
 	return (
@@ -72,7 +127,7 @@ const DatePicker = ({
 				{dateOptions.map((dateOption, i) => (
 					<li key={i} className='list-none'>
 						<button
-							onClick={dateOption.setDateLimit}
+							onClick={dateOption.onClick}
 							className='w-full py-2 px-4 flex items-center justify-between border-t border-gray-200 hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
 						>
 							<span className='font-semibold text-sm text-gray-700'>

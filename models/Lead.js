@@ -86,6 +86,9 @@ const LeadSchema = new Schema({
 			type: String,
 			required: true,
 		},
+		competitorCount: {
+			type: Number,
+		},
 		shipping: {
 			type: String,
 		},

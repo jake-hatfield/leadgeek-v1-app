@@ -71,7 +71,7 @@ const Leads = ({
 			count: archivedCount,
 		},
 	];
-
+	const { selected: dateSelected } = filters.dateLimits;
 	const tools = [
 		{
 			text: 'Filters',
@@ -147,14 +147,16 @@ const Leads = ({
 									))}
 								</div>
 								<div className='flex items-center'>
-									{/* <Button
+									<Button
 										text={
-											`${
-												DateTime.fromISO(user.dateCreated).toFormat(
-													'LLL dd, yyyy'
-												) || 'Jan 1, 2021'
-											} - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
-											'All leads'
+											dateSelected
+												? dateSelected
+												: `${
+														DateTime.fromISO(user.dateCreated).toFormat(
+															'LLL dd, yyyy'
+														) || 'Jan 1, 2021'
+												  } - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
+												  'All leads'
 										}
 										path={
 											<path
@@ -164,7 +166,7 @@ const Leads = ({
 											/>
 										}
 										onClick={() => setDate((prev) => !prev)}
-									/> */}
+									/>
 									{tools.map((tool, i) => (
 										<Button
 											key={i}
@@ -196,7 +198,9 @@ const Leads = ({
 											setDate={setDate}
 											dateCreated={user.dateCreated}
 											lastUpdated={lastUpdated}
+											type={type}
 											setDateLimit={setDateLimit}
+											setPage={setPage}
 										/>
 									)}
 									{filter && <Filter filter={filter} setFilter={setFilter} />}

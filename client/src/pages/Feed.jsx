@@ -14,12 +14,12 @@ const Feed = ({ user, loading, isAuthenticated, feed, filters, getLeads }) => {
 	const { page } = feed.pagination;
 	const {
 		itemLimits: { leadsLimit: itemLimit },
-		count,
+		dateLimits,
 	} = filters;
 	const userAndPage = user && page;
 	useEffect(() => {
 		!loading && isAuthenticated && user && getLeads(user, page, filters);
-	}, [loading, isAuthenticated, userAndPage, itemLimit, count]);
+	}, [loading, isAuthenticated, userAndPage, itemLimit, dateLimits]);
 	return componentReady ? (
 		<AuthLayout>
 			<Leads

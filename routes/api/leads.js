@@ -59,6 +59,7 @@ router.get('/export', auth, async (req, res) => {
 					bsr30: +lead.bsr30,
 					bsr90: +lead.bsr90,
 					competitorType: lead.competitorType,
+					competitorCount: lead.competitorCount,
 					price30: +lead.price30,
 					price90: +lead.price90,
 					variations: lead.variations,
@@ -131,6 +132,9 @@ router.post('/', auth, async (req, res) => {
 		let totalItems;
 		let lastUpdated;
 		let roleFilter = [role.toString()];
+		const minDateFilter = minDate ? minDate : user.dateCreated;
+		const maxDateFilter = maxDate ? maxDate : Date.now();
+		console.log(minDateFilter, maxDateFilter);
 		let administrator;
 		const administrativeRoles = ['master', 'admin'];
 		if (administrativeRoles.indexOf(role) >= 0) {
@@ -139,7 +143,7 @@ router.post('/', auth, async (req, res) => {
 		const feed = await Lead.find({
 			...(!administrator && { plan: { $in: roleFilter } }),
 			...(!administrator && {
-				'data.date': { $gte: user.dateCreated },
+				'data.date': { $gte: minDateFilter, $lt: maxDateFilter },
 			}),
 		})
 			.countDocuments()
@@ -153,7 +157,7 @@ router.post('/', auth, async (req, res) => {
 						{
 							...(!administrator && { plan: { $in: roleFilter } }),
 							...(!administrator && {
-								'data.date': { $gte: user.dateCreated },
+								'data.date': { $gte: minDateFilter, $lte: maxDateFilter },
 							}),
 						},
 						{

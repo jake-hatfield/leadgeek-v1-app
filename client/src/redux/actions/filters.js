@@ -164,9 +164,18 @@ export const setItemLimit = (type, itemLimit) => async (dispatch) => {
 	}
 };
 
-export const setDateLimit = (min, max) => async (dispatch) => {
+export const setDateLimit = (min, max, selected) => async (dispatch) => {
 	try {
-		console.log(min, max);
+		if (min || max) {
+			return dispatch({
+				type: `SET_DATE_FILTER`,
+				payload: {
+					min,
+					max,
+					selected,
+				},
+			});
+		}
 	} catch (error) {
 		console.log(error);
 	}

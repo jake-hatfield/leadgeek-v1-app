@@ -9,6 +9,7 @@ import {
 	SET_CATEGORY_FILTER,
 	SET_PREP_FILTER,
 	SET_ITEM_LIMIT,
+	SET_DATE_FILTER,
 	CLEAR_NETPROFIT_FILTER,
 	CLEAR_BUYPRICE_FILTER,
 	CLEAR_SELLPRICE_FILTER,
@@ -60,7 +61,7 @@ const initialState = {
 		searchLimit: +localStorage.getItem('searchLimit') || 15,
 		usersLimit: +localStorage.getItem('usersLimit') || 15,
 	},
-	dateLimits: { min: null, max: null },
+	dateLimits: { min: null, max: null, selected: null },
 };
 
 export default function filterReducer(state = initialState, action) {
@@ -207,6 +208,17 @@ export default function filterReducer(state = initialState, action) {
 					};
 				}
 			}
+		}
+		case SET_DATE_FILTER: {
+			const { min, max, selected } = payload;
+			return {
+				...state,
+				dateLimits: {
+					min,
+					max,
+					selected,
+				},
+			};
 		}
 		case CLEAR_PREP_FILTER: {
 			return {

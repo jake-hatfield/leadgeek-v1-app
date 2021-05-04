@@ -23,6 +23,7 @@ const ExportButton = ({ user, leads, setExportLeads }) => {
 		{ label: '30 Day BSR', key: 'data.bsr30' },
 		{ label: '90 Day BSR', key: 'data.bsr90' },
 		{ label: 'Seller competition', key: 'data.competitorType' },
+		{ label: 'Seller count', key: 'data.competitorCount' },
 		{ label: '30 Day Price', key: 'data.price30' },
 		{ label: '90 Day Price', key: 'data.price90' },
 		{ label: 'Variation Suggestions', key: 'data.variations' },
