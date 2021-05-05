@@ -16,7 +16,9 @@ import {
 	CLEAR_CURRENT_SEARCH,
 } from './types';
 import axios from 'axios';
+
 import { setAlert } from './alert';
+import { truncate } from 'utils/utils';
 
 // application/json config object
 const config = {
@@ -136,8 +138,8 @@ export const handleLikeLead = (userId, leadId) => async (dispatch) => {
 		const body = JSON.stringify({ userId, leadId });
 		const res = await axios.post('/api/leads/handle-like-lead', body, config);
 		if (res.status === 200) {
-			const { msg, leads } = res.data;
-			dispatch(setAlert(msg, 'success'));
+			const { msg, leads, title } = res.data;
+			dispatch(setAlert(`${msg}: ${truncate(title, 80)}`, 'success'));
 			dispatch({
 				type: HANDLE_LIKE_LEAD,
 				payload: { leadId, leads },
@@ -157,8 +159,8 @@ export const handleArchiveLead = (userId, leadId) => async (dispatch) => {
 			config
 		);
 		if (res.status === 200) {
-			const { msg, leads } = res.data;
-			dispatch(setAlert(msg, 'success'));
+			const { msg, leads, title } = res.data;
+			dispatch(setAlert(`${msg}: ${truncate(title, 80)}`, 'success'));
 			dispatch({
 				type: HANDLE_ARCHIVE_LEAD,
 				payload: { leadId, leads },

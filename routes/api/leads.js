@@ -586,14 +586,16 @@ router.post('/handle-like-lead', auth, async (req, res) => {
 			if (indexed >= 0) {
 				unlikeLead(user, leadId);
 				return res.status(200).send({
-					msg: `Lead was unliked: ${lead.data.title}`,
+					msg: 'Lead was unliked',
 					leads: user.likedLeads,
+					title: lead.data.title,
 				});
 			} else {
 				likeLead(user, leadId);
 				return res.status(200).send({
-					msg: `Lead was liked: ${lead.data.title}`,
+					msg: 'Lead was liked',
 					leads: user.likedLeads,
+					title: lead.data.title,
 				});
 			}
 		} else {
@@ -641,14 +643,16 @@ router.post('/handle-archive-lead', auth, async (req, res) => {
 			if (indexed >= 0) {
 				unarchiveLead(user, leadId);
 				return res.status(200).send({
-					msg: `Lead was unarchived: ${lead.data.title}`,
+					msg: 'Lead was unarchived',
 					leads: user.archivedLeads,
+					title: lead.data.title,
 				});
 			} else {
 				archiveLead(user, leadId);
 				return res.status(200).send({
-					msg: `Lead was archived: ${lead.data.title}`,
+					msg: 'Lead was archived',
 					leads: user.archivedLeads,
+					title: lead.data.title,
 				});
 			}
 		} else {

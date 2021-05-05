@@ -28,7 +28,6 @@ export const domainFromURL = (url) => {
 			result = match[1];
 		}
 	}
-	console.log(result);
 	return result;
 };
 

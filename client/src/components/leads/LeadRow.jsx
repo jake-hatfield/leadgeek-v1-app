@@ -170,7 +170,7 @@ const LeadRow = ({
 			</td>
 			<td className='p-2'>{numberWithCommas(data.monthlySales)}</td>
 			<td className='p-2'>{datePosted}</td>
-			<td className='p-2'>
+			<td className={quickView ? 'p-4' : 'p-2'}>
 				<div ref={wrapperRef}>
 					<div
 						onMouseEnter={() => setQuickView(true)}
@@ -186,7 +186,7 @@ const LeadRow = ({
 								quickView
 									? 'absolute z-10 p-2 bg-white shadow-sm rounded-r-lg'
 									: 'rounded-lg'
-							} p-1 text-gray-500 hover:text-gray-700 ring-gray`}
+							} text-gray-500 hover:text-gray-700 ring-gray`}
 						>
 							<svg
 								xmlns='http://www.w3.org/2000/svg'
@@ -322,9 +322,9 @@ const LeadRow = ({
 				</div>
 			</td>
 			{titleHover && (
-				<span className='absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-16 xl:translate-x-24 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+				<td className='absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-16 xl:translate-x-24 rounded-md shadow-md bg-gray-800 text-white text-sm'>
 					{data.title}
-				</span>
+				</td>
 			)}
 		</tr>
 	);

@@ -2,14 +2,21 @@ import React, { Fragment } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { removeAlert } from 'redux/actions/alert';
 
 import Alert from '../layout/Alert';
 import Navbar from './navigation/Navbar';
 
-const AuthLayout = ({ user, isAuthenticated, loading, children }) => {
+const AuthLayout = ({
+	user,
+	isAuthenticated,
+	loading,
+	removeAlert,
+	children,
+}) => {
 	return (
 		<Fragment>
-			<Alert />
+			<Alert removeAlert={removeAlert} />
 			{!loading && user && isAuthenticated && (
 				<div className='min-h-screen relative flex'>
 					<Navbar _id={user._id} role={user.role} loading={loading} />
@@ -32,4 +39,4 @@ const mapStateToProps = (state, ownProps) => {
 	return { user, isAuthenticated, loading, children };
 };
 
-export default connect(mapStateToProps)(AuthLayout);
+export default connect(mapStateToProps, { removeAlert })(AuthLayout);

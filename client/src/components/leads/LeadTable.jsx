@@ -69,7 +69,7 @@ const LeadTable = ({
 							<th className='p-2'>Profit</th>
 							<th className='p-2'>ROI</th>
 							<th className='p-2'>BSR</th>
-							<th className='p-2'>Mo. Sales</th>
+							<th className='p-2'>Sales</th>
 							<th className='p-2'>Date</th>
 							<th className='p-2' />
 						</tr>

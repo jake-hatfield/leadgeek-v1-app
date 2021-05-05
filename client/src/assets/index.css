@@ -26,12 +26,24 @@ html {
 	@apply bg-teal-100 text-teal-700 border-teal-700;
 }
 
+.alert-success-button:hover {
+	@apply text-teal-800 transition duration-100 ease-in-out focus:outline-none focus:ring focus:ring-gray-300;
+}
+
 .alert-danger {
 	@apply bg-red-200 text-red-600 border-red-600;
 }
 
+.alert-danger-button:hover {
+	@apply text-red-700 transition duration-100 ease-in-out focus:outline-none focus:ring focus:ring-red-200;
+}
+
 .alert-warning {
 	@apply bg-purple-100 text-purple-600 border-purple-600;
+}
+
+.alert-warning-button:hover {
+	@apply text-purple-700 transition duration-100 ease-in-out focus:outline-none focus:ring focus:ring-purple-300;
 }
 
 .ring-purple {

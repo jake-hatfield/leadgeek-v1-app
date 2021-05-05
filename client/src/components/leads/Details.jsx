@@ -42,7 +42,6 @@ PrimaryMetric.propTypes = {
 };
 
 const Note = ({ title, desc, nullState, link }) => {
-	console.log(link);
 	return (
 		<div className='flex items-end justify-between mt-2 pb-2 border-b border-gray-200'>
 			<div>{title}</div>
@@ -51,12 +50,12 @@ const Note = ({ title, desc, nullState, link }) => {
 					href={`https://www.rakuten.com/${link}`}
 					target='__blank'
 					rel='noopener noreferrer'
-					className='py-1 px-2 rounded-lg bg-purple-500 text-xs text-white shadow-md hover:bg-purple-600 hover:shadow-lg transition duration-100 ease-in-out'
+					className='py-1 px-2 rounded-lg bg-purple-500 text-xs text-white shadow-sm hover:bg-purple-600 hover:shadow-md transition duration-100 ease-in-out'
 				>
 					{desc}
 				</a>
 			) : desc ? (
-				<div className='py-1 px-2 rounded-lg bg-gray-800 text-xs text-white shadow-md hover:bg-gray-900 hover:shadow-lg transition duration-100 ease-in-out'>
+				<div className='py-1 px-2 rounded-lg bg-gray-800 text-xs text-white shadow-sm hover:bg-gray-900 hover:shadow-md transition duration-100 ease-in-out'>
 					{desc}
 				</div>
 			) : (
@@ -466,7 +465,7 @@ const Details = ({
 															xmlns='http://www.w3.org/2000/svg'
 															viewBox='0 0 20 20'
 															fill='currentColor'
-															className='h-4 w-4 text-teal-200'
+															className='h-4 w-4 text-teal-400'
 														>
 															<path
 																fillRule='evenodd'

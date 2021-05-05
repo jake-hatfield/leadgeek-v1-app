@@ -4,6 +4,7 @@ export const FINISHED_LOADING = 'FINISHED_LOADING';
 export const EXPORTING = 'EXPORTING';
 export const FINISHED_EXPORTING = 'FINISHED_EXPORTING';
 export const SET_ALERT = 'SET_ALERT';
+export const TIMEOUT_ALERT = 'TIMEOUT_ALERT';
 export const REMOVE_ALERT = 'REMOVE_ALERT';
 // auth types
 export const REGISTER_SUCCESS = 'REGISTER_SUCCESS';
