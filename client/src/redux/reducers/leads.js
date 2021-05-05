@@ -31,6 +31,7 @@ const initialState = {
 			previousPage: null,
 			lastPage: null,
 			totalItems: null,
+			filteredItems: null,
 		},
 	},
 	liked: {
@@ -45,6 +46,7 @@ const initialState = {
 			previousPage: null,
 			lastPage: null,
 			totalItems: null,
+			filteredItems: null,
 		},
 	},
 	archived: {
@@ -59,6 +61,7 @@ const initialState = {
 			previousPage: null,
 			lastPage: null,
 			totalItems: null,
+			filteredItems: null,
 		},
 	},
 	search: {
@@ -98,6 +101,7 @@ export default function leadsReducer(state = initialState, action) {
 				nextPage,
 				previousPage,
 				totalItems,
+				filteredItems,
 				lastUpdated,
 			} = payload.data;
 			return {
@@ -112,6 +116,7 @@ export default function leadsReducer(state = initialState, action) {
 						nextPage,
 						previousPage,
 						totalItems,
+						filteredItems,
 					},
 				},
 				lastUpdated,

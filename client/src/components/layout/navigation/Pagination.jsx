@@ -19,6 +19,7 @@ const Pagination = ({
 		nextPage,
 		previousPage,
 		totalItems,
+		filteredItems,
 	} = pagination;
 	const buttonClasses =
 		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold text-gray-600 hover:text-gray-700 transition duration-100 ease-in-out ring-purple';
@@ -26,11 +27,12 @@ const Pagination = ({
 		? previousPage * (itemLimit || 15) + 1
 		: previousPage + 1;
 	const itemsTo =
-		totalItems < page * (itemLimit || 15)
-			? totalItems
+		filteredItems < page * (itemLimit || 15)
+			? filteredItems
 			: page * (itemLimit || 15);
 	const [selectValue, setSelectValue] = useState(itemLimit || 15);
 	const pageLimits = [10, 15, 25, 50, 100];
+	const [filteredMessage, setFilteredMessage] = useState(false);
 	return (
 		!loading && (
 			<article
@@ -38,7 +40,7 @@ const Pagination = ({
 					!noPadding && 'container'
 				} text-gray-600`}
 			>
-				{totalItems > 0 && (
+				{filteredItems > 0 && (
 					<div className='flex items-center text-sm'>
 						<span>View</span>
 						<select
@@ -62,14 +64,47 @@ const Pagination = ({
 						<span>results per page</span>
 					</div>
 				)}
-				<div className='flex items-center'>
-					{totalItems ? (
-						<div className='text-sm'>
-							Showing {itemsFrom} to {itemsTo} of {totalItems} results
-						</div>
-					) : (
-						<div />
-					)}
+				<div className='flex items-center text-sm'>
+					<div className='relative flex items-center'>
+						{filteredItems > 0 && totalItems !== filteredItems && (
+							<button
+								onClick={() => setFilteredMessage((prev) => !prev)}
+								onMouseEnter={() => setFilteredMessage(true)}
+								onMouseLeave={() => setFilteredMessage(false)}
+								className='mr-2 rounded-md text-gray-500 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
+							>
+								<svg
+									xmlns='http://www.w3.org/2000/svg'
+									className='h-5 w-5'
+									viewBox='0 0 20 20'
+									fill='currentColor'
+								>
+									<path
+										fillRule='evenodd'
+										d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z'
+										clipRule='evenodd'
+									/>
+								</svg>
+								{filteredMessage && (
+									<div className='absolute z-10 bottom-0 py-2 px-4 transform -translate-y-8 rounded-md shadow-md bg-gray-800 text-left text-white text-sm'>
+										<p>
+											<span className='font-semibold'>
+												{totalItems - filteredItems}
+											</span>{' '}
+											leads aren't showing because of applied filters.
+										</p>
+									</div>
+								)}
+							</button>
+						)}
+						{filteredItems ? (
+							<span>
+								Showing {itemsFrom} to {itemsTo} of {filteredItems} results
+							</span>
+						) : (
+							<div />
+						)}
+					</div>
 					{(hasPreviousPage || hasNextPage) && (
 						<div>
 							<Link

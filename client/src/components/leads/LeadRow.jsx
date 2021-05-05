@@ -43,7 +43,7 @@ const LeadRow = ({
 	const [eyeDesc, setEyeDesc] = useState(false);
 	const [linkDesc, setLinkDesc] = useState(false);
 	const hoverClasses =
-		'mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-800 shadow-md text-white text-sm whitespace-no-wrap';
+		'mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-800 shadow-md text-white text-sm';
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setQuickView, setExpandedView);
 	useEffect(() => {
@@ -322,7 +322,7 @@ const LeadRow = ({
 				</div>
 			</td>
 			{titleHover && (
-				<span className='absolute z-10 left-0 p-2 transform -translate-y-10 translate-x-24 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+				<span className='absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-16 xl:translate-x-24 rounded-md shadow-md bg-gray-800 text-white text-sm'>
 					{data.title}
 				</span>
 			)}

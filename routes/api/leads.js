@@ -129,12 +129,10 @@ router.post('/', auth, async (req, res) => {
 		}
 		console.log('Getting paginated leads...');
 		const { unviewedLeads } = user;
-		let totalItems;
-		let lastUpdated;
+		let totalItems, filteredItems, lastUpdated, administrator;
 		let roleFilter = [role.toString()];
 		const minDateFilter = minDate ? minDate : user.dateCreated;
 		const maxDateFilter = maxDate ? maxDate : Date.now();
-		let administrator;
 		const administrativeRoles = ['master', 'admin'];
 		if (administrativeRoles.indexOf(role) >= 0) {
 			administrator = true;
@@ -149,6 +147,125 @@ router.post('/', auth, async (req, res) => {
 				Lead.findOne({}, {}, { sort: { 'data.date': -1 } }, (err, res) => {
 					lastUpdated = res.data.date;
 				});
+				Lead.countDocuments(
+					{
+						$and: [
+							{
+								...(!administrator && { plan: { $in: roleFilter } }),
+								'data.date': { $gte: minDateFilter, $lte: maxDateFilter },
+							},
+							{
+								...(netProfit.min && {
+									'data.netProfit': { $gte: netProfit.min },
+								}),
+								...(netProfit.max && {
+									'data.netProfit': { $lte: netProfit.max },
+								}),
+								...(netProfit.min &&
+									netProfit.max && {
+										'data.netProfit': {
+											$gte: netProfit.min,
+											$lte: netProfit.max,
+										},
+									}),
+								...(buyPrice.min && {
+									'data.buyPrice': { $gte: buyPrice.min },
+								}),
+								...(buyPrice.max && {
+									'data.buyPrice': { $gte: buyPrice.max },
+								}),
+								...(buyPrice.min &&
+									buyPrice.max && {
+										'data.buyPrice': {
+											$gte: buyPrice.min,
+											$lte: buyPrice.max,
+										},
+									}),
+								...(sellPrice.min && {
+									'data.sellPrice': { $gte: sellPrice.min },
+								}),
+								...(sellPrice.max && {
+									'data.sellPrice': { $lte: sellPrice.max },
+								}),
+								...(sellPrice.min &&
+									sellPrice.max && {
+										'data.sellPrice': {
+											$gte: sellPrice.min,
+											$lte: sellPrice.max,
+										},
+									}),
+								...(roi.min && {
+									'data.roi': { $gte: roi.min },
+								}),
+								...(roi.max && {
+									'data.roi': { $lte: roi.max },
+								}),
+								...(roi.min &&
+									roi.max && {
+										'data.roi': {
+											$gte: roi.min,
+											$lte: roi.max,
+										},
+									}),
+								...(bsr.min && {
+									'data.bsr': { $gte: bsr.min },
+								}),
+								...(bsr.max && {
+									'data.bsr': { $gte: bsr.max },
+								}),
+								...(bsr.min &&
+									bsr.max && {
+										'data.bsr': {
+											$gte: bsr.min,
+											$lte: bsr.max,
+										},
+									}),
+								...(monthlySales.min && {
+									'data.monthlySales': {
+										$gte: monthlySales.min,
+									},
+								}),
+								...(monthlySales.max && {
+									'data.monthlySales': {
+										$lte: monthlySales.max,
+									},
+								}),
+								...(monthlySales.min &&
+									monthlySales.max && {
+										'data.monthlySales': {
+											$gte: monthlySales.min,
+											$lte: monthlySales.max,
+										},
+									}),
+								...(weight.min && {
+									'data.weight': {
+										$gte: weight.min,
+									},
+								}),
+								...(weight.max && {
+									'data.weight': {
+										$lte: weight.max,
+									},
+								}),
+								...(weight.min &&
+									weight.max && {
+										'data.weight': {
+											$gte: weight.min,
+											$lte: weight.max,
+										},
+									}),
+								...(category.length > 0 && {
+									'data.category': {
+										$in: category,
+									},
+								}),
+							},
+						],
+					},
+					(err, numLeads) => {
+						filteredItems = numLeads;
+					}
+				);
 				return Lead.find({
 					$and: [
 						{
@@ -272,20 +389,22 @@ router.post('/', auth, async (req, res) => {
 			console.log(message);
 			return res.status(200).send({ message });
 		} else {
-			console.log(`Total items: ${totalItems}`);
+			console.log(`Total items: ${totalItems} (${filteredItems}) filtered.`);
 			console.log(
 				`Successfully queried + paginated ${feed.length} database leads.`
 			);
+
 			return res.status(200).send({
 				feed,
 				unviewedLeads,
 				totalItems,
+				filteredItems,
 				page,
-				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
+				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < filteredItems,
 				hasPreviousPage: page > 1,
 				nextPage: page + 1,
 				previousPage: page - 1,
-				lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
+				lastPage: Math.ceil(filteredItems / (itemLimit || ITEMS_PER_PAGE)),
 				lastUpdated,
 			});
 		}
@@ -527,12 +646,10 @@ router.post('/handle-archive-lead', auth, async (req, res) => {
 				});
 			} else {
 				archiveLead(user, leadId);
-				return res
-					.status(200)
-					.send({
-						msg: `Lead was archived: ${lead.data.title}`,
-						leads: user.archivedLeads,
-					});
+				return res.status(200).send({
+					msg: `Lead was archived: ${lead.data.title}`,
+					leads: user.archivedLeads,
+				});
 			}
 		} else {
 			return res.status(404).send('There was an error archiving this lead.');
