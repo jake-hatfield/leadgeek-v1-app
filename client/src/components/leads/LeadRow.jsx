@@ -40,6 +40,10 @@ const LeadRow = ({
 	const [quickView, setQuickView] = useState(false);
 	const [expandedView, setExpandedView] = useState(false);
 	const [titleHover, setTitleHover] = useState(false);
+	const [eyeDesc, setEyeDesc] = useState(false);
+	const [linkDesc, setLinkDesc] = useState(false);
+	const hoverClasses =
+		'mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-800 shadow-md text-white text-sm whitespace-no-wrap';
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setQuickView, setExpandedView);
 	useEffect(() => {
@@ -103,13 +107,6 @@ const LeadRow = ({
 				viewDetailsHandler();
 			}}
 		>
-			{/* <td className='p-2 text-center'>
-				{newLead && (
-					<span className='h-4 w-4 flex items-center justify-center rounded-full bg-teal-200'>
-						<span className='h-2 w-2 inline-block rounded-full bg-teal-400' />
-					</span>
-				)}
-			</td> */}
 			<td className='p-2 pl-0 text-center text-gray-400'>
 				<button
 					onClick={(e) => {
@@ -136,14 +133,9 @@ const LeadRow = ({
 			<td
 				onMouseEnter={() => setTitleHover(true)}
 				onMouseLeave={() => setTitleHover(false)}
-				className='relative p-2 font-semibold'
+				className='p-2 font-semibold'
 			>
 				<div>{truncate(data.title, 31)}</div>
-				{titleHover && (
-					<div className='absolute top-0 z-10 p-2 transform translate-y-12 rounded-md shadow-md bg-gray-800 text-white text-sm'>
-						{data.title}
-					</div>
-				)}
 			</td>
 			{/* <td className='relative p-2 text-gray-600'>
 				<svg
@@ -216,7 +208,9 @@ const LeadRow = ({
 											setCurrentLead(lead);
 											setExpandedView(false);
 										}}
-										className='p-2 rounded-l-lg border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
+										onMouseEnter={() => setEyeDesc(true)}
+										onMouseLeave={() => setEyeDesc(false)}
+										className='relative p-2 rounded-l-lg border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 									>
 										<svg
 											xmlns='http://www.w3.org/2000/svg'
@@ -231,6 +225,7 @@ const LeadRow = ({
 												clipRule='evenodd'
 											/>
 										</svg>
+										{eyeDesc && <div className={hoverClasses}>Details</div>}
 									</button>
 									{/* link */}
 									<button
@@ -239,7 +234,9 @@ const LeadRow = ({
 											openLinkHandler(e, data.retailerLink, data.amzLink);
 											setExpandedView(false);
 										}}
-										className='p-2 border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
+										onMouseEnter={() => setLinkDesc(true)}
+										onMouseLeave={() => setLinkDesc(false)}
+										className='relative p-2 border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 									>
 										<svg
 											xmlns='http://www.w3.org/2000/svg'
@@ -253,6 +250,7 @@ const LeadRow = ({
 												clipRule='evenodd'
 											/>
 										</svg>
+										{linkDesc && <div className={hoverClasses}>Links</div>}
 									</button>
 								</div>
 							</div>
@@ -323,6 +321,11 @@ const LeadRow = ({
 					)}
 				</div>
 			</td>
+			{titleHover && (
+				<span className='absolute z-10 left-0 p-2 transform -translate-y-10 translate-x-24 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+					{data.title}
+				</span>
+			)}
 		</tr>
 	);
 };

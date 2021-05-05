@@ -40,11 +40,19 @@ PrimaryMetric.propTypes = {
 	subvalue: PropTypes.string.isRequired,
 };
 
-const Note = ({ title, desc, nullState }) => {
+const Note = ({ title, desc, nullState, link }) => {
+	console.log(link);
 	return (
 		<div className='flex items-end justify-between mt-2 pb-2 border-b border-gray-200'>
 			<div>{title}</div>
-			{desc ? (
+			{desc && link ? (
+				<a
+					href={`https://www.rakuten.com/${link}`}
+					className='py-1 px-2 rounded-lg bg-purple-500 text-xs text-white shadow-md hover:bg-purple-600 hover:shadow-lg transition duration-100 ease-in-out'
+				>
+					{desc}
+				</a>
+			) : desc ? (
 				<div className='py-1 px-2 rounded-lg bg-gray-800 text-xs text-white shadow-md hover:bg-gray-900 hover:shadow-lg transition duration-100 ease-in-out'>
 					{desc}
 				</div>
@@ -535,6 +543,7 @@ const Details = ({
 										<Note
 											title={'Cashback'}
 											desc={data.cashback}
+											link={data.retailerLink}
 											nullState={'No applicable cashback'}
 										/>
 										<Note

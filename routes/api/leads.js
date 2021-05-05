@@ -134,7 +134,6 @@ router.post('/', auth, async (req, res) => {
 		let roleFilter = [role.toString()];
 		const minDateFilter = minDate ? minDate : user.dateCreated;
 		const maxDateFilter = maxDate ? maxDate : Date.now();
-		console.log(minDateFilter, maxDateFilter);
 		let administrator;
 		const administrativeRoles = ['master', 'admin'];
 		if (administrativeRoles.indexOf(role) >= 0) {
@@ -142,9 +141,7 @@ router.post('/', auth, async (req, res) => {
 		}
 		const feed = await Lead.find({
 			...(!administrator && { plan: { $in: roleFilter } }),
-			...(!administrator && {
-				'data.date': { $gte: minDateFilter, $lt: maxDateFilter },
-			}),
+			'data.date': { $gte: minDateFilter, $lt: maxDateFilter },
 		})
 			.countDocuments()
 			.then((numLeads) => {
@@ -156,9 +153,7 @@ router.post('/', auth, async (req, res) => {
 					$and: [
 						{
 							...(!administrator && { plan: { $in: roleFilter } }),
-							...(!administrator && {
-								'data.date': { $gte: minDateFilter, $lte: maxDateFilter },
-							}),
+							'data.date': { $gte: minDateFilter, $lte: maxDateFilter },
 						},
 						{
 							...(netProfit.min && {
@@ -471,14 +466,16 @@ router.post('/handle-like-lead', auth, async (req, res) => {
 				.indexOf(leadId);
 			if (indexed >= 0) {
 				unlikeLead(user, leadId);
-				return res
-					.status(200)
-					.send({ msg: 'Lead was unliked.', leads: user.likedLeads });
+				return res.status(200).send({
+					msg: `Lead was unliked: ${lead.data.title}`,
+					leads: user.likedLeads,
+				});
 			} else {
 				likeLead(user, leadId);
-				return res
-					.status(200)
-					.send({ msg: 'Lead was liked.', leads: user.likedLeads });
+				return res.status(200).send({
+					msg: `Lead was liked: ${lead.data.title}`,
+					leads: user.likedLeads,
+				});
 			}
 		} else {
 			return res.status(404).send('There was an error liking this lead.');
@@ -524,14 +521,18 @@ router.post('/handle-archive-lead', auth, async (req, res) => {
 				.indexOf(leadId);
 			if (indexed >= 0) {
 				unarchiveLead(user, leadId);
-				return res
-					.status(200)
-					.send({ msg: 'Lead was unarchived.', leads: user.archivedLeads });
+				return res.status(200).send({
+					msg: `Lead was unarchived: ${lead.data.title}`,
+					leads: user.archivedLeads,
+				});
 			} else {
 				archiveLead(user, leadId);
 				return res
 					.status(200)
-					.send({ msg: 'Lead was archived.', leads: user.archivedLeads });
+					.send({
+						msg: `Lead was archived: ${lead.data.title}`,
+						leads: user.archivedLeads,
+					});
 			}
 		} else {
 			return res.status(404).send('There was an error archiving this lead.');

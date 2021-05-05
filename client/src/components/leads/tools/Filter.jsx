@@ -139,7 +139,7 @@ const Filter = ({
 								clearFilters();
 								getLeads(user, 1, filters);
 							}}
-							className='font-semibold text-sm text-red-500 rounded-sm ring-red'
+							className='font-semibold text-sm text-red-500 hover:text-red-600 rounded-sm transition-colors duration-100 ease-in-out ring-red'
 						>
 							Clear all
 						</button>

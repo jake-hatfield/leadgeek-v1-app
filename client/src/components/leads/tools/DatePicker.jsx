@@ -124,21 +124,23 @@ const DatePicker = ({
 						<h5 className='inline-block font-bold text-lg'>Date picker</h5>
 					</div>
 				</header>
-				{dateOptions.map((dateOption, i) => (
-					<li key={i} className='list-none'>
-						<button
-							onClick={dateOption.onClick}
-							className='w-full py-2 px-4 flex items-center justify-between border-t border-gray-200 hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
-						>
-							<span className='font-semibold text-sm text-gray-700'>
-								{dateOption.title}
-							</span>
-							<span className='text-sm text-gray-600'>
-								{dateOption.dateString}
-							</span>
-						</button>
-					</li>
-				))}
+				<ul className='border-b border-gray-200'>
+					{dateOptions.map((dateOption, i) => (
+						<li key={i} className='list-none'>
+							<button
+								onClick={dateOption.onClick}
+								className='w-full py-2 px-4 flex items-center justify-between border-t border-gray-200 hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
+							>
+								<span className='font-semibold text-sm text-gray-700'>
+									{dateOption.title}
+								</span>
+								<span className='text-sm text-gray-600'>
+									{dateOption.dateString}
+								</span>
+							</button>
+						</li>
+					))}
+				</ul>
 			</div>
 		</article>
 	);

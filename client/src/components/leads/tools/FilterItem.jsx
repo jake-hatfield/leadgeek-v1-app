@@ -114,7 +114,7 @@ const FilterItem = ({
 							e.stopPropagation();
 							setToggleItem((prev) => !prev);
 						}}
-						className='p-1 rounded-lg text-gray-500 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
+						className='rounded-md text-gray-500 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
