@@ -16,6 +16,22 @@ export const lengthChecker = (array) => {
 	return array.length > 99 ? '99+' : array.length;
 };
 
+export const domainFromURL = (url) => {
+	let result, match;
+	if (
+		(match = url.match(
+			/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im
+		))
+	) {
+		result = match[1];
+		if ((match = result.match(/^[^\.]+\.(.+\..+)$/))) {
+			result = match[1];
+		}
+	}
+	console.log(result);
+	return result;
+};
+
 // bsr / category % calculator
 export const calculateBSR = (currentRank, category) => {
 	let totalItems;

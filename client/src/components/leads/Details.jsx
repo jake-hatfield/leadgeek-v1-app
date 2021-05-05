@@ -18,6 +18,7 @@ import { DateTime } from 'luxon';
 import {
 	truncate,
 	numberWithCommas,
+	domainFromURL,
 	calculateBSR,
 	openLinkHandler,
 } from 'utils/utils';
@@ -48,6 +49,8 @@ const Note = ({ title, desc, nullState, link }) => {
 			{desc && link ? (
 				<a
 					href={`https://www.rakuten.com/${link}`}
+					target='__blank'
+					rel='noopener noreferrer'
 					className='py-1 px-2 rounded-lg bg-purple-500 text-xs text-white shadow-md hover:bg-purple-600 hover:shadow-lg transition duration-100 ease-in-out'
 				>
 					{desc}
@@ -543,7 +546,7 @@ const Details = ({
 										<Note
 											title={'Cashback'}
 											desc={data.cashback}
-											link={data.retailerLink}
+											link={domainFromURL(data.retailerLink)}
 											nullState={'No applicable cashback'}
 										/>
 										<Note
