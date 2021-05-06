@@ -100,6 +100,11 @@ const LeadRow = ({
 		handleArchiveLead(user._id, lead._id);
 		viewLead(user._id, lead._id);
 	};
+
+	const [viewImage, setViewImage] = useState(false);
+	const [viewCompetition, setViewCompetition] = useState(false);
+	const propertyButtonClasses =
+		'p-1 rounded-md hover:text-gray-600 transition duration-100 ease-in-out ring-gray';
 	return (
 		<tr
 			className='relative px-1 border-b border-gray-200 hover:bg-gray-100 transition duration-100 cursor-pointer'
@@ -148,7 +153,75 @@ const LeadRow = ({
 				</svg>
 			</td> */}
 			<td className='p-2'>{truncate(data.category, 28)}</td>
-			<td className='p-2'>image</td>
+			<td className='relative p-2 flex items-center text-gray-400'>
+				{/* image */}
+				<button
+					onMouseEnter={() => setViewImage(true)}
+					onMouseLeave={() => setViewImage(false)}
+					onClick={(e) => {
+						e.stopPropagation();
+						setViewImage((prev) => !prev);
+					}}
+					className={propertyButtonClasses}
+				>
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						className='h-5 w-5'
+						viewBox='0 0 20 20'
+						fill='currentColor'
+					>
+						<path
+							fillRule='evenodd'
+							d='M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z'
+							clipRule='evenodd'
+						/>
+					</svg>
+				</button>
+				{/* competitors */}
+				<button
+					onMouseEnter={() => setViewCompetition(true)}
+					onMouseLeave={() => setViewCompetition(false)}
+					onClick={(e) => {
+						e.stopPropagation();
+						setViewCompetition((prev) => !prev);
+					}}
+					className={`ml-2 ${propertyButtonClasses}`}
+				>
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						className='h-5 w-5'
+						viewBox='0 0 20 20'
+						fill='currentColor'
+					>
+						<path d='M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z' />
+					</svg>
+				</button>
+				{viewImage && (
+					<div className='absolute z-10 p-2 transform lg:-translate-y-16 xl:-translate-y-20 translate-x-24 bg-white shadow-xl rounded-lg border border-gray-200'>
+						<img
+							src={data.img}
+							alt={data.title}
+							className='max-h-56 max-w-xs'
+						/>
+					</div>
+				)}
+				{viewCompetition && (
+					<div className='w-36 absolute bottom-0 z-10 p-2 transform -translate-y-12 translate-x-8 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+						<div className='flex items-center justify-between'>
+							<span>Buy box</span>
+							<span className='font-semibold text-teal-500'>
+								{data.competitorType}
+							</span>
+						</div>
+						{data.competitorCount > 0 && (
+							<div className='flex items-center justify-between'>
+								<span># Competitors</span>
+								<span className='font-semibold'>{data.competitorCount}</span>
+							</div>
+						)}
+					</div>
+				)}
+			</td>
 			<td className='p-2'>
 				<span>$</span>
 				{(data.netProfit - (unitFee || lbFee * data.weight || 0)).toFixed(2)}
@@ -323,7 +396,7 @@ const LeadRow = ({
 				</div>
 			</td>
 			{titleHover && (
-				<td className='absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-16 xl:translate-x-24 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+				<td className='absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-16 xl:translate-x-20 rounded-md shadow-md bg-gray-800 text-white text-sm'>
 					{data.title}
 				</td>
 			)}
