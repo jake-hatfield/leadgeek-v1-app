@@ -15,6 +15,7 @@ import {
 	SET_SEARCH_RESULTS,
 	CLEAR_CURRENT_SEARCH,
 } from './types';
+
 import axios from 'axios';
 
 import { setAlert } from './alert';

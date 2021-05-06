@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { DateTime } = require('luxon');
 
 const auth = require('../../middleware/auth');
 const Lead = require('../../models/Lead');
@@ -131,7 +132,10 @@ router.post('/', auth, async (req, res) => {
 		const { unviewedLeads } = user;
 		let totalItems, filteredItems, lastUpdated, administrator;
 		let roleFilter = [role.toString()];
-		const minDateFilter = minDate ? minDate : user.dateCreated;
+		const fromJSDate = DateTime.fromJSDate(user.dateCreated);
+		const userDayCreated = fromJSDate.startOf('day').toISODate();
+		// console.log(DateTime.fromISO(user.dateCreated).toFormat('LLL dd yyyy'));
+		const minDateFilter = minDate ? minDate : userDayCreated;
 		const maxDateFilter = maxDate ? maxDate : Date.now();
 		const administrativeRoles = ['master', 'admin'];
 		if (administrativeRoles.indexOf(role) >= 0) {

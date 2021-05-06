@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { DateTime } from 'luxon';
 
 import { useOutsideMousedown } from 'utils/utils';
-import { setPage } from 'redux/actions/leads';
 
 const DatePicker = ({
 	date,
