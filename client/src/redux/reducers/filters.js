@@ -231,41 +231,7 @@ export default function filterReducer(state = initialState, action) {
 		}
 		case CLEAR_FILTERS: {
 			return {
-				...state,
-				count: null,
-				netProfit: {
-					min: null,
-					max: null,
-				},
-				buyPrice: {
-					min: null,
-					max: null,
-				},
-				sellPrice: {
-					min: null,
-					max: null,
-				},
-				roi: {
-					min: null,
-					max: null,
-				},
-				bsr: {
-					min: null,
-					max: null,
-				},
-				monthlySales: {
-					min: null,
-					max: null,
-				},
-				weight: {
-					min: null,
-					max: null,
-				},
-				category: [],
-				prep: {
-					unit: null,
-					lb: null,
-				},
+				...initialState,
 			};
 		}
 		default:

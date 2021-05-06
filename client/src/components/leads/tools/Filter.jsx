@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -104,6 +104,50 @@ const Filter = ({
 		},
 	];
 
+	const [clear, setClear] = useState(false);
+	const emptyFilters = {
+		count: null,
+		netProfit: {
+			min: null,
+			max: null,
+		},
+		buyPrice: {
+			min: null,
+			max: null,
+		},
+		sellPrice: {
+			min: null,
+			max: null,
+		},
+		roi: {
+			min: null,
+			max: null,
+		},
+		bsr: {
+			min: null,
+			max: null,
+		},
+		monthlySales: {
+			min: null,
+			max: null,
+		},
+		weight: {
+			min: null,
+			max: null,
+		},
+		category: [],
+		prep: {
+			unit: null,
+			lb: null,
+		},
+		itemLimits: {
+			leadsLimit: 15,
+			searchLimit: 15,
+			usersLimit: 15,
+		},
+		dateLimits: { min: null, max: null, selected: null },
+	};
+
 	return (
 		<article
 			ref={wrapperRef}
@@ -130,14 +174,16 @@ const Filter = ({
 						minDefault={item.min}
 						maxDefault={item.max}
 						val={item.val}
+						clear={clear}
 					/>
 				))}
 				<div className='border-t border-gray-200'>
 					<div className='flex justify-end py-2 px-4'>
 						<button
 							onClick={() => {
+								setClear(true);
 								clearFilters();
-								getLeads(user, 1, filters);
+								getLeads(user, 1, emptyFilters);
 							}}
 							className='font-semibold text-sm text-red-500 hover:text-red-600 rounded-sm transition-colors duration-100 ease-in-out ring-red'
 						>

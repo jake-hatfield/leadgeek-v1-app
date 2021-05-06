@@ -442,7 +442,7 @@ const Details = ({
 																		setCopiedText(false);
 																	}, 2000);
 																}}
-																className='ml-2 text-gray-400 hover:text-gray-700 rounded-sm transition duration-100 ease-in-out ring-gray'
+																className='ml-2 text-gray-400 hover:text-gray-600 rounded-sm transition duration-100 ease-in-out ring-gray'
 															>
 																<svg
 																	xmlns='http://www.w3.org/2000/svg'
@@ -487,8 +487,15 @@ const Details = ({
 											<div>{`$${data.sellPrice.toFixed(2) || '-'}`}</div>
 										</div>
 										<div className={descriptorClasses}>
-											<div>Competitor type</div>
-											<div>{data.competitorType || '-'}</div>
+											<div>Competiton</div>
+											<div>
+												<span className='text-gray-500'>
+													{data.competitorCount && `(${data.competitorCount})`}
+												</span>
+												<span className='ml-1'>
+													{data.competitorType || '-'}
+												</span>
+											</div>
 										</div>
 										<div className={descriptorClasses}>
 											<div>Current BSR</div>
@@ -500,7 +507,7 @@ const Details = ({
 												{data.weight ? (
 													<span>
 														{data.weight.toFixed(2)}
-														<span className='ml-1 text-gray-400'>lb</span>
+														<span className='ml-1 text-gray-500'>lb</span>
 													</span>
 												) : (
 													<span>-</span>
@@ -515,7 +522,7 @@ const Details = ({
 														<span>
 															{calculateBSR(data.bsrCurrent, data.category)}
 														</span>
-														<span className='ml-1 text-gray-400'>%</span>
+														<span className='ml-1 text-gray-500'>%</span>
 													</span>
 												)}
 											</div>

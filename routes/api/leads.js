@@ -121,6 +121,16 @@ router.post('/', auth, async (req, res) => {
 				dateLimits: { min: minDate, max: maxDate },
 			},
 		} = req.body;
+		console.log(
+			netProfit,
+			buyPrice,
+			sellPrice,
+			roi,
+			bsr,
+			monthlySales,
+			weight,
+			category
+		);
 		const user = await User.findById({ _id });
 		if (!user) {
 			let message = 'There was an error finding a user with that id.';

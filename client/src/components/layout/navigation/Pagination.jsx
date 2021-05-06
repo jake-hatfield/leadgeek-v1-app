@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
+import { numberWithCommas } from 'utils/utils';
+
 const Pagination = ({
 	pagination,
 	type,
@@ -78,21 +80,22 @@ const Pagination = ({
 								>
 									<svg
 										xmlns='http://www.w3.org/2000/svg'
-										className='h-5 w-5'
+										className='h-4 w-4'
 										viewBox='0 0 20 20'
 										fill='currentColor'
 									>
 										<path
 											fillRule='evenodd'
-											d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z'
+											d='M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z'
 											clipRule='evenodd'
 										/>
+										<path d='M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z' />
 									</svg>
 									{filteredMessage && (
 										<div className='absolute z-10 bottom-0 py-2 px-4 transform -translate-y-8 rounded-md shadow-md bg-gray-800 text-left text-white text-sm'>
 											<p>
 												<span className='font-semibold text-teal-400'>
-													{totalItems - filteredItems}
+													{numberWithCommas(totalItems - filteredItems)}
 												</span>{' '}
 												leads aren't showing because of applied filters.
 											</p>

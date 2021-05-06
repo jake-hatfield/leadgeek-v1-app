@@ -148,6 +148,7 @@ const LeadRow = ({
 				</svg>
 			</td> */}
 			<td className='p-2'>{truncate(data.category, 28)}</td>
+			<td className='p-2'>image</td>
 			<td className='p-2'>
 				<span>$</span>
 				{(data.netProfit - (unitFee || lbFee * data.weight || 0)).toFixed(2)}

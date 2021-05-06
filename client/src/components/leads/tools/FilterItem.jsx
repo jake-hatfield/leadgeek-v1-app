@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -21,6 +21,7 @@ const FilterItem = ({
 	setMinMaxFilter,
 	setDropdownFilter,
 	clearMinMaxFilter,
+	clear,
 }) => {
 	const [toggleItem, setToggleItem] = useState(false);
 	const wrapperRef = useRef(null);
@@ -96,6 +97,14 @@ const FilterItem = ({
 			setMaxActive(null);
 		}
 	};
+
+	const clearAllPills = () => {
+		setMinActive(null);
+		setMaxActive(null);
+	};
+	useEffect(() => {
+		clearAllPills();
+	}, [clear]);
 	return (
 		<div
 			ref={wrapperRef}
@@ -255,7 +264,7 @@ const FilterItem = ({
 									<div className='flex justify-end'>
 										<button
 											type='sumbit'
-											className='mt-2 py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
+											className='mt-2 py-2 px-3 rounded-lg bg-purple-500 hover:bg-purple-600 text-white text-sm shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
 										>
 											Set filter
 										</button>
@@ -289,7 +298,7 @@ const FilterItem = ({
 									<button
 										onClick={(e) => setDropdownFilter(selectValue)}
 										type='sumbit'
-										className='mt-2 py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
+										className='mt-2 py-2 px-3 rounded-lg bg-purple-500 hover:bg-purple-600 text-white text-sm shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
 									>
 										Set filter
 									</button>
