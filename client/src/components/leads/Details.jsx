@@ -23,6 +23,46 @@ import {
 	openLinkHandler,
 } from 'utils/utils';
 
+const Button = ({ active, disabled, action, state, desc }) => {
+	const [hover, setHover] = useState(false);
+	return (
+		<button
+			onMouseEnter={() => setHover(true)}
+			onMouseLeave={() => setHover(false)}
+			onClick={() => action()}
+			className={`relative ml-2 p-1 hover:bg-gray-100 rounded-md ${
+				state && 'text-purple-600'
+			} hover:text-gray-700`}
+		>
+			{state ? (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='0 0 20 20'
+					fill='currentColor'
+					className='h-5 w-5'
+				>
+					{active}
+				</svg>
+			) : (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					fill='none'
+					viewBox='0 0 24 24'
+					stroke='currentColor'
+					className='h-5 w-5'
+				>
+					{disabled}
+				</svg>
+			)}
+			{hover && (
+				<div className='absolute top-0 z-10 w-24 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-800 text-white text-xs'>
+					{desc}
+				</div>
+			)}
+		</button>
+	);
+};
+
 const PrimaryMetric = ({ title, value, subvalue }) => {
 	return (
 		<div className='first:ml-0 ml-12'>
@@ -41,25 +81,24 @@ PrimaryMetric.propTypes = {
 	subvalue: PropTypes.string.isRequired,
 };
 
-const Note = ({ title, desc, nullState, link }) => {
+const Note = ({ desc, nullState, link }) => {
 	return (
-		<div className='flex items-end justify-between mt-2 pb-2 border-b border-gray-200'>
-			<div>{title}</div>
+		<div className='py-1'>
 			{desc && link ? (
 				<a
 					href={`https://www.rakuten.com/${link}`}
 					target='__blank'
 					rel='noopener noreferrer'
-					className='py-1 px-2 rounded-lg bg-purple-500 text-xs text-white shadow-sm hover:bg-purple-600 hover:shadow-md transition duration-100 ease-in-out'
+					className='py-1 px-2 rounded-lg bg-purple-500 border border-purple-500 text-xs text-white shadow-sm hover:bg-purple-600 hover:shadow-md transition duration-100 ease-in-out'
 				>
 					{desc}
 				</a>
 			) : desc ? (
-				<div className='py-1 px-2 rounded-lg bg-gray-800 text-xs text-white shadow-sm hover:bg-gray-900 hover:shadow-md transition duration-100 ease-in-out'>
+				<div className='inline-block py-1 px-2 rounded-lg bg-gray-800 border border-gray-900 text-xs text-white shadow-sm'>
 					{desc}
 				</div>
 			) : (
-				<div className='py-1 px-2 rounded-lg bg-gray-100 text-xs text-gray-600'>
+				<div className='inline-block py-1 px-2 rounded-lg bg-gray-100 border border-gray-200 text-xs text-gray-600'>
 					{nullState}
 				</div>
 			)}
@@ -68,7 +107,6 @@ const Note = ({ title, desc, nullState, link }) => {
 };
 
 Note.propTypes = {
-	title: PropTypes.string.isRequired,
 	desc: PropTypes.string.isRequired,
 	nullState: PropTypes.string.isRequired,
 };
@@ -140,6 +178,80 @@ const Details = ({
 	const primaryLinks = [
 		{ title: 'Overview', onClick: () => setOverviewActive(true) },
 	];
+
+	const primaryButtons = [
+		{
+			active: (
+				<path
+					fillRule='evenodd'
+					d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
+					clipRule='evenodd'
+				/>
+			),
+			disabled: (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
+				/>
+			),
+			action: () => handleLikeLead(userId, currentLead._id),
+			state: like,
+			desc: like ? 'Unlike this lead' : 'Like this lead',
+		},
+		{
+			active: (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z'
+				/>
+			),
+			disabled: (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z'
+				/>
+			),
+			action: () => handleArchiveLead(userId, currentLead._id),
+			state: archive,
+			desc: archive ? 'Unarchive this lead' : 'Archive this lead',
+		},
+
+		{
+			active: null,
+			disabled: (
+				<path
+					fillRule='evenodd'
+					d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z'
+					clipRule='evenodd'
+				/>
+			),
+			action: (e) => openLinkHandler(e, data.retailerLink, data.amzLink),
+			state: null,
+			desc: 'Open both links',
+		},
+		{
+			active: null,
+			disabled: (
+				<path
+					fillRule='evenodd'
+					d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+					clipRule='evenodd'
+				/>
+			),
+			action: () => {
+				clearCurrentLead();
+				setShowDetails(false);
+			},
+			state: null,
+			desc: 'Close details (Esc)',
+		},
+	];
 	const primaryMetrics = [
 		{
 			title: 'Profit',
@@ -198,9 +310,9 @@ const Details = ({
 				onClick={closeModal}
 				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
 			/>
-			<div className='fixed top-0 right-0 z-20 w-full max-w-3xl transform translate-y-4 -translate-x-12'>
+			<div className='fixed top-0 right-0 z-20 w-full max-w-2xl transform translate-y-4 -translate-x-12'>
 				<div className='relative z-40 p-6 rounded-lg shadow-xl bg-white opacity-100'>
-					<header className='flex items-center justify-between border-b border-gray-200'>
+					<header className='flex items-center justify-between border-b border-gray-100'>
 						<div>
 							{primaryLinks.map((link, i) => (
 								<button
@@ -215,183 +327,73 @@ const Details = ({
 								</button>
 							))}
 						</div>
-						<div>
-							<button
-								onClick={() => {
-									clearCurrentLead();
-									setShowDetails(false);
-								}}
-								className='py-2 px-1 rounded-lg hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
-							>
-								<svg
-									xmlns='http://www.w3.org/2000/svg'
-									viewBox='0 0 20 20'
-									fill='currentColor'
-									className='h-5 w-5'
-								>
-									<path
-										fillRule='evenodd'
-										d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
-										clipRule='evenodd'
+						<div className='flex items-center justify-between'>
+							<div className='flex items-center text-gray-400'>
+								{primaryButtons.map((button, i) => (
+									<Button
+										key={i}
+										active={button.active}
+										disabled={button.disabled}
+										action={button.action}
+										state={button.state}
+										desc={button.desc}
 									/>
-								</svg>
-							</button>
+								))}
+							</div>
 						</div>
 					</header>
 					{/* overview page */}
 					{overviewActive && (
-						<div className='flex mt-4'>
-							<div className='w-1/4'>
-								<a
-									href={data.amzLink}
-									target='_blank'
-									rel='noopener noreferrer'
-								>
-									<img
-										src={data.img}
-										alt={data.title}
-										className='rounded-lg transition duration-100 ease-in-out focus:outline-none hover:shadow-outline ring-purple'
-									></img>
-								</a>
-							</div>
-							<div className='ml-12 w-3/4'>
-								<header>
-									<h3
-										onMouseEnter={() => toggleFullTitle(true)}
-										onMouseLeave={() => toggleFullTitle(false)}
-										className='inline-block font-bold text-lg text-gray-900'
-									>
-										{truncate(data.title, 50)}
-									</h3>
-									{fullTitle && (
-										<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-28 rounded-md shadow-md bg-gray-800 text-white text-sm'>
-											{data.title}
-										</div>
-									)}
-									<div className='flex items-center mt-2 text-sm text-gray-800'>
-										<div>{date}</div>
-										<span className='h-1 w-1 ml-4 rounded-full bg-gray-400' />
-										<div className='ml-4'>{data.brand}</div>
-										<span className='h-1 w-1 ml-4 rounded-full bg-gray-400' />
-										<div className='ml-4'>{data.category}</div>
-									</div>
-									<div className='flex items-center justify-between mt-2 pb-3 border-b border-gray-200'>
-										<div className='flex items-center'>
-											<button
-												onClick={() => {
-													handleLikeLead(userId, currentLead._id);
-												}}
-												className={`${buttonClasses} hover:text-gray-700`}
-											>
-												{like ? (
-													<svg
-														xmlns='http://www.w3.org/2000/svg'
-														viewBox='0 0 20 20'
-														fill='currentColor'
-														className='h-4 w-4'
-													>
-														<path
-															fillRule='evenodd'
-															d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
-															clipRule='evenodd'
-														/>
-													</svg>
-												) : (
-													<svg
-														xmlns='http://www.w3.org/2000/svg'
-														fill='none'
-														viewBox='0 0 24 24'
-														stroke='currentColor'
-														className='h-4 w-4'
-													>
-														<path
-															strokeLinecap='round'
-															strokeLinejoin='round'
-															strokeWidth={2}
-															d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
-														/>
-													</svg>
-												)}
-
-												<span className='ml-2'>{like ? 'Unlike' : 'Like'}</span>
-											</button>
-											<button
-												onClick={() => {
-													handleArchiveLead(userId, currentLead._id);
-												}}
-												className={`${buttonClasses} ml-4 hover:text-gray-700`}
-											>
-												{archive ? (
-													<svg
-														xmlns='http://www.w3.org/2000/svg'
-														viewBox='0 0 24 24'
-														fill='currentColor'
-														stroke='currentColor'
-														className='h-4 w-4'
-													>
-														<path
-															strokeLinecap='round'
-															strokeLinejoin='round'
-															strokeWidth={2}
-															d='M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z'
-														/>
-													</svg>
-												) : (
-													<svg
-														xmlns='http://www.w3.org/2000/svg'
-														fill='none'
-														viewBox='0 0 24 24'
-														stroke='currentColor'
-														className='h-4 w-4'
-													>
-														<path
-															strokeLinecap='round'
-															strokeLinejoin='round'
-															strokeWidth={2}
-															d='M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z'
-														/>
-													</svg>
-												)}
-
-												<span className='ml-2'>
-													{archive ? 'Unarchive' : 'Archive'}
-												</span>
-											</button>
-										</div>
-										<button
-											onClick={(e) =>
-												openLinkHandler(e, data.retailerLink, data.amzLink)
-											}
-											className={`${buttonClasses} text-purple-600 hover:text-gray-700`}
+						<div className='mt-4'>
+							<div>
+								<div className='flex justify-between'>
+									<div className='w-1/5'>
+										<a
+											href={data.amzLink}
+											target='_blank'
+											rel='noopener noreferrer'
 										>
-											<span>Open links</span>
-											<svg
-												xmlns='http://www.w3.org/2000/svg'
-												viewBox='0 0 20 20'
-												fill='currentColor'
-												className='h-4 w-4 ml-2'
-											>
-												<path
-													fillRule='evenodd'
-													d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z'
-													clipRule='evenodd'
-												/>
-											</svg>
-										</button>
-									</div>
-								</header>
-								<article className='mt-4'>
-									<div className='flex'>
-										{primaryMetrics.map((metric, i) => (
-											<PrimaryMetric
-												key={i}
-												title={metric.title}
-												value={metric.value}
-												subvalue={metric.subvalue}
+											<img
+												src={data.img}
+												alt={data.title}
+												className='max-h-44 rounded-lg transition duration-100 ease-in-out focus:outline-none hover:shadow-outline ring-purple'
 											/>
-										))}
+										</a>
 									</div>
-									<header className='mt-4 pb-2 border-b border-gray-200'>
+									<header className='relative w-4/5 ml-8'>
+										<h3
+											onMouseEnter={() => toggleFullTitle(true)}
+											onMouseLeave={() => toggleFullTitle(false)}
+											className='inline-block font-bold text-lg text-gray-900'
+										>
+											{truncate(data.title, 70)}
+										</h3>
+										{fullTitle && (
+											<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-16 rounded-md shadow-md bg-gray-800 text-white text-xs'>
+												{data.title}
+											</div>
+										)}
+										<div className='flex items-center mt-2 text-sm text-gray-800'>
+											<div>{date}</div>
+											<span className='h-1 w-1 ml-4 rounded-full bg-gray-400' />
+											<div className='ml-4'>{data.brand}</div>
+											<span className='h-1 w-1 ml-4 rounded-full bg-gray-400' />
+											<div className='ml-4'>{data.category}</div>
+										</div>
+										<div className='flex w-2/3'>
+											{primaryMetrics.map((metric, i) => (
+												<PrimaryMetric
+													key={i}
+													title={metric.title}
+													value={metric.value}
+													subvalue={metric.subvalue}
+												/>
+											))}
+										</div>
+									</header>
+								</div>
+								<article className='mt-4'>
+									<header className='mt-4 pb-2 border-b border-gray-100'>
 										<h4 className='font-semibold text-gray-900'>
 											Detailed metrics
 										</h4>
@@ -529,49 +531,62 @@ const Details = ({
 										</div>
 									</div>
 								</article>
-								{/* Notes section */}
-								<article className='mt-4 text-gray-900'>
-									<header className='flex items-center pb-2 border-b border-gray-200'>
-										<h4 className='font-semibold'>Notes</h4>
-										<span
-											className={`${
-												noteCount.length > 0
-													? 'bg-gray-800 text-white'
-													: 'bg-gray-100 text-gray-600'
-											} ml-2 py-1 px-2 rounded-lg shadow-sm text-xs`}
-										>
-											{noteCount.length}
-										</span>
-									</header>
-									<div className='mt-3 text-sm'>
-										<Note
-											title={'Promos'}
-											desc={data.promo}
-											nullState={'No applicable promos'}
-										/>
-										<Note
-											title={'Cashback'}
-											desc={data.cashback}
-											link={domainFromURL(data.retailerLink)}
-											nullState={'No applicable cashback'}
-										/>
-										<Note
-											title={'Variations'}
-											desc={data.variations}
-											nullState={'No variation suggestions'}
-										/>
-										<Note
-											title={'Seller notes'}
-											desc={data.notes}
-											nullState={'No seller notes'}
-										/>
-										<Note
-											title={'Shipping'}
-											desc={data.shipping}
-											nullState={'No shipping notes'}
-										/>
-									</div>
-								</article>
+								<section className='flex justify-between mt-4'>
+									{/* Notes section */}
+									<article className='w-2/5 text-gray-900'>
+										<header className='flex items-center pb-2 border-b border-gray-100'>
+											<h4 className='font-semibold'>Notes</h4>
+											<span
+												className={`${'bg-gray-100 border border-gray-200 text-gray-600  ml-2 py-1 px-2 rounded-lg shadow-sm text-xs'}`}
+											>
+												{noteCount.length}
+											</span>
+										</header>
+										<div className='grid grid-flow-row gap-x-4 mt-3 text-sm'>
+											<Note
+												title={'Cashback'}
+												desc={data.cashback}
+												link={domainFromURL(data.retailerLink)}
+												nullState={'No applicable cashback'}
+											/>
+											<Note
+												title={'Promos'}
+												desc={data.promo}
+												nullState={'No applicable promos'}
+											/>
+											<Note
+												title={'Shipping'}
+												desc={data.shipping}
+												nullState={'No shipping notes'}
+											/>
+											<Note
+												title={'Seller notes'}
+												desc={data.notes}
+												nullState={'No seller notes'}
+											/>
+											<Note
+												title={'Variations'}
+												desc={data.variations}
+												nullState={'No variation suggestions'}
+											/>
+										</div>
+									</article>
+									{/* comment section */}
+									<article className='ml-8 w-3/5 text-gray-900'>
+										<header className='flex items-center pb-2 border-b border-gray-100'>
+											<h4 className='font-semibold border border-transparent'>
+												Comments
+											</h4>
+										</header>
+										<div className='grid grid-flow-row gap-x-4 mt-3 text-sm'>
+											<input
+												type='textarea'
+												placeholder='Add a comment to this lead...'
+												className='h-24 rounded-lg border border-gray-200 ring-purple'
+											/>
+										</div>
+									</article>
+								</section>
 							</div>
 						</div>
 					)}

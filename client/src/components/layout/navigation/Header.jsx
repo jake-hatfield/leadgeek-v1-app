@@ -42,7 +42,7 @@ const Header = ({
 	}
 
 	return (
-		<header className='border-b border-gray-200'>
+		<header className='border-b border-gray-100'>
 			<div className='flex justify-between pb-2 container'>
 				<div className='flex items-center'>
 					<h1 className='text-3xl text-gray-900 font-bold'>

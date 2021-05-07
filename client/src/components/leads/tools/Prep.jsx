@@ -51,7 +51,7 @@ const Prep = ({
 	return (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-10 w-64 transform translate-y-10 -translate-x-24 pt-4 pb-2 rounded-lg bg-white shadow-lg text-gray-900'
+			className='absolute top-0 right-0 z-10 w-64 transform translate-y-12 -translate-x-24 pt-4 pb-1 rounded-lg bg-white shadow-lg border border-gray-100 text-gray-900'
 		>
 			<div className='relative'>
 				<header className='pb-2 px-4 flex items-center justify-between'>
@@ -90,12 +90,12 @@ const Prep = ({
 								type='text'
 								placeholder={checked ? 'eg. $0.10' : 'eg. $0.95'}
 								onChange={onChange}
-								className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 ring-purple'
+								className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-100 shadow-sm placeholder-gray-300 ring-purple'
 							/>
 						</label>
 					</div>
 				</div>
-				<div className='border-t border-gray-200'>
+				<div className='border-t border-gray-100'>
 					<div className='flex justify-end py-2 px-4'>
 						<button
 							onClick={() => {

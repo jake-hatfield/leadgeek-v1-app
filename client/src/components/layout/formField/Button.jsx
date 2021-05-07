@@ -18,7 +18,7 @@ const Button = ({
 			ref={ref}
 			className={`${
 				margin && 'ml-4'
-			} relative py-2 px-3 flex items-center rounded-lg shadow-sm hover:shadow-md text-sm font-semibold ${
+			} relative py-2 px-3 flex items-center rounded-lg shadow-sm hover:shadow-md border border-gray-100 text-sm font-semibold ${
 				cta
 					? 'bg-purple-500 hover:bg-purple-600 text-white'
 					: 'text-gray-500 hover:text-gray-700'

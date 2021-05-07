@@ -112,7 +112,7 @@ const FilterItem = ({
 			className={`${
 				toggleItem
 					? 'bg-gray-100'
-					: 'border-t border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors duration-100 ease-in-out'
+					: 'cursor-pointer hover:bg-gray-100 transition-colors duration-100 ease-in-out'
 			}`}
 		>
 			<div className='py-2 px-4'>
@@ -235,7 +235,7 @@ const FilterItem = ({
 											type='text'
 											placeholder={'Min'}
 											onChange={onChange}
-											className='w-1/2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 ring-purple'
+											className='w-1/2 p-2 bg-white rounded-lg text-sm border border-gray-100 shadow-sm placeholder-gray-300 ring-purple'
 										/>
 										<span className='ml-2 text-gray-400'>
 											<svg
@@ -258,7 +258,7 @@ const FilterItem = ({
 											type='text'
 											placeholder={'Max'}
 											onChange={onChange}
-											className='w-1/2 ml-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 ring-purple'
+											className='w-1/2 ml-2 p-2 bg-white rounded-lg text-sm border border-gray-100 shadow-sm placeholder-gray-300 ring-purple'
 										/>
 									</div>
 									<div className='flex justify-end'>
@@ -282,7 +282,7 @@ const FilterItem = ({
 										console.log(selectValue);
 										setSelectValue(e.currentTarget.value);
 									}}
-									className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-200 cursor-pointer shadow-sm ring-purple minimal-scrollbar'
+									className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-100 cursor-pointer shadow-sm ring-purple minimal-scrollbar'
 								>
 									{categories.map((category, i) => (
 										<option

@@ -126,7 +126,7 @@ const Leads = ({
 					/>
 					{!search && (
 						<nav className='mt-6 container'>
-							<div className='relative flex items-end justify-between pb-2 border-b border-gray-200'>
+							<div className='relative flex items-end justify-between pb-2 border-b border-gray-100'>
 								<div>
 									{primaryLinks.map((link, i) => (
 										<NavLink
@@ -134,12 +134,12 @@ const Leads = ({
 											exact
 											to={`/leads${link.link}`}
 											onClick={() => setLoading()}
-											className='relative first:ml-0 ml-10 pb-2 font-semibold text-lg text-gray-600 hover:text-gray-900 group transition-colors duration-100 ease-in-out'
+											className='relative first:ml-0 ml-10 pb-2 font-semibold text-gray-600 hover:text-gray-900 group transition-colors duration-100 ease-in-out'
 											activeClassName='text-purple-500 hover:text-purple-500 border-b-2 border-purple-600'
 										>
 											<span>{link.title}</span>
 											{link.count && (
-												<span className='h-4 w-4 absolute top-0 right-0 flex items-center justify-center rounded-full bg-purple-500 group-hover:bg-purple-600 text-xs text-white transform -translate-y-3 translate-x-5'>
+												<span className='h-4 w-4 absolute top-0 right-0 flex items-center justify-center p-1 rounded-full bg-purple-500 group-hover:bg-purple-600 text-xs text-white transform -translate-y-3 translate-x-5'>
 													{link.count}
 												</span>
 											)}

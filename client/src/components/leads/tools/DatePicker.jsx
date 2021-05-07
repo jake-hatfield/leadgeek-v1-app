@@ -115,20 +115,20 @@ const DatePicker = ({
 	return (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-10 w-64 transform translate-y-10 -translate-x-72 pt-4 pb-2 rounded-lg bg-white shadow-lg text-gray-900'
+			className='absolute top-0 right-0 z-10 w-64 transform translate-y-12 -translate-x-72 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-100 text-gray-900'
 		>
 			<div className='relative'>
-				<header className='pb-2 px-4 flex items-center justify-between'>
+				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-100'>
 					<div>
 						<h5 className='inline-block font-bold text-lg'>Date picker</h5>
 					</div>
 				</header>
-				<ul className='border-b border-gray-200'>
+				<ul>
 					{dateOptions.map((dateOption, i) => (
 						<li key={i} className='list-none'>
 							<button
 								onClick={dateOption.onClick}
-								className='w-full py-2 px-4 flex items-center justify-between border-t border-gray-200 hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
+								className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
 							>
 								<span className='font-semibold text-sm text-gray-700'>
 									{dateOption.title}

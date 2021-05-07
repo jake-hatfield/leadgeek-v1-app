@@ -268,7 +268,7 @@ const Register = ({ isAuthenticated, register, setAlert }) => {
 					</div>
 					<div className='container'>
 						<div className='mt-12 md:mt-0 mx-auto py-4 lg:py-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
-							<header className='pb-2 border-b border-gray-200'>
+							<header className='pb-2 border-b border-gray-100'>
 								<LeadGeekLogo className='md:hidden w-12' />
 								<h1 className='text-xl md:text-2xl lg:text-3xl font-black text-gray-900'>
 									Create an account

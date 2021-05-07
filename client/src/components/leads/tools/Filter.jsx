@@ -151,15 +151,18 @@ const Filter = ({
 	return (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-10 w-64 transform translate-y-10 -translate-x-48 pt-4 pb-2 rounded-lg bg-white shadow-lg text-gray-900'
+			className='absolute top-0 right-0 z-10 w-64 transform translate-y-12 -translate-x-48 pt-4 pb-1 rounded-lg bg-white shadow-lg border border-gray-100 text-gray-900'
 		>
 			<div className='relative'>
-				<header className='pb-2 px-4 flex items-center justify-between'>
+				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-100'>
 					<div>
 						<h5 className='inline-block font-bold text-lg'>Filters</h5>
 					</div>
 					<button
-						onClick={() => getLeads(user, 1, filters)}
+						onClick={() => {
+							setFilter(false);
+							getLeads(user, 1, filters);
+						}}
 						className='font-semibold text-sm text-purple-500 rounded-sm hover:text-purple-600 transition-colors duration-100 ease-in-out ring-purple'
 					>
 						Apply
@@ -177,12 +180,13 @@ const Filter = ({
 						clear={clear}
 					/>
 				))}
-				<div className='border-t border-gray-200'>
+				<div className='border-t border-gray-100'>
 					<div className='flex justify-end py-2 px-4'>
 						<button
 							onClick={() => {
 								setClear(true);
 								clearFilters();
+								setFilter(false);
 								getLeads(user, 1, emptyFilters);
 							}}
 							className='font-semibold text-sm text-red-500 hover:text-red-600 rounded-sm transition-colors duration-100 ease-in-out ring-red'

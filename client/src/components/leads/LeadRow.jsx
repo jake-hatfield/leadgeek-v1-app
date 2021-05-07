@@ -107,7 +107,7 @@ const LeadRow = ({
 		'p-1 rounded-md hover:text-gray-600 transition duration-100 ease-in-out ring-gray';
 	return (
 		<tr
-			className='relative px-1 border-b border-gray-200 hover:bg-gray-100 transition duration-100 cursor-pointer'
+			className='relative px-1 border-b border-gray-100 hover:bg-gray-100 transition duration-100 cursor-pointer'
 			onClick={() => {
 				viewDetailsHandler();
 			}}
@@ -197,7 +197,7 @@ const LeadRow = ({
 					</svg>
 				</button>
 				{viewImage && (
-					<div className='absolute z-10 p-2 transform lg:-translate-y-16 xl:-translate-y-20 translate-x-24 bg-white shadow-xl rounded-lg border border-gray-200'>
+					<div className='absolute z-10 p-2 transform lg:-translate-y-16 xl:-translate-y-20 translate-x-24 bg-white shadow-xl rounded-lg border border-gray-100'>
 						<img
 							src={data.img}
 							alt={data.title}
@@ -284,7 +284,7 @@ const LeadRow = ({
 										}}
 										onMouseEnter={() => setEyeDesc(true)}
 										onMouseLeave={() => setEyeDesc(false)}
-										className='relative p-2 rounded-l-lg border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
+										className='relative p-2 rounded-l-lg border-r border-gray-100 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 									>
 										<svg
 											xmlns='http://www.w3.org/2000/svg'
@@ -310,7 +310,7 @@ const LeadRow = ({
 										}}
 										onMouseEnter={() => setLinkDesc(true)}
 										onMouseLeave={() => setLinkDesc(false)}
-										className='relative p-2 border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
+										className='relative p-2 border-r border-gray-100 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 									>
 										<svg
 											xmlns='http://www.w3.org/2000/svg'
@@ -333,7 +333,7 @@ const LeadRow = ({
 					{/* horiztonal dots */}
 					{expandedView && (
 						<div className='absolute right-0 z-20 w-40 transform translate-y-6 md:-translate-x-6 lg:-translate-x-8 xl:-translate-x-12 bg-white rounded-lg shadow-md'>
-							<div className='py-2 border-b border-gray-200'>
+							<div className='py-2 border-b border-gray-100'>
 								<button
 									onClick={(e) => {
 										favoriteHandler(e);
