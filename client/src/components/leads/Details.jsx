@@ -32,30 +32,34 @@ const Button = ({ active, disabled, action, state, desc }) => {
 			onClick={() => action()}
 			className={`relative ml-2 p-1 hover:bg-gray-100 rounded-md ${
 				state && 'text-purple-600'
-			} hover:text-gray-700`}
+			} hover:text-gray-700 ring-gray transition duration-100 ease-in-out`}
 		>
-			{state ? (
-				<svg
-					xmlns='http://www.w3.org/2000/svg'
-					viewBox='0 0 20 20'
-					fill='currentColor'
-					className='h-5 w-5'
-				>
-					{active}
-				</svg>
+			{state || !disabled ? (
+				<div className='flex items-center justify-center'>
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						viewBox='0 0 20 20'
+						fill='currentColor'
+						className='h-5 w-5'
+					>
+						{active}
+					</svg>
+				</div>
 			) : (
-				<svg
-					xmlns='http://www.w3.org/2000/svg'
-					fill='none'
-					viewBox='0 0 24 24'
-					stroke='currentColor'
-					className='h-5 w-5'
-				>
-					{disabled}
-				</svg>
+				<div className='flex items-center justify-center'>
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						fill='none'
+						viewBox='0 0 20 20'
+						stroke='currentColor'
+						className='h-5 w-5'
+					>
+						{disabled}
+					</svg>
+				</div>
 			)}
 			{hover && (
-				<div className='absolute top-0 z-10 w-24 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-800 text-white text-xs'>
+				<div className='absolute top-0 right-0 z-10 min-w-max mt-2 mr-6 p-2 transform translate-y-6 translate-x-8 rounded-md shadow-md bg-gray-800 text-left text-white text-sm'>
 					{desc}
 				</div>
 			)}
@@ -193,7 +197,9 @@ const Details = ({
 					strokeLinecap='round'
 					strokeLinejoin='round'
 					strokeWidth={2}
-					d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
+					fillRule='evenodd'
+					d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
+					clipRule='evenodd'
 				/>
 			),
 			action: () => handleLikeLead(userId, currentLead._id),
@@ -206,7 +212,7 @@ const Details = ({
 					strokeLinecap='round'
 					strokeLinejoin='round'
 					strokeWidth={2}
-					d='M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z'
+					d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
 				/>
 			),
 			disabled: (
@@ -214,7 +220,7 @@ const Details = ({
 					strokeLinecap='round'
 					strokeLinejoin='round'
 					strokeWidth={2}
-					d='M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z'
+					d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
 				/>
 			),
 			action: () => handleArchiveLead(userId, currentLead._id),
@@ -223,33 +229,40 @@ const Details = ({
 		},
 
 		{
-			active: null,
-			disabled: (
+			active: (
 				<path
 					fillRule='evenodd'
 					d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z'
 					clipRule='evenodd'
 				/>
 			),
+			disabled: null,
 			action: (e) => openLinkHandler(e, data.retailerLink, data.amzLink),
 			state: null,
 			desc: 'Open both links',
 		},
 		{
-			active: null,
-			disabled: (
+			active: (
 				<path
 					fillRule='evenodd'
 					d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
 					clipRule='evenodd'
 				/>
 			),
+			disabled: null,
 			action: () => {
 				clearCurrentLead();
 				setShowDetails(false);
 			},
 			state: null,
-			desc: 'Close details (Esc)',
+			desc: (
+				<div>
+					<span>Close details</span>
+					<span className='ml-2 p-0.5 bg-gray-100 rounded-md font-semibold text-gray-600'>
+						Esc
+					</span>
+				</div>
+			),
 		},
 	];
 	const primaryMetrics = [
@@ -298,8 +311,7 @@ const Details = ({
 			checkNotes();
 		}
 	}, [currentLead]);
-	const buttonClasses =
-		'py-2 px-3 flex items-center rounded-lg shadow-sm hover:shadow-md font-semibold text-sm text-gray-600 hover:text-gray-700 transition duration-100 ease-in-out ring-gray';
+
 	const descriptorClasses = 'flex justify-between';
 	const linkClasses = 'font-semibold text-purple-600 hover:text-gray-700';
 
@@ -310,7 +322,7 @@ const Details = ({
 				onClick={closeModal}
 				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
 			/>
-			<div className='fixed top-0 right-0 z-20 w-full max-w-2xl transform translate-y-4 -translate-x-12'>
+			<div className='fixed top-0 right-0 z-20 w-full max-w-2xl transform translate-y-16 -translate-x-12'>
 				<div className='relative z-40 p-6 rounded-lg shadow-xl bg-white opacity-100'>
 					<header className='flex items-center justify-between border-b border-gray-100'>
 						<div>
@@ -356,7 +368,7 @@ const Details = ({
 											<img
 												src={data.img}
 												alt={data.title}
-												className='max-h-44 rounded-lg transition duration-100 ease-in-out focus:outline-none hover:shadow-outline ring-purple'
+												className='max-h-48 rounded-lg transition duration-100 ease-in-out focus:outline-none hover:shadow-outline ring-purple'
 											/>
 										</a>
 									</div>
@@ -366,10 +378,10 @@ const Details = ({
 											onMouseLeave={() => toggleFullTitle(false)}
 											className='inline-block font-bold text-lg text-gray-900'
 										>
-											{truncate(data.title, 70)}
+											{truncate(data.title, 50)}
 										</h3>
 										{fullTitle && (
-											<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-16 rounded-md shadow-md bg-gray-800 text-white text-xs'>
+											<div className='absolute bottom-0 mt-2 mr-6 p-2 transform -translate-y-32 rounded-md shadow-md bg-gray-800 text-white text-sm'>
 												{data.title}
 											</div>
 										)}
@@ -380,7 +392,7 @@ const Details = ({
 											<span className='h-1 w-1 ml-4 rounded-full bg-gray-400' />
 											<div className='ml-4'>{data.category}</div>
 										</div>
-										<div className='flex w-2/3'>
+										<div className='mt-4 flex'>
 											{primaryMetrics.map((metric, i) => (
 												<PrimaryMetric
 													key={i}
