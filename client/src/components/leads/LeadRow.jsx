@@ -403,7 +403,10 @@ const LeadRow = ({
 				</div>
 			</td>
 			{titleHover && (
-				<td className='absolute z-10 left-0 p-2 transform -translate-y-12 lg:translate-x-24 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+				<td
+					onMouseEnter={() => setRowHover(false)}
+					className='absolute z-10 left-0 p-2 transform -translate-y-10 translate-x-16 xl:translate-x-24 rounded-md shadow-md bg-gray-800 text-white text-sm'
+				>
 					{data.title}
 				</td>
 			)}

@@ -7,6 +7,7 @@ import {
 	SET_MONTHLYSALES_FILTER,
 	SET_WEIGHT_FILTER,
 	SET_CATEGORY_FILTER,
+	SET_FILTER_COUNT,
 	SET_PREP_FILTER,
 	SET_ITEM_LIMIT,
 	SET_DATE_FILTER,
@@ -22,7 +23,7 @@ import {
 } from '../actions/types';
 
 const initialState = {
-	count: null,
+	count: +localStorage.getItem('filterCount') || null,
 	netProfit: {
 		min: +localStorage.getItem('netProfitMin') || null,
 		max: +localStorage.getItem('netProfitMax') || null,
@@ -151,6 +152,32 @@ export default function filterReducer(state = initialState, action) {
 				category: [...state.category, newCategory],
 			};
 		}
+		case SET_FILTER_COUNT: {
+			const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =
+				state;
+			const allFilters = [
+				netProfit.min,
+				netProfit.max,
+				buyPrice.min,
+				buyPrice.max,
+				sellPrice.min,
+				sellPrice.max,
+				roi.min,
+				roi.max,
+				bsr.min,
+				bsr.max,
+				monthlySales.min,
+				monthlySales.max,
+				weight.min,
+				weight.max,
+			];
+			const notNullable = allFilters.filter((f) => f !== null).length;
+			localStorage.setItem('filterCount', notNullable);
+			return {
+				...state,
+				count: notNullable,
+			};
+		}
 		case SET_PREP_FILTER: {
 			const { key, value } = payload;
 			if (key === 'unit') {
@@ -232,6 +259,7 @@ export default function filterReducer(state = initialState, action) {
 		case CLEAR_FILTERS: {
 			return {
 				...initialState,
+				count: null,
 			};
 		}
 		default:

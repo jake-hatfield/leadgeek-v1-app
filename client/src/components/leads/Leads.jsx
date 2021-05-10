@@ -71,7 +71,10 @@ const Leads = ({
 			count: archivedCount,
 		},
 	];
-	const { selected: dateSelected } = filters.dateLimits;
+	const {
+		count: filterCount,
+		dateLimits: { selected: dateSelected },
+	} = filters;
 	const tools = [
 		{
 			text: 'Filters',
@@ -83,6 +86,12 @@ const Leads = ({
 				/>
 			),
 			onClick: () => setFilter((prev) => !prev),
+			conditional: filterCount > 0,
+			conditionalDisplay: (
+				<span className='h-4 w-4 absolute top-0 right-0 flex items-center justify-center p-2 rounded-full bg-purple-500 text-white transform -translate-y-2 translate-x-3'>
+					{filterCount}
+				</span>
+			),
 		},
 		{
 			text: 'Prep',
@@ -96,8 +105,19 @@ const Leads = ({
 			onClick: () => setPrep((prev) => !prev),
 			conditional: filters.prep.unit || filters.prep.lb,
 			conditionalDisplay: (
-				<span className='h-5 w-5 absolute top-0 right-0 flex items-center justify-center rounded-full bg-purple-500 text-xs text-white border-2 border-white transform -translate-y-2 translate-x-3'>
-					1
+				<span className='h-5 w-5 absolute top-0 right-0 flex items-center justify-center rounded-full bg-white text-purple-500 transform -translate-y-2 translate-x-3'>
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						className='h-5 w-5'
+						viewBox='0 0 20 20'
+						fill='currentColor'
+					>
+						<path
+							fillRule='evenodd'
+							d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+							clipRule='evenodd'
+						/>
+					</svg>
 				</span>
 			),
 		},

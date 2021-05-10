@@ -318,7 +318,7 @@ const Details = ({
 				onClick={closeModal}
 				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
 			/>
-			<div className='fixed top-0 right-0 z-20 w-full max-w-2xl transform translate-y-16 -translate-x-12'>
+			<div className='fixed top-0 right-0 z-20 w-full max-w-2xl transform translate-y-16 -translate-x-32'>
 				<div className='relative z-40 p-6 rounded-lg shadow-xl bg-white opacity-100'>
 					<header className='flex items-center justify-between border-b border-gray-100'>
 						<div>
@@ -509,7 +509,8 @@ const Details = ({
 											<div>Competiton</div>
 											<div>
 												<span className='text-gray-500'>
-													{data.competitorCount && `(${data.competitorCount})`}
+													{data.competitorCount > 0 &&
+														`(${data.competitorCount})`}
 												</span>
 												<span className='ml-1'>
 													{data.competitorType || '-'}
@@ -589,14 +590,14 @@ const Details = ({
 									<article className='ml-8 w-2/3 text-gray-900'>
 										<header className='flex items-center pb-2 border-b border-gray-100'>
 											<h4 className='font-semibold border border-transparent'>
-												Comments
+												Comment
 											</h4>
 										</header>
 										<div className='grid grid-flow-row gap-x-4 mt-3 text-sm'>
-											<input
-												type='textarea'
+											<textarea
+												name='comments'
 												placeholder='Add a comment to this lead...'
-												className='h-24 rounded-lg border border-gray-200 ring-purple'
+												className='h-24 rounded-lg border border-gray-200 ring-purple text-sm'
 											/>
 										</div>
 									</article>

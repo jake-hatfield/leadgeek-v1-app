@@ -1,6 +1,7 @@
 import {
 	CLEAR_FILTERS,
 	SET_CATEGORY_FILTER,
+	SET_FILTER_COUNT,
 	SET_PREP_FILTER,
 	CLEAR_PREP_FILTER,
 	SET_ITEM_LIMIT,
@@ -107,6 +108,16 @@ export const setPrepFilter = (prepFee) => (dispatch) => {
 	}
 };
 
+export const setFilterCount = () => (dispatch) => {
+	try {
+		dispatch({
+			type: SET_FILTER_COUNT,
+		});
+	} catch (error) {
+		console.log(error);
+	}
+};
+
 export const clearPrepFilter = () => (dispatch) => {
 	try {
 		let keysToRemove = ['unitFee', 'lbFee'];
@@ -135,6 +146,7 @@ export const clearFilters = () => (dispatch) => {
 			'monthlySalesMax',
 			'weightMin',
 			'weightMax',
+			'filterCount',
 		];
 		keysToRemove.forEach((key) => localStorage.removeItem(key));
 		dispatch({ type: CLEAR_FILTERS });

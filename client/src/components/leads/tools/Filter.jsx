@@ -6,13 +6,14 @@ import { connect } from 'react-redux';
 import FilterItem from './FilterItem';
 import { useOutsideMousedown } from 'utils/utils';
 import { getLeads } from 'redux/actions/leads';
-import { clearFilters } from 'redux/actions/filters';
+import { setFilterCount, clearFilters } from 'redux/actions/filters';
 
 const Filter = ({
 	user,
 	filters,
 	filter,
 	setFilter,
+	setFilterCount,
 	getLeads,
 	clearFilters,
 }) => {
@@ -32,15 +33,8 @@ const Filter = ({
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
 
-	const {
-		netProfit,
-		buyPrice,
-		sellPrice,
-		roi,
-		bsr,
-		monthlySales,
-		weight,
-	} = filters;
+	const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =
+		filters;
 	const filterItems = [
 		{
 			title: 'Profit',
@@ -161,6 +155,7 @@ const Filter = ({
 					<button
 						onClick={() => {
 							setFilter(false);
+							setFilterCount();
 							getLeads(user, 1, filters);
 						}}
 						className='font-semibold text-sm text-purple-500 rounded-sm hover:text-purple-600 transition-colors duration-100 ease-in-out ring-purple'
@@ -216,4 +211,8 @@ const mapStateToProps = (state, ownProps) => {
 	return { user, filters, filter, setFilter };
 };
 
-export default connect(mapStateToProps, { getLeads, clearFilters })(Filter);
+export default connect(mapStateToProps, {
+	setFilterCount,
+	getLeads,
+	clearFilters,
+})(Filter);
