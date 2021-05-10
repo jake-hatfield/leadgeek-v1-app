@@ -14,6 +14,7 @@ import {
 	clearCurrentLead,
 } from 'redux/actions/leads';
 import { DateTime } from 'luxon';
+import ReactImageMagnify from 'react-image-magnify';
 
 import {
 	truncate,
@@ -67,13 +68,12 @@ const Button = ({ active, disabled, action, state, desc }) => {
 	);
 };
 
-const PrimaryMetric = ({ title, value, subvalue }) => {
+const PrimaryMetric = ({ title, value }) => {
 	return (
-		<div className='first:ml-0 ml-12'>
-			<h5 className='font-semibold'>{title}</h5>
-			<div className='mt-2'>
-				<span className='font-semibold text-gray-900'>{value}</span>
-				<span className='ml-2'>{subvalue}</span>
+		<div className='first:mt-0 mt-1 flex items-end justify-between'>
+			<div className='text-sm text-gray-800'>{title}</div>
+			<div className='py-1 px-2 rounded-lg bg-gray-800 font-semibold text-xs text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out'>
+				{value}
 			</div>
 		</div>
 	);
@@ -81,8 +81,7 @@ const PrimaryMetric = ({ title, value, subvalue }) => {
 
 PrimaryMetric.propTypes = {
 	title: PropTypes.string.isRequired,
-	value: PropTypes.number.isRequired,
-	subvalue: PropTypes.string.isRequired,
+	value: PropTypes.string.isRequired,
 };
 
 const Note = ({ desc, nullState, link }) => {
@@ -237,7 +236,7 @@ const Details = ({
 				/>
 			),
 			disabled: null,
-			action: (e) => openLinkHandler(e, data.retailerLink, data.amzLink),
+			action: () => openLinkHandler(data.retailerLink, data.amzLink),
 			state: null,
 			desc: 'Open both links',
 		},
@@ -258,7 +257,7 @@ const Details = ({
 			desc: (
 				<div>
 					<span>Close details</span>
-					<span className='ml-2 p-0.5 bg-gray-100 rounded-md font-semibold text-gray-600'>
+					<span className='ml-2 p-0.5 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
 						Esc
 					</span>
 				</div>
@@ -267,28 +266,25 @@ const Details = ({
 	];
 	const primaryMetrics = [
 		{
-			title: 'Profit',
-			value: +(data.netProfit - (unitFee || lbFee * data.weight || 0)).toFixed(
-				2
-			),
-			subvalue: 'USD',
+			title: 'Net profit',
+			value: `$${(
+				data.netProfit - (unitFee || lbFee * data.weight || 0)
+			).toFixed(2)}`,
 		},
 		{
-			title: 'ROI',
-			value: +`${(
+			title: 'Return on investment',
+			value: `${(
 				((data.netProfit.toFixed(2) - (unitFee || lbFee * data.weight || 0)) /
 					data.buyPrice.toFixed(2)) *
 				100
-			).toFixed(0)}`,
-			subvalue: '%',
+			).toFixed(0)}%`,
 		},
 		{
 			title: 'Estimated sales',
-			value: +numberWithCommas(data.monthlySales),
-			subvalue: '/ month',
+			value: `${numberWithCommas(data.monthlySales)} /mo.`,
 		},
 	];
-	const date = DateTime.fromISO(data.date).toFormat('LLL dd, t');
+	const date = DateTime.fromISO(data.date).toFormat('LLL dd, H:mm');
 	const [copyText, setCopyText] = useState(false);
 	const [copiedText, setCopiedText] = useState(false);
 	const notes = [data.promo, data.cashback, data.variations, data.shipping];
@@ -359,46 +355,55 @@ const Details = ({
 						<div className='mt-4'>
 							<div>
 								<div className='flex justify-between'>
-									<div className='w-1/5'>
-										<a
-											href={data.amzLink}
-											target='_blank'
-											rel='noopener noreferrer'
-										>
-											<img
-												src={data.img}
-												alt={data.title}
-												className='max-h-48 rounded-lg transition duration-100 ease-in-out focus:outline-none hover:shadow-outline ring-purple'
-											/>
-										</a>
+									<div className='w-1/3 z-40'>
+										<ReactImageMagnify
+											{...{
+												smallImage: {
+													alt: data.title,
+													isFluidWidth: true,
+													src: data.img,
+												},
+												largeImage: {
+													src: data.img,
+												},
+												enlargedImageContainerDimensions: {
+													width: '200%',
+													height: '200%',
+												},
+											}}
+										/>
 									</div>
-									<header className='relative w-4/5 ml-8'>
+									<header className='relative w-2/3 ml-8'>
 										<h3
 											onMouseEnter={() => toggleFullTitle(true)}
 											onMouseLeave={() => toggleFullTitle(false)}
 											className='inline-block font-bold text-lg text-gray-900'
 										>
-											{truncate(data.title, 50)}
+											{truncate(data.title, 40)}
 										</h3>
 										{fullTitle && (
-											<div className='absolute bottom-0 mt-2 mr-6 p-2 transform -translate-y-32 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+											<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-800 text-white text-sm'>
 												{data.title}
 											</div>
 										)}
 										<div className='flex items-center mt-2 text-sm text-gray-800'>
 											<div>{date}</div>
-											<span className='h-1 w-1 ml-4 rounded-full bg-gray-400' />
-											<div className='ml-4'>{data.brand}</div>
-											<span className='h-1 w-1 ml-4 rounded-full bg-gray-400' />
-											<div className='ml-4'>{data.category}</div>
+											<span className='h-1 w-1 ml-2 rounded-full bg-gray-400' />
+											<div className='ml-2'>{data.brand}</div>
+											<span className='h-1 w-1 ml-2 rounded-full bg-gray-400' />
+											<div className='ml-2'>{truncate(data.category, 21)}</div>
 										</div>
-										<div className='mt-4 flex'>
+										<div className='mt-4'>
+											<header className='mt-4 pb-2 border-b border-gray-100'>
+												<h4 className='font-semibold text-gray-900'>
+													Primary metrics
+												</h4>
+											</header>
 											{primaryMetrics.map((metric, i) => (
 												<PrimaryMetric
 													key={i}
 													title={metric.title}
 													value={metric.value}
-													subvalue={metric.subvalue}
 												/>
 											))}
 										</div>
@@ -410,7 +415,7 @@ const Details = ({
 											Detailed metrics
 										</h4>
 									</header>
-									<div className='grid grid-cols-2 grid-rows-4 gap-y-4 gap-x-6 mt-4 text-sm text-gray-800'>
+									<div className='grid grid-cols-2 grid-rows-4 gap-y-2 gap-x-6 mt-4 text-sm text-gray-800'>
 										<div className={descriptorClasses}>
 											<div>Source</div>
 											<div>
@@ -533,10 +538,7 @@ const Details = ({
 											<div className='flex items-center'>
 												{data.bsrCurrent && data.category && (
 													<span>
-														<span>
-															{calculateBSR(data.bsrCurrent, data.category)}
-														</span>
-														<span className='ml-1 text-gray-500'>%</span>
+														{calculateBSR(data.bsrCurrent, data.category)}%
 													</span>
 												)}
 											</div>
@@ -545,7 +547,7 @@ const Details = ({
 								</article>
 								<section className='flex justify-between mt-4'>
 									{/* Notes section */}
-									<article className='w-2/5 text-gray-900'>
+									<article className='w-1/3 text-gray-900'>
 										<header className='flex items-center pb-2 border-b border-gray-100'>
 											<h4 className='font-semibold'>Notes</h4>
 											<span
@@ -579,12 +581,12 @@ const Details = ({
 											<Note
 												title={'Variations'}
 												desc={data.variations}
-												nullState={'No variation suggestions'}
+												nullState={'No variation notes'}
 											/>
 										</div>
 									</article>
 									{/* comment section */}
-									<article className='ml-8 w-3/5 text-gray-900'>
+									<article className='ml-8 w-2/3 text-gray-900'>
 										<header className='flex items-center pb-2 border-b border-gray-100'>
 											<h4 className='font-semibold border border-transparent'>
 												Comments

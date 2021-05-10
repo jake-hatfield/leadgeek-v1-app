@@ -94,7 +94,7 @@ const Pagination = ({
 									{filteredMessage && (
 										<div className='absolute z-10 bottom-0 py-2 px-4 transform -translate-y-8 rounded-md shadow-md bg-gray-800 text-left text-white text-sm'>
 											<p>
-												<span className='font-semibold text-teal-400'>
+												<span className='font-semibold text-purple-300'>
 													{numberWithCommas(totalItems - filteredItems)}
 												</span>{' '}
 												leads aren't showing because of applied filters.

@@ -42,8 +42,6 @@ const LeadRow = ({
 	const [titleHover, setTitleHover] = useState(false);
 	const [eyeDesc, setEyeDesc] = useState(false);
 	const [linkDesc, setLinkDesc] = useState(false);
-	const hoverClasses =
-		'mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-800 shadow-md text-white text-sm';
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setQuickView, setExpandedView);
 	useEffect(() => {
@@ -105,6 +103,8 @@ const LeadRow = ({
 	const [viewCompetition, setViewCompetition] = useState(false);
 	const propertyButtonClasses =
 		'p-1 rounded-md hover:text-gray-600 transition duration-100 ease-in-out ring-gray';
+	const hoverClasses =
+		'w-24 mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-800 shadow-md text-white text-sm';
 	return (
 		<tr
 			className='relative px-1 border-b border-gray-100 hover:bg-gray-100 transition duration-100 cursor-pointer'
@@ -142,16 +142,6 @@ const LeadRow = ({
 			>
 				<div>{truncate(data.title, 31)}</div>
 			</td>
-			{/* <td className='relative p-2 text-gray-600'>
-				<svg
-					xmlns='http://www.w3.org/2000/svg'
-					className='h-5 w-5'
-					viewBox='0 0 20 20'
-					fill='currentColor'
-				>
-					<path d='M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z' />
-				</svg>
-			</td> */}
 			<td className='p-2'>{truncate(data.category, 28)}</td>
 			<td className='relative p-2 flex items-center text-gray-400'>
 				{/* image */}
@@ -197,7 +187,7 @@ const LeadRow = ({
 					</svg>
 				</button>
 				{viewImage && (
-					<div className='absolute z-10 p-2 transform lg:-translate-y-16 xl:-translate-y-20 translate-x-24 bg-white shadow-xl rounded-lg border border-gray-100'>
+					<div className='absolute z-10 p-2 transform lg:-translate-y-12 xl:-translate-y-16 translate-x-24 bg-white shadow-xl rounded-lg border border-gray-100'>
 						<img
 							src={data.img}
 							alt={data.title}
@@ -209,7 +199,7 @@ const LeadRow = ({
 					<div className='w-36 absolute bottom-0 z-10 p-2 transform -translate-y-12 translate-x-8 rounded-md shadow-md bg-gray-800 text-white text-sm'>
 						<div className='flex items-center justify-between'>
 							<span>Buy box</span>
-							<span className='font-semibold text-teal-500'>
+							<span className='font-semibold text-purple-300'>
 								{data.competitorType}
 							</span>
 						</div>
@@ -299,13 +289,15 @@ const LeadRow = ({
 												clipRule='evenodd'
 											/>
 										</svg>
-										{eyeDesc && <div className={hoverClasses}>Details</div>}
+										{eyeDesc && (
+											<div className={hoverClasses}>View details</div>
+										)}
 									</button>
 									{/* link */}
 									<button
 										onClick={(e) => {
 											e.stopPropagation();
-											openLinkHandler(e, data.retailerLink, data.amzLink);
+											openLinkHandler(data.retailerLink, data.amzLink);
 											setExpandedView(false);
 										}}
 										onMouseEnter={() => setLinkDesc(true)}
@@ -324,7 +316,7 @@ const LeadRow = ({
 												clipRule='evenodd'
 											/>
 										</svg>
-										{linkDesc && <div className={hoverClasses}>Links</div>}
+										{linkDesc && <div className={hoverClasses}>Open links</div>}
 									</button>
 								</div>
 							</div>
@@ -353,8 +345,8 @@ const LeadRow = ({
 							</div>
 							<div className='py-2'>
 								<button
-									onClick={(e) =>
-										openLinkHandler(e, data.retailerLink, data.amzLink)
+									onClick={() =>
+										openLinkHandler(data.retailerLink, data.amzLink)
 									}
 									className={`${buttonClasses} flex items-center`}
 								>
@@ -363,7 +355,7 @@ const LeadRow = ({
 										xmlns='http://www.w3.org/2000/svg'
 										viewBox='0 0 20 20'
 										fill='currentColor'
-										className='ml-1 h-4 w-4'
+										className='ml-2 h-4 w-4'
 									>
 										<path
 											fillRule='evenodd'
@@ -381,11 +373,12 @@ const LeadRow = ({
 										xmlns='http://www.w3.org/2000/svg'
 										viewBox='0 0 20 20'
 										fill='currentColor'
-										className='ml-1 h-4 w-4'
+										className='ml-2 h-4 w-4'
 									>
+										<path d='M10 12a2 2 0 100-4 2 2 0 000 4z' />
 										<path
 											fillRule='evenodd'
-											d='M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z'
+											d='M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z'
 											clipRule='evenodd'
 										/>
 									</svg>

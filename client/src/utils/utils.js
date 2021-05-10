@@ -93,8 +93,7 @@ export const calculateBSR = (currentRank, category) => {
 	return bsrPercentage;
 };
 
-export const openLinkHandler = (e, retailerLink, amzLink) => {
-	e.preventDefault();
+export const openLinkHandler = (retailerLink, amzLink) => {
 	window.open(retailerLink);
 	window.open(amzLink);
 };
