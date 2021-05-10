@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import {
 	handleLikeLead,
 	handleArchiveLead,
+	addComment,
 	clearCurrentLead,
 } from 'redux/actions/leads';
 import { DateTime } from 'luxon';
@@ -23,8 +24,9 @@ import {
 	calculateBSR,
 	openLinkHandler,
 } from 'utils/utils';
+import Button from 'components/layout/formField/Button';
 
-const Button = ({ active, disabled, action, state, desc }) => {
+const HeaderButton = ({ active, disabled, action, state, desc }) => {
 	const [hover, setHover] = useState(false);
 	return (
 		<button
@@ -41,6 +43,7 @@ const Button = ({ active, disabled, action, state, desc }) => {
 						xmlns='http://www.w3.org/2000/svg'
 						viewBox='0 0 20 20'
 						fill='currentColor'
+						stroke={state && 'currentColor'}
 						className='h-5 w-5'
 					>
 						{active}
@@ -119,12 +122,14 @@ const Details = ({
 	userId,
 	liked,
 	archived,
+	comments,
 	unitFee,
 	lbFee,
 	showDetails,
 	setShowDetails,
 	handleLikeLead,
 	handleArchiveLead,
+	addComment,
 	clearCurrentLead,
 }) => {
 	const [fullTitle, toggleFullTitle] = useState(false);
@@ -177,7 +182,16 @@ const Details = ({
 			setArchive(false);
 		}
 	}, [archived]);
-
+	useEffect(() => {
+		const hasComment = comments.filter(
+			(comment) => comment.leadId === currentLead._id
+		);
+		if (hasComment.length > 0) {
+			setComment(hasComment[0].comment);
+		} else {
+			setComment('');
+		}
+	}, [liked]);
 	const primaryLinks = [
 		{ title: 'Overview', onClick: () => setOverviewActive(true) },
 	];
@@ -308,6 +322,11 @@ const Details = ({
 		}
 	}, [currentLead]);
 
+	const [comment, setComment] = useState('');
+	const onChange = (e) => {
+		setComment(e.target.value);
+	};
+
 	const descriptorClasses = 'flex justify-between';
 	const linkClasses = 'font-semibold text-purple-600 hover:text-gray-700';
 
@@ -315,12 +334,15 @@ const Details = ({
 		<Fragment>
 			<div
 				ref={modalRef}
-				onClick={closeModal}
+				onClick={(e) => {
+					closeModal(e);
+					clearCurrentLead();
+				}}
 				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
 			/>
 			<div className='fixed top-0 right-0 z-20 w-full max-w-2xl transform translate-y-16 -translate-x-32'>
 				<div className='relative z-40 p-6 rounded-lg shadow-xl bg-white opacity-100'>
-					<header className='flex items-center justify-between border-b border-gray-100'>
+					<header className='flex items-center justify-between border-b border-gray-200'>
 						<div>
 							{primaryLinks.map((link, i) => (
 								<button
@@ -338,7 +360,7 @@ const Details = ({
 						<div className='flex items-center justify-between'>
 							<div className='flex items-center text-gray-400'>
 								{primaryButtons.map((button, i) => (
-									<Button
+									<HeaderButton
 										key={i}
 										active={button.active}
 										disabled={button.disabled}
@@ -394,7 +416,7 @@ const Details = ({
 											<div className='ml-2'>{truncate(data.category, 21)}</div>
 										</div>
 										<div className='mt-4'>
-											<header className='mt-4 pb-2 border-b border-gray-100'>
+											<header className='mt-4 pb-2 border-b border-gray-200'>
 												<h4 className='font-semibold text-gray-900'>
 													Primary metrics
 												</h4>
@@ -410,7 +432,7 @@ const Details = ({
 									</header>
 								</div>
 								<article className='mt-4'>
-									<header className='mt-4 pb-2 border-b border-gray-100'>
+									<header className='mt-4 pb-2 border-b border-gray-200'>
 										<h4 className='font-semibold text-gray-900'>
 											Detailed metrics
 										</h4>
@@ -484,7 +506,7 @@ const Details = ({
 															xmlns='http://www.w3.org/2000/svg'
 															viewBox='0 0 20 20'
 															fill='currentColor'
-															className='h-4 w-4 text-teal-400'
+															className='h-4 w-4 text-purple-300'
 														>
 															<path
 																fillRule='evenodd'
@@ -549,7 +571,7 @@ const Details = ({
 								<section className='flex justify-between mt-4'>
 									{/* Notes section */}
 									<article className='w-1/3 text-gray-900'>
-										<header className='flex items-center pb-2 border-b border-gray-100'>
+										<header className='flex items-center pb-2 border-b border-gray-200'>
 											<h4 className='font-semibold'>Notes</h4>
 											<span
 												className={`${'bg-gray-100 border border-gray-200 text-gray-600  ml-2 py-1 px-2 rounded-lg shadow-sm text-xs'}`}
@@ -588,18 +610,30 @@ const Details = ({
 									</article>
 									{/* comment section */}
 									<article className='ml-8 w-2/3 text-gray-900'>
-										<header className='flex items-center pb-2 border-b border-gray-100'>
+										<header className='flex items-center pb-2 border-b border-gray-200'>
 											<h4 className='font-semibold border border-transparent'>
-												Comment
+												Comments
 											</h4>
 										</header>
-										<div className='grid grid-flow-row gap-x-4 mt-3 text-sm'>
+										<form className='mt-3 text-sm'>
 											<textarea
-												name='comments'
+												name='comment'
 												placeholder='Add a comment to this lead...'
-												className='h-24 rounded-lg border border-gray-200 ring-purple text-sm'
+												onChange={onChange}
+												value={comment}
+												className='h-20 w-full rounded-lg border border-gray-200 text-sm ring-purple'
 											/>
-										</div>
+											<div className='flex items-center justify-end'>
+												<Button
+													text={'Comment'}
+													cta={comment && true}
+													onClick={(e) => {
+														e.preventDefault();
+														addComment(comment, userId, currentLead._id);
+													}}
+												/>
+											</div>
+										</form>
 									</article>
 								</section>
 							</div>
@@ -644,5 +678,6 @@ const mapStateToProps = (state, ownProps) => {
 export default connect(mapStateToProps, {
 	handleLikeLead,
 	handleArchiveLead,
+	addComment,
 	clearCurrentLead,
 })(Details);

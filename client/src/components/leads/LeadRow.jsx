@@ -108,7 +108,7 @@ const LeadRow = ({
 		'w-24 mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-800 shadow-md text-white text-sm';
 	return (
 		<tr
-			className='relative px-1 border-b border-gray-100 hover:bg-gray-100 transition duration-100 cursor-pointer'
+			className='relative px-1 border-b border-gray-200 hover:bg-gray-100 transition duration-100 cursor-pointer'
 			onMouseEnter={() => setRowHover(true)}
 			onMouseLeave={() => setRowHover(false)}
 			onClick={() => {
@@ -194,7 +194,7 @@ const LeadRow = ({
 					</svg>
 				</button>
 				{viewImage && (
-					<div className='absolute z-10 p-2 transform lg:-translate-y-12 xl:-translate-y-16 translate-x-24 bg-white shadow-xl rounded-lg border border-gray-100'>
+					<div className='absolute z-10 p-2 transform lg:-translate-y-12 xl:-translate-y-16 translate-x-24 bg-white shadow-xl rounded-lg border border-gray-200'>
 						<img
 							src={data.img}
 							alt={data.title}
@@ -282,7 +282,7 @@ const LeadRow = ({
 											}}
 											onMouseEnter={() => setEyeDesc(true)}
 											onMouseLeave={() => setEyeDesc(false)}
-											className='relative p-2 rounded-l-lg border-r border-gray-100 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
+											className='relative p-2 rounded-l-lg border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 										>
 											<svg
 												xmlns='http://www.w3.org/2000/svg'
@@ -310,7 +310,7 @@ const LeadRow = ({
 											}}
 											onMouseEnter={() => setLinkDesc(true)}
 											onMouseLeave={() => setLinkDesc(false)}
-											className='relative p-2 border-r border-gray-100 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
+											className='relative p-2 border-r border-gray-200 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 										>
 											<svg
 												xmlns='http://www.w3.org/2000/svg'
@@ -338,8 +338,8 @@ const LeadRow = ({
 
 					{/* horiztonal dots */}
 					{expandedView && (
-						<div className='absolute right-0 z-20 w-40 transform translate-y-6 md:-translate-x-6 lg:-translate-x-8  bg-white rounded-lg shadow-md border border-gray-100'>
-							<div className='py-2 border-b border-gray-100'>
+						<div className='absolute right-0 z-20 w-40 transform translate-y-6 md:-translate-x-6 lg:-translate-x-8  bg-white rounded-lg shadow-md border border-gray-200'>
+							<div className='py-2 border-b border-gray-200'>
 								<button
 									onClick={(e) => {
 										favoriteHandler(e);

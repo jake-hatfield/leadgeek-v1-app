@@ -59,14 +59,14 @@ const LeadTable = ({
 				<Spinner search={true} />
 			) : leads.length > 0 ? (
 				<table className='w-full table-auto' id='leads'>
-					<thead className='border-b border-gray-100'>
+					<thead className='border-b border-gray-200'>
 						<tr className='text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
 							{/* <th className='p-2' /> */}
 							<th className='p-2' />
 							<th className='p-2'>Title</th>
 							{/* <th className='p-2'>Properties</th> */}
 							<th className='p-2'>Category</th>
-							<th className='p-2'>Properties</th>
+							<th className='p-2'>Details</th>
 							<th className='p-2'>Profit</th>
 							<th className='p-2'>ROI</th>
 							<th className='p-2'>BSR</th>

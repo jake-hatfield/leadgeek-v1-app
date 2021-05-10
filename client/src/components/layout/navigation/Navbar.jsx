@@ -13,7 +13,7 @@ const NavbarLink = ({ link, showMenu }) => {
 	return (
 		<div v-for='item in items'>
 			<NavLink
-				className='p-2 relative flex items-center justify-between rounded-lg group shadow-sm border border-gray-100 text-gray-500 hover:text-purple-600 hover:shadow-md transition duration-100 ease-in-out ring-purple'
+				className='p-2 relative flex items-center justify-between rounded-lg group text-gray-500 hover:text-gray-600 hover:bg-gray-200 hover:shadow-md transition duration-100 ease-in-out ring-purple'
 				onMouseEnter={() => setHover(!hover)}
 				onMouseLeave={() => setHover(false)}
 				to={link.link}
@@ -172,7 +172,7 @@ const Navbar = ({ _id, role, loading, logout }) => {
 		setUserDropdown(false);
 	};
 	return (
-		<nav className='fixed top-0 left-0 z-10 h-full min-h-screen w-16 py-16 px-3 flex flex-col justify-between bg-white border-r border-gray-100 text-gray-400'>
+		<nav className='fixed top-0 left-0 z-10 h-full min-h-screen w-16 py-16 px-3 flex flex-col justify-between border-r-2 border-gray-200 bg-gray-100 text-gray-400'>
 			<aside>
 				{primaryLinks.map((link, i) => (
 					<div key={i} className='first:mt-0 mt-6'>

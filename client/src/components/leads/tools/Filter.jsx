@@ -145,10 +145,10 @@ const Filter = ({
 	return (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-10 w-64 transform translate-y-12 -translate-x-48 pt-4 pb-1 rounded-lg bg-white shadow-lg border border-gray-100 text-gray-900'
+			className='absolute top-0 right-0 z-10 w-64 transform translate-y-12 -translate-x-48 pt-4 pb-1 rounded-lg bg-white shadow-lg border border-gray-200 text-gray-900'
 		>
 			<div className='relative'>
-				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-100'>
+				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>
 					<div>
 						<h5 className='inline-block font-bold text-lg'>Filters</h5>
 					</div>
@@ -175,7 +175,7 @@ const Filter = ({
 						clear={clear}
 					/>
 				))}
-				<div className='border-t border-gray-100'>
+				<div className='border-t border-gray-200'>
 					<div className='flex justify-end py-2 px-4'>
 						<button
 							onClick={() => {

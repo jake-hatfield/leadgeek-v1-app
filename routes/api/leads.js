@@ -668,4 +668,49 @@ router.post('/handle-archive-lead', auth, async (req, res) => {
 	}
 });
 
+// @route       POST api/add-comment
+// @description Add a comment to a lead
+// @access      Private
+router.post('/add-comment', auth, async (req, res) => {
+	try {
+		const { comment, userId, leadId } = req.body;
+		let message;
+		const lead = await Lead.findById(leadId);
+		if (lead) {
+			const user = await User.findById(userId);
+			if (user) {
+				const alreadyCommented = user.comments.find(
+					(l) => l.leadId.toString() === leadId
+				);
+				if (alreadyCommented) {
+					console.log('Overwriting comment...');
+					const newComment = {
+						leadId,
+						comment,
+					};
+					const commentIndex = user.comments.findIndex(
+						(l) => l.leadId.toString() === leadId
+					);
+					user.comments[commentIndex] = newComment;
+				} else {
+					console.log('Comment does not exist yet...');
+					user.comments.push({ leadId, comment });
+				}
+
+				await user.save();
+				console.log('Comment saved!');
+				return res
+					.status(200)
+					.json({ msg: 'Comment was added', comments: user.comments });
+			} else {
+				message = 'User could not be found';
+				return res.status(400).json({ msg: message });
+			}
+		}
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).send('Server error');
+	}
+});
+
 module.exports = router;

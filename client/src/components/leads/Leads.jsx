@@ -50,7 +50,14 @@ const Leads = ({
 	const [date, setDate] = useState(false);
 	const [filter, setFilter] = useState(false);
 	const [prep, setPrep] = useState(false);
-	const { _id: userId, role, dateCreated, likedLeads, archivedLeads } = user;
+	const {
+		_id: userId,
+		role,
+		dateCreated,
+		likedLeads,
+		archivedLeads,
+		comments,
+	} = user;
 	const likedCount = likedLeads && likedLeads.length > 0 && likedLeads.length;
 	const archivedCount =
 		archivedLeads && archivedLeads.length > 0 && archivedLeads.length;
@@ -88,7 +95,7 @@ const Leads = ({
 			onClick: () => setFilter((prev) => !prev),
 			conditional: filterCount > 0,
 			conditionalDisplay: (
-				<span className='h-4 w-4 absolute top-0 right-0 flex items-center justify-center p-2 rounded-full bg-purple-500 text-white transform -translate-y-2 translate-x-3'>
+				<span className='h-4 w-4 absolute top-0 right-0 flex items-center justify-center p-2 rounded-full bg-purple-500 text-white transform -translate-y-1 translate-x-3'>
 					{filterCount}
 				</span>
 			),
@@ -105,7 +112,7 @@ const Leads = ({
 			onClick: () => setPrep((prev) => !prev),
 			conditional: filters.prep.unit || filters.prep.lb,
 			conditionalDisplay: (
-				<span className='h-5 w-5 absolute top-0 right-0 flex items-center justify-center rounded-full bg-white text-purple-500 transform -translate-y-2 translate-x-3'>
+				<span className='h-5 w-5 absolute top-0 right-0 flex items-center justify-center rounded-full bg-white text-purple-500 transform -translate-y-1 translate-x-3'>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
 						className='h-5 w-5'
@@ -146,7 +153,7 @@ const Leads = ({
 					/>
 					{!search && (
 						<nav className='mt-6 container'>
-							<div className='relative flex items-end justify-between pb-2 border-b border-gray-100'>
+							<div className='relative flex items-end justify-between pb-2 border-b border-gray-200'>
 								<div>
 									{primaryLinks.map((link, i) => (
 										<NavLink
@@ -270,6 +277,7 @@ const Leads = ({
 						userId={userId}
 						liked={likedLeads}
 						archived={archivedLeads}
+						comments={comments}
 						showDetails={showDetails}
 						setShowDetails={setShowDetails}
 						clearCurrentLead={clearCurrentLead}

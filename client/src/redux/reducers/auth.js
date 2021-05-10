@@ -13,6 +13,7 @@ import {
 	VIEW_LEAD,
 	HANDLE_LIKE_LEAD,
 	HANDLE_ARCHIVE_LEAD,
+	SET_COMMENT,
 } from '../actions/types';
 
 const initialState = {
@@ -95,7 +96,14 @@ export default function authReducer(state = initialState, action) {
 				user: { ...state.user, archivedLeads: payload.leads },
 				loading: false,
 			};
-
+		case SET_COMMENT:
+			return {
+				...state,
+				user: {
+					...state.user,
+					comments: payload,
+				},
+			};
 		default:
 			return state;
 	}

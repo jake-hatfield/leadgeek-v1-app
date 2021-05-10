@@ -24,7 +24,7 @@ const Pagination = ({
 		filteredItems,
 	} = pagination;
 	const buttonClasses =
-		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold border border-gray-100 text-gray-600 hover:text-gray-700 transition duration-100 ease-in-out ring-purple';
+		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold border border-gray-200 text-gray-600 hover:text-gray-700 transition duration-100 ease-in-out ring-purple';
 	const itemsFrom = previousPage
 		? previousPage * (itemLimit || 15) + 1
 		: previousPage + 1;
@@ -51,7 +51,7 @@ const Pagination = ({
 								setItemLimit(type, e.currentTarget.value);
 								setSelectValue(e.currentTarget.value);
 							}}
-							className='w-16 mx-2 p-2 bg-white rounded-lg text-sm border border-gray-100 shadow-sm cursor-pointer ring-purple minimal-scrollbar'
+							className='w-16 mx-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm cursor-pointer ring-purple minimal-scrollbar'
 						>
 							{pageLimits.map((category, i) => (
 								<option

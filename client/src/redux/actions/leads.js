@@ -7,6 +7,7 @@ import {
 	VIEW_LEAD,
 	HANDLE_LIKE_LEAD,
 	HANDLE_ARCHIVE_LEAD,
+	SET_COMMENT,
 	SET_CURRENT_LEAD,
 	CLEAR_CURRENT_LEAD,
 	SET_PAGE,
@@ -114,25 +115,24 @@ export const getLikedLeads = (leads, page, itemLimit) => async (dispatch) => {
 	}
 };
 
-export const getArchivedLeads = (leads, page, itemLimit) => async (
-	dispatch
-) => {
-	try {
-		dispatch({ type: LOADING });
-		const body = JSON.stringify({ leads, page, itemLimit });
-		const { data } = await axios.post('/api/leads/archived', body, config);
-		if (data.message === 'You have not archived any leads.') {
-			dispatch(setAlert(data.message, 'warning'));
+export const getArchivedLeads =
+	(leads, page, itemLimit) => async (dispatch) => {
+		try {
+			dispatch({ type: LOADING });
+			const body = JSON.stringify({ leads, page, itemLimit });
+			const { data } = await axios.post('/api/leads/archived', body, config);
+			if (data.message === 'You have not archived any leads.') {
+				dispatch(setAlert(data.message, 'warning'));
+			}
+			dispatch({
+				type: GET_ARCHIVED_LEADS,
+				payload: { data },
+			});
+			dispatch({ type: FINISHED_LOADING });
+		} catch (error) {
+			console.log(error);
 		}
-		dispatch({
-			type: GET_ARCHIVED_LEADS,
-			payload: { data },
-		});
-		dispatch({ type: FINISHED_LOADING });
-	} catch (error) {
-		console.log(error);
-	}
-};
+	};
 
 export const handleLikeLead = (userId, leadId) => async (dispatch) => {
 	try {
@@ -172,6 +172,24 @@ export const handleArchiveLead = (userId, leadId) => async (dispatch) => {
 	}
 };
 
+export const addComment = (comment, userId, leadId) => async (dispatch) => {
+	try {
+		const body = JSON.stringify({ comment, userId, leadId });
+		const { data } = await axios.post('/api/leads/add-comment', body, config);
+		console.log(data.msg);
+		if (data.msg === 'Comment was added') {
+			dispatch({
+				type: SET_COMMENT,
+				payload: data.comments,
+			});
+		} else {
+			dispatch(setAlert(data.msg, 'danger'));
+		}
+	} catch (error) {
+		console.log(error);
+	}
+};
+
 export const viewLead = (userId, leadId) => async (dispatch) => {
 	try {
 		const body = JSON.stringify({ userId, leadId });
@@ -206,26 +224,20 @@ export const clearCurrentLead = () => (dispatch) => {
 	}
 };
 
-export const getSearchResults = (
-	q,
-	role,
-	dateCreated,
-	page,
-	newSearch,
-	itemLimit
-) => async (dispatch) => {
-	dispatch({ type: LOADING });
-	if (newSearch) {
-		dispatch({ type: CLEAR_CURRENT_SEARCH });
-	}
-	const body = JSON.stringify({ q, role, dateCreated, page, itemLimit });
-	const { data } = await axios.post('/api/search', body, config);
-	dispatch({
-		type: SET_SEARCH_RESULTS,
-		payload: { data, q },
-	});
-	return dispatch({ type: FINISHED_LOADING });
-};
+export const getSearchResults =
+	(q, role, dateCreated, page, newSearch, itemLimit) => async (dispatch) => {
+		dispatch({ type: LOADING });
+		if (newSearch) {
+			dispatch({ type: CLEAR_CURRENT_SEARCH });
+		}
+		const body = JSON.stringify({ q, role, dateCreated, page, itemLimit });
+		const { data } = await axios.post('/api/search', body, config);
+		dispatch({
+			type: SET_SEARCH_RESULTS,
+			payload: { data, q },
+		});
+		return dispatch({ type: FINISHED_LOADING });
+	};
 
 export const setPage = (page, type) => (dispatch) => {
 	try {

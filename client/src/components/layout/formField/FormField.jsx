@@ -31,7 +31,7 @@ const FormField = ({
 					disabled={disabled}
 					className={`${
 						disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-transparent'
-					} p-2 w-full rounded-md text-sm border border-gray-100 hover:shadow-sm placeholder-gray-300 ring-purple`}
+					} p-2 w-full rounded-md text-sm border border-gray-200 hover:shadow-sm placeholder-gray-300 ring-purple`}
 				/>
 			</div>
 		</div>

@@ -51,7 +51,7 @@ const Prep = ({
 	return (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-10 w-64 transform translate-y-12 -translate-x-24 pt-4 pb-1 rounded-lg bg-white shadow-lg border border-gray-100 text-gray-900'
+			className='absolute top-0 right-0 z-10 w-64 transform translate-y-12 -translate-x-24 pt-4 pb-1 rounded-lg bg-white shadow-lg border border-gray-200 text-gray-900'
 		>
 			<div className='relative'>
 				<header className='pb-2 px-4 flex items-center justify-between'>
@@ -95,7 +95,7 @@ const Prep = ({
 						</label>
 					</div>
 				</div>
-				<div className='border-t border-gray-100'>
+				<div className='border-t border-gray-200'>
 					<div className='flex justify-end py-2 px-4'>
 						<button
 							onClick={() => {

@@ -115,10 +115,10 @@ const DatePicker = ({
 	return (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-10 w-64 transform translate-y-12 -translate-x-72 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-100 text-gray-900'
+			className='absolute top-0 right-0 z-10 w-64 transform translate-y-12 -translate-x-72 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-200 text-gray-900'
 		>
 			<div className='relative'>
-				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-100'>
+				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>
 					<div>
 						<h5 className='inline-block font-bold text-lg'>Date picker</h5>
 					</div>
