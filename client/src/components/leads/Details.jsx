@@ -626,14 +626,8 @@ Details.propTypes = {
 
 const mapStateToProps = (state, ownProps) => {
 	const { unit: unitFee, lb: lbFee } = state.filters.prep;
-	const {
-		currentLead,
-		userId,
-		liked,
-		archived,
-		showDetails,
-		setShowDetails,
-	} = ownProps;
+	const { currentLead, userId, liked, archived, showDetails, setShowDetails } =
+		ownProps;
 	return {
 		currentLead,
 		userId,

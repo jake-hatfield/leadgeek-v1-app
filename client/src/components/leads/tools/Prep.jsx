@@ -90,7 +90,7 @@ const Prep = ({
 								type='text'
 								placeholder={checked ? 'eg. $0.10' : 'eg. $0.95'}
 								onChange={onChange}
-								className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-100 shadow-sm placeholder-gray-300 ring-purple'
+								className='w-full mt-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm placeholder-gray-300 ring-purple'
 							/>
 						</label>
 					</div>

@@ -36,6 +36,7 @@ const LeadRow = ({
 	lbFee,
 }) => {
 	const { data } = lead;
+	const [rowHover, setRowHover] = useState(false);
 	const [newLead, setNewLead] = useState(false);
 	const [quickView, setQuickView] = useState(false);
 	const [expandedView, setExpandedView] = useState(false);
@@ -108,32 +109,38 @@ const LeadRow = ({
 	return (
 		<tr
 			className='relative px-1 border-b border-gray-100 hover:bg-gray-100 transition duration-100 cursor-pointer'
+			onMouseEnter={() => setRowHover(true)}
+			onMouseLeave={() => setRowHover(false)}
 			onClick={() => {
 				viewDetailsHandler();
 			}}
 		>
 			<td className='p-2 pl-0 text-center text-gray-400'>
-				<button
-					onClick={(e) => {
-						favoriteHandler(e);
-					}}
-					className='p-1 rounded-md ring-purple align-middle'
-				>
-					<svg
-						xmlns='http://www.w3.org/2000/svg'
-						fill={`${like ? '#5d55fa' : 'none'}`}
-						viewBox='0 0 24 24'
-						stroke={`${like ? '#5d55fa' : 'currentColor'}`}
-						className='h-5 w-5 hover:text-purple-400 transition-colors duration-100 ease-in-out'
+				{rowHover || like ? (
+					<button
+						onClick={(e) => {
+							favoriteHandler(e);
+						}}
+						className={`p-1 rounded-md ring-purple align-middle`}
 					>
-						<path
-							strokeLinecap='round'
-							strokeLinejoin='round'
-							strokeWidth={2}
-							d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
-						/>
-					</svg>
-				</button>
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							fill={`${like ? '#5d55fa' : 'none'}`}
+							viewBox='0 0 24 24'
+							stroke={`${like ? '#5d55fa' : 'currentColor'}`}
+							className='h-5 w-5 hover:text-purple-400 transition-colors duration-100 ease-in-out'
+						>
+							<path
+								strokeLinecap='round'
+								strokeLinejoin='round'
+								strokeWidth={2}
+								d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
+							/>
+						</svg>
+					</button>
+				) : (
+					<div className='p-2 px-4 h-5 w-5' />
+				)}
 			</td>
 			<td
 				onMouseEnter={() => setTitleHover(true)}
@@ -236,95 +243,102 @@ const LeadRow = ({
 			<td className='p-2'>{datePosted}</td>
 			<td className={quickView ? 'p-4' : 'p-2'}>
 				<div ref={wrapperRef}>
-					<div
-						onMouseEnter={() => setQuickView(true)}
-						onMouseLeave={() => !expandedView && setQuickView(false)}
-						className='flex items-center justify-center rounded-r-lg ring-gray'
-					>
-						<button
-							onClick={(e) => {
-								e.stopPropagation();
-								setExpandedView(!expandedView);
-							}}
-							className={`${
-								quickView
-									? 'absolute z-10 p-2 bg-white shadow-sm rounded-r-lg'
-									: 'rounded-lg'
-							} text-gray-500 hover:text-gray-700 ring-gray`}
+					{rowHover || expandedView ? (
+						<div
+							onMouseEnter={() => setQuickView(true)}
+							onMouseLeave={() => !expandedView && setQuickView(false)}
+							className='flex items-center justify-center rounded-r-lg ring-gray'
 						>
-							<svg
-								xmlns='http://www.w3.org/2000/svg'
-								viewBox='0 0 20 20'
-								fill='currentColor'
-								className='h-5 w-5'
+							<button
+								onClick={(e) => {
+									e.stopPropagation();
+									setExpandedView(!expandedView);
+								}}
+								className={`${
+									quickView
+										? 'absolute z-10 p-2 bg-white shadow-sm rounded-r-lg'
+										: 'rounded-lg'
+								} text-gray-500 hover:text-gray-700 ring-gray`}
 							>
-								<path d='M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z' />
-							</svg>
-						</button>
-						{quickView && (
-							<div className='absolute transform -translate-x-14 bg-white rounded-l-lg shadow-sm text-gray-500'>
-								<div className='flex items-center'>
-									{/* eye */}
-									<button
-										onClick={(e) => {
-											e.stopPropagation();
-											setShowDetails(!showDetails);
-											setCurrentLead(lead);
-											setExpandedView(false);
-										}}
-										onMouseEnter={() => setEyeDesc(true)}
-										onMouseLeave={() => setEyeDesc(false)}
-										className='relative p-2 rounded-l-lg border-r border-gray-100 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
-									>
-										<svg
-											xmlns='http://www.w3.org/2000/svg'
-											viewBox='0 0 20 20'
-											fill='currentColor'
-											className='h-5 w-5'
+								<svg
+									xmlns='http://www.w3.org/2000/svg'
+									viewBox='0 0 20 20'
+									fill='currentColor'
+									className='h-5 w-5'
+								>
+									<path d='M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z' />
+								</svg>
+							</button>
+							{quickView && (
+								<div className='absolute transform -translate-x-14 bg-white rounded-l-lg shadow-sm text-gray-500'>
+									<div className='flex items-center'>
+										{/* eye */}
+										<button
+											onClick={(e) => {
+												e.stopPropagation();
+												setShowDetails(!showDetails);
+												setCurrentLead(lead);
+												setExpandedView(false);
+											}}
+											onMouseEnter={() => setEyeDesc(true)}
+											onMouseLeave={() => setEyeDesc(false)}
+											className='relative p-2 rounded-l-lg border-r border-gray-100 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 										>
-											<path d='M10 12a2 2 0 100-4 2 2 0 000 4z' />
-											<path
-												fillRule='evenodd'
-												d='M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z'
-												clipRule='evenodd'
-											/>
-										</svg>
-										{eyeDesc && (
-											<div className={hoverClasses}>View details</div>
-										)}
-									</button>
-									{/* link */}
-									<button
-										onClick={(e) => {
-											e.stopPropagation();
-											openLinkHandler(data.retailerLink, data.amzLink);
-											setExpandedView(false);
-										}}
-										onMouseEnter={() => setLinkDesc(true)}
-										onMouseLeave={() => setLinkDesc(false)}
-										className='relative p-2 border-r border-gray-100 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
-									>
-										<svg
-											xmlns='http://www.w3.org/2000/svg'
-											viewBox='0 0 20 20'
-											fill='currentColor'
-											className='h-5 w-5 hover:text-gray-700'
+											<svg
+												xmlns='http://www.w3.org/2000/svg'
+												viewBox='0 0 20 20'
+												fill='currentColor'
+												className='h-5 w-5'
+											>
+												<path d='M10 12a2 2 0 100-4 2 2 0 000 4z' />
+												<path
+													fillRule='evenodd'
+													d='M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z'
+													clipRule='evenodd'
+												/>
+											</svg>
+											{eyeDesc && (
+												<div className={hoverClasses}>View details</div>
+											)}
+										</button>
+										{/* link */}
+										<button
+											onClick={(e) => {
+												e.stopPropagation();
+												openLinkHandler(data.retailerLink, data.amzLink);
+												setExpandedView(false);
+											}}
+											onMouseEnter={() => setLinkDesc(true)}
+											onMouseLeave={() => setLinkDesc(false)}
+											className='relative p-2 border-r border-gray-100 hover:text-gray-700 transition duration-100 ease-in-out ring-gray'
 										>
-											<path
-												fillRule='evenodd'
-												d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z'
-												clipRule='evenodd'
-											/>
-										</svg>
-										{linkDesc && <div className={hoverClasses}>Open links</div>}
-									</button>
+											<svg
+												xmlns='http://www.w3.org/2000/svg'
+												viewBox='0 0 20 20'
+												fill='currentColor'
+												className='h-5 w-5 hover:text-gray-700'
+											>
+												<path
+													fillRule='evenodd'
+													d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z'
+													clipRule='evenodd'
+												/>
+											</svg>
+											{linkDesc && (
+												<div className={hoverClasses}>Open links</div>
+											)}
+										</button>
+									</div>
 								</div>
-							</div>
-						)}
-					</div>
+							)}
+						</div>
+					) : (
+						<div className='p-2 h-5 w-5' />
+					)}
+
 					{/* horiztonal dots */}
 					{expandedView && (
-						<div className='absolute right-0 z-20 w-40 transform translate-y-6 md:-translate-x-6 lg:-translate-x-8 xl:-translate-x-12 bg-white rounded-lg shadow-md'>
+						<div className='absolute right-0 z-20 w-40 transform translate-y-6 md:-translate-x-6 lg:-translate-x-8  bg-white rounded-lg shadow-md border border-gray-100'>
 							<div className='py-2 border-b border-gray-100'>
 								<button
 									onClick={(e) => {
@@ -389,7 +403,7 @@ const LeadRow = ({
 				</div>
 			</td>
 			{titleHover && (
-				<td className='absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-16 xl:translate-x-20 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+				<td className='absolute z-10 left-0 p-2 transform -translate-y-12 lg:translate-x-24 rounded-md shadow-md bg-gray-800 text-white text-sm'>
 					{data.title}
 				</td>
 			)}
