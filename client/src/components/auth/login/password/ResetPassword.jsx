@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { updatePassword } from 'redux/actions/auth';
 import { setAlert } from 'redux/actions/alert';
 
-import FormField from 'components/layout/formField/FormField';
+import FormField from 'components/layout/utils/FormField';
 import { ReactComponent as Check } from 'assets/images/svgs/check.svg';
 import { ReactComponent as X } from 'assets/images/svgs/x.svg';
 

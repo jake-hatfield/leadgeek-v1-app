@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { removeAlert } from 'redux/actions/alert';
 
-import Alert from '../layout/Alert';
+import Alert from './utils/Alert';
 
-const Layout = ({ children, removeAlert }) => {
+const DefaultLayout = ({ children, removeAlert }) => {
 	return (
 		<Fragment>
 			<Alert removeAlert={removeAlert} />
@@ -15,7 +15,7 @@ const Layout = ({ children, removeAlert }) => {
 	);
 };
 
-Layout.propTypes = {
+DefaultLayout.propTypes = {
 	children: PropTypes.object.isRequired,
 };
 
@@ -24,4 +24,4 @@ const mapStateToProps = (state, ownProps) => {
 	return { children };
 };
 
-export default connect(mapStateToProps, { removeAlert })(Layout);
+export default connect(mapStateToProps, { removeAlert })(DefaultLayout);

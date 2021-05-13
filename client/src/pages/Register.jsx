@@ -6,12 +6,12 @@ import { connect } from 'react-redux';
 import { register } from 'redux/actions/auth';
 import { setAlert } from 'redux/actions/alert';
 
-import Layout from 'components/layout/Layout';
+import DefaultLayout from 'components/layout/DefaultLayout';
 import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
 
-import FormField from 'components/layout/formField/FormField';
-import PasswordFormField from 'components/layout/formField/PasswordFormField';
-import UnAuthFooter from 'components/layout/navigation/UnAuthFooter';
+import FormField from 'components/layout/utils/FormField';
+import PasswordFormField from 'components/layout/utils/PasswordFormField';
+import DefaultFooter from 'components/layout/navigation/DefaultFooter';
 import { ReactComponent as Check } from 'assets/images/svgs/check.svg';
 import { ReactComponent as X } from 'assets/images/svgs/x.svg';
 
@@ -259,7 +259,7 @@ const Register = ({ isAuthenticated, register, setAlert }) => {
 		return <Redirect to='/leads' />;
 	}
 	return (
-		<Layout>
+		<DefaultLayout>
 			<section className='min-h-screen relative flex justify-center bg-gray-100'>
 				<div className='h-2 absolute z-10 inset-x-0 top-0 bg-purple-300' />
 				<div className='flex flex-col justify-between xl:h-screen w-full bg-gray-100'>
@@ -349,10 +349,10 @@ const Register = ({ isAuthenticated, register, setAlert }) => {
 							</p>
 						</div>
 					</div>
-					<UnAuthFooter />
+					<DefaultFooter />
 				</div>
 			</section>
-		</Layout>
+		</DefaultLayout>
 	);
 };
 

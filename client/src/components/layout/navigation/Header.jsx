@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { getSearchResults } from 'redux/actions/leads';
 import { setAlert } from 'redux/actions/alert';
 
-import SearchBar from 'components/layout/SearchBar';
+import SearchBar from 'components/layout/navigation/SearchBar';
 
 const Header = ({
 	role,
@@ -33,7 +33,11 @@ const Header = ({
 			}
 			return getSearchResults(searchValue, role, dateCreated, 1, true);
 		} else {
-			setAlert('Please enter a search value', 'danger');
+			setAlert(
+				'No value was entered.',
+				'Please enter a search value and try again.',
+				'danger'
+			);
 		}
 	};
 

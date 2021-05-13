@@ -7,7 +7,7 @@ import { setAlert } from 'redux/actions/alert';
 import { cancelStripeSub } from 'redux/actions/auth';
 
 import AuthLayout from 'components/layout/AuthLayout';
-import Spinner from 'components/layout/Spinner';
+import Spinner from 'components/layout/utils/Spinner';
 
 const Dashboard = ({
 	auth: { user, loading, isAuthenticated },

@@ -10,9 +10,9 @@ import { surrogateUser } from 'redux/actions/auth';
 import { useOutsideMousedown, capitalize } from 'utils/utils';
 import AuthLayout from 'components/layout/AuthLayout';
 import Header from 'components/layout/navigation/Header';
-import Button from 'components/layout/formField/Button';
+import Button from 'components/layout/utils/Button';
 import Pagination from 'components/layout/navigation/Pagination';
-import Spinner from 'components/layout/Spinner';
+import Spinner from 'components/layout/utils/Spinner';
 import { ReactComponent as Check } from 'assets/images/svgs/check.svg';
 import { ReactComponent as X } from 'assets/images/svgs/x.svg';
 

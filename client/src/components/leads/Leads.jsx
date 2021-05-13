@@ -21,8 +21,8 @@ import ExportButton from './tools/ExportButton';
 import LeadTable from './LeadTable';
 import Pagination from '../layout/navigation/Pagination';
 import Details from './Details';
-import Button from '../layout/formField/Button';
-import Spinner from 'components/layout/Spinner';
+import Button from '../layout/utils/Button';
+import Spinner from '../layout/utils/Spinner';
 
 const Leads = ({
 	leads,

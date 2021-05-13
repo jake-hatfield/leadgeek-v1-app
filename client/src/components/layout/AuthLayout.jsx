@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { removeAlert } from 'redux/actions/alert';
 
-import Alert from '../layout/Alert';
+import Alert from './utils/Alert';
 import Navbar from './navigation/Navbar';
 
 const AuthLayout = ({

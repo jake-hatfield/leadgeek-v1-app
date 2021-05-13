@@ -91,7 +91,7 @@ const Pagination = ({
 										/>
 									</svg>
 									{filteredMessage && (
-										<div className='absolute z-10 bottom-0 py-2 px-4 transform -translate-y-8 rounded-md shadow-md bg-gray-800 text-left text-white text-sm'>
+										<div className='absolute z-10 bottom-0 py-2 px-4 transform -translate-y-8 rounded-md shadow-md bg-gray-900 text-left text-white text-sm'>
 											<p>
 												<span className='font-semibold text-purple-300'>
 													{numberWithCommas(totalItems - filteredItems)}

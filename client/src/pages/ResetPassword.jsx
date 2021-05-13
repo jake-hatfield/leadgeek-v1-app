@@ -5,11 +5,11 @@ import { Redirect, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { resetPwValidation } from 'redux/actions/auth';
 
-import Layout from 'components/layout/Layout';
+import DefaultLayout from 'components/layout/DefaultLayout';
 import ResetPassword from 'components/auth/login/password/ResetPassword';
 import LoginImage from 'components/auth/login/LoginImage';
-import Spinner from 'components/layout/Spinner';
-import UnAuthFooter from 'components/layout/navigation/UnAuthFooter';
+import Spinner from 'components/layout/utils/Spinner';
+import DefaultFooter from 'components/layout/navigation/DefaultFooter';
 import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
 
 const ResetPasswordPage = ({
@@ -28,7 +28,7 @@ const ResetPasswordPage = ({
 		return <Redirect to='/leads' />;
 	}
 	return !loading ? (
-		<Layout>
+		<DefaultLayout>
 			{validatedResetPwToken ? (
 				<section className='h-screen relative flex justify-center bg-gray-100'>
 					<div className='lg:hidden h-2 absolute inset-x-0 top-0 bg-purple-300' />
@@ -93,12 +93,12 @@ const ResetPasswordPage = ({
 								</header>
 							</div>
 						</div>
-						<UnAuthFooter />
+						<DefaultFooter />
 					</div>
 					<LoginImage />
 				</section>
 			)}
-		</Layout>
+		</DefaultLayout>
 	) : (
 		<Spinner />
 	);

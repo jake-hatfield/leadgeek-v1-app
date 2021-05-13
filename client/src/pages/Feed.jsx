@@ -7,7 +7,7 @@ import { getLeads } from 'redux/actions/leads';
 
 import AuthLayout from 'components/layout/AuthLayout';
 import Leads from 'components/leads/Leads';
-import Spinner from 'components/layout/Spinner';
+import Spinner from 'components/layout/utils/Spinner';
 
 const Feed = ({ user, loading, isAuthenticated, feed, filters, getLeads }) => {
 	const componentReady = !loading && user && isAuthenticated;

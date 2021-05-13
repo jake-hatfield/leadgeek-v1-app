@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import LeadRow from './LeadRow';
-import Button from '../layout/formField/Button';
-import Spinner from '../layout/Spinner';
+import Button from '../layout/utils/Button';
+import Spinner from '../layout/utils/Spinner';
 
 const NullState = ({ header, text, path, link, linkText }) => {
 	return (
@@ -54,7 +54,7 @@ const LeadTable = ({
 	currentSearchParam,
 }) => {
 	return (
-		<section className='relative mt-10 container'>
+		<section className='relative mt-6 container'>
 			{loading ? (
 				<Spinner search={true} />
 			) : leads.length > 0 ? (

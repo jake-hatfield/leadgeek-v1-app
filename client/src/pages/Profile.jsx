@@ -5,8 +5,8 @@ import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import AuthLayout from 'components/layout/AuthLayout';
-import FormField from 'components/layout/formField/FormField';
-import Spinner from 'components/layout/Spinner';
+import FormField from 'components/layout/utils/FormField';
+import Spinner from 'components/layout/utils/Spinner';
 
 const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 	const accountLinks = [

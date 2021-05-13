@@ -105,7 +105,7 @@ const LeadRow = ({
 	const propertyButtonClasses =
 		'p-1 rounded-md hover:text-gray-600 transition duration-100 ease-in-out ring-gray';
 	const hoverClasses =
-		'w-24 mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-800 shadow-md text-white text-sm';
+		'w-24 mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-900 shadow-md text-white text-sm';
 	return (
 		<tr
 			className='relative px-1 border-b border-gray-200 hover:bg-gray-100 transition duration-100 cursor-pointer'
@@ -203,7 +203,7 @@ const LeadRow = ({
 					</div>
 				)}
 				{viewCompetition && (
-					<div className='w-36 absolute bottom-0 z-10 p-2 transform -translate-y-12 translate-x-8 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+					<div className='w-36 absolute bottom-0 z-10 p-2 transform -translate-y-12 translate-x-8 rounded-md shadow-md bg-gray-900 text-white text-sm'>
 						<div className='flex items-center justify-between'>
 							<span>Buy box</span>
 							<span className='font-semibold text-purple-300'>
@@ -405,7 +405,7 @@ const LeadRow = ({
 			{titleHover && (
 				<td
 					onMouseEnter={() => setRowHover(false)}
-					className='absolute z-10 left-0 p-2 transform -translate-y-10 translate-x-16 xl:translate-x-24 rounded-md shadow-md bg-gray-800 text-white text-sm'
+					className='absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-16 xl:translate-x-20 rounded-md shadow-md bg-gray-900 text-white text-sm'
 				>
 					{data.title}
 				</td>

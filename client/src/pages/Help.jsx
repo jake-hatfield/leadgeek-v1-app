@@ -6,7 +6,7 @@ import { DateTime } from 'luxon';
 
 import AuthLayout from 'components/layout/AuthLayout';
 import Header from 'components/layout/navigation/Header';
-import Spinner from 'components/layout/Spinner';
+import Spinner from 'components/layout/utils/Spinner';
 
 const HelpItem = ({ title, desc, path, color, actions }) => {
 	return (
@@ -67,8 +67,7 @@ const Help = ({ user, loading }) => {
 	const helpItems = [
 		{
 			title: 'Support',
-			desc:
-				'Have a question about selling on Amazon? Ask away! Please allow up to 24 hours for a response.',
+			desc: 'Have a question about selling on Amazon? Ask away! Please allow up to 24 hours for a response.',
 			path: (
 				<path
 					fillRule='evenodd'
@@ -87,8 +86,7 @@ const Help = ({ user, loading }) => {
 		},
 		{
 			title: 'Software',
-			desc:
-				'This software is still in early-access, so we highly encourage you to report bugs or offer feature suggestions. Help us make this better for you!',
+			desc: 'This software is still in early-access, so we highly encourage you to report bugs or offer feature suggestions. Help us make this better for you!',
 			path: (
 				<path
 					fillRule='evenodd'

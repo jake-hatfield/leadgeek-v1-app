@@ -5,10 +5,12 @@ import { Redirect, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { login } from 'redux/actions/auth';
 
-import Layout from 'components/layout/Layout';
-import FormField from 'components/layout/formField/FormField';
+import DefaultLayout from 'components/layout/DefaultLayout';
+import FormField from 'components/layout/utils/FormField';
+import PasswordFormField from 'components/layout/utils/PasswordFormField';
+import Button from 'components/layout/utils/Button';
 import LoginImage from 'components/auth/login/LoginImage';
-import UnAuthFooter from 'components/layout/navigation/UnAuthFooter';
+import DefaultFooter from 'components/layout/navigation/DefaultFooter';
 import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
 
 const Login = ({ login, isAuthenticated }) => {
@@ -28,31 +30,20 @@ const Login = ({ login, isAuthenticated }) => {
 		return <Redirect to='/leads' />;
 	}
 	return (
-		<Layout>
-			<section className='min-h-screen relative flex justify-center bg-gray-100'>
-				<div className='h-2 absolute z-10 inset-x-0 top-0 bg-purple-300' />
-				<div className='xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100'>
-					<div className='mt-6 hidden md:block container'>
-						<LeadGeekLogo className='inline-block w-16' />
-					</div>
-					<div className='container'>
-						<div className='mt-12 md:mt-0 mx-auto py-4 lg:py-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
-							<header>
-								<LeadGeekLogo className='md:hidden w-12' />
-								<h1 className='pb-2 text-xl md:text-2xl lg:text-3xl font-black text-gray-900 border-b border-gray-100'>
-									Log in
-								</h1>
-								<div className='flex items-center mt-2'>
-									<p className='inline-block'>Need a LeadGeek account?</p>
-									<a
-										href='https://leadgeek.io/signup'
-										className='ml-2 block md:inline-block link'
-									>
-										Join now
-									</a>
-								</div>
-							</header>
-							<form className='my-3' onSubmit={(e) => onSubmit(e)}>
+		<DefaultLayout>
+			<section className={classes.wrapper}>
+				<div className={classes.border} />
+				<div className={classes.content}>
+					<header className={classes.contentHeader}>
+						<LeadGeekLogo className={classes.logoLg} />
+					</header>
+					<section className='container'>
+						<article className={classes.card}>
+							<div>
+								<LeadGeekLogo className={classes.logoSm} />
+								<h1 className={classes.title}>Log in</h1>
+							</div>
+							<form>
 								<FormField
 									label='Email'
 									type='email'
@@ -62,7 +53,7 @@ const Login = ({ login, isAuthenticated }) => {
 									onChange={onChange}
 									required
 								/>
-								<FormField
+								<PasswordFormField
 									label='Password'
 									type='password'
 									placeholder='Password'
@@ -71,26 +62,53 @@ const Login = ({ login, isAuthenticated }) => {
 									onChange={onChange}
 									minLength='6'
 								/>
-								<button
-									type='submit'
-									className='mt-4 py-2 w-full rounded-md font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-sm hover:shadow-md transition-colors duration-100 ease-in-out ring-purple'
-								>
-									Log in
-								</button>
-								<div className='mt-4 text-sm text-gray-400'>
-									<Link to={'/reset/forgot-password'} className='link'>
+								<div className='mt-2'>
+									<Link href={'/reset/forgot-password'} className='link'>
 										Forgot password?
 									</Link>
 								</div>
+								<div className='mt-4'>
+									<Button
+										text={'Log in'}
+										onClick={onSubmit}
+										width={'w-full'}
+										size={'sm'}
+										cta={true}
+									/>
+								</div>
 							</form>
-						</div>
-					</div>
-					<UnAuthFooter />
+							<aside className={classes.signup}>
+								<p className='inline-block'>Need a LeadGeek account?</p>
+								<a
+									href='https://leadgeek.io/signup'
+									className={classes.subheaderLink}
+								>
+									Join now
+								</a>
+							</aside>
+						</article>
+					</section>
+					<DefaultFooter />
 				</div>
 				<LoginImage />
 			</section>
-		</Layout>
+		</DefaultLayout>
 	);
+};
+
+const classes = {
+	wrapper: 'min-h-screen relative flex justify-center bg-gray-100',
+	border: 'h-2 absolute z-10 inset-x-0 top-0 bg-purple-300',
+	content:
+		'xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100',
+	contentHeader: 'mt-6 hidden md:block container',
+	logoLg: 'default-logo-lg',
+	logoSm: 'default-logo-sm',
+	card: 'mt-12 md:mt-0 max-w-md card',
+	title:
+		'pb-2 text-xl md:text-2xl lg:text-3xl font-black text-gray-900 border-b border-gray-200',
+	signup: 'mt-4 flex items-center mt-2 text-sm',
+	subheaderLink: 'ml-2 block md:inline-block link',
 };
 
 Login.propTypes = {

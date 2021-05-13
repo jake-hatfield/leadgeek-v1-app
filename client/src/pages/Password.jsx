@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 
 import AuthLayout from 'components/layout/AuthLayout';
 import ResetPassword from 'components/auth/login/password/ResetPassword';
-import Spinner from 'components/layout/Spinner';
+import Spinner from 'components/layout/utils/Spinner';
 
 const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 	const accountLinks = [

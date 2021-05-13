@@ -24,7 +24,7 @@ import {
 	calculateBSR,
 	openLinkHandler,
 } from 'utils/utils';
-import Button from 'components/layout/formField/Button';
+import Button from 'components/layout/utils/Button';
 
 const HeaderButton = ({ active, disabled, action, state, desc }) => {
 	const [hover, setHover] = useState(false);
@@ -63,7 +63,7 @@ const HeaderButton = ({ active, disabled, action, state, desc }) => {
 				</div>
 			)}
 			{hover && (
-				<div className='absolute top-0 right-0 z-10 min-w-max mt-2 mr-6 p-2 transform translate-y-6 translate-x-8 rounded-md shadow-md bg-gray-800 text-left text-white text-sm'>
+				<div className='absolute top-0 right-0 z-10 min-w-max mt-2 mr-6 p-2 transform translate-y-6 translate-x-8 rounded-md shadow-md bg-gray-900 text-left text-white text-sm'>
 					{desc}
 				</div>
 			)}
@@ -75,7 +75,7 @@ const PrimaryMetric = ({ title, value }) => {
 	return (
 		<div className='first:mt-0 mt-1 flex items-end justify-between'>
 			<div className='text-sm text-gray-800'>{title}</div>
-			<div className='py-1 px-2 rounded-lg bg-gray-800 font-semibold text-xs text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out'>
+			<div className='py-1 px-2 rounded-lg bg-gray-900 font-semibold text-xs text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out'>
 				{value}
 			</div>
 		</div>
@@ -100,7 +100,7 @@ const Note = ({ desc, nullState, link }) => {
 					{desc}
 				</a>
 			) : desc ? (
-				<div className='inline-block py-1 px-2 rounded-lg bg-gray-800 border border-gray-900 text-xs text-white shadow-sm'>
+				<div className='inline-block py-1 px-2 rounded-lg bg-gray-900 border border-gray-900 text-xs text-white shadow-sm'>
 					{desc}
 				</div>
 			) : (
@@ -404,7 +404,7 @@ const Details = ({
 											{truncate(data.title, 40)}
 										</h3>
 										{fullTitle && (
-											<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-800 text-white text-sm'>
+											<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-white text-sm'>
 												{data.title}
 											</div>
 										)}
@@ -500,7 +500,7 @@ const Details = ({
 												)}
 											</div>
 											{(copyText || copiedText) && (
-												<div className='absolute right-0 flex items-center p-2 transform -translate-y-2 -translate-x-6 rounded-lg shadow-md bg-gray-800 text-white text-xs'>
+												<div className='absolute right-0 flex items-center p-2 transform -translate-y-2 -translate-x-6 rounded-lg shadow-md bg-gray-900 text-white text-xs'>
 													{copiedText && (
 														<svg
 															xmlns='http://www.w3.org/2000/svg'

@@ -6,10 +6,10 @@ import { connect } from 'react-redux';
 import { forgotPassword } from '../redux/actions/auth';
 import { setAlert } from '../redux/actions/alert';
 
-import Layout from 'components/layout/Layout';
-import FormField from 'components/layout/formField/FormField';
+import DefaultLayout from 'components/layout/DefaultLayout';
+import FormField from 'components/layout/utils/FormField';
 import LoginImage from 'components/auth/login/LoginImage';
-import UnAuthFooter from 'components/layout/navigation/UnAuthFooter';
+import DefaultFooter from 'components/layout/navigation/DefaultFooter';
 import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
 
 const ForgotPassword = ({ forgotPassword, setAlert }) => {
@@ -31,7 +31,7 @@ const ForgotPassword = ({ forgotPassword, setAlert }) => {
 		sendEmail(e);
 	};
 	return (
-		<Layout>
+		<DefaultLayout>
 			<section className='h-screen relative flex justify-center bg-gray-100'>
 				<div className='h-2 absolute z-10 inset-x-0 top-0 bg-purple-300' />
 				<div className='xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100'>
@@ -80,11 +80,11 @@ const ForgotPassword = ({ forgotPassword, setAlert }) => {
 							</form>
 						</div>
 					</div>
-					<UnAuthFooter />
+					<DefaultFooter />
 				</div>
 				<LoginImage />
 			</section>
-		</Layout>
+		</DefaultLayout>
 	);
 };
 
