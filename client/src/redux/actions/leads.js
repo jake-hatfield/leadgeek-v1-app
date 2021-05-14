@@ -146,14 +146,8 @@ export const handleLikeLead = (userId, leadId) => async (dispatch) => {
 		const body = JSON.stringify({ userId, leadId });
 		const res = await axios.post('/api/leads/handle-like-lead', body, config);
 		if (res.status === 200) {
-			const { msg, leads, title } = res.data;
-			dispatch(
-				setAlert(
-					'Added to liked leads',
-					`${msg}: ${truncate(title, 50)}`,
-					'success'
-				)
-			);
+			const { message, leads, title } = res.data;
+			dispatch(setAlert(message, truncate(title, 50), 'success'));
 			dispatch({
 				type: HANDLE_LIKE_LEAD,
 				payload: { leadId, leads },
@@ -173,14 +167,8 @@ export const handleArchiveLead = (userId, leadId) => async (dispatch) => {
 			config
 		);
 		if (res.status === 200) {
-			const { msg, leads, title } = res.data;
-			dispatch(
-				setAlert(
-					'Lead was archived',
-					`${msg}: ${truncate(title, 80)}`,
-					'success'
-				)
-			);
+			const { message, leads, title } = res.data;
+			dispatch(setAlert(message, truncate(title, 80), 'success'));
 			dispatch({
 				type: HANDLE_ARCHIVE_LEAD,
 				payload: { leadId, leads },
@@ -196,13 +184,19 @@ export const addComment = (comment, userId, leadId) => async (dispatch) => {
 		const body = JSON.stringify({ comment, userId, leadId });
 		const { data } = await axios.post('/api/leads/add-comment', body, config);
 		console.log(data.msg);
-		if (data.msg === 'Comment was added') {
+		if (data.message === 'Comment was added') {
 			dispatch({
 				type: SET_COMMENT,
 				payload: data.comments,
 			});
 		} else {
-			dispatch(setAlert(data.msg, 'danger'));
+			dispatch(
+				setAlert(
+					'Something went wrong',
+					"Your comment couldn't be added right now",
+					'danger'
+				)
+			);
 		}
 	} catch (error) {
 		console.log(error);

@@ -23,73 +23,65 @@ router.get('/', auth, async (req, res) => {
 // @route       POST api/auth
 // @description Authenticate user and get token
 // @access      Public
-router.post(
-	'/',
-	[
-		// validate name, email and pw
-		check('email', 'Please include a valid email').isEmail(),
-		check('password', 'Password is required').exists(),
-	],
-	async (req, res) => {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) {
-			// there was a validation error, return the array to display in UI
-			return res.status(400).json({ errors: errors.array() });
-		}
-		// destructure email and pw out of the body
-		const { email, password } = req.body;
-
-		try {
-			// see if user exists
-			let user = await User.findOne({ email });
-			if (!user) {
-				return res.status(400).json({
-					errors: [
-						{
-							msg: 'Email & password combination not correct. Please try again or reset your password.',
-						},
-					],
-				});
-			}
-
-			// validate password with bcrypt
-			const isMatch = await bcrypt.compare(password, user.password);
-			if (!isMatch) {
-				return res.status(400).json({
-					errors: [
-						{
-							msg: 'Uh-oh! Email & password combination not correct. Please try again or reset your password.',
-						},
-					],
-				});
-			}
-
-			user.lastLoggedIn = Date.now();
-			user.save();
-
-			// return the JWT
-			const payload = {
-				user: {
-					id: user.id,
-				},
-			};
-
-			jwt.sign(
-				payload,
-				jwtSecret,
-				{ expiresIn: 60 * 60 * 24 * 5 },
-				(err, token) => {
-					if (err) throw err;
-					res.json({ token });
-				}
-			);
-		} catch (err) {
-			console.error(err.message);
-			// if there's an error, it's got to be with the server
-			res.status(500).send('Server error');
-		}
+router.post('/', async (req, res) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		// there was a validation error, return the array to display in UI
+		return res.status(400).json({ errors: errors.array() });
 	}
-);
+	// destructure email and pw out of the body
+	const { email, password } = req.body;
+
+	try {
+		// see if user exists
+		let user = await User.findOne({ email });
+		if (!user) {
+			return res.status(400).json({
+				errors: [
+					{
+						msg: 'Email & password combination not correct. Please try again or reset your password.',
+					},
+				],
+			});
+		}
+
+		// validate password with bcrypt
+		const isMatch = await bcrypt.compare(password, user.password);
+		if (!isMatch) {
+			return res.status(400).json({
+				errors: [
+					{
+						msg: 'Uh-oh! Email & password combination not correct. Please try again or reset your password.',
+					},
+				],
+			});
+		}
+
+		user.lastLoggedIn = Date.now();
+		user.save();
+
+		// return the JWT
+		const payload = {
+			user: {
+				id: user.id,
+			},
+		};
+
+		jwt.sign(
+			payload,
+			jwtSecret,
+			{ expiresIn: 60 * 60 * 24 * 5 },
+			(err, token) => {
+				if (err) throw err;
+				res.json({ token });
+			}
+		);
+	} catch (err) {
+		console.error(err.message);
+		// if there's an error, it's got to be with the server
+		res.status(500).send('Server error');
+	}
+});
 
 // @route       POST api/auth/surrogate-user
 // @description Log in as user for administrative purposes

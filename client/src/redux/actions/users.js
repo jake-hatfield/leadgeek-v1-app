@@ -19,7 +19,13 @@ export const getAllUsers = (page, itemLimit) => async (dispatch) => {
 			payload: { data },
 		});
 	} else {
-		dispatch(setAlert('There was an error retreiving users.', 'danger'));
+		dispatch(
+			setAlert(
+				'Something went wrong',
+				'There was an error retreiving users.',
+				'danger'
+			)
+		);
 		dispatch({ type: FINISHED_LOADING });
 	}
 	return dispatch({ type: FINISHED_LOADING });

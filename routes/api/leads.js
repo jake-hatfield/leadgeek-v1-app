@@ -588,14 +588,14 @@ router.post('/handle-like-lead', auth, async (req, res) => {
 			if (indexed >= 0) {
 				unlikeLead(user, leadId);
 				return res.status(200).send({
-					msg: 'Lead was unliked',
+					message: 'Lead was unliked',
 					leads: user.likedLeads,
 					title: lead.data.title,
 				});
 			} else {
 				likeLead(user, leadId);
 				return res.status(200).send({
-					msg: 'Lead was liked',
+					message: 'Lead was liked',
 					leads: user.likedLeads,
 					title: lead.data.title,
 				});
@@ -645,14 +645,14 @@ router.post('/handle-archive-lead', auth, async (req, res) => {
 			if (indexed >= 0) {
 				unarchiveLead(user, leadId);
 				return res.status(200).send({
-					msg: 'Lead was unarchived',
+					message: 'Lead was unarchived',
 					leads: user.archivedLeads,
 					title: lead.data.title,
 				});
 			} else {
 				archiveLead(user, leadId);
 				return res.status(200).send({
-					msg: 'Lead was archived',
+					message: 'Lead was archived',
 					leads: user.archivedLeads,
 					title: lead.data.title,
 				});
@@ -699,10 +699,10 @@ router.post('/add-comment', auth, async (req, res) => {
 				console.log('Comment saved!');
 				return res
 					.status(200)
-					.json({ msg: 'Comment was added', comments: user.comments });
+					.json({ message: 'Comment was added', comments: user.comments });
 			} else {
 				message = 'User could not be found';
-				return res.status(400).json({ msg: message });
+				return res.status(400).json({ message });
 			}
 		}
 	} catch (error) {

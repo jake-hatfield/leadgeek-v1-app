@@ -166,7 +166,7 @@ const Leads = ({
 											exact
 											to={`/leads${link.link}`}
 											onClick={() => setLoading()}
-											className='relative first:ml-0 ml-10 pb-2 font-semibold text-gray-600 hover:text-gray-900 group transition-colors duration-100 ease-in-out'
+											className='relative first:ml-0 ml-10 pb-2 font-semibold text-gray-600 hover:text-purple-500 hover:border-b-2 hover:border-purple-600 group transition-colors duration-100 ease-in-out'
 											activeClassName='text-purple-500 hover:text-purple-500 border-b-2 border-purple-600'
 										>
 											<span>{link.title}</span>

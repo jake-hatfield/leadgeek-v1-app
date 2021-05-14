@@ -74,9 +74,7 @@ export const login = (email, password) => async (dispatch) => {
 		dispatch(loadUser());
 	} catch (error) {
 		const errors = error.response.data.errors;
-		if (errors) {
-			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
-		}
+		console.log(errors);
 		dispatch({
 			type: LOGIN_FAIL,
 		});
@@ -248,7 +246,8 @@ export const cancelStripeSub =
 			} else {
 				dispatch(
 					setAlert(
-						'Cancellation error'`${msg} Please contact support@leadgeek.io if you need help.`,
+						'Cancellation error',
+						`${msg} Please contact support@leadgeek.io if you need help.`,
 						'danger'
 					)
 				);

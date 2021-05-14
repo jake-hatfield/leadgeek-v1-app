@@ -61,7 +61,7 @@ const Alert = ({ alerts, removeAlert }) => {
 				alerts.map((alert) => (
 					<div
 						key={alert.id}
-						className={`h-full w-full max-h-32 max-w-xs fixed bottom-0 left-0 z-10 p-4 rounded-lg shadow-md bg-white border-t-4 ${
+						className={`h-full w-full max-h-32 max-w-xs fixed bottom-0 left-0 z-10 p-4 rounded-lg shadow-md bg-white border border-t-4 ${
 							alert.alertType === 'success'
 								? 'border-teal-500'
 								: alert.alertType === 'warning'

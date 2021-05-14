@@ -13,7 +13,8 @@ export const setMinMaxFilter = (min, max, val) => (dispatch) => {
 		if (max && min >= max) {
 			return dispatch(
 				setAlert(
-					'Minimum filter cannot be greater than maximum filter.',
+					'Error creating the filter',
+					'Minimum value cannot be greater than maximum value.',
 					'danger'
 				)
 			);
