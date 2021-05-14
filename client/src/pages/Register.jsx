@@ -198,7 +198,11 @@ const Register = ({ isAuthenticated, register, setAlert }) => {
 	useEffect(() => {
 		if (email) {
 			if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
-				setAlert('Invalid email address.', 'danger');
+				setAlert(
+					'Invalid email address',
+					"That doesn't look like a valid email address. Please try again.",
+					'danger'
+				);
 				setEmailValidated(false);
 			} else {
 				setEmailValidated(true);

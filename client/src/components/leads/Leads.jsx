@@ -43,6 +43,7 @@ const Leads = ({
 	setPage,
 	setItemLimit,
 	setDateLimit,
+	setAlert,
 	setLoading,
 }) => {
 	// toggle additional information
@@ -135,7 +136,11 @@ const Leads = ({
 			getAllLeads(user);
 			setExportLeads(true);
 		} catch (error) {
-			setAlert('Error exporting leads, please try again', 'danger');
+			setAlert(
+				'Error exporting leads',
+				'Please try again or refresh the page.',
+				'danger'
+			);
 		}
 	};
 	return (
@@ -340,5 +345,6 @@ export default connect(mapStateToProps, {
 	setPage,
 	setItemLimit,
 	setDateLimit,
+	setAlert,
 	setLoading,
 })(Leads);

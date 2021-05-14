@@ -34,10 +34,11 @@ export const exportLeads = () => async (dispatch) => {
 		const { data } = await axios.get('/api/leads/export');
 		console.log(data);
 		if (data === 'Leads were added to the database.') {
-			console.log(data);
-			dispatch(setAlert(data, 'success'));
+			dispatch(setAlert('Upload success', data, 'success'));
 		} else {
-			dispatch(setAlert(data, 'danger'));
+			let message =
+				'See error code in the console or check Google Sheets for duplicate/missing attributes.';
+			dispatch(setAlert('Error uploading leads', message, 'danger'));
 		}
 	} catch (error) {
 		console.log(error);
@@ -57,9 +58,15 @@ export const getLeads = (user, page, filters) => async (dispatch) => {
 			filters,
 		});
 		const { data } = await axios.post('/api/leads', body, config);
-		if (data.message === 'There are no leads to show.') {
+		if (data.message === 'There are no leads to show') {
 			dispatch({ type: NO_LEAD_RESULTS });
-			dispatch(setAlert(data.message, 'warning'));
+			dispatch(
+				setAlert(
+					data.message,
+					"Please check that your filters aren't too strict or try refreshing the page",
+					'warning'
+				)
+			);
 		} else {
 			dispatch({
 				type: GET_LEADS,
@@ -82,8 +89,14 @@ export const getAllLeads = (user) => async (dispatch) => {
 			dateCreated,
 		});
 		const { data } = await axios.post('/api/leads/all', body, config);
-		if (data.message === 'There are no leads to show.') {
-			dispatch(setAlert(data.message, 'warning'));
+		if (data.message === 'There are no leads to show') {
+			dispatch(
+				setAlert(
+					data.message,
+					"Please check that your filters aren't too strict or try refreshing the page",
+					'warning'
+				)
+			);
 		} else {
 			dispatch({
 				type: GET_ALL_LEADS,
@@ -102,9 +115,6 @@ export const getLikedLeads = (leads, page, itemLimit) => async (dispatch) => {
 		dispatch({ type: LOADING });
 		const body = JSON.stringify({ leads, page, itemLimit });
 		const { data } = await axios.post('/api/leads/liked', body, config);
-		if (data.message === 'You have not liked any leads.') {
-			dispatch(setAlert(data.message, 'warning'));
-		}
 		dispatch({
 			type: GET_LIKED_LEADS,
 			payload: { data },
@@ -121,9 +131,6 @@ export const getArchivedLeads =
 			dispatch({ type: LOADING });
 			const body = JSON.stringify({ leads, page, itemLimit });
 			const { data } = await axios.post('/api/leads/archived', body, config);
-			if (data.message === 'You have not archived any leads.') {
-				dispatch(setAlert(data.message, 'warning'));
-			}
 			dispatch({
 				type: GET_ARCHIVED_LEADS,
 				payload: { data },
@@ -140,7 +147,13 @@ export const handleLikeLead = (userId, leadId) => async (dispatch) => {
 		const res = await axios.post('/api/leads/handle-like-lead', body, config);
 		if (res.status === 200) {
 			const { msg, leads, title } = res.data;
-			dispatch(setAlert(`${msg}: ${truncate(title, 80)}`, 'success'));
+			dispatch(
+				setAlert(
+					'Added to liked leads',
+					`${msg}: ${truncate(title, 50)}`,
+					'success'
+				)
+			);
 			dispatch({
 				type: HANDLE_LIKE_LEAD,
 				payload: { leadId, leads },
@@ -161,7 +174,13 @@ export const handleArchiveLead = (userId, leadId) => async (dispatch) => {
 		);
 		if (res.status === 200) {
 			const { msg, leads, title } = res.data;
-			dispatch(setAlert(`${msg}: ${truncate(title, 80)}`, 'success'));
+			dispatch(
+				setAlert(
+					'Lead was archived',
+					`${msg}: ${truncate(title, 80)}`,
+					'success'
+				)
+			);
 			dispatch({
 				type: HANDLE_ARCHIVE_LEAD,
 				payload: { leadId, leads },

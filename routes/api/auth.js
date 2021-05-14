@@ -46,8 +46,7 @@ router.post(
 				return res.status(400).json({
 					errors: [
 						{
-							msg:
-								'Email & password combination not correct. Please try again or reset your password.',
+							msg: 'Email & password combination not correct. Please try again or reset your password.',
 						},
 					],
 				});
@@ -59,8 +58,7 @@ router.post(
 				return res.status(400).json({
 					errors: [
 						{
-							msg:
-								'Uh-oh! Email & password combination not correct. Please try again or reset your password.',
+							msg: 'Uh-oh! Email & password combination not correct. Please try again or reset your password.',
 						},
 					],
 				});
@@ -76,10 +74,15 @@ router.post(
 				},
 			};
 
-			jwt.sign(payload, jwtSecret, { expiresIn: 60 * 120 }, (err, token) => {
-				if (err) throw err;
-				res.json({ token });
-			});
+			jwt.sign(
+				payload,
+				jwtSecret,
+				{ expiresIn: 60 * 60 * 24 * 5 },
+				(err, token) => {
+					if (err) throw err;
+					res.json({ token });
+				}
+			);
 		} catch (err) {
 			console.error(err.message);
 			// if there's an error, it's got to be with the server
@@ -100,8 +103,7 @@ router.post('/surrogate-user', auth, async (req, res) => {
 				return res.status(400).json({
 					errors: [
 						{
-							msg:
-								'Email & password combination not correct. Please try again or reset your password.',
+							msg: 'Email & password combination not correct. Please try again or reset your password.',
 						},
 					],
 				});
@@ -112,10 +114,15 @@ router.post('/surrogate-user', auth, async (req, res) => {
 					id,
 				},
 			};
-			jwt.sign(payload, jwtSecret, { expiresIn: 60 * 120 }, (err, token) => {
-				if (err) throw err;
-				res.json({ token, user });
-			});
+			jwt.sign(
+				payload,
+				jwtSecret,
+				{ expiresIn: 60 * 60 * 24 * 5 },
+				(err, token) => {
+					if (err) throw err;
+					res.json({ token, user });
+				}
+			);
 		} else {
 			return res.status(200).json({
 				errors: [

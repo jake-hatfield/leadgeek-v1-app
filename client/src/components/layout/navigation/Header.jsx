@@ -34,7 +34,7 @@ const Header = ({
 			return getSearchResults(searchValue, role, dateCreated, 1, true);
 		} else {
 			setAlert(
-				'No value was entered.',
+				'No value was entered',
 				'Please enter a search value and try again.',
 				'danger'
 			);

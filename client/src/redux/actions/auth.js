@@ -82,6 +82,7 @@ export const login = (email, password) => async (dispatch) => {
 		});
 		dispatch(
 			setAlert(
+				'Login error',
 				"Email & password combination aren't correct. Please try again or reset your password.",
 				'danger'
 			)
@@ -105,6 +106,7 @@ export const forgotPassword = (email) => async (dispatch) => {
 		if (res.data.msg === 'Password recovery email sent successfully') {
 			dispatch(
 				setAlert(
+					'Email sent',
 					`An email has been sent to ${email} if an account is associated. Please also be sure to check your spam folder.`,
 					'success'
 				)
@@ -118,6 +120,7 @@ export const forgotPassword = (email) => async (dispatch) => {
 		if (errorMsg === 'Email not found in database') {
 			dispatch(
 				setAlert(
+					'Email sent',
 					`An email has been sent to ${email} if an account is associated. Please also check your spam folder.`,
 					'success'
 				)
@@ -125,7 +128,8 @@ export const forgotPassword = (email) => async (dispatch) => {
 		} else {
 			dispatch(
 				setAlert(
-					'Email could not be sent, please contact LeadGeek support.',
+					'Error sending email',
+					'Email could not be sent. Please contact LeadGeek support.',
 					'danger'
 				)
 			);
@@ -151,7 +155,13 @@ export const resetPwValidation = (resetPwToken) => async (dispatch) => {
 				payload: res.data.user,
 			});
 		} else {
-			return dispatch(setAlert('Password could not be reset', 'danger'));
+			return dispatch(
+				setAlert(
+					'Error resetting password',
+					"Your password couldn't be reset. Please request a new email link or contact support.",
+					'danger'
+				)
+			);
 		}
 	} catch (error) {
 		console.log(error);
@@ -172,7 +182,8 @@ export const updatePassword = (email, password) => async (dispatch) => {
 			} else {
 				dispatch(
 					setAlert(
-						"Password couldn't be updated. Please contact support.",
+						'Error resetting password',
+						"Your password couldn't be updated. Please contact support.",
 						'danger'
 					)
 				);
@@ -215,34 +226,37 @@ const updateStripeSubInDb = (customerId, subscription) => async (dispatch) => {
 };
 
 // cancel stripe sub
-export const cancelStripeSub = (customerId, subscriptionId) => async (
-	dispatch
-) => {
-	try {
-		const body = JSON.stringify({ subscriptionId });
-		const res = await axios.post(
-			'/api/users/cancel-subscription',
-			body,
-			config
-		);
-		const { msg, subscription } = res.data;
-		if (msg === 'Subscription was successfully canceled.') {
-			dispatch(updateStripeSubInDb(customerId, subscription));
-			dispatch(
-				setAlert('Your subscription was successfully canceled', 'success')
+export const cancelStripeSub =
+	(customerId, subscriptionId) => async (dispatch) => {
+		try {
+			const body = JSON.stringify({ subscriptionId });
+			const res = await axios.post(
+				'/api/users/cancel-subscription',
+				body,
+				config
 			);
-		} else {
-			dispatch(
-				setAlert(
-					`${msg} Please contact support@leadgeek.io if you need help.`,
-					'danger'
-				)
-			);
+			const { msg, subscription } = res.data;
+			if (msg === 'Subscription was successfully canceled.') {
+				dispatch(updateStripeSubInDb(customerId, subscription));
+				dispatch(
+					setAlert(
+						'Cancellation success',
+						'Your subscription was successfully canceled.',
+						'success'
+					)
+				);
+			} else {
+				dispatch(
+					setAlert(
+						'Cancellation error'`${msg} Please contact support@leadgeek.io if you need help.`,
+						'danger'
+					)
+				);
+			}
+		} catch (error) {
+			const errors = error.response.data.errors;
+			if (errors) {
+				errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+			}
 		}
-	} catch (error) {
-		const errors = error.response.data.errors;
-		if (errors) {
-			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
-		}
-	}
-};
+	};

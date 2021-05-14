@@ -54,9 +54,6 @@ const FilterItem = ({
 		'Toys & Games',
 		'Video Games',
 	]);
-	// todos:
-	// set # of filters on button
-	// set showing # of filtered products of # of total products
 	const [filterData, setFilterData] = useState({
 		min: '' || minDefault,
 		max: '' || maxDefault,
@@ -67,7 +64,8 @@ const FilterItem = ({
 				setFilterData({ ...filterData, [e.target.name]: e.target.value });
 			} else {
 				setAlert(
-					'Filter cannot contain letters or special characters.',
+					'Error creating the filter',
+					"The filter can't contain letters or special characters.",
 					'danger'
 				);
 			}
@@ -105,6 +103,7 @@ const FilterItem = ({
 	useEffect(() => {
 		clearAllPills();
 	}, [clear]);
+
 	return (
 		<div
 			ref={wrapperRef}

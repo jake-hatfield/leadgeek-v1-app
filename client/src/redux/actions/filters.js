@@ -86,6 +86,7 @@ export const setPrepFilter = (prepFee) => (dispatch) => {
 		if (!key) {
 			return dispatch(
 				setAlert(
+					'Error creating the filter',
 					'Please input a fee associated with your prep costs.',
 					'warning'
 				)
@@ -98,7 +99,8 @@ export const setPrepFilter = (prepFee) => (dispatch) => {
 			});
 			return dispatch(
 				setAlert(
-					'Item prep fees were added. Adjusted product metrics are now displayed.',
+					'Filter was created',
+					'Item prep fees were added and adjusted product metrics are now showing.',
 					'success'
 				)
 			);
@@ -123,7 +125,13 @@ export const clearPrepFilter = () => (dispatch) => {
 		let keysToRemove = ['unitFee', 'lbFee'];
 		keysToRemove.forEach((key) => localStorage.removeItem(key));
 		dispatch({ type: CLEAR_PREP_FILTER });
-		return dispatch(setAlert('Prep costs were cleared.', 'success'));
+		return dispatch(
+			setAlert(
+				'Filter was removed',
+				'Prep costs were cleared and product metrics were returned to normal.',
+				'success'
+			)
+		);
 	} catch (error) {
 		console.log(error);
 	}
@@ -150,7 +158,13 @@ export const clearFilters = () => (dispatch) => {
 		];
 		keysToRemove.forEach((key) => localStorage.removeItem(key));
 		dispatch({ type: CLEAR_FILTERS });
-		return dispatch(setAlert('All filters were cleared.', 'success'));
+		return dispatch(
+			setAlert(
+				'All filters were removed',
+				'Unfiltered leads are now showing.',
+				'success'
+			)
+		);
 	} catch (error) {
 		console.log(error);
 	}

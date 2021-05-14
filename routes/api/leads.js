@@ -76,13 +76,11 @@ router.get('/export', auth, async (req, res) => {
 				_id: lead._id,
 			}));
 			if (newLeads) {
-				Lead.insertMany(newLeads, function (err, leads) {
-					if (err) {
-						console.log(err);
-						let message =
-							"Leads weren't uploaded. Please check Google Sheets for duplicate _ids or missing attributes.";
-						console.log(message);
-						return res.status(200).send(message);
+				Lead.insertMany(newLeads, function (error, leads) {
+					if (error) {
+						const errorLogs = error.writeErrors.map((e) => e.err.errmsg);
+						console.log(errorLogs);
+						return res.status(200).send(errorLogs);
 					} else {
 						let message = `Leads were added to the database.`;
 						console.log(message);
@@ -389,7 +387,7 @@ router.post('/', auth, async (req, res) => {
 					.sort({ 'data.date': -1 });
 			});
 		if (feed.length === 0) {
-			let message = 'There are no leads to show.';
+			let message = 'There are no leads to show';
 			console.log(message);
 			return res.status(200).send({ message });
 		} else {
@@ -441,7 +439,7 @@ router.post('/all', auth, async (req, res) => {
 			.sort({ 'data.date': -1 });
 		console.log(`Total items: ${feed.length}`);
 		if (feed.length === 0) {
-			let message = 'There are no leads to show.';
+			let message = 'There are no leads to show';
 			console.log(message);
 			return res.status(200).send({ message });
 		} else {
@@ -491,7 +489,7 @@ router.post('/liked', auth, async (req, res) => {
 			});
 		let message;
 		if (likedLeads.length === 0) {
-			message = 'You have not liked any leads.';
+			message = 'You have not liked any leads';
 			console.log(message);
 		} else {
 			message = `Successfully queried ${likedLeads.length} liked leads.`;
@@ -531,7 +529,7 @@ router.post('/archived', auth, async (req, res) => {
 			});
 		let message;
 		if (archivedLeads.length === 0) {
-			message = 'You have not archived any leads.';
+			message = 'You have not archived any leads';
 			console.log(message);
 		} else {
 			let message = `Successfully queried ${archivedLeads.length} archived leads.`;

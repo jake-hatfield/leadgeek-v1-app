@@ -22,7 +22,11 @@ const ForgotPassword = ({ forgotPassword, setAlert }) => {
 	const sendEmail = (e) => {
 		e.preventDefault();
 		if (email === '') {
-			setAlert('Please enter your email', 'danger');
+			setAlert(
+				'Please enter your email',
+				'The email field is required. Please enter one and try again.',
+				'danger'
+			);
 		} else {
 			forgotPassword(email);
 		}
@@ -64,7 +68,6 @@ const ForgotPassword = ({ forgotPassword, setAlert }) => {
 									name='email'
 									value={email}
 									onChange={onChange}
-									required
 								/>
 								<button
 									type='submit'

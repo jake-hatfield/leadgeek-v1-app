@@ -63,7 +63,7 @@ const Login = ({ login, isAuthenticated }) => {
 									minLength='6'
 								/>
 								<div className='mt-2'>
-									<Link href={'/reset/forgot-password'} className='link'>
+									<Link to={'/reset/forgot-password'} className='link'>
 										Forgot password?
 									</Link>
 								</div>

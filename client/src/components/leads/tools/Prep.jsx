@@ -42,7 +42,8 @@ const Prep = ({
 				setPrepFee({ ...prepFee, [e.target.name]: e.target.value });
 			} else {
 				setAlert(
-					'Filter cannot contain letters or special characters.',
+					'Error creating the filter',
+					"The filter can't contain letters or special characters.",
 					'danger'
 				);
 			}

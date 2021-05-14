@@ -200,6 +200,7 @@ const ResetPassword = ({
 				) {
 					setEmailValidated(false);
 					setAlert(
+						'Something went wrong',
 						'The password is too similar to your email. Please choose another password.',
 						'danger'
 					);
@@ -211,6 +212,7 @@ const ResetPassword = ({
 				} else {
 					setCommonPasswordValidated(false);
 					setAlert(
+						'Something went wrong',
 						'The provided password is too common. Please pick a more unique password.',
 						'danger'
 					);
@@ -227,15 +229,27 @@ const ResetPassword = ({
 	const handleUpdatePassword = (e) => {
 		e.preventDefault();
 		if (!password_1 || !password_2) {
-			setAlert('Please enter a password.', 'danger');
+			setAlert(
+				'Please enter a password',
+				"The password field can't be empty. Please enter a password and try again.",
+				'danger'
+			);
 			return;
 		}
 		if (password_1 !== password_2) {
-			setAlert("The passwords don't match. Please try again.", 'danger');
+			setAlert(
+				"The passwords don't match",
+				"The passwords don't match up. Please check spelling or case sensitivity and try again.",
+				'danger'
+			);
 			return;
 		} else {
 			if (!lengthValidated) {
-				setAlert('The password needs to be at least 7 characters.', 'danger');
+				setAlert(
+					'The password is too short',
+					'The password needs to be at least 7 characters.',
+					'danger'
+				);
 				return;
 			} else {
 				const password = password_1;
