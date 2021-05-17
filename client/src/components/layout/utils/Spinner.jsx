@@ -16,7 +16,6 @@ const Spinner = ({ divWidth, spinnerWidth, noMargin, search, text }) => {
 				strokeWidth={6}
 				strokeColor='#5d55fa'
 				duration={500}
-				// style={{ position: 'absolute', left: '50%', top: '50%' }}
 			/>
 			{search && (
 				<div className='mt-8 font-semibold text-gray-600'>

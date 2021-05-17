@@ -11,6 +11,7 @@ import FormField from 'components/layout/utils/FormField';
 import LoginImage from 'components/auth/login/LoginImage';
 import DefaultFooter from 'components/layout/navigation/DefaultFooter';
 import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
+import Button from 'components/layout/utils/Button';
 
 const ForgotPassword = ({ forgotPassword, setAlert }) => {
 	const [formData, setFormData] = useState({
@@ -69,12 +70,15 @@ const ForgotPassword = ({ forgotPassword, setAlert }) => {
 									value={email}
 									onChange={onChange}
 								/>
-								<button
-									type='submit'
-									className='mt-4 py-2 w-full rounded-md font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-sm hover:shadow-md transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-								>
-									Send email
-								</button>
+								<div className='mt-4'>
+									<Button
+										text={'Send email'}
+										onClick={onSubmit}
+										width={'w-full'}
+										size={'sm'}
+										cta={true}
+									/>
+								</div>
 								<div className='mt-4 text-sm text-gray-400'>
 									<NavLink exact to={'/login'} className='link'>
 										Back to log in

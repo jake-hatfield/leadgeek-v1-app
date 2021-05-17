@@ -21,6 +21,10 @@ body {
 	@apply flex items-center justify-center;
 }
 
+.center-between {
+	@apply flex items-center justify-between;
+}
+
 .link {
 	@apply underline font-semibold text-sm;
 	text-decoration-color: #9fb3c8;
@@ -36,18 +40,18 @@ body {
 }
 
 .form-field {
-	@apply w-full mt-1 p-2 rounded-md text-sm border border-gray-200 hover:shadow-sm placeholder-gray-300 ring-purple;
+	@apply w-full mt-1 p-2 rounded-md text-sm border border-gray-200 hover:border-purple-300 placeholder-gray-300 ring-purple;
 }
 
 .form-field-label {
 	@apply block text-xs font-medium text-gray-500;
 }
 
-.svg-4 {
+.svg-sm {
 	@apply h-4 w-4;
 }
 
-.svg-5 {
+.svg-base {
 	@apply h-5 w-5;
 }
 
@@ -65,6 +69,10 @@ body {
 
 .transition-main {
 	@apply transition duration-100 ease-in-out;
+}
+
+.transition-colors-main {
+	@apply transition-colors duration-100 ease-in-out;
 }
 
 .ring-purple {

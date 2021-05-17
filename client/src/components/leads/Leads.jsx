@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -46,7 +46,6 @@ const Leads = ({
 	setAlert,
 	setLoading,
 }) => {
-	// toggle additional information
 	const [showDetails, setShowDetails] = useState(false);
 	const [date, setDate] = useState(false);
 	const [filter, setFilter] = useState(false);
@@ -83,16 +82,42 @@ const Leads = ({
 		count: filterCount,
 		dateLimits: { selected: dateSelected },
 	} = filters;
+
+	const svgList = {
+		calendar: (
+			<path
+				fillRule='evenodd'
+				d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z'
+				clipRule='evenodd'
+			/>
+		),
+		filters: (
+			<path
+				fillRule='evenodd'
+				d='M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z'
+				clipRule='evenodd'
+			/>
+		),
+		prep: (
+			<path
+				fillRule='evenodd'
+				d='M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z'
+				clipRule='evenodd'
+			/>
+		),
+		export: (
+			<path
+				fillRule='evenodd'
+				d='M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
+				clipRule='evenodd'
+			/>
+		),
+	};
+
 	const tools = [
 		{
 			text: 'Filters',
-			path: (
-				<path
-					fillRule='evenodd'
-					d='M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z'
-					clipRule='evenodd'
-				/>
-			),
+			path: svgList.filters,
 			onClick: () => setFilter((prev) => !prev),
 			conditional: filterCount > 0,
 			conditionalDisplay: (
@@ -103,13 +128,7 @@ const Leads = ({
 		},
 		{
 			text: 'Prep',
-			path: (
-				<path
-					fillRule='evenodd'
-					d='M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z'
-					clipRule='evenodd'
-				/>
-			),
+			path: svgList.prep,
 			onClick: () => setPrep((prev) => !prev),
 			conditional: filters.prep.unit || filters.prep.lb,
 			conditionalDisplay: (
@@ -130,6 +149,7 @@ const Leads = ({
 			),
 		},
 	];
+
 	const [exportLeads, setExportLeads] = useState(false);
 	const handleExport = async () => {
 		try {
@@ -146,8 +166,8 @@ const Leads = ({
 	return (
 		!authLoading &&
 		user && (
-			<Fragment>
-				<section className='relative my-6'>
+			<>
+				<section className={classes.leadsWrapper}>
 					<Header
 						page={pagination.page}
 						title={headerTitle}
@@ -157,8 +177,8 @@ const Leads = ({
 						dateCreated={dateCreated}
 					/>
 					{!search && (
-						<nav className='mt-6 container'>
-							<div className='relative flex items-end justify-between pb-2 border-b border-gray-200'>
+						<nav className={classes.navWrapper}>
+							<div className={classes.nav}>
 								<div>
 									{primaryLinks.map((link, i) => (
 										<NavLink
@@ -166,19 +186,19 @@ const Leads = ({
 											exact
 											to={`/leads${link.link}`}
 											onClick={() => setLoading()}
-											className='relative first:ml-0 ml-10 pb-2 font-semibold text-gray-600 hover:text-purple-500 hover:border-b-2 hover:border-purple-600 group transition-colors duration-100 ease-in-out'
-											activeClassName='text-purple-500 hover:text-purple-500 border-b-2 border-purple-600'
+											className={classes.navLink}
+											activeClassName={classes.navLinkActive}
 										>
 											<span>{link.title}</span>
 											{link.count && (
-												<span className='h-4 w-4 absolute top-0 right-0 flex items-center justify-center p-1 rounded-full bg-purple-500 group-hover:bg-purple-600 text-xs text-white transform -translate-y-3 translate-x-5'>
+												<span className={classes.navLinkCounter}>
 													{link.count}
 												</span>
 											)}
 										</NavLink>
 									))}
 								</div>
-								<div className='flex items-center'>
+								<div className={classes.navToolsWrapper}>
 									<Button
 										text={
 											dateSelected
@@ -190,13 +210,7 @@ const Leads = ({
 												  } - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
 												  'All leads'
 										}
-										path={
-											<path
-												fillRule='evenodd'
-												d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z'
-												clipRule='evenodd'
-											/>
-										}
+										path={svgList.calendar}
 										onClick={() => setDate((prev) => !prev)}
 									/>
 									{tools.map((tool, i) => (
@@ -213,13 +227,7 @@ const Leads = ({
 									{!exportLeads && (
 										<Button
 											text='Export'
-											path={
-												<path
-													fillRule='evenodd'
-													d='M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
-													clipRule='evenodd'
-												/>
-											}
+											path={svgList.export}
 											onClick={handleExport}
 											margin={true}
 										/>
@@ -288,9 +296,22 @@ const Leads = ({
 						clearCurrentLead={clearCurrentLead}
 					/>
 				)}
-			</Fragment>
+			</>
 		)
 	);
+};
+
+const classes = {
+	leadsWrapper: 'relative my-6',
+	navWrapper: 'mt-6 container',
+	nav: 'relative flex items-end justify-between pb-2 border-b border-gray-200',
+	navLink:
+		'relative first:ml-0 ml-10 pb-2 font-semibold text-gray-600 hover:text-purple-500 hover:border-b-2 hover:border-purple-600 group transition-colors duration-100 ease-in-out',
+	navLinkActive:
+		'text-purple-500 hover:text-purple-500 border-b-2 border-purple-600',
+	navLinkCounter:
+		'h-4 w-4 absolute top-0 right-0 flex items-center justify-center p-1 rounded-full bg-purple-500 group-hover:bg-purple-600 text-xs text-white transform -translate-y-3 translate-x-5',
+	navToolsWrapper: 'flex items-center',
 };
 
 Leads.propTypes = {

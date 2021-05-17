@@ -19,9 +19,7 @@ export const lengthChecker = (array) => {
 export const domainFromURL = (url) => {
 	let result, match;
 	if (
-		(match = url.match(
-			/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im
-		))
+		(match = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www)?([^:\n]+)/im))
 	) {
 		result = match[1];
 		if ((match = result.match(/^[^\.]+\.(.+\..+)$/))) {

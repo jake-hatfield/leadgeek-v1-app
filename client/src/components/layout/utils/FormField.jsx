@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 const FormField = ({
 	padding,
 	label,
-	labelSize,
 	type,
 	name,
 	placeholder,
@@ -15,13 +14,10 @@ const FormField = ({
 }) => {
 	return (
 		<div className={`${padding || 'pt-4'} flex-col items-center`}>
-			<label
-				htmlFor={name}
-				className={`block ${labelSize || 'text-sm'} font-medium text-gray-700`}
-			>
+			<label htmlFor={name} className='form-field-label'>
 				{label}
 			</label>
-			<div className='mt-1'>
+			<div>
 				<input
 					name={name}
 					type={type}
@@ -31,7 +27,7 @@ const FormField = ({
 					disabled={disabled}
 					className={`${
 						disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-transparent'
-					} p-2 w-full rounded-md text-sm border border-gray-200 hover:shadow-sm placeholder-gray-300 ring-purple`}
+					} form-field`}
 				/>
 			</div>
 		</div>
@@ -41,7 +37,6 @@ const FormField = ({
 FormField.propTypes = {
 	padding: PropTypes.string,
 	label: PropTypes.string,
-	labelSize: PropTypes.string,
 	type: PropTypes.string.isRequired,
 	name: PropTypes.string,
 	placeholder: PropTypes.string,

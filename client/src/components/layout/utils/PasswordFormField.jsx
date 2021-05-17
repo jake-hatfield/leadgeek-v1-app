@@ -16,10 +16,7 @@ const PasswordFormField = ({
 	};
 	return (
 		<div className={`pt-4 ${width} flex-col items-center`}>
-			<label
-				htmlFor='password'
-				className='block text-sm font-medium text-gray-700'
-			>
+			<label htmlFor='password' className='form-field-label'>
 				{label}
 			</label>
 			<div className='relative'>
@@ -29,7 +26,7 @@ const PasswordFormField = ({
 					placeholder={placeholder}
 					required={required}
 					onChange={onChange}
-					className='mt-1 p-2 w-full rounded-md  text-sm border border-gray-100 shadow-xs placeholder-gray-300 ring-purple'
+					className='form-field'
 				/>
 				<button
 					onClick={togglePasswordVisibility}

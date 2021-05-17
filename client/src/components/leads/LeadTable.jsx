@@ -9,13 +9,13 @@ import Spinner from '../layout/utils/Spinner';
 
 const NullState = ({ header, text, path, link, linkText }) => {
 	return (
-		<div className='w-96 text-gray-600'>
-			<div className='h-6 w-6'>
+		<div className={nullStateClasses.nullStateWrapper}>
+			<div className={nullStateClasses.svgWrapper}>
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
 					viewBox='0 0 20 20'
 					fill='currentColor'
-					className='p-2 bg-gray-100 rounded-lg text-gray-500 shadow-sm'
+					className={nullStateClasses.svg}
 				>
 					{path}
 				</svg>
@@ -34,12 +34,19 @@ const NullState = ({ header, text, path, link, linkText }) => {
 					<Button
 						text={'Reload the page'}
 						onClick={() => window.location.reload()}
+						size={'sm'}
 						cta={true}
 					/>
 				</div>
 			)}
 		</div>
 	);
+};
+
+const nullStateClasses = {
+	nullStateWrapper: 'w-96 text-gray-600',
+	svgWrapper: 'svg-base',
+	svg: 'p-2 bg-gray-100 rounded-lg text-gray-500 shadow-sm',
 };
 
 const LeadTable = ({
@@ -53,29 +60,49 @@ const LeadTable = ({
 	type,
 	currentSearchParam,
 }) => {
+	const svgList = {
+		feed: (
+			<path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
+		),
+		liked: (
+			<path
+				fillRule='evenodd'
+				d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
+				clipRule='evenodd'
+			/>
+		),
+		archived: <path d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z' />,
+		search: (
+			<path
+				fillRule='evenodd'
+				d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z'
+				clipRule='evenodd'
+			/>
+		),
+	};
+
 	return (
-		<section className='relative mt-6 container'>
+		<section className={classes.tableWrapper}>
 			{loading ? (
 				<Spinner search={true} />
 			) : leads.length > 0 ? (
-				<table className='w-full table-auto' id='leads'>
-					<thead className='border-b border-gray-200'>
-						<tr className='text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
+				<table className={classes.table} id='leads'>
+					<thead className={classes.tableHeadWrapper}>
+						<tr className={classes.tableHead}>
 							{/* <th className='p-2' /> */}
-							<th className='p-2' />
-							<th className='p-2'>Title</th>
-							{/* <th className='p-2'>Properties</th> */}
-							<th className='p-2'>Category</th>
-							<th className='p-2'>Details</th>
-							<th className='p-2'>Profit</th>
-							<th className='p-2'>ROI</th>
-							<th className='p-2'>BSR</th>
-							<th className='p-2'>Sales</th>
-							<th className='p-2'>Date</th>
-							<th className='p-2' />
+							<th className={classes.tableHeadCell} />
+							<th className={classes.tableHeadCell}>Title</th>
+							<th className={classes.tableHeadCell}>Category</th>
+							<th className={classes.tableHeadCell}>Details</th>
+							<th className={classes.tableHeadCell}>Profit</th>
+							<th className={classes.tableHeadCell}>ROI</th>
+							<th className={classes.tableHeadCell}>BSR</th>
+							<th className={classes.tableHeadCell}>Sales</th>
+							<th className={classes.tableHeadCell}>Date</th>
+							<th className={classes.tableHeadCell} />
 						</tr>
 					</thead>
-					<tbody className='text-sm text-gray-800'>
+					<tbody className={classes.tableBody}>
 						{leads.map((lead, i) => (
 							<LeadRow
 								key={lead._id}
@@ -95,9 +122,7 @@ const LeadTable = ({
 					text={
 						"No leads were found. Please check that your filters aren't too strict or try refreshing the page."
 					}
-					path={
-						<path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
-					}
+					path={svgList.feed}
 				/>
 			) : type === 'liked' ? (
 				<NullState
@@ -105,13 +130,7 @@ const LeadTable = ({
 					text={
 						"You haven't liked any leads yet, but you can go to the Feed to check some products out."
 					}
-					path={
-						<path
-							fillRule='evenodd'
-							d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
-							clipRule='evenodd'
-						/>
-					}
+					path={svgList.liked}
 					link={'/leads'}
 					linkText={'Go to the Feed'}
 				/>
@@ -121,7 +140,7 @@ const LeadTable = ({
 					text={
 						"You haven't archived any leads yet, but you can go to the Feed to check some products out."
 					}
-					path={<path d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z' />}
+					path={svgList.archived}
 					link={'/leads'}
 					linkText={'Go to the Feed'}
 				/>
@@ -129,13 +148,7 @@ const LeadTable = ({
 				<NullState
 					header={'No search results found'}
 					text={'Please try a different search query'}
-					path={
-						<path
-							fillRule='evenodd'
-							d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z'
-							clipRule='evenodd'
-						/>
-					}
+					path={svgList.search}
 					link={'/leads'}
 					linkText={'Go to the Feed'}
 				/>
@@ -145,17 +158,21 @@ const LeadTable = ({
 					text={
 						"No results could be found. Please check that your filters aren't too strict or try refreshing the page."
 					}
-					path={
-						<path
-							fillRule='evenodd'
-							d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z'
-							clipRule='evenodd'
-						/>
-					}
+					path={svgList.search}
 				/>
 			)}
 		</section>
 	);
+};
+
+const classes = {
+	tableWrapper: 'relative mt-6 container',
+	table: 'w-full table-auto',
+	tableHeadWrapper: 'border-b border-gray-200',
+	tableHead:
+		'text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap',
+	tableHeadCell: 'p-2',
+	tableBody: 'text-sm text-gray-800',
 };
 
 LeadTable.propTypes = {
