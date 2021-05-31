@@ -102,7 +102,7 @@ const LeadRow = ({
 
 	const classes = {
 		rowWrapper:
-			'relative px-1 border-b border-gray-200 hover:bg-gray-100 transition duration-100 cursor-pointer',
+			'relative px-1 border-b border-gray-200 hover:bg-gray-100 cursor-pointer',
 		likeCellWrapper: 'p-2 pl-0 text-center text-gray-400',
 		likeCellButton: 'p-1 rounded-md ring-purple align-middle',
 		likeCellActive: 'svg-base hover:text-purple-400 transition-colors-main',
@@ -440,7 +440,7 @@ const LeadRow = ({
 			{/* title hover */}
 			{titleHover && (
 				<td
-					onMouseEnter={() => setRowHover(false)}
+					onMouseEnter={(prev) => setRowHover(!prev)}
 					className={classes.titleHover}
 				>
 					{data.title}

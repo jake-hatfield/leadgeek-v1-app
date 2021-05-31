@@ -306,7 +306,7 @@ const classes = {
 	navWrapper: 'mt-6 container',
 	nav: 'relative flex items-end justify-between pb-2 border-b border-gray-200',
 	navLink:
-		'relative first:ml-0 ml-10 pb-2 font-semibold text-gray-600 hover:text-purple-500 hover:border-b-2 hover:border-purple-600 group transition-colors duration-100 ease-in-out',
+		'relative first:ml-0 ml-8 pb-2 font-semibold text-gray-600 hover:text-purple-500 hover:border-b-2 hover:border-purple-600 group transition-colors-main',
 	navLinkActive:
 		'text-purple-500 hover:text-purple-500 border-b-2 border-purple-600',
 	navLinkCounter:

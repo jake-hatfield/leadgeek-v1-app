@@ -41,7 +41,7 @@ const FilterItem = ({
 		'Garden & Outdoor',
 		'Grocery & Gourmet Food',
 		'Handmade',
-		'Health,Household & Baby Care',
+		'Health, Household & Baby Care',
 		'Home & Kitchen',
 		'Industrial & Scientific',
 		'Luggage & Travel Gear',

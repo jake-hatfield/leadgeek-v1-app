@@ -78,9 +78,10 @@ router.get('/export', auth, async (req, res) => {
 			if (newLeads) {
 				Lead.insertMany(newLeads, function (error, leads) {
 					if (error) {
-						const errorLogs = error.writeErrors.map((e) => e.err.errmsg);
-						console.log(errorLogs);
-						return res.status(200).send(errorLogs);
+						// const errorLogs = error.writeErrors.map((e) => e.err.errmsg);
+						// console.log(errorLogs);
+						console.log(error);
+						// return res.status(200).send(errorLogs);
 					} else {
 						let message = `Leads were added to the database.`;
 						console.log(message);
