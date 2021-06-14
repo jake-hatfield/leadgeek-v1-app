@@ -63,7 +63,7 @@ const Login = ({ login, isAuthenticated }) => {
 									minLength='6'
 								/>
 								<div className='mt-2'>
-									<Link to={'/reset/forgot-password'} className='link'>
+									<Link to={'/reset/forgot-password/'} className='link'>
 										Forgot password?
 									</Link>
 								</div>
@@ -80,7 +80,7 @@ const Login = ({ login, isAuthenticated }) => {
 							<aside className={classes.signup}>
 								<p className='inline-block'>Need a LeadGeek account?</p>
 								<a
-									href='https://leadgeek.io/signup'
+									href='https://leadgeek.io/pricing/'
 									className={classes.subheaderLink}
 								>
 									Join now

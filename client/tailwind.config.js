@@ -4,11 +4,7 @@ module.exports = {
 	future: {
 		removeDeprecatedGapUtilities: true,
 	},
-	purge: [
-		'./src/**/*.html',
-		'./src/**/*.{js,jsx,ts,tsx}',
-		'./src/**/*.{js,jsx,ts,tsx',
-	],
+	purge: ['./src/**/*.html', './src/**/*.{js,jsx,ts,tsx}'],
 	theme: {
 		extend: {
 			colors: {
