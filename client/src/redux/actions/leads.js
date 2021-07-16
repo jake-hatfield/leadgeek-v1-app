@@ -34,6 +34,9 @@ export const exportLeads = () => async (dispatch) => {
 		const { data } = await axios.get('/api/leads/export');
 		console.log(data);
 		if (data === 'Leads were added to the database.') {
+			await axios.post(
+				'https://api.netlify.com/build_hooks/60f1da8987d39d7d6bceae55'
+			);
 			dispatch(setAlert('Upload success', data, 'success'));
 		} else {
 			let message =

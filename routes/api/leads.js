@@ -78,20 +78,21 @@ router.get('/export', auth, async (req, res) => {
 			if (newLeads) {
 				Lead.insertMany(newLeads, function (error, leads) {
 					if (error) {
-						// const errorLogs = error.writeErrors.map((e) => e.err.errmsg);
-						// console.log(errorLogs);
+						let message = 'There was an error uploading the leads.';
+						console.log(message);
 						console.log(error);
-						// return res.status(200).send(errorLogs);
+						return res.status(200).send(message);
 					} else {
 						let message = `Leads were added to the database.`;
 						console.log(message);
+
 						return res.status(201).send(message);
 					}
 				});
 			} else {
 				let message = 'There were no rows to pull from Google Sheets';
 				console.log(message);
-				return res.status(400).send(message);
+				return res.status(200).send({ status: 'failure', message });
 			}
 		}
 	} catch (error) {

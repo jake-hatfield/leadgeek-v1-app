@@ -243,6 +243,12 @@ const Admin = ({
 	setItemLimit,
 }) => {
 	const { _id: userId, role } = Object(user);
+
+	const handleExportLeads = async (e) => {
+		e.stopPropagation();
+		exportLeads();
+	};
+
 	const adminItems = [
 		{
 			title: 'Export leads',
@@ -279,8 +285,7 @@ const Admin = ({
 					<Button
 						text='Confirm and export'
 						onClick={(e) => {
-							e.stopPropagation();
-							exportLeads();
+							handleExportLeads(e);
 						}}
 						path={
 							<path
