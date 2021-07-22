@@ -172,7 +172,13 @@ export const updatePassword = (email, password) => async (dispatch) => {
 	try {
 		axios.put('/api/users/updatePassword', body, config).then((res) => {
 			if (res.data === 'Password was successfully updated') {
-				dispatch(setAlert('Password was successfully updated!', 'success'));
+				dispatch(
+					setAlert(
+						'Reset success',
+						'Your password was successfully updated.',
+						'success'
+					)
+				);
 				dispatch({ type: REMOVE_RESET_PASSWORD_TOKEN });
 				dispatch(login(email, password));
 				dispatch({ type: LOGIN_SUCCESS });

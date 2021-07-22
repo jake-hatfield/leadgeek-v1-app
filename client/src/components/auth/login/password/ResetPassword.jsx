@@ -301,7 +301,7 @@ const ResetPassword = ({
 						type='submit'
 						className={`mt-4 py-2 px-4 ${
 							fullWidthButton && 'w-full'
-						} rounded-md text-white shadow-md bg-purple-600  hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline`}
+						} rounded-md text-white shadow-md bg-purple-500 hover:bg-purple-600 transition-colors duration-200 focus:outline-none focus:shadow-outline`}
 					>
 						Reset password
 					</button>

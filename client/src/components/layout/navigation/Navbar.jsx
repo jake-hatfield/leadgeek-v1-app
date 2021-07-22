@@ -172,7 +172,7 @@ const Navbar = ({ _id, role, loading, logout }) => {
 		setUserDropdown(false);
 	};
 	return (
-		<nav className='fixed top-0 left-0 z-10 h-full min-h-screen w-16 py-16 px-3 flex flex-col justify-between bg-gray-900 text-gray-400'>
+		<nav className='fixed top-0 left-0 z-10 h-full min-h-screen w-16 py-6 px-3 flex flex-col justify-between bg-gray-900 text-gray-400'>
 			<aside>
 				{primaryLinks.map((link, i) => (
 					<div key={i} className='first:mt-0 mt-6'>

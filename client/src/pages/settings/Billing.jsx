@@ -1,88 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import PropTypes from 'prop-types';
-import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { setAlert } from 'redux/actions/alert';
 import { cancelStripeSub } from 'redux/actions/auth';
 
 import AuthLayout from 'components/layout/AuthLayout';
 import Spinner from 'components/layout/utils/Spinner';
+import SettingsLayout from 'components/layout/SettingsLayout';
 
 const Dashboard = ({
 	auth: { user, loading, isAuthenticated },
 	cancelStripeSub,
 	setAlert,
 }) => {
-	const [initials, setInitials] = useState('');
 	const [activeSubscriptions, setActiveSubscriptions] = useState('');
 	const [cancelModal, setCancelModal] = useState(false);
 	// check for active sub & assign it to a displayable plan string
-	useEffect(() => {
-		if (!loading && isAuthenticated) {
-			if (user.subId.length === 0) {
-				return setActiveSubscriptions('No plans found!');
-			} else {
-				user.subId.forEach(function (sub) {
-					if (sub.status !== 'active') {
-						return setActiveSubscriptions('No active plans found!');
-					}
-					if (sub.plan.id === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
-						setActiveSubscriptions('Bundle');
-					} else if (sub.plan.id === process.env.REACT_APP_PRO_PRODUCT_ID) {
-						setActiveSubscriptions('Pro');
-					} else if (sub.plan.id === process.env.REACT_APP_GROW_PRODUCT_ID) {
-						setActiveSubscriptions('Grow');
-					} else return;
-				});
-			}
-		}
-	}, [loading, isAuthenticated, user]);
+	// useEffect(() => {
+	// 	if (!loading && isAuthenticated) {
+	// 		if (user.subId.length === 0) {
+	// 			return setActiveSubscriptions('No plans found!');
+	// 		} else {
+	// 			user.subId.forEach(function (sub) {
+	// 				if (sub.status !== 'active') {
+	// 					return setActiveSubscriptions('No active plans found!');
+	// 				}
+	// 				if (sub.plan.id === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
+	// 					setActiveSubscriptions('Bundle');
+	// 				} else if (sub.plan.id === process.env.REACT_APP_PRO_PRODUCT_ID) {
+	// 					setActiveSubscriptions('Pro');
+	// 				} else if (sub.plan.id === process.env.REACT_APP_GROW_PRODUCT_ID) {
+	// 					setActiveSubscriptions('Grow');
+	// 				} else return;
+	// 			});
+	// 		}
+	// 	}
+	// }, [loading, isAuthenticated, user]);
 
-	const accountLinks = [
-		{
-			title: 'Profile',
-			link: '/account/profile',
-			path: (
-				<path
-					strokeLinecap='round'
-					strokeLinejoin='round'
-					strokeWidth={2}
-					d='M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
-				/>
-			),
-		},
-		{
-			title: 'Password',
-			link: '/account/password',
-			path: (
-				<path
-					strokeLinecap='round'
-					strokeLinejoin='round'
-					strokeWidth={2}
-					d='M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
-				/>
-			),
-		},
-		{
-			title: 'Plans & Billing',
-			link: '/account/billing',
-			path: (
-				<path
-					strokeLinecap='round'
-					strokeLinejoin='round'
-					strokeWidth={2}
-					d='M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
-				/>
-			),
-		},
-	];
-	useEffect(() => {
-		if (!loading && isAuthenticated) {
-			let userInitials = user.name.split(' ').map((n) => n[0]);
-			setInitials(userInitials);
-		}
-	}, [loading, isAuthenticated, user]);
 	const growPlanSeats = 30;
 	const proPlanSeats = 15;
 	const featureLists = [
@@ -223,38 +178,19 @@ const Dashboard = ({
 
 	return (
 		<AuthLayout>
-			<section className='my-6 lg:my-10 relative container flex'>
-				{loading ? (
-					<Spinner />
-				) : (
-					<div className='mx-auto w-full max-w-3xl'>
-						<h1 className='text-3xl font-black text-gray-900'>Account</h1>
-						<div className='mt-6 md:flex md:items-center'>
-							<div className='ml-8'>
-								<div className='md:flex md:items-center text-lg font-semibold text-gray-600'>
-									<h2 className='text-purple-600'>{user.name}</h2>
-									<span className='mx-2 text-gray-200'>/</span>
-									<h3>Change billing information</h3>
-								</div>
-								<p>
-									Update the billing or subscription information associated with
-									your account
-								</p>
-							</div>
-						</div>
-						<div className='mt-8 md:flex'>
-							<nav className='w-1/4'>
-								{accountLinks.map((link, i) => (
-									<NavLink
-										to={link.link}
-										className='mt-2 py-2 px-4 flex items-center font-medium rounded-md hover:bg-gray-100 hover:text-gray-400 transition-colors duration-100 ease-in-out focus:outline-none focus:shadow-outline'
-										activeClassName='account-nav-active'
-										key={i}
-									>
-										{link.title}
-									</NavLink>
-								))}
-							</nav>
+			<SettingsLayout
+				title={'Billing & plans'}
+				desc={'Manage your Leadgeek plan'}
+				loading={loading}
+				isAuthenticated={isAuthenticated}
+				user={user}
+			>
+				<section className='my-6 container'>
+					{loading ? (
+						<Spinner />
+					) : (
+						<div className='mx-auto w-full max-w-3xl'>
+							{/* <div className='mt-8 md:flex'>
 							{user.subId.map(
 								(sub) =>
 									sub.status === 'active' && (
@@ -339,10 +275,11 @@ const Dashboard = ({
 									Confirm
 								</button>
 							</div>
-						)}
-					</div>
-				)}
-			</section>
+						)} */}
+						</div>
+					)}
+				</section>
+			</SettingsLayout>
 		</AuthLayout>
 	);
 };

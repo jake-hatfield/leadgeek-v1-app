@@ -11,7 +11,6 @@ import SearchBar from 'components/layout/navigation/SearchBar';
 const Header = ({
 	role,
 	dateCreated,
-	page,
 	title,
 	searchActive,
 	getSearchResults,

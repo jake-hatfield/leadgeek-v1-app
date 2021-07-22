@@ -26,35 +26,30 @@ const UserSchema = new Schema({
 	subscription: {
 		cusId: {
 			type: String,
-			required: true,
 			unique: true,
 		},
 		subIds: [
 			{
-				id: { type: String, required: true, unique: true },
-				active: { type: Boolean, required: true },
+				id: { type: String, unique: true },
+				active: { type: Boolean },
 			},
 		],
 		planIds: [
 			{
 				type: String,
-				required: true,
 			},
 		],
 	},
 	billing: {
 		paymentMethod: {
 			type: String,
-			required: true,
 			unique: true,
 		},
 		last4: {
 			type: String,
-			required: true,
 		},
 		brand: {
 			type: String,
-			required: true,
 		},
 	},
 	resetPwToken: {
@@ -72,6 +67,37 @@ const UserSchema = new Schema({
 		default: 'user',
 		required: true,
 	},
+	referrals: {
+		referred: {
+			wasReferred: {
+				type: Boolean,
+				default: false,
+			},
+			referrerlgid: {
+				type: String,
+				unique: true,
+			},
+		},
+		referrer: {
+			isReferrer: {
+				type: Boolean,
+				required: true,
+				default: false,
+			},
+			lgid: {
+				type: String,
+				unique: true,
+			},
+			dateCreated: {
+				type: Date,
+			},
+			clients: [
+				{
+					userId: { type: Schema.Types.ObjectId, ref: 'User' },
+				},
+			],
+		},
+	},
 	likedLeads: [
 		{
 			leadId: { type: Schema.Types.ObjectId, ref: 'Lead' },
@@ -85,13 +111,6 @@ const UserSchema = new Schema({
 	unviewedLeads: [
 		{
 			leadId: { type: Schema.Types.ObjectId, ref: 'Lead' },
-		},
-	],
-	comments: [
-		{
-			leadId: { type: Schema.Types.ObjectId, ref: 'Lead' },
-			comment: { type: String },
-			date: { type: Date, default: Date.now() },
 		},
 	],
 });
