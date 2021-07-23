@@ -88,6 +88,10 @@ const UserSchema = new Schema({
 				type: String,
 				unique: true,
 			},
+			paypalEmail: {
+				type: String,
+				unique: true,
+			},
 			dateCreated: {
 				type: Date,
 			},
@@ -96,6 +100,7 @@ const UserSchema = new Schema({
 					userId: { type: Schema.Types.ObjectId, ref: 'User' },
 				},
 			],
+			payments: [],
 		},
 	},
 	likedLeads: [

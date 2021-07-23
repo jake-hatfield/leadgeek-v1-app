@@ -13,7 +13,7 @@ const FormField = ({
 	disabled,
 }) => {
 	return (
-		<div className={`${padding || 'pt-4'} flex-col items-center`}>
+		<div className={`${padding || 'pt-4 mt-1'} flex-col items-center`}>
 			<label htmlFor={name} className='form-field-label'>
 				{label}
 			</label>

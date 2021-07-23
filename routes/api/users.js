@@ -30,8 +30,7 @@ router.post('/', async (req, res) => {
 			return res.status(400).json({
 				errors: [
 					{
-						msg:
-							"There's no LeadGeek subscription associated with that email. Please try another email or sign up for a plan.",
+						msg: "There's no LeadGeek subscription associated with that email. Please try another email or sign up for a plan.",
 					},
 				],
 			});
@@ -42,8 +41,7 @@ router.post('/', async (req, res) => {
 			return res.status(400).json({
 				errors: [
 					{
-						msg:
-							'An account already exists under that email. Please try a different email or log in.',
+						msg: 'An account already exists under that email. Please try a different email or log in.',
 					},
 				],
 			});
@@ -95,8 +93,7 @@ router.post('/', async (req, res) => {
 		return res.status(500).json({
 			errors: [
 				{
-					msg:
-						'There was an error creating your account. Please try again later or contact support.',
+					msg: 'There was an error creating your account. Please try again later or contact support.',
 				},
 			],
 		});
@@ -130,8 +127,7 @@ router.post('/get-all-users', auth, async (req, res) => {
 			return res.status(400).json({
 				errors: [
 					{
-						msg:
-							'There was an error fetching all users. You done something wrong, boy.',
+						msg: 'There was an error fetching all users. You done something wrong, boy.',
 					},
 				],
 			});
@@ -141,10 +137,10 @@ router.post('/get-all-users', auth, async (req, res) => {
 	}
 });
 
-// @route       POST api/users/forgotPassword
+// @route       POST api/users/forgot-password
 // @description request forgot password
 // @access      Public
-router.post('/forgotPassword', async (req, res) => {
+router.post('/forgot-password', async (req, res) => {
 	try {
 		const { email } = req.body;
 		if (email === '') {
@@ -237,10 +233,10 @@ router.post('/forgotPassword', async (req, res) => {
 	}
 });
 
-// @route       GET api/users/resetPasswordValidation
+// @route       GET api/users/reset-password-validation
 // @description validate password reset token
 // @access      Public
-router.post('/resetPasswordValidation', async (req, res) => {
+router.post('/reset-password-validation', async (req, res) => {
 	try {
 		console.log('Searching for user password reset token...');
 		let user = await User.findOne({
@@ -270,7 +266,7 @@ router.post('/resetPasswordValidation', async (req, res) => {
 // @route       PUT api/users
 // @description update password in database
 // @access      Public
-router.put('/updatePassword', async (req, res) => {
+router.put('/update-password', async (req, res) => {
 	const { email, password } = req.body;
 	try {
 		let user = await User.findOne({

@@ -13,7 +13,7 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 		<AuthLayout>
 			<SettingsLayout
 				title={'Security & password'}
-				desc={'Change the password associated with your Leadgeek account'}
+				desc={'Change your password & other security settings'}
 				loading={loading}
 				isAuthenticated={isAuthenticated}
 				user={user}

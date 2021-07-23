@@ -84,22 +84,16 @@ const AffiliateTable = ({
 	return (
 		<section className={classes.tableWrapper}>
 			{loading ? (
-				<Spinner search={true} />
+				<Spinner />
 			) : payments.length > 0 ? (
 				<table className={classes.table} id='payments'>
 					<thead className={classes.tableHeadWrapper}>
 						<tr className={classes.tableHead}>
-							{/* <th className='p-2' /> */}
-							<th className={classes.tableHeadCell} />
-							<th className={classes.tableHeadCell}>Title</th>
-							<th className={classes.tableHeadCell}>Category</th>
-							<th className={classes.tableHeadCell}>Details</th>
-							<th className={classes.tableHeadCell}>Profit</th>
-							<th className={classes.tableHeadCell}>ROI</th>
-							<th className={classes.tableHeadCell}>BSR</th>
-							<th className={classes.tableHeadCell}>Sales</th>
+							<th className={classes.tableHeadCell}>Transaction</th>
 							<th className={classes.tableHeadCell}>Date</th>
-							<th className={classes.tableHeadCell} />
+							<th className={classes.tableHeadCell}>Plan</th>
+							<th className={classes.tableHeadCell}>Commission</th>
+							<th className={classes.tableHeadCell}>Paid</th>
 						</tr>
 					</thead>
 					<tbody className={classes.tableBody}>
@@ -128,7 +122,7 @@ const AffiliateTable = ({
 };
 
 const classes = {
-	tableWrapper: 'relative mt-6 container',
+	tableWrapper: 'w-full relative mt-4',
 	table: 'w-full table-auto',
 	tableHeadWrapper: 'border-b border-gray-200',
 	tableHead:

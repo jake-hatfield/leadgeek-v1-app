@@ -19,7 +19,12 @@ const AuthLayout = ({
 			<Alert removeAlert={removeAlert} />
 			{!loading && user && isAuthenticated && (
 				<div className='min-h-screen relative flex'>
-					<Navbar _id={user._id} role={user.role} loading={loading} />
+					<Navbar
+						_id={user._id}
+						role={user.role}
+						name={user.name}
+						loading={loading}
+					/>
 					<main className='h-full w-full content'>{children}</main>
 				</div>
 			)}

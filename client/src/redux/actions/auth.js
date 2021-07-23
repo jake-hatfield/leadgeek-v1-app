@@ -100,12 +100,12 @@ export const logout = () => async (dispatch) => {
 export const forgotPassword = (email) => async (dispatch) => {
 	const body = JSON.stringify({ email });
 	try {
-		const res = await axios.post('/api/users/forgotPassword', body, config);
+		const res = await axios.post('/api/users/forgot-password', body, config);
 		if (res.data.msg === 'Password recovery email sent successfully') {
 			dispatch(
 				setAlert(
 					'Email sent',
-					`An email has been sent to ${email} if an account is associated. Please also be sure to check your spam folder.`,
+					`An email has been sent to ${email} if an account is associated.`,
 					'success'
 				)
 			);
@@ -119,7 +119,7 @@ export const forgotPassword = (email) => async (dispatch) => {
 			dispatch(
 				setAlert(
 					'Email sent',
-					`An email has been sent to ${email} if an account is associated. Please also check your spam folder.`,
+					`An email has been sent to ${email} if an account is associated.`,
 					'success'
 				)
 			);
@@ -143,7 +143,7 @@ export const resetPwValidation = (resetPwToken) => async (dispatch) => {
 			type: CHECK_RESET_PASSWORD_TOKEN,
 		});
 		const res = await axios.post(
-			'/api/users/resetPasswordValidation',
+			'/api/users/reset-password-validation',
 			body,
 			config
 		);
@@ -170,7 +170,7 @@ export const resetPwValidation = (resetPwToken) => async (dispatch) => {
 export const updatePassword = (email, password) => async (dispatch) => {
 	const body = JSON.stringify({ email, password });
 	try {
-		axios.put('/api/users/updatePassword', body, config).then((res) => {
+		axios.put('/api/users/update-password', body, config).then((res) => {
 			if (res.data === 'Password was successfully updated') {
 				dispatch(
 					setAlert(

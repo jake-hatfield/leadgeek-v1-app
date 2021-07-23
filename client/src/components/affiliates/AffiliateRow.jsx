@@ -33,28 +33,13 @@ const LeadRow = ({
 	lbFee,
 }) => {
 	const { data } = lead;
-	const [rowHover, setRowHover] = useState(false);
-	const [newLead, setNewLead] = useState(false);
+
 	const [quickView, setQuickView] = useState(false);
-	const [expandedView, setExpandedView] = useState(false);
-	const [titleHover, setTitleHover] = useState(false);
-	const [eyeDesc, setEyeDesc] = useState(false);
-	const [linkDesc, setLinkDesc] = useState(false);
+
 	const wrapperRef = useRef(null);
-	useOutsideMousedown(wrapperRef, setQuickView, setExpandedView);
+	useOutsideMousedown(wrapperRef, setQuickView);
 
 	const datePosted = DateTime.fromISO(data.date).toFormat('LLL dd');
-	const viewDetailsHandler = () => {
-		newLead && setNewLead(false);
-		setShowDetails(!showDetails);
-		viewLead(user._id, lead._id);
-		setCurrentLead(lead);
-		setQuickView(false);
-		setExpandedView(false);
-	};
-
-	const [viewImage, setViewImage] = useState(false);
-	const [viewCompetition, setViewCompetition] = useState(false);
 
 	const classes = {
 		rowWrapper:
@@ -110,96 +95,16 @@ const LeadRow = ({
 	};
 
 	return (
-		<tr
-			className={classes.rowWrapper}
-			onMouseEnter={() => setRowHover(true)}
-			onMouseLeave={() => setRowHover(false)}
-			onClick={() => {
-				viewDetailsHandler();
-			}}
-		>
-			{/* like/unlike */}
-			<td className={classes.likeCellWrapper}></td>
+		<tr className={classes.rowWrapper}>
 			{/* title */}
-			<td
-				onMouseEnter={() => setTitleHover(true)}
-				onMouseLeave={() => setTitleHover(false)}
-				className={classes.titleCellWrapper}
-			>
+			<td className={classes.titleCellWrapper}>
 				<div>{truncate(data.title, 31)}</div>
 			</td>
 			{/* category */}
 			<td className={classes.defaultCellWrapper}>
 				{truncate(data.category, 28)}
 			</td>
-			{/* details */}
-			<td className={classes.detailsCellWrapper}>
-				{/* image */}
-				<button
-					onMouseEnter={() => setViewImage(true)}
-					onMouseLeave={() => setViewImage(false)}
-					onClick={(e) => {
-						e.stopPropagation();
-						setViewImage((prev) => !prev);
-					}}
-					className={classes.detailsCellButton}
-				>
-					<svg
-						xmlns='http://www.w3.org/2000/svg'
-						className={classes.detailsCellSvg}
-						viewBox='0 0 20 20'
-						fill='currentColor'
-					>
-						{svgList.image}
-					</svg>
-				</button>
-				{/* competitors */}
-				<button
-					onMouseEnter={() => setViewCompetition(true)}
-					onMouseLeave={() => setViewCompetition(false)}
-					onClick={(e) => {
-						e.stopPropagation();
-						setViewCompetition((prev) => !prev);
-					}}
-					className={classes.detailsCellButton}
-				>
-					<svg
-						xmlns='http://www.w3.org/2000/svg'
-						className={classes.detailsCellSvg}
-						viewBox='0 0 20 20'
-						fill='currentColor'
-					>
-						{svgList.competition}
-					</svg>
-				</button>
-				{viewImage && (
-					<div className={classes.detailsCellImageWrapper}>
-						<img
-							src={data.img}
-							alt={data.title}
-							className={classes.detailsCellImage}
-						/>
-					</div>
-				)}
-				{viewCompetition && (
-					<div className={classes.competitionWrapper}>
-						<div className={classes.competitionRow}>
-							<span>Buy box</span>
-							<span className={classes.competitorType}>
-								{data.competitorType}
-							</span>
-						</div>
-						{data.competitorCount > 0 && (
-							<div className={classes.competitionRow}>
-								<span># Competitors</span>
-								<span className={classes.competitorCount}>
-									{data.competitorCount}
-								</span>
-							</div>
-						)}
-					</div>
-				)}
-			</td>
+
 			{/* profit */}
 			<td className={classes.profitCellWrapper}>
 				<span>$</span>
@@ -222,147 +127,6 @@ const LeadRow = ({
 					({calculateBSR(data.bsrCurrent, data.category)})
 					<span className={classes.valueIndicator}>%</span>
 				</span>
-			</td>
-			{/* monthly sales */}
-			<td className={classes.bsrCellWrapper}>
-				{numberWithCommas(data.monthlySales)}
-			</td>
-			{/* date */}
-			<td className={classes.defaultCellWrapper}>{datePosted}</td>
-			{/* quick menu */}
-			<td className={classes.quickViewCellWrapper}>
-				<div ref={wrapperRef}>
-					{rowHover || expandedView ? (
-						<div
-							onMouseEnter={() => setQuickView(true)}
-							onMouseLeave={() => !expandedView && setQuickView(false)}
-							className={classes.quickViewWrapper}
-						>
-							<button
-								onClick={(e) => {
-									e.stopPropagation();
-									setExpandedView(!expandedView);
-								}}
-								className={classes.quickViewMenu}
-							>
-								<svg
-									xmlns='http://www.w3.org/2000/svg'
-									viewBox='0 0 20 20'
-									fill='currentColor'
-									className={classes.defaultSvg}
-								>
-									{svgList.dots}
-								</svg>
-							</button>
-							{quickView && (
-								<div className={classes.quickViewExpandedWrapper}>
-									<div className='all-center'>
-										{/* eye */}
-										<button
-											onClick={(e) => {
-												e.stopPropagation();
-												setShowDetails(!showDetails);
-												setCurrentLead(lead);
-												setExpandedView(false);
-											}}
-											onMouseEnter={() => setEyeDesc(true)}
-											onMouseLeave={() => setEyeDesc(false)}
-											className={classes.eyeIconWrapper}
-										>
-											<svg
-												xmlns='http://www.w3.org/2000/svg'
-												viewBox='0 0 20 20'
-												fill='currentColor'
-												className={classes.defaultSvg}
-											>
-												{svgList.eye}
-											</svg>
-											{eyeDesc && (
-												<div className={classes.quickViewMenuHover}>
-													View details
-												</div>
-											)}
-										</button>
-										{/* link */}
-										<button
-											onClick={(e) => {
-												e.stopPropagation();
-												openLinkHandler(data.retailerLink, data.amzLink);
-												setExpandedView(false);
-											}}
-											onMouseEnter={() => setLinkDesc(true)}
-											onMouseLeave={() => setLinkDesc(false)}
-											className={classes.linkIconWrapper}
-										>
-											<svg
-												xmlns='http://www.w3.org/2000/svg'
-												viewBox='0 0 20 20'
-												fill='currentColor'
-												className={classes.defaultSvg}
-											>
-												{svgList.link}
-											</svg>
-											{linkDesc && (
-												<div className={classes.quickViewMenuHover}>
-													Open links
-												</div>
-											)}
-										</button>
-									</div>
-								</div>
-							)}
-						</div>
-					) : (
-						<div className={classes.quickViewNull} />
-					)}
-					{/* horiztonal dots */}
-					{expandedView && (
-						<div className={classes.expandedViewWrapper}>
-							<div className={classes.expandedViewMenuTop}>
-								<button
-									onClick={(e) => {}}
-									className={classes.expandedViewMenuButton}
-								></button>
-								<button
-									onClick={(e) => {}}
-									className={classes.expandedViewMenuButton}
-								></button>
-							</div>
-							<div className={classes.expandedViewMenuBottom}>
-								<button
-									onClick={() =>
-										openLinkHandler(data.retailerLink, data.amzLink)
-									}
-									className={classes.expandedViewMenuButtonSvg()}
-								>
-									<span>Open links</span>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										viewBox='0 0 20 20'
-										fill='currentColor'
-										className={classes.expandedViewMenuSvg}
-									>
-										{svgList.link}
-									</svg>
-								</button>
-								<button
-									onClick={() => viewDetailsHandler()}
-									className={classes.expandedViewMenuButtonSvg()}
-								>
-									<span>View details</span>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										viewBox='0 0 20 20'
-										fill='currentColor'
-										className={classes.expandedViewMenuSvg}
-									>
-										{svgList.eye}
-									</svg>
-								</button>
-							</div>
-						</div>
-					)}
-				</div>
 			</td>
 		</tr>
 	);

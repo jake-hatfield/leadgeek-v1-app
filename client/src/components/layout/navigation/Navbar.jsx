@@ -20,7 +20,7 @@ const NavbarLink = ({ link, showMenu }) => {
 			>
 				<span>{link.svg}</span>
 				{hover && (
-					<div className='mt-2 p-2 absolute left-0 z-40 transform -translate-y-1 translate-x-14 rounded-lg bg-gray-900 shadow-md text-white text-sm whitespace-no-wrap'>
+					<div className='mt-2 p-2 absolute left-0 z-40 transform -translate-y-1 translate-x-14 rounded-lg bg-gray-900 shadow-md text-white text-sm whitespace-nowrap'>
 						{link.title}
 					</div>
 				)}
@@ -51,7 +51,7 @@ NavbarLink.propTypes = {
 	showMenu: PropTypes.bool,
 };
 
-const Navbar = ({ _id, role, loading, logout }) => {
+const Navbar = ({ _id, role, name, loading, logout }) => {
 	// state & local storage
 	const [hover, setHover] = useState(false);
 	const [userDropdown, setUserDropdown] = useState(false);
@@ -127,7 +127,7 @@ const Navbar = ({ _id, role, loading, logout }) => {
 	const adminLinks = [
 		{
 			title: 'Admin',
-			link: '/admin',
+			link: '/admin/',
 			svg: (
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
@@ -146,7 +146,6 @@ const Navbar = ({ _id, role, loading, logout }) => {
 	];
 	const dropdownItems = [
 		{
-			linkID: 100,
 			path: (
 				<svg
 					className='p-2 h-10 w-10 flex-shrink-0 rounded-md bg-purple-100 text-purple-600'
@@ -162,9 +161,9 @@ const Navbar = ({ _id, role, loading, logout }) => {
 					/>
 				</svg>
 			),
-			title: 'Account',
+			title: 'Settings',
 			description: 'Edit account settings and other information',
-			link: 'account/profile',
+			link: 'settings/profile/',
 		},
 	];
 	const logoutUser = (logout) => {
@@ -200,8 +199,11 @@ const Navbar = ({ _id, role, loading, logout }) => {
 				</nav>
 				<aside className='relative mt-16 text-gray-400'>
 					<button
-						onClick={() => logoutUser(logout)}
-						onMouseEnter={() => setHover((prev) => !prev)}
+						onClick={() => {
+							setHover(false);
+							setUserDropdown(!userDropdown ? true : false);
+						}}
+						onMouseEnter={() => setHover(!userDropdown && true)}
 						onMouseLeave={() => setHover(false)}
 						className='p-2 h-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
 					>
@@ -209,19 +211,20 @@ const Navbar = ({ _id, role, loading, logout }) => {
 							<LeadGeekLogo />
 						</span>
 						{hover && (
-							<div className='w-16 mt-2 p-2 absolute left-0 z-20 transform -translate-y-1 translate-x-14 rounded-lg bg-gray-900 shadow-md text-white text-sm whitespace-no-wrap'>
-								Log out
+							<div className='w-auto mt-2 p-2 absolute left-0 z-20 transform -translate-y-1 translate-x-14 rounded-lg bg-gray-900 shadow-md text-white text-sm text-left whitespace-nowrap'>
+								{name}
 							</div>
 						)}
 					</button>
 					{userDropdown && (
-						<div className='absolute z-10 bottom-0 right-0 transform translate-x-48 text-gray-600'>
+						<div className='relative'>
 							<AltDropdown
 								items={dropdownItems}
 								open={userDropdown}
 								setOpen={setUserDropdown}
 								logout={logout}
 								logoutUser={logoutUser}
+								name={name}
 								loading={loading}
 								activeSubscription={activeSubscription}
 							/>

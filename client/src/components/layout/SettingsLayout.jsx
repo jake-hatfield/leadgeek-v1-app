@@ -23,12 +23,12 @@ const SettingsLayout = ({
 			<SettingsNavbar />
 			<section className='my-6 w-full'>
 				<header className='pb-2 border-b border-gray-200'>
-					<h1 className='ml-64 text-3xl font-bold text-gray-900'>
+					<h1 className='ml-72 text-3xl font-bold text-gray-900'>
 						{title || 'Settings'}
 					</h1>
 				</header>
-				<div className='ml-64'>
-					<div className='mt-6 md:flex md:items-center'>
+				<div className='ml-72 max-w-screen-2xl'>
+					<div className='md:flex md:items-center mt-6 pb-2 mr-16 border-b border-gray-200'>
 						<div className='p-3 h-10 w-10 flex items-center justify-center rounded-full bg-gray-100 shadow-sm focus:outline-none focus:shadow-outline'>
 							<span className='text-gray-600 text-lg font-bold'>
 								{initials}

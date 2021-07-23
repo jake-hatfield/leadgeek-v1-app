@@ -40,7 +40,7 @@ body {
 }
 
 .form-field {
-	@apply w-full mt-1 p-2 rounded-md text-sm border border-gray-200 hover:border-purple-300 placeholder-gray-300 ring-purple;
+	@apply w-full p-2 rounded-md text-sm border border-gray-200 hover:border-purple-300 placeholder-gray-300 ring-purple;
 }
 
 .form-field-label {
