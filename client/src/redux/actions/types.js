@@ -64,3 +64,4 @@ export const CLEAR_PREP_FILTER = 'CLEAR_PREP_FILTER';
 export const CLEAR_FILTERS = 'CLEAR_FILTERS';
 // user types
 export const GET_ALL_USERS = 'GET_ALL_USERS';
+export const SET_PAYMENTS = 'SET_PAYMENTS';

@@ -1,42 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { setAlert } from 'redux/actions/alert';
 import { cancelStripeSub } from 'redux/actions/auth';
+import { getSuccessfulPayments } from 'redux/actions/users';
 
+import { capitalize } from 'utils/utils';
 import AuthLayout from 'components/layout/AuthLayout';
 import Spinner from 'components/layout/utils/Spinner';
 import SettingsLayout from 'components/layout/SettingsLayout';
 
-const Dashboard = ({
-	auth: { user, loading, isAuthenticated },
+const BillingPage = ({
+	auth: { user, loading: authLoading, isAuthenticated },
+	billing,
 	cancelStripeSub,
+	getSuccessfulPayments,
 	setAlert,
 }) => {
-	const [activeSubscriptions, setActiveSubscriptions] = useState('');
+	useEffect(() => {
+		getSuccessfulPayments();
+	}, []);
 	const [cancelModal, setCancelModal] = useState(false);
-	// check for active sub & assign it to a displayable plan string
-	// useEffect(() => {
-	// 	if (!loading && isAuthenticated) {
-	// 		if (user.subId.length === 0) {
-	// 			return setActiveSubscriptions('No plans found!');
-	// 		} else {
-	// 			user.subId.forEach(function (sub) {
-	// 				if (sub.status !== 'active') {
-	// 					return setActiveSubscriptions('No active plans found!');
-	// 				}
-	// 				if (sub.plan.id === process.env.REACT_APP_BUNDLE_PRODUCT_ID) {
-	// 					setActiveSubscriptions('Bundle');
-	// 				} else if (sub.plan.id === process.env.REACT_APP_PRO_PRODUCT_ID) {
-	// 					setActiveSubscriptions('Pro');
-	// 				} else if (sub.plan.id === process.env.REACT_APP_GROW_PRODUCT_ID) {
-	// 					setActiveSubscriptions('Grow');
-	// 				} else return;
-	// 			});
-	// 		}
-	// 	}
-	// }, [loading, isAuthenticated, user]);
 
 	const growPlanSeats = 30;
 	const proPlanSeats = 15;
@@ -176,106 +161,89 @@ const Dashboard = ({
 		cancelStripeSub(customerId, 'sub_IvxscYyUQVlmT7');
 	};
 
+	const planChecker = (price) => {
+		let plan;
+		if (price === 12900) {
+			plan = 'Grow';
+		} else if (price === 18900) {
+			plan = 'Pro';
+		} else if (price === 26300) {
+			plan = 'Bundle';
+		} else {
+			plan = 'Leadgeek';
+		}
+		return plan;
+	};
+
+	const pmBrand = capitalize(user.billing.brand);
+
 	return (
 		<AuthLayout>
 			<SettingsLayout
 				title={'Billing & plans'}
 				desc={'Manage your Leadgeek plan'}
-				loading={loading}
+				loading={authLoading}
 				isAuthenticated={isAuthenticated}
 				user={user}
 			>
-				<section className='my-6 container'>
-					{loading ? (
+				<section className='my-6'>
+					{authLoading ? (
 						<Spinner />
 					) : (
-						<div className='mx-auto w-full max-w-3xl'>
-							{/* <div className='mt-8 md:flex'>
-							{user.subId.map(
-								(sub) =>
-									sub.status === 'active' && (
-										<article className='ml-8 w-3/4 shadow-lg rounded-md'>
-											<div className='pt-8 px-8'>
-												{activeSubscriptions === 'No plans found!' ? (
-													<h3 className='pb-8'>{activeSubscriptions}</h3>
-												) : (
-													<div>
-														<h3 className='text-base font-medium text-gray-700'>
-															Your current plan:{' '}
-															<span className='text-purple-600'>
-																{activeSubscriptions} plan
-															</span>
-														</h3>
-														{
-															<div className='my-6'>
-																<h3 className='text-base font-medium text-gray-700'>
-																	Plan details:
-																</h3>
-																{activeSubscriptions === 'Bundle' ? (
-																	<ul className='mt-2'>
-																		{featureLists[2].map((feature, i) => (
-																			<li key={i}>{feature.body}</li>
-																		))}
-																	</ul>
-																) : activeSubscriptions === 'Pro' ? (
-																	<ul className='mt-2'>
-																		{featureLists[1].map((feature, i) => (
-																			<li key={i}>{feature.body}</li>
-																		))}
-																	</ul>
-																) : (
-																	activeSubscriptions === 'Grow' && (
-																		<ul className='mt-2'>
-																			{featureLists[0].map((feature, i) => (
-																				<li key={i}>{feature.body}</li>
-																			))}
-																		</ul>
-																	)
-																)}
-															</div>
-														}
-													</div>
-												)}
+						<div className='w-full pr-16 text-gray-800'>
+							<div className='flex items-start justify-between'>
+								<article className='w-1/2'>
+									<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
+										<h2 className='font-bold text-lg text-gray-800'>Plan</h2>
+									</header>
+									<div className='mt-6'>
+										{user.subscription.subIds
+											.filter((s) => s.active === 'true')
+											.map((s) => (
+												<div key={s.id}>
+													<div>{s.id}</div>
+												</div>
+											))}
+									</div>
+								</article>
+								<article className='w-1/2 ml-16'>
+									<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
+										<h2 className='font-bold text-lg text-gray-800'>
+											Payment method
+										</h2>
+									</header>
+									<div className='mt-6 flex items-end justify-between'>
+										<div className='flex items-center'>
+											<div className='text-sm'>
+												<div>
+													{pmBrand} &#8226;&#8226;&#8226;&#8226;{' '}
+													{user.billing.last4}
+												</div>
 											</div>
-											<div className='pt-6 pb-8 px-8 md:flex md:justify-between md:items-end bg-gray-100 rounded-b-md'>
-												<button
-													className={`py-2 px-4 rounded-md text-white shadow-md bg-purple-600 hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:shadow-outline`}
-												>
-													Change plan
-												</button>
-												<button
-													onClick={() => setCancelModal(!cancelModal)}
-													className='ml-4 link rounded-md focus:outline-none focus:shadow-outline'
-												>
-													Cancel subscription
-												</button>
-											</div>
-										</article>
-									)
-							)}
-						</div>
-						{cancelModal && (
-							<div className='p-8 bg-white shadow-lg rounded-md'>
-								<h3 className='text-2xl font-bold'>Cancel modal</h3>
-								<div>
-									<p>
-										Are you sure you want to cancel your {activeSubscriptions}{' '}
-										subscription?
-									</p>
-									<p>
-										This action will stop any recurring payments at the end of
-										your billing cycle.
-									</p>
-								</div>
-								<button
-									type='submit'
-									onClick={handleCancelSubscription}
-									className={`py-2 px-4 rounded-md text-red-600 shadow-md bg-red-300 hover:bg-red-400 transition-colors duration-200 focus:outline-none focus:shadow-outline`}
-								>
-									Confirm
-								</button>
+										</div>
+										<button className='font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'>
+											Change card
+										</button>
+									</div>
+								</article>
 							</div>
-						)} */}
+							<article className='mt-6'>
+								<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
+									<h2 className='font-bold text-lg text-gray-800'>
+										Payment history
+									</h2>
+								</header>
+								<ul className='mt-6'>
+									{billing.payments.map((p) => (
+										<li key={p.id}>
+											<div>{planChecker(p.amount)}</div>
+											<div>
+												{p.paymentMethod.brand} {p.paymentMethod.last4}
+											</div>
+										</li>
+									))}
+								</ul>
+							</article>
 						</div>
 					)}
 				</section>
@@ -284,7 +252,7 @@ const Dashboard = ({
 	);
 };
 
-Dashboard.propTypes = {
+BillingPage.propTypes = {
 	auth: PropTypes.object.isRequired,
 	cancelStripeSub: PropTypes.func.isRequired,
 	setAlert: PropTypes.func.isRequired,
@@ -292,9 +260,11 @@ Dashboard.propTypes = {
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
+	billing: state.users.userSettings.billing,
 });
 
 export default connect(mapStateToProps, {
 	cancelStripeSub,
+	getSuccessfulPayments,
 	setAlert,
-})(Dashboard);
+})(BillingPage);

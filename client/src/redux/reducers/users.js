@@ -1,6 +1,7 @@
 import {
 	GET_ALL_USERS,
 	SET_PAGE,
+	SET_PAYMENTS,
 	LOADING,
 	FINISHED_LOADING,
 	LOGOUT,
@@ -17,6 +18,11 @@ const initialState = {
 		previousPage: null,
 		lastPage: null,
 		totalItems: null,
+	},
+	userSettings: {
+		billing: {
+			payments: [],
+		},
 	},
 };
 export default function userReducer(state = initialState, action) {
@@ -61,6 +67,19 @@ export default function userReducer(state = initialState, action) {
 					};
 				}
 			}
+		}
+		case SET_PAYMENTS: {
+			return {
+				...state,
+				userSettings: {
+					...state.userSettings,
+					billing: {
+						...state.userSettings.billing,
+						payments: payload,
+					},
+				},
+				loading: false,
+			};
 		}
 		case LOADING: {
 			return {

@@ -49,11 +49,11 @@ const SettingsNavbar = () => {
 			link: '/settings/security/',
 			desc: 'Change your password & security preferences',
 		},
-		// {
-		// 	title: 'Billing',
-		// 	link: '/settings/billing/',
-		// 	desc: 'Manage your Leadgeek plans',
-		// },
+		{
+			title: 'Billing',
+			link: '/settings/billing/',
+			desc: 'Manage your Leadgeek plans',
+		},
 		{
 			title: 'Affiliates',
 			link: '/settings/affiliates/',

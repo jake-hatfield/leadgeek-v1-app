@@ -1,5 +1,11 @@
 import axios from 'axios';
-import { GET_ALL_USERS, SET_PAGE, LOADING, FINISHED_LOADING } from './types';
+import {
+	GET_ALL_USERS,
+	SET_PAGE,
+	SET_PAYMENTS,
+	LOADING,
+	FINISHED_LOADING,
+} from './types';
 import { setAlert } from './alert';
 
 const config = {
@@ -36,6 +42,21 @@ export const setPage = (page, type) => (dispatch) => {
 		dispatch({
 			type: SET_PAGE,
 			payload: { page, type },
+		});
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+// Get all successful payments
+export const getSuccessfulPayments = () => async (dispatch) => {
+	try {
+		dispatch({ type: LOADING });
+		const { data } = await axios.get('/api/users/get-successful-payments/');
+
+		dispatch({
+			type: SET_PAYMENTS,
+			payload: data.payments,
 		});
 	} catch (error) {
 		console.log(error);

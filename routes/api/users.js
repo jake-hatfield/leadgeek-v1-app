@@ -356,4 +356,48 @@ router.post('/update-db-subscription', async (req, res) => {
 	}
 });
 
+router.get('/get-successful-payments', async (req, res) => {
+	try {
+		const returnBillingInfo = (item) => {
+			return {
+				id: item.id,
+				amount: item.amount,
+				currency: item.currency,
+				paymentMethod: {
+					brand: item.payment_method.card.brand,
+					last4: item.payment_method.card.last4,
+				},
+				created: item.created,
+				invoice: {
+					id: item.invoice.id,
+					pdf: item.invoice.invoice_pdf,
+				},
+			};
+		};
+
+		const allPayments = await stripe.paymentIntents.list({
+			customer: 'cus_IvaN25YaLNiUX9',
+			expand: ['data.payment_method', 'data.invoice'],
+		});
+
+		const successfulPayments = allPayments.data
+			.filter((p) => p.status === 'succeeded')
+			.map((p) => returnBillingInfo(p));
+
+		if (successfulPayments.length > 0) {
+			return res
+				.status(200)
+				.json({ msg: 'Payments found', payments: successfulPayments });
+		} else {
+			return res.status(200).json({
+				msg: 'No payments found',
+				payments: [],
+			});
+		}
+	} catch (error) {
+		console.error(error.message);
+		res.status(500).send('Server error');
+	}
+});
+
 module.exports = router;

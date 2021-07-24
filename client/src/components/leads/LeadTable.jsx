@@ -20,7 +20,7 @@ const NullState = ({ header, text, path, link, linkText }) => {
 					{path}
 				</svg>
 			</div>
-			<h3 className='mt-8 font-bold text-lg text-gray-900'>{header}</h3>
+			<h3 className='mt-6 font-bold text-lg text-gray-900'>{header}</h3>
 			<p className='mt-2'>{text}</p>
 			{link ? (
 				<Link
@@ -45,7 +45,7 @@ const NullState = ({ header, text, path, link, linkText }) => {
 
 const nullStateClasses = {
 	nullStateWrapper: 'w-96 text-gray-600',
-	svgWrapper: 'svg-base',
+	svgWrapper: 'h-10 w-10',
 	svg: 'p-2 bg-gray-100 rounded-lg text-gray-500 shadow-sm',
 };
 

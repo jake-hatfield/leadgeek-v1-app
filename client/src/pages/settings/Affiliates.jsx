@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import AuthLayout from 'components/layout/AuthLayout';
 import SettingsLayout from 'components/layout/SettingsLayout';
-import AffiliateTable from 'components/affiliates/AffiliateTable';
+import AffiliateTable from 'components/settings/affiliates/AffiliateTable';
 import FormField from 'components/layout/utils/FormField';
 import Spinner from 'components/layout/utils/Spinner';
 
@@ -78,12 +78,16 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 		{
 			title: 'Paypal email address',
 			value: (
-				<FormField
-					padding={'pt-0'}
-					placeholder={
-						referrals.referrer.paypalEmail || 'Enter your PayPal email'
-					}
-				/>
+				<form className='flex items-center'>
+					<FormField
+						padding={'pt-0'}
+						placeholder={
+							(user && referrals.referrer.paypalEmail) ||
+							'Enter your PayPal email'
+						}
+					/>
+					<button>Submit</button>
+				</form>
 			),
 			isInteractable: true,
 			t: "This is the PayPal email where your commission payments will be sent, so please make sure it's accurate",
