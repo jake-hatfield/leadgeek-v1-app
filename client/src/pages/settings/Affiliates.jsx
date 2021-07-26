@@ -49,7 +49,7 @@ const BasicInformationItem = ({ title, value, isInteractable, t }) => {
 	);
 };
 
-const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
+const AffiliatesPage = ({ auth: { user, loading, isAuthenticated } }) => {
 	const [copyText, setCopyText] = useState('Copy LGID');
 	const [copiedText, setCopiedText] = useState('');
 
@@ -126,9 +126,9 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 				<section className='my-6'>
 					{loading ? (
 						<Spinner />
-					) : (
+					) : isAffiliate ? (
 						<div className='w-full pr-16'>
-							<article className='mt-6'>
+							<section className='mt-6'>
 								<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
 									<h2 className='font-bold text-lg text-gray-800'>
 										Basic information
@@ -170,7 +170,7 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 										/>
 									))}
 								</div>
-							</article>
+							</section>
 							<section className='mt-6'>
 								<header className='pb-2 border-b border-gray-200'>
 									<h2 className='font-bold text-lg text-gray-800'>
@@ -216,6 +216,12 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 								/>
 							</section>
 						</div>
+					) : (
+						<section>
+							Leadgeek offers 25% lifetime commissions for any new member you
+							refer. Please email support@leadgeek.io for an affiliate
+							application.
+						</section>
 					)}
 				</section>
 			</SettingsLayout>
@@ -223,7 +229,7 @@ const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 	);
 };
 
-Dashboard.propTypes = {
+AffiliatesPage.propTypes = {
 	auth: PropTypes.object.isRequired,
 };
 
@@ -231,4 +237,4 @@ const mapStateToProps = (state) => ({
 	auth: state.auth,
 });
 
-export default connect(mapStateToProps)(Dashboard);
+export default connect(mapStateToProps)(AffiliatesPage);

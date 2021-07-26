@@ -17,7 +17,7 @@ const NavbarLink = ({ link }) => {
 				to={link.link}
 			>
 				{hover && (
-					<div className='w-auto max-w-xs mt-2 ml-2 p-2 absolute left-0 z-40 transform -translate-y-1 translate-x-56 rounded-lg bg-gray-900 shadow-md text-white text-sm whitespace-nowrap'>
+					<div className='w-auto max-w-md mt-2 ml-2 p-2 absolute left-0 z-40 transform -translate-y-1 translate-x-56 rounded-lg bg-gray-900 shadow-md text-white text-sm whitespace-nowrap'>
 						{link.desc}
 					</div>
 				)}
@@ -57,7 +57,7 @@ const SettingsNavbar = () => {
 		{
 			title: 'Affiliates',
 			link: '/settings/affiliates/',
-			desc: 'Manage your affiliate account',
+			desc: 'Generate your unique affiliate link and view earned commissions',
 			new: true,
 		},
 	];

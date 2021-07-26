@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { setAlert } from 'redux/actions/alert';
 import { cancelStripeSub } from 'redux/actions/auth';
-import { getSuccessfulPayments } from 'redux/actions/users';
+import {
+	getSuccessfulPayments,
+	getActivePlanDetails,
+} from 'redux/actions/users';
 
 import { capitalize } from 'utils/utils';
 import AuthLayout from 'components/layout/AuthLayout';
@@ -13,14 +16,20 @@ import SettingsLayout from 'components/layout/SettingsLayout';
 
 const BillingPage = ({
 	auth: { user, loading: authLoading, isAuthenticated },
-	billing,
+	billing: { plan, paymentHistory },
 	cancelStripeSub,
 	getSuccessfulPayments,
+	getActivePlanDetails,
 	setAlert,
 }) => {
 	useEffect(() => {
-		getSuccessfulPayments();
-	}, []);
+		isAuthenticated && getSuccessfulPayments();
+	}, [isAuthenticated]);
+
+	useEffect(() => {
+		isAuthenticated && getActivePlanDetails(user.subscription.subIds);
+	}, [isAuthenticated, user]);
+
 	const [cancelModal, setCancelModal] = useState(false);
 
 	const growPlanSeats = 30;
@@ -175,7 +184,7 @@ const BillingPage = ({
 		return plan;
 	};
 
-	const pmBrand = capitalize(user.billing.brand);
+	const pmBrand = user && capitalize(user.billing.brand);
 
 	return (
 		<AuthLayout>
@@ -196,15 +205,11 @@ const BillingPage = ({
 									<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
 										<h2 className='font-bold text-lg text-gray-800'>Plan</h2>
 									</header>
-									<div className='mt-6'>
-										{user.subscription.subIds
-											.filter((s) => s.active === 'true')
-											.map((s) => (
-												<div key={s.id}>
-													<div>{s.id}</div>
-												</div>
-											))}
-									</div>
+									{plan.loading ? (
+										<Spinner />
+									) : (
+										<div className='mt-6'>{plan.id}</div>
+									)}
 								</article>
 								<article className='w-1/2 ml-16'>
 									<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
@@ -233,16 +238,20 @@ const BillingPage = ({
 										Payment history
 									</h2>
 								</header>
-								<ul className='mt-6'>
-									{billing.payments.map((p) => (
-										<li key={p.id}>
-											<div>{planChecker(p.amount)}</div>
-											<div>
-												{p.paymentMethod.brand} {p.paymentMethod.last4}
-											</div>
-										</li>
-									))}
-								</ul>
+								{paymentHistory.loading ? (
+									<Spinner />
+								) : (
+									<ul className='mt-6'>
+										{paymentHistory.payments.map((p) => (
+											<li key={p.id}>
+												<div>{planChecker(p.amount)}</div>
+												<div>
+													{p.paymentMethod.brand} {p.paymentMethod.last4}
+												</div>
+											</li>
+										))}
+									</ul>
+								)}
 							</article>
 						</div>
 					)}
@@ -266,5 +275,6 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, {
 	cancelStripeSub,
 	getSuccessfulPayments,
+	getActivePlanDetails,
 	setAlert,
 })(BillingPage);

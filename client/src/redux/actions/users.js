@@ -2,9 +2,12 @@ import axios from 'axios';
 import {
 	GET_ALL_USERS,
 	SET_PAGE,
+	SET_PLAN,
 	SET_PAYMENTS,
 	LOADING,
 	FINISHED_LOADING,
+	FINISHED_PLAN_LOADING,
+	FINISHED_PAYMENTS_LOADING,
 } from './types';
 import { setAlert } from './alert';
 
@@ -53,11 +56,32 @@ export const getSuccessfulPayments = () => async (dispatch) => {
 	try {
 		dispatch({ type: LOADING });
 		const { data } = await axios.get('/api/users/get-successful-payments/');
-
 		dispatch({
 			type: SET_PAYMENTS,
 			payload: data.payments,
 		});
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+// Get the user's active plan details
+export const getActivePlanDetails = (subIds) => async (dispatch) => {
+	try {
+		const body = JSON.stringify({ subIds });
+		const {
+			data: { msg: message, subscription },
+		} = await axios.post('/api/users/get-active-plan-details', body, config);
+		if (message === 'Subscription data found') {
+			dispatch({
+				type: SET_PLAN,
+				payload: subscription,
+			});
+		} else {
+			dispatch({
+				type: FINISHED_PLAN_LOADING,
+			});
+		}
 	} catch (error) {
 		console.log(error);
 	}

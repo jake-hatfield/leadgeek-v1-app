@@ -356,7 +356,10 @@ router.post('/update-db-subscription', async (req, res) => {
 	}
 });
 
-router.get('/get-successful-payments', async (req, res) => {
+// @route       POST api/get-successful-payments
+// @description Get a user's payment history
+// @access      Private
+router.get('/get-successful-payments', auth, async (req, res) => {
 	try {
 		const returnBillingInfo = (item) => {
 			return {
@@ -393,6 +396,48 @@ router.get('/get-successful-payments', async (req, res) => {
 				msg: 'No payments found',
 				payments: [],
 			});
+		}
+	} catch (error) {
+		console.error(error.message);
+		res.status(500).send('Server error');
+	}
+});
+
+// @route       POST api/get-active-plan-details
+// @description Get a user's subscription information for the active plan
+// @access      Private
+router.post('/get-active-plan-details', auth, async (req, res) => {
+	try {
+		const returnSubscriptionInfo = (item) => {
+			return {
+				id: item.id,
+				cancelAt: item.cancel_at,
+				cancelAtPeriodEnd: item.cancel_at_period_end,
+				created: item.created,
+				currentPeriodEnd: item.current_period_end,
+				plan: {
+					planId: item.plan.id,
+					amount: item.plan.amount,
+				},
+			};
+		};
+
+		const { subIds } = req.body;
+		const activeSubId = subIds.filter((subId) => subId.active === true)[0].id;
+		let message;
+		if (activeSubId) {
+			const subscription = await stripe.subscriptions.retrieve(activeSubId);
+			const subscriptionData = returnSubscriptionInfo(subscription);
+			message = 'Subscription data found';
+			console.log(message);
+			return res.status(200).json({
+				msg: message,
+				subscription: subscriptionData,
+			});
+		} else {
+			message = 'No active subscriptions found';
+			console.log(message);
+			return res.status(200).json({ msg: message, subscription: null });
 		}
 	} catch (error) {
 		console.error(error.message);

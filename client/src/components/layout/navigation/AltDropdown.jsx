@@ -42,6 +42,9 @@ function AltDropdown({
 				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>
 					<div>
 						<h5 className='inline-block font-bold text-lg'>
+							<span role='img' aria-label='Waving emoji' className='mr-1'>
+								👋
+							</span>
 							Hi, {name.split(' ')[0] || 'Account'}
 						</h5>
 					</div>
