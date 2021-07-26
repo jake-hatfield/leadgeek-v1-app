@@ -56,7 +56,7 @@ function AltDropdown({
 							to={`/${item.link}`}
 							className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
 						>
-							<span className='font-semibold text-sm text-gray-700'>
+							<span className='font-semibold text-sm text-gray-800'>
 								{item.title}
 							</span>
 							<span className='text-sm text-gray-600'>{item.dateString}</span>
@@ -68,7 +68,7 @@ function AltDropdown({
 						onClick={() => logoutUser(logout)}
 						className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
 					>
-						<span className='font-semibold text-sm text-gray-700'>Logout</span>
+						<span className='font-semibold text-sm text-gray-800'>Logout</span>
 					</button>
 				</div>
 			</div>

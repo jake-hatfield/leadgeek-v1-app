@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { getAffiliatePayments } from 'redux/actions/users';
 
 import AuthLayout from 'components/layout/AuthLayout';
 import SettingsLayout from 'components/layout/SettingsLayout';
 import AffiliateTable from 'components/settings/affiliates/AffiliateTable';
-import FormField from 'components/layout/utils/FormField';
 import Spinner from 'components/layout/utils/Spinner';
 
 const BasicInformationItem = ({ title, value, isInteractable, t }) => {
 	const [tooltip, setTooltip] = useState(false);
 
 	return (
-		<div className='flex items-center justify-between text-gray-900 text-sm'>
-			<header className='flex items-end'>
+		<div className='flex items-center justify-between text-gray-900'>
+			<header className='flex items-center'>
 				<h3 className='align-bottom'>{title}</h3>
 				{t && (
-					<div className='ml-2 relative flex items-end'>
+					<div className='mt-1 ml-2 relative flex items-end'>
 						<button
 							onMouseEnter={() => setTooltip(true)}
 							onMouseLeave={() => setTooltip(false)}
@@ -49,20 +49,27 @@ const BasicInformationItem = ({ title, value, isInteractable, t }) => {
 	);
 };
 
-const AffiliatesPage = ({ auth: { user, loading, isAuthenticated } }) => {
+const AffiliatesPage = ({
+	auth: { user, loading, isAuthenticated },
+	getAffiliatePayments,
+}) => {
+	const { referrals } = Object(user);
+	const isAffiliate = isAuthenticated && referrals.referrer.isReferrer;
+	const lgid = isAuthenticated && referrals.referrer.lgid;
+
+	useEffect(() => {
+		isAuthenticated &&
+			getAffiliatePayments(lgid, user.referrals.referrer.dateCreated);
+	}, [isAuthenticated]);
+
 	const [copyText, setCopyText] = useState('Copy LGID');
 	const [copiedText, setCopiedText] = useState('');
-
-	const { referrals } = Object(user);
-	console.log(referrals);
-	const isAffiliate = user && referrals.referrer.isReferrer;
-	const lgid = user && referrals.referrer.lgid;
 
 	const basicInformationItems = [
 		{
 			title: 'Unique link',
 			value: (
-				<button className='py-2 px-4 rounded-lg text-white text-sm shadow-md bg-purple-500 hover:bg-purple-600 transition-colors duration-200 focus:outline-none focus:shadow-outline'>
+				<button className='font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'>
 					Generate unique link
 				</button>
 			),
@@ -79,14 +86,14 @@ const AffiliatesPage = ({ auth: { user, loading, isAuthenticated } }) => {
 			title: 'Paypal email address',
 			value: (
 				<form className='flex items-center'>
-					<FormField
+					{/* <FormField
 						padding={'pt-0'}
 						placeholder={
 							(user && referrals.referrer.paypalEmail) ||
 							'Enter your PayPal email'
 						}
 					/>
-					<button>Submit</button>
+					<button>Submit</button> */}
 				</form>
 			),
 			isInteractable: true,
@@ -99,13 +106,13 @@ const AffiliatesPage = ({ auth: { user, loading, isAuthenticated } }) => {
 			t: 'Affiliate payouts are made on the 15th of every month for commissions more than 60 days old',
 		},
 		{
-			title: 'Commissions earned (+ all time)',
-			value: 200,
+			title: 'Expected payout commission value',
+			value: 201,
 			isInteractable: false,
 		},
 		{
-			title: 'Total commission value',
-			value: 201,
+			title: 'Total commissions earned (+ total value)',
+			value: 200,
 			isInteractable: false,
 		},
 	];
@@ -159,7 +166,7 @@ const AffiliatesPage = ({ auth: { user, loading, isAuthenticated } }) => {
 										</div>
 									)}
 								</header>
-								<div className='grid grid-flow-col grid-rows-3 grid-cols-2 gap-y-2 gap-x-8 mt-6'>
+								<div className='grid grid-flow-col grid-rows-3 grid-cols-2 gap-y-1 gap-x-8 mt-6'>
 									{basicInformationItems.map((item, i) => (
 										<BasicInformationItem
 											key={i}
@@ -237,4 +244,6 @@ const mapStateToProps = (state) => ({
 	auth: state.auth,
 });
 
-export default connect(mapStateToProps)(AffiliatesPage);
+export default connect(mapStateToProps, { getAffiliatePayments })(
+	AffiliatesPage
+);

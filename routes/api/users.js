@@ -359,11 +359,11 @@ router.post('/update-db-subscription', async (req, res) => {
 // @route       POST api/get-successful-payments
 // @description Get a user's payment history
 // @access      Private
-router.get('/get-successful-payments', auth, async (req, res) => {
+router.post('/get-successful-payments', auth, async (req, res) => {
 	try {
+		const { cusId } = req.body;
 		const returnBillingInfo = (item) => {
 			return {
-				id: item.id,
 				amount: item.amount,
 				currency: item.currency,
 				paymentMethod: {
@@ -379,7 +379,7 @@ router.get('/get-successful-payments', auth, async (req, res) => {
 		};
 
 		const allPayments = await stripe.paymentIntents.list({
-			customer: 'cus_IvaN25YaLNiUX9',
+			customer: cusId,
 			expand: ['data.payment_method', 'data.invoice'],
 		});
 
@@ -438,6 +438,31 @@ router.post('/get-active-plan-details', auth, async (req, res) => {
 			message = 'No active subscriptions found';
 			console.log(message);
 			return res.status(200).json({ msg: message, subscription: null });
+		}
+	} catch (error) {
+		console.error(error.message);
+		res.status(500).send('Server error');
+	}
+});
+
+// @route       POST api/get-affiliate-payments
+// @description Retrieve an affiliates payments
+// @access      Private
+router.post('/get-affiliate-payments', auth, async (req, res) => {
+	try {
+		const { lgid, affCreated } = req.body;
+		console.log(lgid, affCreated);
+		const referredClients = await User.find({
+			'referrals.referred.lgid': lgid,
+		}).slice('subscription.cusId', 1);
+
+		if (referredClients.length > 0) {
+			console.log(referredClients);
+			const allCharges = await stripe.charges.list({
+				'created.gte': affCreated,
+			});
+		} else {
+			console.log('No referred clients found');
 		}
 	} catch (error) {
 		console.error(error.message);

@@ -91,7 +91,7 @@ export default function userReducer(state = initialState, action) {
 				id,
 				created,
 				cancelAt,
-				cancelAtPeriod,
+				cancelAtPeriodEnd,
 				currentPeriodEnd,
 				plan: { planId, amount },
 			} = payload;
@@ -107,7 +107,7 @@ export default function userReducer(state = initialState, action) {
 							id,
 							created,
 							cancelAt,
-							cancelAtPeriod,
+							cancelAtPeriodEnd,
 							currentPeriodEnd,
 							plan: {
 								id: planId,

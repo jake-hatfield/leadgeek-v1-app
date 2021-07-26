@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
+import { DateTime } from 'luxon';
 import { connect } from 'react-redux';
 import { setAlert } from 'redux/actions/alert';
 import { cancelStripeSub } from 'redux/actions/auth';
@@ -9,7 +10,7 @@ import {
 	getActivePlanDetails,
 } from 'redux/actions/users';
 
-import { capitalize } from 'utils/utils';
+import { capitalize, truncate } from 'utils/utils';
 import AuthLayout from 'components/layout/AuthLayout';
 import Spinner from 'components/layout/utils/Spinner';
 import SettingsLayout from 'components/layout/SettingsLayout';
@@ -23,140 +24,15 @@ const BillingPage = ({
 	setAlert,
 }) => {
 	useEffect(() => {
-		isAuthenticated && getSuccessfulPayments();
+		isAuthenticated && getSuccessfulPayments(user.subscription.cusId);
 	}, [isAuthenticated]);
 
 	useEffect(() => {
-		isAuthenticated && getActivePlanDetails(user.subscription.subIds);
+		isAuthenticated &&
+			!plan.id &&
+			getActivePlanDetails(user.subscription.subIds);
 	}, [isAuthenticated, user]);
 
-	const [cancelModal, setCancelModal] = useState(false);
-
-	const growPlanSeats = 30;
-	const proPlanSeats = 15;
-	const featureLists = [
-		[
-			{
-				id: 1,
-				body: (
-					<span>
-						Limited to{' '}
-						<strong className='font-semibold'>{growPlanSeats}</strong> members
-					</span>
-				),
-			},
-			{
-				id: 2,
-				body: (
-					<span>
-						<strong className='font-semibold'>50+</strong> products per week
-					</span>
-				),
-			},
-			{
-				id: 3,
-				body: (
-					<span>
-						$<strong className='font-semibold'>4</strong>-30+ profit per unit
-					</span>
-				),
-			},
-			{
-				id: 4,
-				body: (
-					<span>
-						<strong className='font-semibold'>40</strong>%+ ROI per unit
-					</span>
-				),
-			},
-			{
-				id: 6,
-				body: 'Email support',
-			},
-			{
-				id: 7,
-				body: 'Free updates',
-			},
-		],
-		[
-			{
-				id: 1,
-				body: (
-					<span>
-						Limited to <strong className='font-semibold'>{proPlanSeats}</strong>{' '}
-						members
-					</span>
-				),
-			},
-			{
-				id: 2,
-				body: (
-					<span>
-						<strong className='font-semibold'>50+</strong> products per week
-					</span>
-				),
-			},
-			{
-				id: 3,
-				body: (
-					<span>
-						$<strong className='font-semibold'>5</strong>-30+ profit per unit
-					</span>
-				),
-			},
-			{
-				id: 4,
-				body: (
-					<span>
-						<strong className='font-semibold'>50</strong>%+ ROI per unit
-					</span>
-				),
-			},
-			{
-				id: 6,
-				body: 'Premium support',
-			},
-			{
-				id: 7,
-				body: 'Free updates',
-			},
-		],
-		[
-			{
-				id: 1,
-				body: (
-					<span>
-						Limited to <strong className='font-semibold'>{proPlanSeats}</strong>{' '}
-						members
-					</span>
-				),
-			},
-			{
-				id: 2,
-				body: (
-					<span>
-						<strong className='font-semibold'>100+</strong> products per week
-					</span>
-				),
-			},
-			{
-				id: 3,
-				body: 'All Grow Plan leads',
-			},
-			{
-				id: 4,
-				body: 'All Pro Plan leads',
-			},
-			{
-				id: 6,
-				body: 'Premium support',
-			},
-			{
-				id: 7,
-				body: 'Free updates',
-			},
-		],
-	];
 	const handleCancelSubscription = () => {
 		const { customerId } = user;
 		if (!customerId) {
@@ -165,7 +41,6 @@ const BillingPage = ({
 				'danger'
 			);
 		}
-
 		// cancels subscription in stripe and updates to 'canceled' status in db
 		cancelStripeSub(customerId, 'sub_IvxscYyUQVlmT7');
 	};
@@ -184,7 +59,16 @@ const BillingPage = ({
 		return plan;
 	};
 
-	const pmBrand = user && capitalize(user.billing.brand);
+	const formatTimestamp = (timestamp, showYear) => {
+		const isoTime = new Date(timestamp * 1000).toJSON();
+		if (showYear) {
+			return DateTime.fromISO(isoTime).toFormat('LLL dd, yyyy');
+		} else {
+			return DateTime.fromISO(isoTime).toFormat('LLLL dd');
+		}
+	};
+
+	const paymentMethodBrand = isAuthenticated && capitalize(user.billing.brand);
 
 	return (
 		<AuthLayout>
@@ -200,38 +84,70 @@ const BillingPage = ({
 						<Spinner />
 					) : (
 						<div className='w-full pr-16 text-gray-800'>
-							<div className='flex items-start justify-between'>
-								<article className='w-1/2'>
-									<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
-										<h2 className='font-bold text-lg text-gray-800'>Plan</h2>
-									</header>
-									{plan.loading ? (
-										<Spinner />
-									) : (
-										<div className='mt-6'>{plan.id}</div>
-									)}
-								</article>
-								<article className='w-1/2 ml-16'>
-									<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
-										<h2 className='font-bold text-lg text-gray-800'>
-											Payment method
-										</h2>
-									</header>
-									<div className='mt-6 flex items-end justify-between'>
-										<div className='flex items-center'>
-											<div className='text-sm'>
-												<div>
-													{pmBrand} &#8226;&#8226;&#8226;&#8226;{' '}
-													{user.billing.last4}
-												</div>
+							<section>
+								<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
+									<h2 className='font-bold text-lg text-gray-800'>
+										Subscription information
+									</h2>
+								</header>
+								{plan.loading ? (
+									<Spinner />
+								) : plan.id ? (
+									<div className='mt-6 grid grid-flow-col grid-rows-3 grid-cols-2 gap-y-1 gap-x-8'>
+										<div className='flex items-center justify-between'>
+											<div>Member since</div>
+											<div>
+												{isAuthenticated &&
+													DateTime.fromISO(user.dateCreated).toFormat(
+														'LLL dd, yyyy'
+													)}
 											</div>
 										</div>
-										<button className='font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'>
-											Change card
-										</button>
+										<div className='flex items-center justify-between'>
+											<div>Current subscription active since</div>
+											<div>
+												{isAuthenticated && formatTimestamp(plan.created, true)}
+											</div>
+										</div>
+										<div className='flex items-center justify-between'>
+											<div>Current subscription</div>
+											<div className='font-bold'>
+												{planChecker(plan.plan.amount)} plan
+											</div>
+										</div>
+										<div className='flex items-center justify-between'>
+											<div>
+												Estimate for{' '}
+												<span className='font-bold'>
+													{isAuthenticated &&
+														!plan.cancelAtPeriodEnd &&
+														formatTimestamp(plan.currentPeriodEnd)}
+												</span>
+											</div>
+											<div className='font-bold'>${plan.plan.amount / 100}</div>
+										</div>
+										{/* <div className='flex items-center justify-between'>
+											<div>Default payment method</div>
+											<div>
+												<button className='ml-2 font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'>
+													{paymentMethodBrand} &#8226;&#8226;&#8226;&#8226;{' '}
+													{user.billing.last4}
+												</button>
+											</div>
+										</div> */}
+										<div className='flex items-center justify-between'>
+											<div>Change subscription preferences</div>
+											<div>
+												<button className='ml-2 font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'>
+													Update plan
+												</button>
+											</div>
+										</div>
 									</div>
-								</article>
-							</div>
+								) : (
+									<div>There are no active plans</div>
+								)}
+							</section>
 							<article className='mt-6'>
 								<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
 									<h2 className='font-bold text-lg text-gray-800'>
@@ -240,17 +156,69 @@ const BillingPage = ({
 								</header>
 								{paymentHistory.loading ? (
 									<Spinner />
+								) : paymentHistory.payments.length > 0 ? (
+									<div>
+										<div className={classes.tableWrapper}>
+											<table className={classes.table} id='payments'>
+												<thead className={classes.tableHeadWrapper}>
+													<tr className={classes.tableHead}>
+														<th>Invoice ID</th>
+														<th className={classes.tableHeadCell}>Plan</th>
+														<th className={classes.tableHeadCell}>Amount</th>
+														<th className={classes.tableHeadCell}>
+															Payment method
+														</th>
+														<th className='pl-2 text-right'>Date</th>
+													</tr>
+												</thead>
+												<tbody className={classes.tableBody}>
+													{paymentHistory.payments.map((payment, i) => (
+														<tr className={classes.rowWrapper}>
+															{/* invoice id */}
+															<td>
+																<a
+																	href={payment.invoice.pdf}
+																	className='font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'
+																>
+																	{truncate(payment.invoice.id, 31)}
+																</a>
+															</td>
+															{/* plan */}
+															<td className={classes.defaultCellWrapper}>
+																{planChecker(payment.amount)}
+															</td>
+
+															{/* amount */}
+															<td className={classes.defaultCellWrapper}>
+																<span>$</span>
+																{payment.amount / 100}
+																<span className={classes.valueIndicator}>
+																	{payment.currency.toUpperCase()}
+																</span>
+															</td>
+															{/* payment method */}
+															<td className={classes.defaultCellWrapper}>
+																{paymentMethodBrand}{' '}
+																&#8226;&#8226;&#8226;&#8226;{' '}
+																&#8226;&#8226;&#8226;&#8226;{' '}
+																&#8226;&#8226;&#8226;&#8226;{' '}
+																{payment.paymentMethod.last4}
+															</td>
+															{/* date */}
+															<td className='pl-2 text-right'>
+																{formatTimestamp(payment.created, true)}
+															</td>
+														</tr>
+													))}
+												</tbody>
+											</table>
+										</div>
+									</div>
 								) : (
-									<ul className='mt-6'>
-										{paymentHistory.payments.map((p) => (
-											<li key={p.id}>
-												<div>{planChecker(p.amount)}</div>
-												<div>
-													{p.paymentMethod.brand} {p.paymentMethod.last4}
-												</div>
-											</li>
-										))}
-									</ul>
+									<div>
+										There are no payments that have been recorded for your
+										account.
+									</div>
 								)}
 							</article>
 						</div>
@@ -259,6 +227,21 @@ const BillingPage = ({
 			</SettingsLayout>
 		</AuthLayout>
 	);
+};
+
+const classes = {
+	tableWrapper: 'w-full relative mt-4',
+	table: 'w-full table-auto',
+	tableHeadWrapper: 'border-b border-gray-200',
+	tableHead:
+		'text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap',
+	tableHeadCell: 'p-2',
+	tableBody: 'text-sm text-gray-800',
+	rowWrapper: 'relative px-1 border-b border-gray-200 hover:bg-gray-100',
+
+	defaultCellWrapper: 'p-2',
+	defaultSvg: 'svg-base',
+	valueIndicator: 'ml-1 text-gray-400 font-semibold',
 };
 
 BillingPage.propTypes = {

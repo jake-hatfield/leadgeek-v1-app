@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 html {
-	@apply text-gray-500;
+	@apply text-gray-800;
 	@apply font-sans;
 }
 
@@ -40,11 +40,11 @@ body {
 }
 
 .form-field {
-	@apply w-full p-2 rounded-md text-sm border border-gray-200 hover:border-purple-300 placeholder-gray-300 ring-purple;
+	@apply mt-2 w-full p-2 rounded-md text-sm border border-gray-200 hover:border-purple-300 placeholder-gray-300 ring-purple;
 }
 
 .form-field-label {
-	@apply block text-xs font-medium text-gray-500;
+	@apply block text-sm font-medium text-gray-800;
 }
 
 .svg-sm {

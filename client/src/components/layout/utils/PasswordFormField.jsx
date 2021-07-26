@@ -31,7 +31,7 @@ const PasswordFormField = ({
 				<button
 					onClick={togglePasswordVisibility}
 					type='button'
-					className='mt-4 mr-2 absolute right-0 rounded-md text-gray-400 ring-purple'
+					className='mt-5 mr-2 absolute right-0 rounded-md text-gray-400 ring-purple'
 				>
 					{passwordShown ? (
 						<EyeClosed className='h-4' />

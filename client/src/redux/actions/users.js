@@ -52,10 +52,15 @@ export const setPage = (page, type) => (dispatch) => {
 };
 
 // Get all successful payments
-export const getSuccessfulPayments = () => async (dispatch) => {
+export const getSuccessfulPayments = (cusId) => async (dispatch) => {
 	try {
 		dispatch({ type: LOADING });
-		const { data } = await axios.get('/api/users/get-successful-payments/');
+		const body = JSON.stringify({ cusId });
+		const { data } = await axios.post(
+			'/api/users/get-successful-payments/',
+			body,
+			config
+		);
 		dispatch({
 			type: SET_PAYMENTS,
 			payload: data.payments,
@@ -82,6 +87,20 @@ export const getActivePlanDetails = (subIds) => async (dispatch) => {
 				type: FINISHED_PLAN_LOADING,
 			});
 		}
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const getAffiliatePayments = (lgid, affCreated) => async (dispatch) => {
+	try {
+		const body = JSON.stringify({ lgid, affCreated });
+		const { data } = axios.post(
+			'/api/users/get-affiliate-payments',
+			body,
+			config
+		);
+		console.log(data);
 	} catch (error) {
 		console.log(error);
 	}

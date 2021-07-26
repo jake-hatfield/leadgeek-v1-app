@@ -13,11 +13,11 @@ const SettingsLayout = ({
 }) => {
 	const [initials, setInitials] = useState('');
 	useEffect(() => {
-		if (!loading && isAuthenticated) {
+		if (isAuthenticated) {
 			let userInitials = user.name.split(' ').map((n) => n[0]);
 			setInitials(userInitials);
 		}
-	}, [loading, isAuthenticated, user]);
+	}, [isAuthenticated]);
 	return (
 		<div className='flex flex-row'>
 			<SettingsNavbar />
@@ -36,7 +36,7 @@ const SettingsLayout = ({
 						</div>
 						<div className='ml-6'>
 							<div className='md:flex md:items-center text-lg font-semibold'>
-								<h2 className='text-purple-500'>{user.name}</h2>
+								<h2 className='font-bold'>{user.name}</h2>
 								{pill && pill.text && (
 									<span
 										className={`ml-2 py-1 px-2 ${
