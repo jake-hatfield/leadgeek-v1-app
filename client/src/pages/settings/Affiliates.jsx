@@ -4,9 +4,15 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getAffiliatePayments } from 'redux/actions/users';
 
+import {
+	planCheckerByPrice,
+	calcAffCommission,
+	truncateAndObfuscate,
+	formatTimestamp,
+	getNext15,
+} from 'utils/utils';
 import AuthLayout from 'components/layout/AuthLayout';
 import SettingsLayout from 'components/layout/SettingsLayout';
-import AffiliateTable from 'components/settings/affiliates/AffiliateTable';
 import Spinner from 'components/layout/utils/Spinner';
 
 const BasicInformationItem = ({ title, value, isInteractable, t }) => {
@@ -37,7 +43,7 @@ const BasicInformationItem = ({ title, value, isInteractable, t }) => {
 							</svg>
 						</button>
 						{tooltip && (
-							<div className='absolute left-0 flex items-center p-2 transform translate-x-6 translate-y-1 rounded-lg shadow-md bg-gray-900 text-white text-xs whitespace-nowrap'>
+							<div className='absolute left-0 flex items-center p-2 transform translate-x-6 translate-y-1 rounded-lg shadow-md bg-gray-900 text-white text-xs'>
 								{t}
 							</div>
 						)}
@@ -51,6 +57,7 @@ const BasicInformationItem = ({ title, value, isInteractable, t }) => {
 
 const AffiliatesPage = ({
 	auth: { user, loading, isAuthenticated },
+	affiliates: { paymentHistory },
 	getAffiliatePayments,
 }) => {
 	const { referrals } = Object(user);
@@ -59,11 +66,19 @@ const AffiliatesPage = ({
 
 	useEffect(() => {
 		isAuthenticated &&
+			paymentHistory.payments.length === 0 &&
 			getAffiliatePayments(lgid, user.referrals.referrer.dateCreated);
 	}, [isAuthenticated]);
 
 	const [copyText, setCopyText] = useState('Copy LGID');
 	const [copiedText, setCopiedText] = useState('');
+
+	const calcCommissionTotal = (payments) => {
+		const total = payments.reduce((a, b) => {
+			return a + b['amount'];
+		}, 0);
+		return calcAffCommission(total);
+	};
 
 	const basicInformationItems = [
 		{
@@ -97,22 +112,37 @@ const AffiliatesPage = ({
 				</form>
 			),
 			isInteractable: true,
-			t: "This is the PayPal email where your commission payments will be sent, so please make sure it's accurate",
+			t: "This is the PayPal email where your commission payments will be sent, so make sure it's up-to-date",
 		},
 		{
-			title: 'Days to next payout',
-			value: 'Apr 321st',
+			title: (
+				<span>
+					Est. payout for{' '}
+					<span className='font-bold'>{getNext15(new Date())}</span>
+				</span>
+			),
+			value: 200,
 			isInteractable: false,
 			t: 'Affiliate payouts are made on the 15th of every month for commissions more than 60 days old',
 		},
 		{
-			title: 'Expected payout commission value',
-			value: 201,
+			title: 'Total clients referred',
+			value: (
+				<span className='font-bold'>
+					{isAuthenticated && user.referrals.referrer.clients.length}
+				</span>
+			),
 			isInteractable: false,
 		},
 		{
-			title: 'Total commissions earned (+ total value)',
-			value: 200,
+			title: 'Total referral value',
+			value: paymentHistory.loading ? (
+				<Spinner spinnerWidth={'sm'} noMargin={'true'} />
+			) : (
+				<span className='font-bold'>
+					${calcCommissionTotal(paymentHistory.payments)}
+				</span>
+			),
 			isInteractable: false,
 		},
 	];
@@ -184,43 +214,58 @@ const AffiliatesPage = ({
 										Commission history
 									</h2>
 								</header>
-								<AffiliateTable
-									loading={loading}
-									payments={[
-										{
-											data: {
-												bsr30: 39428,
-												bsr90: 43270,
-												price30: 52.72,
-												price90: 45.71,
-												source: "Dillard's",
-												title: 'Spanx Undie-Tectable Lace Hi-Hipster Panty',
-												brand: 'Spanx',
-												category: 'Clothing, Shoes & Jewelry',
-												retailerLink:
-													'https://www.dillards.com/p/spanx-undie-tectable-lace-hi-hipster-panty/505165839',
-												amzLink: 'https://amazon.com/dp/B00S60YJRQ/',
-												promo: '',
-												buyPrice: 24,
-												sellPrice: 48.5,
-												netProfit: 12.37,
-												roi: 0.5154166667,
-												bsrCurrent: 50703,
-												monthlySales: 60,
-												competitorType: 'FBA',
-												competitorCount: 2,
-												variations: 'Size: S, M | Color: Black',
-												cashback: '',
-												weight: 0.13,
-												shipping: 'Free shipping on $150+',
-												notes: '',
-												img: 'https://m.media-amazon.com/images/I/41Ak5d14o1L.jpg',
-												date: '2021-07-22T13:53:00.000Z',
-												asin: 'B00S60YJRQ',
-											},
-										},
-									]}
-								/>
+								{paymentHistory.loading ? (
+									<Spinner />
+								) : paymentHistory.payments.length > 0 ? (
+									<div>
+										<div className={classes.tableWrapper}>
+											<table className={classes.table} id='payments'>
+												<thead className={classes.tableHeadWrapper}>
+													<tr className={classes.tableHead}>
+														<th>Transaction ID</th>
+														<th className={classes.tableHeadCell}>Plan</th>
+														<th className={classes.tableHeadCell}>Amount</th>
+
+														<th className='pl-2 text-right'>Date created</th>
+														<th className='pl-2 text-right'>Est payout date</th>
+													</tr>
+												</thead>
+												<tbody className={classes.tableBody}>
+													{paymentHistory.payments.map((payment, i) => (
+														<tr key={i} className={classes.rowWrapper}>
+															{/* transaction id */}
+															<td>{truncateAndObfuscate(payment.id, 22)}</td>
+															{/* plan */}
+															<td className={classes.defaultCellWrapper}>
+																{planCheckerByPrice(payment.amount)}
+															</td>
+															{/* amount */}
+															<td className={classes.defaultCellWrapper}>
+																<span>$</span>
+																{calcAffCommission(payment.amount)}
+																<span className={classes.valueIndicator}>
+																	{payment.currency.toUpperCase()}
+																</span>
+															</td>
+															{/* date */}
+															<td className='pl-2 text-right'>
+																{formatTimestamp(payment.created, true)}
+															</td>
+															<td className='pl-2 text-right'>
+																{/* {formatTimestamp(payment.created, true)} */}
+															</td>
+														</tr>
+													))}
+												</tbody>
+											</table>
+										</div>
+									</div>
+								) : (
+									<div>
+										There are no payments that have been recorded for your
+										account.
+									</div>
+								)}
 							</section>
 						</div>
 					) : (
@@ -236,12 +281,28 @@ const AffiliatesPage = ({
 	);
 };
 
+const classes = {
+	tableWrapper: 'w-full relative mt-4',
+	table: 'w-full table-auto',
+	tableHeadWrapper: 'border-b border-gray-200',
+	tableHead:
+		'text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap',
+	tableHeadCell: 'p-2',
+	tableBody: 'text-sm text-gray-800',
+	rowWrapper: 'relative px-1 border-b border-gray-200 hover:bg-gray-100',
+
+	defaultCellWrapper: 'p-2',
+	defaultSvg: 'svg-base',
+	valueIndicator: 'ml-1 text-gray-400 font-semibold',
+};
+
 AffiliatesPage.propTypes = {
 	auth: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
+	affiliates: state.users.userSettings.affiliates,
 });
 
 export default connect(mapStateToProps, { getAffiliatePayments })(

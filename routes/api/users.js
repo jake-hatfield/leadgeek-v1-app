@@ -7,6 +7,7 @@ const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 const User = require('../../models/User');
+const { timeStamp } = require('console');
 const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
 const stripe = require('stripe')(stripeSecret);
 
@@ -451,18 +452,57 @@ router.post('/get-active-plan-details', auth, async (req, res) => {
 router.post('/get-affiliate-payments', auth, async (req, res) => {
 	try {
 		const { lgid, affCreated } = req.body;
-		console.log(lgid, affCreated);
+
+		const affCreatedUnix = new Date(affCreated).getTime() / 1000;
+
 		const referredClients = await User.find({
-			'referrals.referred.lgid': lgid,
-		}).slice('subscription.cusId', 1);
+			'referrals.referred.referrerlgid': lgid,
+		}).then((clients) => {
+			return clients.map((client) => client.subscription.cusId);
+		});
+
+		const returnChargeInfo = (item) => {
+			return {
+				id: item.id,
+				amount: item.amount,
+				amountCaptured: item.amount_captured,
+				currency: item.currency,
+				created: item.created,
+				customer: item.customer,
+				paid: item.paid,
+				refunded: item.refunded,
+			};
+		};
+
+		let allCharges = [];
 
 		if (referredClients.length > 0) {
-			console.log(referredClients);
-			const allCharges = await stripe.charges.list({
-				'created.gte': affCreated,
-			});
+			console.log('Getting all Stripe charges...');
+			for await (const charge of stripe.charges.list({
+				limit: 100,
+				created: { gte: affCreatedUnix },
+			})) {
+				allCharges.push(returnChargeInfo(charge));
+			}
+
+			const affPayments = allCharges
+				.filter((charge) => referredClients.includes(charge.customer))
+				.filter((charge) => charge.paid === true && charge.refunded === false);
+
+			let message;
+			if (affPayments.length > 0) {
+				message = 'Referred clients with valid payments were found.';
+				console.log(message);
+				return res.status(200).json({ msg: message, affPayments });
+			} else {
+				message = 'No referred clients found';
+				console.log(message);
+				return res.status(200).json({ msg: message, affPayments: [] });
+			}
 		} else {
-			console.log('No referred clients found');
+			let message = 'No referred clients found';
+			console.log(message);
+			return res.status(200).json({ msg: message, affPayments: [] });
 		}
 	} catch (error) {
 		console.error(error.message);

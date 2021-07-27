@@ -2,11 +2,13 @@ import {
 	GET_ALL_USERS,
 	SET_PAGE,
 	SET_PLAN,
-	SET_PAYMENTS,
+	SET_BILLING_PAYMENTS,
+	SET_AFFILIATE_PAYMENTS,
 	LOADING,
 	FINISHED_LOADING,
 	FINISHED_PLAN_LOADING,
-	FINISHED_PAYMENTS_LOADING,
+	FINISHED_BILLING_PAYMENTS_LOADING,
+	FINISHED_AFFILIATE_PAYMENTS_LOADING,
 	LOGOUT,
 } from '../actions/types';
 
@@ -36,6 +38,12 @@ const initialState = {
 					amount: null,
 				},
 			},
+			paymentHistory: {
+				loading: true,
+				payments: [],
+			},
+		},
+		affiliates: {
 			paymentHistory: {
 				loading: true,
 				payments: [],
@@ -118,7 +126,7 @@ export default function userReducer(state = initialState, action) {
 				},
 			};
 		}
-		case SET_PAYMENTS: {
+		case SET_BILLING_PAYMENTS: {
 			return {
 				...state,
 				userSettings: {
@@ -127,6 +135,23 @@ export default function userReducer(state = initialState, action) {
 						...state.userSettings.billing,
 						paymentHistory: {
 							...state.userSettings.billing.paymentHistory,
+							loading: false,
+							payments: payload,
+						},
+					},
+				},
+				loading: false,
+			};
+		}
+		case SET_AFFILIATE_PAYMENTS: {
+			return {
+				...state,
+				userSettings: {
+					...state.userSettings,
+					affiliates: {
+						...state.userSettings.affiliates,
+						paymentHistory: {
+							...state.userSettings.affiliates.paymentHistory,
 							loading: false,
 							payments: payload,
 						},
@@ -162,7 +187,7 @@ export default function userReducer(state = initialState, action) {
 				},
 			};
 		}
-		case FINISHED_PAYMENTS_LOADING: {
+		case FINISHED_BILLING_PAYMENTS_LOADING: {
 			return {
 				...state,
 				userSettings: {
@@ -171,6 +196,21 @@ export default function userReducer(state = initialState, action) {
 						...state.userSettings.billing,
 						paymentHistory: {
 							...state.userSettings.billing.paymentHistory,
+							loading: false,
+						},
+					},
+				},
+			};
+		}
+		case FINISHED_AFFILIATE_PAYMENTS_LOADING: {
+			return {
+				...state,
+				userSettings: {
+					...state.userSettings,
+					affiliates: {
+						...state.userSettings.affiliates,
+						paymentHistory: {
+							...state.userSettings.affiliates.paymentHistory,
 							loading: false,
 						},
 					},

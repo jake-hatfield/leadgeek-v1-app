@@ -3,11 +3,13 @@ import {
 	GET_ALL_USERS,
 	SET_PAGE,
 	SET_PLAN,
-	SET_PAYMENTS,
+	SET_BILLING_PAYMENTS,
 	LOADING,
 	FINISHED_LOADING,
 	FINISHED_PLAN_LOADING,
-	FINISHED_PAYMENTS_LOADING,
+	SET_AFFILIATE_PAYMENTS,
+	FINISHED_BILLING_PAYMENTS_LOADING,
+	FINISHED_AFFILIATE_PAYMENTS_LOADING,
 } from './types';
 import { setAlert } from './alert';
 
@@ -62,7 +64,7 @@ export const getSuccessfulPayments = (cusId) => async (dispatch) => {
 			config
 		);
 		dispatch({
-			type: SET_PAYMENTS,
+			type: SET_BILLING_PAYMENTS,
 			payload: data.payments,
 		});
 	} catch (error) {
@@ -95,12 +97,19 @@ export const getActivePlanDetails = (subIds) => async (dispatch) => {
 export const getAffiliatePayments = (lgid, affCreated) => async (dispatch) => {
 	try {
 		const body = JSON.stringify({ lgid, affCreated });
-		const { data } = axios.post(
-			'/api/users/get-affiliate-payments',
-			body,
-			config
-		);
-		console.log(data);
+		const {
+			data: { msg: message, affPayments },
+		} = await axios.post('/api/users/get-affiliate-payments', body, config);
+		if (message === 'Referred clients with valid payments were found.') {
+			dispatch({
+				type: SET_AFFILIATE_PAYMENTS,
+				payload: affPayments,
+			});
+		} else {
+			dispatch({
+				type: FINISHED_AFFILIATE_PAYMENTS_LOADING,
+			});
+		}
 	} catch (error) {
 		console.log(error);
 	}

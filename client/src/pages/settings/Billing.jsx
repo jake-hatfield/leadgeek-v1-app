@@ -10,7 +10,12 @@ import {
 	getActivePlanDetails,
 } from 'redux/actions/users';
 
-import { capitalize, truncate } from 'utils/utils';
+import {
+	capitalize,
+	truncate,
+	planCheckerByPrice,
+	formatTimestamp,
+} from 'utils/utils';
 import AuthLayout from 'components/layout/AuthLayout';
 import Spinner from 'components/layout/utils/Spinner';
 import SettingsLayout from 'components/layout/SettingsLayout';
@@ -43,29 +48,6 @@ const BillingPage = ({
 		}
 		// cancels subscription in stripe and updates to 'canceled' status in db
 		cancelStripeSub(customerId, 'sub_IvxscYyUQVlmT7');
-	};
-
-	const planChecker = (price) => {
-		let plan;
-		if (price === 12900) {
-			plan = 'Grow';
-		} else if (price === 18900) {
-			plan = 'Pro';
-		} else if (price === 26300) {
-			plan = 'Bundle';
-		} else {
-			plan = 'Leadgeek';
-		}
-		return plan;
-	};
-
-	const formatTimestamp = (timestamp, showYear) => {
-		const isoTime = new Date(timestamp * 1000).toJSON();
-		if (showYear) {
-			return DateTime.fromISO(isoTime).toFormat('LLL dd, yyyy');
-		} else {
-			return DateTime.fromISO(isoTime).toFormat('LLLL dd');
-		}
 	};
 
 	const paymentMethodBrand = isAuthenticated && capitalize(user.billing.brand);
@@ -112,7 +94,7 @@ const BillingPage = ({
 										<div className='flex items-center justify-between'>
 											<div>Current subscription</div>
 											<div className='font-bold'>
-												{planChecker(plan.plan.amount)} plan
+												{planCheckerByPrice(plan.plan.amount)} plan
 											</div>
 										</div>
 										<div className='flex items-center justify-between'>
@@ -173,7 +155,7 @@ const BillingPage = ({
 												</thead>
 												<tbody className={classes.tableBody}>
 													{paymentHistory.payments.map((payment, i) => (
-														<tr className={classes.rowWrapper}>
+														<tr key={i} className={classes.rowWrapper}>
 															{/* invoice id */}
 															<td>
 																<a
@@ -185,7 +167,7 @@ const BillingPage = ({
 															</td>
 															{/* plan */}
 															<td className={classes.defaultCellWrapper}>
-																{planChecker(payment.amount)}
+																{planCheckerByPrice(payment.amount)}
 															</td>
 
 															{/* amount */}

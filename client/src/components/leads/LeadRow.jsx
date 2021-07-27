@@ -122,7 +122,7 @@ const LeadRow = ({
 		competitorCount: 'font-semibold',
 		profitCellWrapper: 'p-2 uppercase',
 		titleHover:
-			'absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-16 xl:translate-x-20 rounded-md shadow-md bg-gray-900 text-white text-sm',
+			'absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-16 rounded-md shadow-md bg-gray-900 text-white text-sm',
 		quickViewCellWrapper: quickView ? 'p-4' : 'p-2',
 		quickViewWrapper:
 			'all-center rounded-r-lg text-gray-500 hover:text-gray-700',

@@ -1,11 +1,18 @@
 import React, { useEffect } from 'react';
 
+import { DateTime } from 'luxon';
+
 export const capitalize = (s) => {
 	return s[0].toUpperCase() + s.slice(1);
 };
 
 export const truncate = (str, n) => {
 	return str.length > n ? str.substr(0, n - 1) + '...' : str;
+};
+
+export const truncateAndObfuscate = (str, n) => {
+	const string = str.slice(3);
+	return string.length > n ? string.substr(0, n - 1) + 'xxxx' : str;
 };
 
 export const numberWithCommas = (x) => {
@@ -143,24 +150,41 @@ export const useOutsideMouseup = (ref, setState_1, setState_2) => {
 	}, [ref, setState_1, setState_2]);
 };
 
-export const getNumberSuffix = (num) => {
-	const th = 'th';
-	const rd = 'rd';
-	const nd = 'nd';
-	const st = 'st';
-
-	if (num === 11 || num === 12 || num === 13) return th;
-
-	let lastDigit = num.toString().slice(-1);
-
-	switch (lastDigit) {
-		case '1':
-			return st;
-		case '2':
-			return nd;
-		case '3':
-			return rd;
-		default:
-			return th;
+export const planCheckerByPrice = (price) => {
+	let plan;
+	if (price === 12900) {
+		plan = 'Grow';
+	} else if (price === 18900) {
+		plan = 'Pro';
+	} else if (price === 26300) {
+		plan = 'Bundle';
+	} else {
+		plan = 'Leadgeek';
 	}
+	return plan;
+};
+
+export const calcAffCommission = (price) => {
+	return (price * 0.25) / 100;
+};
+
+export const formatTimestamp = (timestamp, showYear) => {
+	const isoTime = new Date(timestamp * 1000).toJSON();
+	if (showYear) {
+		return DateTime.fromISO(isoTime).toFormat('LLL dd, yyyy');
+	} else {
+		return DateTime.fromISO(isoTime).toFormat('LLLL dd');
+	}
+};
+
+export const getNext15 = (date) => {
+	var next = new Date(date);
+	var cache = next.getDate();
+	next.setDate(15);
+	if (cache >= 15) {
+		next.setMonth(date.getMonth() + 1);
+	}
+	next.setHours(23, 59, 59, 0);
+
+	return DateTime.fromJSDate(next).toFormat('LLLL dd');
 };
