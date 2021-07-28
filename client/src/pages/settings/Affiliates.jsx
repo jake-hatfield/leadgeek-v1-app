@@ -9,7 +9,8 @@ import {
 	calcAffCommission,
 	truncateAndObfuscate,
 	formatTimestamp,
-	getNext15,
+	getPayout,
+	calcNextPayoutDate,
 } from 'utils/utils';
 import AuthLayout from 'components/layout/AuthLayout';
 import SettingsLayout from 'components/layout/SettingsLayout';
@@ -67,17 +68,32 @@ const AffiliatesPage = ({
 	useEffect(() => {
 		isAuthenticated &&
 			paymentHistory.payments.length === 0 &&
+			user.referrals.referrer.isReferrer === true &&
 			getAffiliatePayments(lgid, user.referrals.referrer.dateCreated);
 	}, [isAuthenticated]);
 
 	const [copyText, setCopyText] = useState('Copy LGID');
 	const [copiedText, setCopiedText] = useState('');
 
+	const [nextPayout] = useState(getPayout(1));
+	const [lastPayout] = useState(getPayout(-1));
+
 	const calcCommissionTotal = (payments) => {
 		const total = payments.reduce((a, b) => {
 			return a + b['amount'];
 		}, 0);
 		return calcAffCommission(total);
+	};
+
+	const calcAffPayout = (payments) => {
+		const eligiblePayments = payments.filter(
+			(payment) =>
+				calcNextPayoutDate(payment.created) >= lastPayout &&
+				calcNextPayoutDate(payment.created) <= nextPayout
+		);
+		const affPayout = calcCommissionTotal(eligiblePayments);
+
+		return affPayout;
 	};
 
 	const basicInformationItems = [
@@ -118,10 +134,16 @@ const AffiliatesPage = ({
 			title: (
 				<span>
 					Est. payout for{' '}
-					<span className='font-bold'>{getNext15(new Date())}</span>
+					<span className='font-bold'>{nextPayout.toFormat('LLLL dd')}</span>
 				</span>
 			),
-			value: 200,
+			value: paymentHistory.loading ? (
+				<Spinner spinnerWidth={'sm'} noMargin={'true'} />
+			) : (
+				<span className='font-bold'>
+					${calcAffPayout(paymentHistory.payments)}
+				</span>
+			),
 			isInteractable: false,
 			t: 'Affiliate payouts are made on the 15th of every month for commissions more than 60 days old',
 		},
@@ -227,7 +249,9 @@ const AffiliatesPage = ({
 														<th className={classes.tableHeadCell}>Amount</th>
 
 														<th className='pl-2 text-right'>Date created</th>
-														<th className='pl-2 text-right'>Est payout date</th>
+														<th className='pl-2 text-right'>
+															Est. payout date
+														</th>
 													</tr>
 												</thead>
 												<tbody className={classes.tableBody}>
@@ -247,12 +271,15 @@ const AffiliatesPage = ({
 																	{payment.currency.toUpperCase()}
 																</span>
 															</td>
-															{/* date */}
+															{/* date created */}
 															<td className='pl-2 text-right'>
 																{formatTimestamp(payment.created, true)}
 															</td>
+															{/* payout date */}
 															<td className='pl-2 text-right'>
-																{/* {formatTimestamp(payment.created, true)} */}
+																{calcNextPayoutDate(payment.created).toFormat(
+																	'LLLL dd, yyyy'
+																)}
 															</td>
 														</tr>
 													))}

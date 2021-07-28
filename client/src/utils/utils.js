@@ -96,8 +96,11 @@ export const calculateBSR = (currentRank, category) => {
 	} else if (category === 'Video Games') {
 		totalItems = 730691;
 	}
-	let bsrPercentage = ((currentRank / totalItems) * 100).toFixed(3);
-	return bsrPercentage;
+	if (!totalItems) {
+		return '-';
+	} else {
+		return ((currentRank / totalItems) * 100).toFixed(3);
+	}
 };
 
 export const openLinkHandler = (retailerLink, amzLink) => {
@@ -177,14 +180,39 @@ export const formatTimestamp = (timestamp, showYear) => {
 	}
 };
 
-export const getNext15 = (date) => {
-	var next = new Date(date);
-	var cache = next.getDate();
-	next.setDate(15);
-	if (cache >= 15) {
-		next.setMonth(date.getMonth() + 1);
-	}
-	next.setHours(23, 59, 59, 0);
+export const getPayout = (instance) => {
+	let dt = DateTime.now();
+	let cache = Number(dt.toFormat('dd'));
 
-	return DateTime.fromJSDate(next).toFormat('LLLL dd');
+	let newDate;
+	if (cache >= 15) {
+		if (instance === 1) {
+			newDate = dt.plus({ months: 1 });
+		} else if (instance === -1) {
+			newDate = dt.plus({ months: -1 });
+		} else {
+			newDate = dt;
+		}
+	}
+	const nextPayoutDate = newDate.set({
+		days: 15,
+		hours: 23,
+		minutes: 59,
+		seconds: 59,
+	});
+
+	return nextPayoutDate;
+};
+
+export const calcNextPayoutDate = (date) => {
+	const isoTime = new Date(date * 1000).toJSON();
+	let dt = DateTime.fromISO(isoTime).plus({ months: 2 });
+	let cache = Number(dt.toFormat('dd'));
+	let newDate;
+	if (cache >= 15) {
+		newDate = dt.set({ days: 15 }).plus({ months: 1 });
+	}
+	const payoutDate = newDate.set({ hours: 23, minutes: 59, seconds: 59 });
+
+	return payoutDate;
 };
