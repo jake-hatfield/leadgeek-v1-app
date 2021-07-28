@@ -99,7 +99,7 @@ const BillingPage = ({
 										</div>
 										<div className='flex items-center justify-between'>
 											<div>
-												Estimate for{' '}
+												Est. charge for{' '}
 												<span className='font-bold'>
 													{isAuthenticated &&
 														!plan.cancelAtPeriodEnd &&

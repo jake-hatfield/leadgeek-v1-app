@@ -90,3 +90,11 @@ body {
 .minimal-scrollbar {
 	@apply scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-300;
 }
+
+.code-html-tag {
+	@apply text-pink-600;
+}
+
+.code-html-attribute {
+	@apply text-purple-400;
+}

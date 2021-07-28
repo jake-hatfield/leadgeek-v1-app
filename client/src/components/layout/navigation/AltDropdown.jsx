@@ -36,7 +36,7 @@ function AltDropdown({
 	return (
 		<article
 			ref={wrapperRef}
-			className='absolute bottom-0 left-0 z-10 w-64 transform translate-x-16 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-200 text-gray-900'
+			className='absolute bottom-0 left-0 z-30 w-64 transform translate-x-16 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-200 text-gray-900'
 		>
 			<div className='relative'>
 				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>

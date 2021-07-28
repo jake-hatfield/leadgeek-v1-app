@@ -70,16 +70,16 @@ const AdminItem = ({
 			{popup && (
 				<div
 					ref={wrapperRef}
-					className={`absolute top-0 inset-x-0 z-20 max-h-screen ${
+					className={`absolute top-1/2 inset-x-0 z-20 h-1/2 max-h-screen ${
 						width || 'max-w-lg'
-					} mt-8 mx-auto p-6 rounded-lg bg-white shadow-lg`}
+					} mx-auto p-6 rounded-lg bg-white shadow-lg transform -translate-y-1/2`}
 				>
 					<div className='relative pb-1 border-b border-gray-100'>
-						<div className='flex items-center'>
+						<header className='flex items-center'>
 							<h2 className='text-xl font-bold text-gray-800'>
 								{popupHeading}
 							</h2>
-						</div>
+						</header>
 						<button
 							onClick={() => showPopup((prev) => !prev)}
 							className='absolute top-0 right-0 mt-2 hover:text-gray-600 rounded-md transition duration-100 ease-in-out ring-gray'
