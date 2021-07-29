@@ -18,7 +18,7 @@ const Feed = ({ user, loading, isAuthenticated, feed, filters, getLeads }) => {
 	} = filters;
 	const userAndPage = user && page;
 	useEffect(() => {
-		!loading && isAuthenticated && user && getLeads(user, page, filters);
+		!loading && isAuthenticated && getLeads(user, page, filters);
 	}, [loading, isAuthenticated, userAndPage, itemLimit, dateLimits]);
 	return componentReady ? (
 		<AuthLayout>

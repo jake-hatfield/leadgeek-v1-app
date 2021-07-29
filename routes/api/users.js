@@ -451,15 +451,12 @@ router.post('/get-active-plan-details', auth, async (req, res) => {
 // @access      Private
 router.post('/get-affiliate-payments', auth, async (req, res) => {
 	try {
-		const { lgid, affCreated } = req.body;
+		const { clients, affCreated } = req.body;
 
 		const affCreatedUnix = new Date(affCreated).getTime() / 1000;
 
-		const referredClients = await User.find({
-			'referrals.referred.referrerlgid': lgid,
-		}).then((clients) => {
-			return clients.map((client) => client.subscription.cusId);
-		});
+		let clientCusIds = [];
+		clients.map((client) => clientCusIds.push(client.cusId));
 
 		const returnChargeInfo = (item) => {
 			return {
@@ -476,7 +473,7 @@ router.post('/get-affiliate-payments', auth, async (req, res) => {
 
 		let allCharges = [];
 
-		if (referredClients.length > 0) {
+		if (clientCusIds.length > 0) {
 			console.log('Getting all Stripe charges...');
 			for await (const charge of stripe.charges.list({
 				limit: 100,
@@ -486,7 +483,7 @@ router.post('/get-affiliate-payments', auth, async (req, res) => {
 			}
 
 			const affPayments = allCharges
-				.filter((charge) => referredClients.includes(charge.customer))
+				.filter((charge) => clientCusIds.includes(charge.customer))
 				.filter((charge) => charge.paid === true && charge.refunded === false);
 
 			let message;
@@ -506,6 +503,31 @@ router.post('/get-affiliate-payments', auth, async (req, res) => {
 		}
 	} catch (error) {
 		console.error(error.message);
+		res.status(500).send('Server error');
+	}
+});
+
+router.put('/update-affiliate-paypal', auth, async (req, res) => {
+	try {
+		const { id, newEmail: email } = req.body;
+		const affiliate = await User.findOneAndUpdate(
+			{ _id: id },
+			{ 'referrals.referrer.paypalEmail': email }
+		);
+		if (affiliate) {
+			return res
+				.status(200)
+				.json({ status: 'success', msg: 'Your PayPal email was updated' });
+		} else {
+			return res
+				.status(200)
+				.json({
+					status: 'failure',
+					msg: 'Your PayPal email could not be updated',
+				});
+		}
+	} catch (error) {
+		console.log(error);
 		res.status(500).send('Server error');
 	}
 });

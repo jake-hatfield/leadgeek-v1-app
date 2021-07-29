@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getAffiliatePayments } from 'redux/actions/users';
+import { updatePaypalEmail, getAffiliatePayments } from 'redux/actions/users';
 
 import {
 	planCheckerByPrice,
@@ -16,11 +16,15 @@ import AuthLayout from 'components/layout/AuthLayout';
 import SettingsLayout from 'components/layout/SettingsLayout';
 import Spinner from 'components/layout/utils/Spinner';
 
-const BasicInformationItem = ({ title, value, isInteractable, t }) => {
+const BasicInformationItem = ({ title, value, isInteractable, t, size }) => {
 	const [tooltip, setTooltip] = useState(false);
 
 	return (
-		<div className='flex items-center justify-between text-gray-900'>
+		<div
+			className={`flex justify-between text-gray-900 ${
+				size ? `${size} items-start` : 'items-center'
+			}`}
+		>
 			<header className='flex items-center'>
 				<h3 className='align-bottom'>{title}</h3>
 				{t && (
@@ -58,7 +62,8 @@ const BasicInformationItem = ({ title, value, isInteractable, t }) => {
 
 const AffiliatesPage = ({
 	auth: { user, loading, isAuthenticated },
-	affiliates: { paymentHistory },
+	affiliates: { paypalEmail, paymentHistory },
+	updatePaypalEmail,
 	getAffiliatePayments,
 }) => {
 	const { referrals } = Object(user);
@@ -69,22 +74,18 @@ const AffiliatesPage = ({
 		isAuthenticated &&
 			paymentHistory.payments.length === 0 &&
 			user.referrals.referrer.isReferrer === true &&
-			getAffiliatePayments(lgid, user.referrals.referrer.dateCreated);
+			getAffiliatePayments(
+				user.referrals.referrer.clients,
+				user.referrals.referrer.dateCreated
+			);
 	}, [isAuthenticated]);
 
 	const [modal, setModal] = useState(false);
-
 	const toggleModal = (modal) => {
 		setModal(!modal);
 	};
-
 	// close modal on click outside
 	const modalRef = useRef();
-	const closeModal = (e) => {
-		if (modalRef.current === e.target) {
-			setModal(false);
-		}
-	};
 	// close modal on esc key
 	const keyPress = useCallback(
 		(e) => {
@@ -98,6 +99,23 @@ const AffiliatesPage = ({
 		document.addEventListener('keydown', keyPress);
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
+
+	const [changePaypal, setChangePaypal] = useState(false);
+	const [formData, setFormData] = useState({
+		paypalEmail: '',
+	});
+	const onChange = (e) => {
+		setFormData({ ...formData, [e.target.name]: e.target.value });
+	};
+	const onSubmit = (e) => {
+		e.preventDefault();
+		updatePaypalEmail(
+			user._id,
+			user.referrals.referrer.paypalEmail,
+			formData.paypalEmail
+		);
+		setChangePaypal(false);
+	};
 
 	const [copyText, setCopyText] = useState('Copy LGID');
 	const [copiedText, setCopiedText] = useState('');
@@ -131,34 +149,47 @@ const AffiliatesPage = ({
 					onClick={() => toggleModal(modal)}
 					className='font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'
 				>
-					Generate unique link
+					Generate affiliate link
 				</button>
 			),
 			isInteractable: true,
-			t: 'Generate and copy your unique affiliate link',
-		},
-		{
-			title: 'Link example',
-			value: `https://leadgeek.io/?lgid=${lgid}`,
-			isInteractable: false,
-			t: "Refer clients to any page on Leadgeek's website with this link format",
+			t: 'Generate & copy your unique link in the format "https://leadgeek.io/?lgid=YOUR_LGID"',
 		},
 		{
 			title: 'Paypal email address',
-			value: (
-				<form className='flex items-center'>
-					{/* <FormField
-						padding={'pt-0'}
-						placeholder={
-							(user && referrals.referrer.paypalEmail) ||
-							'Enter your PayPal email'
-						}
+			value: changePaypal ? (
+				<form onSubmit={(e) => onSubmit(e)} className='flex items-center'>
+					<input
+						name='paypalEmail'
+						type='email'
+						placeholder='Your new PayPal email'
+						required={true}
+						onChange={onChange}
+						className='w-full py-1 px-2 rounded-l-md border border-gray-200 hover:border-purple-300 placeholder-gray-300 ring-purple focus:ring-inset'
 					/>
-					<button>Submit</button> */}
+					<button className='py-1 px-2 rounded-r-md text-white shadow-md bg-purple-500 hover:bg-purple-600 transition-main ring-purple'>
+						Update
+					</button>
 				</form>
+			) : (
+				<button
+					onClick={() => setChangePaypal(true)}
+					className={`font-semibold ${
+						isAuthenticated &&
+						(user.referrals.referrer.paypalEmail || paypalEmail)
+							? 'text-purple-500 hover:text-gray-700'
+							: 'text-red-400 hover:text-red-500'
+					} hover:text-gray-700 ring-gray rounded-lg transition-main`}
+				>
+					{isAuthenticated &&
+					(user.referrals.referrer.paypalEmail || paypalEmail)
+						? paypalEmail || user.referrals.referrer.paypalEmail
+						: 'Add PayPal email for payout'}
+				</button>
 			),
 			isInteractable: true,
 			t: 'This is the PayPal email where your commission payments will be sent',
+			size: 'row-span-2',
 		},
 		{
 			title: (
@@ -286,7 +317,7 @@ const AffiliatesPage = ({
 										</div>
 									)}
 								</header>
-								<div className='grid grid-flow-col grid-rows-3 grid-cols-2 gap-y-1 gap-x-8 mt-6'>
+								<div className='grid grid-flow-col grid-rows-3 grid-cols-2 gap-y-2 gap-x-8 mt-6'>
 									{basicInformationItems.map((item, i) => (
 										<BasicInformationItem
 											key={i}
@@ -294,6 +325,7 @@ const AffiliatesPage = ({
 											value={item.value}
 											isInteractable={item.isInteractable}
 											t={item.t}
+											size={item.size}
 										/>
 									))}
 								</div>
@@ -483,6 +515,7 @@ const mapStateToProps = (state) => ({
 	affiliates: state.users.userSettings.affiliates,
 });
 
-export default connect(mapStateToProps, { getAffiliatePayments })(
-	AffiliatesPage
-);
+export default connect(mapStateToProps, {
+	updatePaypalEmail,
+	getAffiliatePayments,
+})(AffiliatesPage);

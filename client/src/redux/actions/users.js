@@ -8,6 +8,7 @@ import {
 	FINISHED_LOADING,
 	FINISHED_PLAN_LOADING,
 	SET_AFFILIATE_PAYMENTS,
+	SET_PAYPAL_EMAIL,
 	FINISHED_BILLING_PAYMENTS_LOADING,
 	FINISHED_AFFILIATE_PAYMENTS_LOADING,
 } from './types';
@@ -94,23 +95,56 @@ export const getActivePlanDetails = (subIds) => async (dispatch) => {
 	}
 };
 
-export const getAffiliatePayments = (lgid, affCreated) => async (dispatch) => {
-	try {
-		const body = JSON.stringify({ lgid, affCreated });
-		const {
-			data: { msg: message, affPayments },
-		} = await axios.post('/api/users/get-affiliate-payments', body, config);
-		if (message === 'Referred clients with valid payments were found.') {
-			dispatch({
-				type: SET_AFFILIATE_PAYMENTS,
-				payload: affPayments,
-			});
-		} else {
-			dispatch({
-				type: FINISHED_AFFILIATE_PAYMENTS_LOADING,
-			});
+// get the affiliate's all-time payments
+export const getAffiliatePayments =
+	(clients, affCreated) => async (dispatch) => {
+		try {
+			const body = JSON.stringify({ clients, affCreated });
+			const {
+				data: { msg: message, affPayments },
+			} = await axios.post('/api/users/get-affiliate-payments', body, config);
+			if (message === 'Referred clients with valid payments were found.') {
+				dispatch({
+					type: SET_AFFILIATE_PAYMENTS,
+					payload: affPayments,
+				});
+			} else {
+				dispatch({
+					type: FINISHED_AFFILIATE_PAYMENTS_LOADING,
+				});
+			}
+		} catch (error) {
+			console.log(error);
 		}
-	} catch (error) {
-		console.log(error);
-	}
-};
+	};
+
+// update the affiliate's paypal email
+export const updatePaypalEmail =
+	(id, oldEmail, newEmail) => async (dispatch) => {
+		try {
+			if (oldEmail === newEmail) {
+				dispatch(
+					setAlert(
+						'Submission error',
+						'Your current and submitted PayPal emails are the same.',
+						'warning'
+					)
+				);
+			}
+			const body = JSON.stringify({ id, newEmail });
+			const {
+				data: { status, msg },
+			} = await axios.put('/api/users/update-affiliate-paypal', body, config);
+			if (status === 'success') {
+				dispatch({
+					type: SET_PAYPAL_EMAIL,
+					payload: newEmail,
+				});
+				dispatch(setAlert('Update success', msg, 'success'));
+			} else {
+				dispatch(setAlert('Update failure', msg, 'danger'));
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	};

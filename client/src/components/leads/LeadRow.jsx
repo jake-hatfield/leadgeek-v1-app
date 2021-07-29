@@ -144,7 +144,7 @@ const LeadRow = ({
 		expandedViewMenuBottom: 'py-2',
 		expandedViewMenuSvg: 'ml-2 svg-sm',
 		expandedViewMenuButton:
-			'py-1 px-3 w-full text-left font-semibold text-purple-600 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-100 ease-in-out ring-gray',
+			'py-1 px-3 w-full text-left font-semibold text-purple-500 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-100 ease-in-out ring-gray',
 		expandedViewMenuButtonSvg: function () {
 			return this.expandedViewMenuButton + ' flex items-center';
 		},
@@ -173,9 +173,9 @@ const LeadRow = ({
 					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
-							fill={`${like ? '#5d55fa' : 'none'}`}
+							fill={`${like ? '#7069FA' : 'none'}`}
 							viewBox='0 0 24 24'
-							stroke={`${like ? '#5d55fa' : 'currentColor'}`}
+							stroke={`${like ? '#7069FA' : 'currentColor'}`}
 							className={classes.likeCellActive}
 						>
 							{svgList.heart}

@@ -4,6 +4,7 @@ import {
 	SET_PLAN,
 	SET_BILLING_PAYMENTS,
 	SET_AFFILIATE_PAYMENTS,
+	SET_PAYPAL_EMAIL,
 	LOADING,
 	FINISHED_LOADING,
 	FINISHED_PLAN_LOADING,
@@ -44,6 +45,7 @@ const initialState = {
 			},
 		},
 		affiliates: {
+			paypalEmail: '',
 			paymentHistory: {
 				loading: true,
 				payments: [],
@@ -158,6 +160,18 @@ export default function userReducer(state = initialState, action) {
 					},
 				},
 				loading: false,
+			};
+		}
+		case SET_PAYPAL_EMAIL: {
+			return {
+				...state,
+				userSettings: {
+					...state.userSettings,
+					affiliates: {
+						...state.userSettings.affiliates,
+						paypalEmail: payload,
+					},
+				},
 			};
 		}
 		case LOADING: {

@@ -17,6 +17,7 @@ import { ReactComponent as Check } from 'assets/images/svgs/check.svg';
 import { ReactComponent as X } from 'assets/images/svgs/x.svg';
 
 const AdminItem = ({
+	height,
 	width,
 	title,
 	desc,
@@ -70,7 +71,9 @@ const AdminItem = ({
 			{popup && (
 				<div
 					ref={wrapperRef}
-					className={`absolute top-1/2 inset-x-0 z-20 h-1/2 max-h-screen ${
+					className={`absolute top-1/2 inset-x-0 z-20 ${
+						height || 'h-1/2'
+					} max-h-screen ${
 						width || 'max-w-lg'
 					} mx-auto p-6 rounded-lg bg-white shadow-lg transform -translate-y-1/2`}
 				>
@@ -251,6 +254,7 @@ const Admin = ({
 
 	const adminItems = [
 		{
+			height: 'h-auto',
 			title: 'Export leads',
 			desc: 'Export leads from the master spreadsheet.',
 			path: (
@@ -355,6 +359,7 @@ const Admin = ({
 								{adminItems.map((item, i) => (
 									<AdminItem
 										key={i}
+										height={item.height}
 										width={item.width}
 										title={item.title}
 										desc={item.desc}

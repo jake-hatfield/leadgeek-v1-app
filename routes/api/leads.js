@@ -123,10 +123,17 @@ router.post('/', auth, async (req, res) => {
 			},
 		} = req.body;
 		const user = await User.findById({ _id });
+		let message;
 		if (!user) {
-			let message = 'There was an error finding a user with that id.';
+			message = 'There was an error finding a user with that id.';
 			console.log(message);
 			return res.status(404).send({ status: 'failure', message });
+		}
+		const activeSub = user.subscription.subIds.filter((sub) => sub.active);
+		if (activeSub.length === 0) {
+			message = 'There are no leads to show';
+			console.log(message);
+			return res.status(200).send({ status: 'failure', message });
 		}
 		console.log('Getting paginated leads...');
 		const { unviewedLeads } = user;
@@ -134,7 +141,6 @@ router.post('/', auth, async (req, res) => {
 		let roleFilter = [role.toString()];
 		const fromJSDate = DateTime.fromJSDate(user.dateCreated);
 		const userDayCreated = fromJSDate.startOf('day').toISODate();
-		// console.log(DateTime.fromISO(user.dateCreated).toFormat('LLL dd yyyy'));
 		const minDateFilter = minDate ? minDate : userDayCreated;
 		const maxDateFilter = maxDate ? maxDate : Date.now();
 		const administrativeRoles = ['master', 'admin'];

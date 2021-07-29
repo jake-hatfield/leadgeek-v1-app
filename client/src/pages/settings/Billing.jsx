@@ -75,7 +75,7 @@ const BillingPage = ({
 								{plan.loading ? (
 									<Spinner />
 								) : plan.id ? (
-									<div className='mt-6 grid grid-flow-col grid-rows-3 grid-cols-2 gap-y-1 gap-x-8'>
+									<div className='mt-6 grid grid-flow-col grid-rows-3 grid-cols-2 gap-y-2 gap-x-8'>
 										<div className='flex items-center justify-between'>
 											<div>Member since</div>
 											<div>
@@ -120,9 +120,14 @@ const BillingPage = ({
 										<div className='flex items-center justify-between'>
 											<div>Change subscription preferences</div>
 											<div>
-												<button className='ml-2 font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'>
-													Update plan
-												</button>
+												<a
+													href='mailto:support@leadgeek.io?subject=Update Account'
+													target='__blank'
+													rel='noopener noreferrer'
+													className='ml-2 font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'
+												>
+													Contact support
+												</a>
 											</div>
 										</div>
 									</div>

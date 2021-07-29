@@ -32,6 +32,7 @@ const UserSchema = new Schema({
 			{
 				id: { type: String, unique: true },
 				active: { type: Boolean },
+				canceled: { type: Date },
 			},
 		],
 		planIds: [
@@ -98,9 +99,12 @@ const UserSchema = new Schema({
 			clients: [
 				{
 					userId: { type: Schema.Types.ObjectId, ref: 'User' },
+					cusId: {
+						type: String,
+						unique: true,
+					},
 				},
 			],
-			payments: [],
 		},
 	},
 	likedLeads: [
