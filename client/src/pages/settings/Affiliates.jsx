@@ -167,7 +167,7 @@ const AffiliatesPage = ({
 						onChange={onChange}
 						className='w-full py-1 px-2 rounded-l-md border border-gray-200 hover:border-purple-300 placeholder-gray-300 ring-purple focus:ring-inset'
 					/>
-					<button className='py-1 px-2 rounded-r-md text-white shadow-md bg-purple-500 hover:bg-purple-600 transition-main ring-purple'>
+					<button className='py-1 px-2 rounded-r-md text-white border border-purple-500 bg-purple-500 hover:bg-purple-600 transition-main ring-purple'>
 						Update
 					</button>
 				</form>
