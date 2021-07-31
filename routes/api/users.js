@@ -384,14 +384,21 @@ router.post('/get-successful-payments', auth, async (req, res) => {
 			expand: ['data.payment_method', 'data.invoice'],
 		});
 
-		const successfulPayments = allPayments.data
-			.filter((p) => p.status === 'succeeded')
-			.map((p) => returnBillingInfo(p));
+		if (allPayments.data.length > 0) {
+			const successfulPayments = allPayments.data
+				.filter((p) => p.status === 'succeeded')
+				.map((p) => returnBillingInfo(p));
 
-		if (successfulPayments.length > 0) {
-			return res
-				.status(200)
-				.json({ msg: 'Payments found', payments: successfulPayments });
+			if (successfulPayments.length > 0) {
+				return res
+					.status(200)
+					.json({ msg: 'Payments found', payments: successfulPayments });
+			} else {
+				return res.status(200).json({
+					msg: 'No payments found',
+					payments: [],
+				});
+			}
 		} else {
 			return res.status(200).json({
 				msg: 'No payments found',
@@ -519,12 +526,10 @@ router.put('/update-affiliate-paypal', auth, async (req, res) => {
 				.status(200)
 				.json({ status: 'success', msg: 'Your PayPal email was updated' });
 		} else {
-			return res
-				.status(200)
-				.json({
-					status: 'failure',
-					msg: 'Your PayPal email could not be updated',
-				});
+			return res.status(200).json({
+				status: 'failure',
+				msg: 'Your PayPal email could not be updated',
+			});
 		}
 	} catch (error) {
 		console.log(error);

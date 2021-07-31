@@ -170,7 +170,8 @@ const UserTable = ({
 									</td>
 									<td className='py-1 px-2'>{capitalize(user.role)}</td>
 									<td className='py-1 px-2'>
-										{user.subscription.subIds[0].active ? (
+										{user.subscription.subIds[0] &&
+										user.subscription.subIds[0].active ? (
 											<Check className='inline-block h-4 w-4 text-teal-500 bg-teal-200 rounded-full' />
 										) : (
 											<X className='inline-block h-4 w-4 text-red-500 bg-red-200 rounded-full' />
