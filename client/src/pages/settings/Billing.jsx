@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
@@ -17,6 +17,7 @@ import {
 	formatTimestamp,
 } from 'utils/utils';
 import AuthLayout from 'components/layout/AuthLayout';
+import NullState from 'components/layout/utils/NullState';
 import Spinner from 'components/layout/utils/Spinner';
 import SettingsLayout from 'components/layout/SettingsLayout';
 
@@ -50,7 +51,11 @@ const BillingPage = ({
 		cancelStripeSub(customerId, 'sub_IvxscYyUQVlmT7');
 	};
 
-	const paymentMethodBrand = isAuthenticated && capitalize(user.billing.brand);
+	const validBilling =
+		isAuthenticated && user.subscription.cusId ? true : false;
+
+	const paymentMethodBrand =
+		isAuthenticated && validBilling && capitalize(user.billing.brand);
 
 	return (
 		<AuthLayout>
@@ -64,7 +69,7 @@ const BillingPage = ({
 				<section className='my-6'>
 					{authLoading ? (
 						<Spinner />
-					) : (
+					) : validBilling ? (
 						<div className='w-full pr-16 text-gray-800'>
 							<section>
 								<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
@@ -109,14 +114,14 @@ const BillingPage = ({
 											<div className='font-bold'>${plan.plan.amount / 100}</div>
 										</div>
 										{/* <div className='flex items-center justify-between'>
-											<div>Default payment method</div>
-											<div>
-												<button className='ml-2 font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'>
-													{paymentMethodBrand} &#8226;&#8226;&#8226;&#8226;{' '}
-													{user.billing.last4}
-												</button>
-											</div>
-										</div> */}
+                                        <div>Default payment method</div>
+                                        <div>
+                                            <button className='ml-2 font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'>
+                                                {paymentMethodBrand} &#8226;&#8226;&#8226;&#8226;{' '}
+                                                {user.billing.last4}
+                                            </button>
+                                        </div>
+                                    </div> */}
 										<div className='flex items-center justify-between'>
 											<div>Change subscription preferences</div>
 											<div>
@@ -202,18 +207,47 @@ const BillingPage = ({
 										</div>
 									</div>
 								) : (
-									<div>
-										There are no payments that have been recorded for your
-										account.
-									</div>
+									<section className='mt-6'>
+										<NullState
+											header={'No subscription payments found'}
+											text={'No payments have been found for your account.'}
+											path={svgList.payment}
+										/>
+									</section>
 								)}
 							</article>
 						</div>
+					) : (
+						<section className='mt-6'>
+							<NullState
+								header={'No subscription found'}
+								text={
+									"There isn't a subscription associated with this account."
+								}
+								path={svgList.affiliate}
+							/>
+						</section>
 					)}
 				</section>
 			</SettingsLayout>
 		</AuthLayout>
 	);
+};
+
+const svgList = {
+	payment: (
+		<g>
+			<path d='M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z' />
+			<path
+				fillRule='evenodd'
+				d='M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z'
+				clipRule='evenodd'
+			/>
+		</g>
+	),
+	affiliate: (
+		<path d='M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z' />
+	),
 };
 
 const classes = {

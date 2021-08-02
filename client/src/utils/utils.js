@@ -207,9 +207,11 @@ export const calcNextPayoutDate = (date) => {
 	const isoTime = new Date(date * 1000).toJSON();
 	let dt = DateTime.fromISO(isoTime).plus({ months: 2 });
 	let cache = Number(dt.toFormat('dd'));
-	let newDate;
+	let newDate = dt;
 	if (cache >= 15) {
 		newDate = dt.set({ days: 15 }).plus({ months: 1 });
+	} else {
+		newDate = dt.set({ days: 15 });
 	}
 	const payoutDate = newDate.set({ hours: 23, minutes: 59, seconds: 59 });
 

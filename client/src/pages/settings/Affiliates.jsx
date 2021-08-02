@@ -389,11 +389,13 @@ const AffiliatesPage = ({
 										</div>
 									</div>
 								) : (
-									<NullState
-										header={'Your Feed is empty'}
-										text={'No payments have been found for your account.'}
-										path={svgList.payment}
-									/>
+									<section className='mt-6'>
+										<NullState
+											header={'No affiliate payments found'}
+											text={'No payments have been found for your account.'}
+											path={svgList.payment}
+										/>
+									</section>
 								)}
 							</section>
 							{modal && (
@@ -445,13 +447,15 @@ const AffiliatesPage = ({
 							)}
 						</div>
 					) : (
-						<NullState
-							header={'Become a Leadgeek affiliate'}
-							text={
-								'Leadgeek offers 25% lifetime commissions for any new member you refer. Apply @ www.leadgeek.io/affiliates'
-							}
-							path={svgList.affiliate}
-						/>
+						<section className='mt-6'>
+							<NullState
+								header={'Become a Leadgeek affiliate'}
+								text={
+									'Leadgeek offers 25% lifetime commissions for any new member you refer. Apply @ www.leadgeek.io/affiliates'
+								}
+								path={svgList.affiliate}
+							/>
+						</section>
 					)}
 				</section>
 			</SettingsLayout>

@@ -460,7 +460,7 @@ router.post('/get-affiliate-payments', auth, async (req, res) => {
 	try {
 		const { clients, affCreated } = req.body;
 
-		const affCreatedUnix = new Date(affCreated).getTime() / 1000;
+		const affCreatedUnix = (new Date(affCreated).getTime() / 1000).toFixed(0);
 
 		let clientCusIds = [];
 		clients.map((client) => clientCusIds.push(client.cusId));

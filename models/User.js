@@ -26,13 +26,11 @@ const UserSchema = new Schema({
 	subscription: {
 		cusId: {
 			type: String,
-			unique: true,
 		},
 		subIds: [
 			{
-				id: { type: String, unique: true },
+				id: { type: String, default: null },
 				active: { type: Boolean },
-				canceled: { type: Date },
 			},
 		],
 		planIds: [
@@ -44,7 +42,7 @@ const UserSchema = new Schema({
 	billing: {
 		paymentMethod: {
 			type: String,
-			unique: true,
+			default: null,
 		},
 		last4: {
 			type: String,
@@ -56,7 +54,6 @@ const UserSchema = new Schema({
 	resetPwToken: {
 		type: String,
 		default: null,
-		unique: true,
 	},
 	resetPwExpires: {
 		type: Date,
@@ -64,7 +61,7 @@ const UserSchema = new Schema({
 	},
 	role: {
 		type: String,
-		enum: ['user', 'grow', 'pro', 'bundle', 'admin', 'master'],
+		enum: ['user', 'grow', 'pro', 'bundle', 'affiliate', 'admin', 'master'],
 		default: 'user',
 		required: true,
 	},
@@ -76,7 +73,7 @@ const UserSchema = new Schema({
 			},
 			referrerlgid: {
 				type: String,
-				unique: true,
+				default: null,
 			},
 		},
 		referrer: {
@@ -87,11 +84,13 @@ const UserSchema = new Schema({
 			},
 			lgid: {
 				type: String,
+				default: null,
 				unique: true,
 			},
 			paypalEmail: {
 				type: String,
 				unique: true,
+				default: null,
 			},
 			dateCreated: {
 				type: Date,
