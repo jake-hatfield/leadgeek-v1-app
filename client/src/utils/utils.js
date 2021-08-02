@@ -184,16 +184,15 @@ export const getPayout = (instance) => {
 	let dt = DateTime.now();
 	let cache = Number(dt.toFormat('dd'));
 
-	let newDate;
+	let newDate = dt;
 	if (cache >= 15) {
 		if (instance === 1) {
-			newDate = dt.plus({ months: 1 });
-		} else if (instance === -1) {
-			newDate = dt.plus({ months: -1 });
+			newDate.plus({ months: 1 });
 		} else {
-			newDate = dt;
+			newDate.plus({ months: -1 });
 		}
 	}
+
 	const nextPayoutDate = newDate.set({
 		days: 15,
 		hours: 23,
