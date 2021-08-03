@@ -7,7 +7,6 @@ const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 const User = require('../../models/User');
-const { timeStamp } = require('console');
 const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
 const stripe = require('stripe')(stripeSecret);
 
@@ -199,7 +198,6 @@ router.post('/forgot-password', async (req, res) => {
 					'You are receiving this email because you (or someone else) have requested to reset your LeadGeek account password. \n\n' +
 					'Please click on the following link, or paste this into your browser to complete the password reset process within one hour of receiving this email: \n\n' +
 					`${url}/reset/reset-password/${token} \n\n` +
-					// `https://leadgeek.io/reset/reset-password/${token} \n\n` +
 					'If you did not request this, please ignore this email and you password will remain unchanged. \n',
 			};
 			console.log('Sending email...');

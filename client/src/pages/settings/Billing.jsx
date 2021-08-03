@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { connect } from 'react-redux';
-import { setAlert } from 'redux/actions/alert';
 import { cancelStripeSub } from 'redux/actions/auth';
 import {
 	getSuccessfulPayments,
@@ -24,35 +23,23 @@ import SettingsLayout from 'components/layout/SettingsLayout';
 const BillingPage = ({
 	auth: { user, loading: authLoading, isAuthenticated },
 	billing: { plan, paymentHistory },
-	cancelStripeSub,
 	getSuccessfulPayments,
 	getActivePlanDetails,
-	setAlert,
 }) => {
-	useEffect(() => {
-		isAuthenticated && getSuccessfulPayments(user.subscription.cusId);
-	}, [isAuthenticated]);
+	const validBilling =
+		isAuthenticated && user.subscription.cusId ? true : false;
 
 	useEffect(() => {
 		isAuthenticated &&
-			!plan.id &&
+			validBilling &&
+			getSuccessfulPayments(user.subscription.cusId);
+	}, [isAuthenticated, validBilling]);
+
+	useEffect(() => {
+		isAuthenticated &&
+			validBilling &&
 			getActivePlanDetails(user.subscription.subIds);
 	}, [isAuthenticated, user]);
-
-	const handleCancelSubscription = () => {
-		const { customerId } = user;
-		if (!customerId) {
-			return setAlert(
-				"Your account couldn't be verified to cancel your subscription. Please contact support@leadgeek.io to cancel.",
-				'danger'
-			);
-		}
-		// cancels subscription in stripe and updates to 'canceled' status in db
-		cancelStripeSub(customerId, 'sub_IvxscYyUQVlmT7');
-	};
-
-	const validBilling =
-		isAuthenticated && user.subscription.cusId ? true : false;
 
 	const paymentMethodBrand =
 		isAuthenticated && validBilling && capitalize(user.billing.brand);
@@ -280,5 +267,4 @@ export default connect(mapStateToProps, {
 	cancelStripeSub,
 	getSuccessfulPayments,
 	getActivePlanDetails,
-	setAlert,
 })(BillingPage);
