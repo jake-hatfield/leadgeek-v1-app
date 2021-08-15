@@ -60,7 +60,7 @@ const initialState = {
 	itemLimits: {
 		leadsLimit: +localStorage.getItem('leadsLimit') || 15,
 		searchLimit: +localStorage.getItem('searchLimit') || 15,
-		usersLimit: +localStorage.getItem('usersLimit') || 15,
+		usersLimit: +localStorage.getItem('usersLimit') || 10,
 	},
 	dateLimits: { min: null, max: null, selected: null },
 };

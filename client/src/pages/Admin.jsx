@@ -307,6 +307,7 @@ const Admin = ({
 		},
 		{
 			width: 'w-full max-w-3xl',
+			height: 'h-auto',
 			title: 'View members',
 			desc: 'See a list of all past and present LeadGeek members.',
 			path: (

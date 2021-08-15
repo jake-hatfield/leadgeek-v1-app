@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 
-import { DateTime } from 'luxon';
+import { DateTime } from 'luxon-business-days';
 
 import { useOutsideMousedown } from 'utils/utils';
 
@@ -29,9 +29,9 @@ const DatePicker = ({
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
 	const mostRecentDay = DateTime.fromISO(lastUpdated || DateTime.now());
-	const previousDay = mostRecentDay.minus({ days: 1 });
-	const lastFiveStart = mostRecentDay.minus({ days: 5 });
-	const last30Start = mostRecentDay.minus({ days: 30 });
+	const previousDay = mostRecentDay.minusBusiness({ days: 1 });
+	const lastFiveStart = mostRecentDay.minusBusiness({ days: 5 });
+	const last30Start = mostRecentDay.minusBusiness({ days: 30 });
 	const lastDay = DateTime.fromISO(dateCreated);
 	const dateOptions = [
 		{
