@@ -139,6 +139,7 @@ router.post('/', auth, async (req, res) => {
 		const { unviewedLeads } = user;
 		let totalItems, filteredItems, lastUpdated, administrator;
 		let roleFilter = [role.toString()];
+
 		const fromJSDate = DateTime.fromJSDate(user.dateCreated);
 		const userDayCreated = fromJSDate.startOf('day').toISODate();
 		const minDateFilter = minDate ? minDate : userDayCreated;
