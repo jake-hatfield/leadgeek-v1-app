@@ -7,9 +7,9 @@ import {
 	clearCurrentLead,
 	setPage,
 	setLoading,
-} from 'redux/actions/leads';
-import { setItemLimit, setDateLimit } from 'redux/actions/filters';
-import { setAlert } from 'redux/actions/alert';
+} from '@redux/actions/leads';
+import { setItemLimit, setDateLimit } from '@redux/actions/filters';
+import { setAlert } from '@redux/actions/alert';
 import { NavLink } from 'react-router-dom';
 import { DateTime } from 'luxon';
 

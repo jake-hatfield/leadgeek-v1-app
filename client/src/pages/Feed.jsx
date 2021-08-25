@@ -3,11 +3,11 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
-import { getLeads } from 'redux/actions/leads';
+import { getLeads } from '@redux/actions/leads';
 
-import AuthLayout from 'components/layout/AuthLayout';
-import Leads from 'components/leads/Leads';
-import Spinner from 'components/layout/utils/Spinner';
+import AuthLayout from '@components/layout/AuthLayout';
+import Leads from '@components/leads/Leads';
+import Spinner from '@components/layout/utils/Spinner';
 
 const Feed = ({ user, loading, isAuthenticated, feed, filters, getLeads }) => {
 	const componentReady = !loading && user && isAuthenticated;

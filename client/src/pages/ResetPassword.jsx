@@ -3,14 +3,14 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect, NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { resetPwValidation } from 'redux/actions/auth';
+import { resetPwValidation } from '@redux/actions/auth';
 
-import DefaultLayout from 'components/layout/DefaultLayout';
-import ResetPassword from 'components/auth/login/password/ResetPassword';
-import LoginImage from 'components/auth/login/LoginImage';
-import Spinner from 'components/layout/utils/Spinner';
-import DefaultFooter from 'components/layout/navigation/DefaultFooter';
-import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
+import DefaultLayout from '@components/layout/DefaultLayout';
+import ResetPassword from '@components/auth/login/password/ResetPassword';
+import LoginImage from '@components/auth/login/LoginImage';
+import Spinner from '@components/layout/utils/Spinner';
+import DefaultFooter from '@components/layout/navigation/DefaultFooter';
+import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
 
 const ResetPasswordPage = ({
 	user,

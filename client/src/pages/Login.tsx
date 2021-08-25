@@ -1,27 +1,33 @@
 import React, { useState } from 'react';
 
-import PropTypes from 'prop-types';
 import { Redirect, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { login } from 'redux/actions/auth';
+import { login } from '@redux/actions/auth';
 
-import DefaultLayout from 'components/layout/DefaultLayout';
-import FormField from 'components/layout/utils/FormField';
-import PasswordFormField from 'components/layout/utils/PasswordFormField';
-import Button from 'components/layout/utils/Button';
-import LoginImage from 'components/auth/login/LoginImage';
-import DefaultFooter from 'components/layout/navigation/DefaultFooter';
-import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
+import DefaultLayout from '@components/layout/DefaultLayout';
+import FormField from '@components/layout/utils/FormField';
+import PasswordFormField from '@components/layout/utils/PasswordFormField';
+import Button from '@components/layout/utils/Button';
+// import LoginImage from '@components/auth/login/LoginImage';
+import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 
-const Login = ({ login, isAuthenticated }) => {
+import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
+
+interface LoginPageProps {
+	login: any;
+	isAuthenticated: boolean;
+}
+
+const Login: React.FC<LoginPageProps> = ({ login, isAuthenticated }) => {
+	console.log(login);
 	const [formData, setFormData] = useState({
 		email: '',
 		password: '',
 	});
 	const { email, password } = formData;
-	const onChange = (e) =>
+	const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
-	const onSubmit = (e) => {
+	const onSubmit = (e: any) => {
 		e.preventDefault();
 		login(email, password);
 	};
@@ -45,22 +51,22 @@ const Login = ({ login, isAuthenticated }) => {
 							</div>
 							<form>
 								<FormField
-									label='Email'
-									type='email'
-									placeholder='dsaunders@gmail.com'
-									name='email'
+									label={'Email'}
+									type={'email'}
+									name={'email'}
+									placeholder={'dsaunders@gmail.com'}
 									value={email}
 									onChange={onChange}
-									required
+									required={true}
+									styles={null}
 								/>
 								<PasswordFormField
-									label='Password'
-									type='password'
-									placeholder='Password'
-									name='password'
+									label={'Password'}
+									placeholder={'Password'}
 									value={password}
 									onChange={onChange}
-									minLength='6'
+									required={true}
+									styles={null}
 								/>
 								<div className='mt-2'>
 									<Link to={'/reset/forgot-password/'} className='link'>
@@ -72,6 +78,10 @@ const Login = ({ login, isAuthenticated }) => {
 										text={'Log in'}
 										onClick={onSubmit}
 										width={'w-full'}
+										margin={null}
+										path={null}
+										conditional={null}
+										conditionalDisplay={null}
 										size={'sm'}
 										cta={true}
 									/>
@@ -90,7 +100,7 @@ const Login = ({ login, isAuthenticated }) => {
 					</section>
 					<DefaultFooter />
 				</div>
-				<LoginImage />
+				{/* <LoginImage /> */}
 			</section>
 		</DefaultLayout>
 	);
@@ -111,12 +121,7 @@ const classes = {
 	subheaderLink: 'ml-2 block md:inline-block link',
 };
 
-Login.propTypes = {
-	login: PropTypes.func.isRequired,
-	isAuthenticated: PropTypes.bool,
-};
-
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: any) => ({
 	isAuthenticated: state.auth.isAuthenticated,
 });
 

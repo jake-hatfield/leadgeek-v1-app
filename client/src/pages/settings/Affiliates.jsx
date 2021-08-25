@@ -2,20 +2,20 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { updatePaypalEmail, getAffiliatePayments } from 'redux/actions/users';
+import { updatePaypalEmail, getAffiliatePayments } from '@redux/actions/users';
 
 import {
 	planCheckerByPrice,
 	calcAffCommission,
 	truncateAndObfuscate,
 	formatTimestamp,
-	getPayout,
+	calcNextPossiblePayoutDate,
 	calcNextPayoutDate,
-} from 'utils/utils';
-import AuthLayout from 'components/layout/AuthLayout';
-import SettingsLayout from 'components/layout/SettingsLayout';
-import NullState from 'components/layout/utils/NullState';
-import Spinner from 'components/layout/utils/Spinner';
+} from '@utils/utils';
+import AuthLayout from '@components/layout/AuthLayout';
+import SettingsLayout from '@components/layout/SettingsLayout';
+import NullState from '@components/layout/utils/NullState';
+import Spinner from '@components/layout/utils/Spinner';
 
 const BasicInformationItem = ({ title, value, isInteractable, t, size }) => {
 	const [tooltip, setTooltip] = useState(false);
@@ -121,8 +121,8 @@ const AffiliatesPage = ({
 	const [copyText, setCopyText] = useState('Copy LGID');
 	const [copiedText, setCopiedText] = useState('');
 
-	const [nextPayout] = useState(getPayout(1));
-	const [lastPayout] = useState(getPayout(-1));
+	const [nextPayout] = useState(calcNextPossiblePayoutDate(1));
+	const [lastPayout] = useState(calcNextPossiblePayoutDate(-1));
 
 	const calcCommissionTotal = (payments) => {
 		const total = payments.reduce((a, b) => {

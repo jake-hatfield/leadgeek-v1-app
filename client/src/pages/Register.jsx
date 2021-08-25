@@ -3,17 +3,17 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { register } from 'redux/actions/auth';
-import { setAlert } from 'redux/actions/alert';
+import { register } from '@redux/actions/auth';
+import { setAlert } from '@redux/actions/alert';
 
-import DefaultLayout from 'components/layout/DefaultLayout';
-import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
+import DefaultLayout from '@components/layout/DefaultLayout';
+import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
 
-import FormField from 'components/layout/utils/FormField';
-import PasswordFormField from 'components/layout/utils/PasswordFormField';
-import DefaultFooter from 'components/layout/navigation/DefaultFooter';
-import { ReactComponent as Check } from 'assets/images/svgs/check.svg';
-import { ReactComponent as X } from 'assets/images/svgs/x.svg';
+import FormField from '@components/layout/utils/FormField';
+import PasswordFormField from '@components/layout/utils/PasswordFormField';
+import DefaultFooter from '@components/layout/navigation/DefaultFooter';
+import { ReactComponent as Check } from '@assets/images/svgs/check.svg';
+import { ReactComponent as X } from '@assets/images/svgs/x.svg';
 
 const Register = ({ isAuthenticated, register, setAlert }) => {
 	const [formData, setFormData] = useState({

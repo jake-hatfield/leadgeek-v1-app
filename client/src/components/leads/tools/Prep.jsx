@@ -2,10 +2,10 @@ import React, { useRef, useCallback, useState, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getLeads } from 'redux/actions/leads';
-import { setPrepFilter, clearPrepFilter } from 'redux/actions/filters';
-import { setAlert } from 'redux/actions/alert';
-import { useOutsideMousedown } from 'utils/utils';
+import { getLeads } from '@redux/actions/leads';
+import { setPrepFilter, clearPrepFilter } from '@redux/actions/filters';
+import { setAlert } from '@redux/actions/alert';
+import { useOutsideMousedown } from '@utils/utils';
 
 const Prep = ({
 	prep,

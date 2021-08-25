@@ -1,7 +1,20 @@
-const Button = ({
+import React from 'react';
+
+interface ButtonProps {
+	text: string;
+	onClick(arg: any): any;
+	width: string | null;
+	margin: string | null;
+	size: string | null;
+	cta: boolean;
+	path: any;
+	conditional: any;
+	conditionalDisplay: any;
+}
+
+const Button: React.FC<ButtonProps> = ({
 	text,
 	onClick,
-	ref,
 	width,
 	margin,
 	size,
@@ -13,7 +26,6 @@ const Button = ({
 	return (
 		<button
 			onClick={onClick}
-			ref={ref}
 			className={`${width || 'w-auto'} ${
 				margin ? 'ml-4' : ''
 			} flex items-center relative py-2 px-3 rounded-lg shadow-sm hover:shadow-md border-main ${

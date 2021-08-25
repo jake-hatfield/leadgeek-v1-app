@@ -13,18 +13,18 @@ import {
 	handleArchiveLead,
 	addComment,
 	clearCurrentLead,
-} from 'redux/actions/leads';
+} from '@redux/actions/leads';
 import { DateTime } from 'luxon';
 import ReactImageMagnify from 'react-image-magnify';
 
 import {
 	truncate,
 	numberWithCommas,
-	domainFromURL,
+	returnDomainFromUrl,
 	calculateBSR,
 	openLinkHandler,
-} from 'utils/utils';
-import Button from 'components/layout/utils/Button';
+} from '@utils/utils';
+import Button from '@components/layout/utils/Button';
 
 const HeaderButton = ({ active, disabled, action, state, desc }) => {
 	const [hover, setHover] = useState(false);
@@ -583,7 +583,7 @@ const Details = ({
 											<Note
 												title={'Cashback'}
 												desc={data.cashback}
-												link={domainFromURL(data.retailerLink)}
+												link={returnDomainFromUrl(data.retailerLink)}
 												nullState={'No applicable cashback'}
 											/>
 											<Note

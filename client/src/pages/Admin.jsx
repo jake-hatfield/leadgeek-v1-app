@@ -2,19 +2,19 @@ import React, { Fragment, useState, useEffect, useRef } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { exportLeads } from 'redux/actions/leads';
-import { getAllUsers, setPage } from 'redux/actions/users';
-import { setItemLimit } from 'redux/actions/filters';
-import { surrogateUser } from 'redux/actions/auth';
+import { exportLeads } from '@redux/actions/leads';
+import { getAllUsers, setPage } from '@redux/actions/users';
+import { setItemLimit } from '@redux/actions/filters';
+import { surrogateUser } from '@redux/actions/auth';
 
-import { useOutsideMousedown, capitalize } from 'utils/utils';
-import AuthLayout from 'components/layout/AuthLayout';
-import Header from 'components/layout/navigation/Header';
-import Button from 'components/layout/utils/Button';
-import Pagination from 'components/layout/navigation/Pagination';
-import Spinner from 'components/layout/utils/Spinner';
-import { ReactComponent as Check } from 'assets/images/svgs/check.svg';
-import { ReactComponent as X } from 'assets/images/svgs/x.svg';
+import { useOutsideMousedown, capitalize } from '@utils/utils';
+import AuthLayout from '@components/layout/AuthLayout';
+import Header from '@components/layout/navigation/Header';
+import Button from '@components/layout/utils/Button';
+import Pagination from '@components/layout/navigation/Pagination';
+import Spinner from '@components/layout/utils/Spinner';
+import { ReactComponent as Check } from '@assets/images/svgs/check.svg';
+import { ReactComponent as X } from '@assets/images/svgs/x.svg';
 
 const AdminItem = ({
 	height,
@@ -42,7 +42,7 @@ const AdminItem = ({
 				)}
 				<div className='h-full flex flex-col justify-between p-4'>
 					<div className='flex items-center'>
-						<span className={color}>
+						<span className='text-purple-500'>
 							<svg
 								xmlns='http://www.w3.org/2000/svg'
 								className='h-5 w-5'
@@ -254,6 +254,7 @@ const Admin = ({
 	};
 
 	const adminItems = [
+		// export leads
 		{
 			height: 'h-auto',
 			title: 'Export leads',
@@ -270,7 +271,6 @@ const Admin = ({
 					/>
 				</g>
 			),
-			color: 'text-purple-500',
 			buttonText: 'Export all leads',
 			buttonPath: (
 				<path
@@ -305,6 +305,7 @@ const Admin = ({
 			),
 			search: false,
 		},
+		// view members
 		{
 			width: 'w-full max-w-3xl',
 			title: 'View members',
@@ -312,7 +313,6 @@ const Admin = ({
 			path: (
 				<path d='M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z' />
 			),
-			color: 'text-teal-500',
 			buttonText: 'View all members',
 			additionalFunction: () => getAllUsers(pagination.page, usersLimit),
 			buttonPath: (
@@ -326,7 +326,7 @@ const Admin = ({
 				</g>
 			),
 			cta: false,
-			popupHeading: 'LeadGeek members',
+			popupHeading: 'Leadgeek members',
 			popupContent: (
 				<UserTable
 					role={role}

@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import LeadRow from './LeadRow';
-import NullState from 'components/layout/utils/NullState';
+import NullState from '@components/layout/utils/NullState';
 import Spinner from '../layout/utils/Spinner';
 
 const LeadTable = ({

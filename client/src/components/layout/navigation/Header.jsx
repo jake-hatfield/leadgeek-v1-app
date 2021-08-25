@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { getSearchResults } from 'redux/actions/leads';
-import { setAlert } from 'redux/actions/alert';
+import { getSearchResults } from '@redux/actions/leads';
+import { setAlert } from '@redux/actions/alert';
 
-import SearchBar from 'components/layout/navigation/SearchBar';
+import SearchBar from '@components/layout/navigation/SearchBar';
 
 const Header = ({
 	role,

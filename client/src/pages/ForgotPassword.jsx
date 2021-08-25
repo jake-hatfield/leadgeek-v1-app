@@ -6,12 +6,12 @@ import { connect } from 'react-redux';
 import { forgotPassword } from '../redux/actions/auth';
 import { setAlert } from '../redux/actions/alert';
 
-import DefaultLayout from 'components/layout/DefaultLayout';
-import FormField from 'components/layout/utils/FormField';
-import LoginImage from 'components/auth/login/LoginImage';
-import DefaultFooter from 'components/layout/navigation/DefaultFooter';
-import { ReactComponent as LeadGeekLogo } from 'assets/images/svgs/leadgeek-logo-light.svg';
-import Button from 'components/layout/utils/Button';
+import DefaultLayout from '@components/layout/DefaultLayout';
+import FormField from '@components/layout/utils/FormField';
+import LoginImage from '@components/auth/login/LoginImage';
+import DefaultFooter from '@components/layout/navigation/DefaultFooter';
+import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
+import Button from '@components/layout/utils/Button';
 
 const ForgotPassword = ({ forgotPassword, setAlert }) => {
 	const [formData, setFormData] = useState({

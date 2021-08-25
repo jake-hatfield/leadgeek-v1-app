@@ -20,7 +20,7 @@ import {
 import axios from 'axios';
 
 import { setAlert } from './alert';
-import { truncate } from 'utils/utils';
+import { truncate } from '@utils/utils';
 
 // application/json config object
 const config = {

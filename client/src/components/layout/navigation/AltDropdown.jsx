@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 
 import { NavLink } from 'react-router-dom';
 
-import { useOutsideMouseup } from 'utils/utils';
+import { useOutsideMouseup } from '@utils/utils';
 
 function AltDropdown({
 	items,

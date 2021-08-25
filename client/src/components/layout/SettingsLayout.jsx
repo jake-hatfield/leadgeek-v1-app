@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import SettingsNavbar from 'components/layout/navigation/SettingsNavbar';
+import SettingsNavbar from '@components/layout/navigation/SettingsNavbar';
 
 const SettingsLayout = ({
 	children,

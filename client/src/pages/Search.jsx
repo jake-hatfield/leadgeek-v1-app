@@ -1,11 +1,29 @@
 import React, { useEffect } from 'react';
 
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getSearchResults } from 'redux/actions/leads';
+import { getSearchResults } from '../redux/actions/leads';
 
-import AuthLayout from 'components/layout/AuthLayout';
-import Leads from 'components/leads/Leads';
+import AuthLayout from '../components/layout/AuthLayout';
+import Leads from '../components/leads/Leads';
+
+// interface SearchProps {
+// 	user: {};
+// 	loading: boolean;
+// 	search: {
+// 		pagination: {
+// 			searchValue: string;
+// 		};
+// 	};
+// 	itemLimit: number;
+// 	getSearchResults(
+// 		searchValue: string,
+// 		role: string,
+// 		dateCreated: string,
+// 		page: number,
+// 		newSearch: boolean,
+// 		itemLimit: number
+// 	): void;
+// }
 
 const Search = ({ user, loading, search, itemLimit, getSearchResults }) => {
 	const { page } = search.pagination;
@@ -32,11 +50,6 @@ const Search = ({ user, loading, search, itemLimit, getSearchResults }) => {
 			/>
 		</AuthLayout>
 	);
-};
-
-Search.propTypes = {
-	user: PropTypes.object.isRequired,
-	search: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => {

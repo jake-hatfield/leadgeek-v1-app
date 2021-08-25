@@ -198,7 +198,7 @@ router.post('/forgot-password', async (req, res) => {
 					'You are receiving this email because you (or someone else) have requested to reset your LeadGeek account password. \n\n' +
 					'Please click on the following link, or paste this into your browser to complete the password reset process within one hour of receiving this email: \n\n' +
 					`${url}/reset/reset-password/${token} \n\n` +
-					'If you did not request this, please ignore this email and you password will remain unchanged. \n',
+					'If you did not request this, please ignore this email and your password will remain unchanged. \n',
 			};
 			console.log('Sending email...');
 			transporter.verify(function (error, success) {

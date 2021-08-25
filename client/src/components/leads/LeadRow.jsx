@@ -7,7 +7,7 @@ import {
 	handleLikeLead,
 	handleArchiveLead,
 	setCurrentLead,
-} from 'redux/actions/leads';
+} from '@redux/actions/leads';
 import { DateTime } from 'luxon';
 
 import {
@@ -16,7 +16,7 @@ import {
 	calculateBSR,
 	openLinkHandler,
 	useOutsideMousedown,
-} from 'utils/utils';
+} from '@utils/utils';
 
 const LeadRow = ({
 	lead,

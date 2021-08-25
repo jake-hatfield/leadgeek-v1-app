@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import AffiliateRow from './AffiliateRow';
-import Button from 'components/layout/utils/Button';
-import Spinner from 'components/layout/utils/Spinner';
+import Button from '@components/layout/utils/Button';
+import Spinner from '@components/layout/utils/Spinner';
 
 const NullState = ({ header, text, path, link, linkText }) => {
 	return (

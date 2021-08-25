@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getArchivedLeads } from 'redux/actions/leads';
+import { getArchivedLeads } from '@redux/actions/leads';
 
-import AuthLayout from 'components/layout/AuthLayout';
-import Leads from 'components/leads/Leads';
+import AuthLayout from '@components/layout/AuthLayout';
+import Leads from '@components/leads/Leads';
 
 const Archived = ({
 	user,

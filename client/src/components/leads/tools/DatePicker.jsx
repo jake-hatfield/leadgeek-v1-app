@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 
 import { DateTime } from 'luxon';
 
-import { useOutsideMousedown } from 'utils/utils';
+import { useOutsideMousedown } from '@utils/utils';
 
 const DatePicker = ({
 	date,

@@ -3,10 +3,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import AuthLayout from 'components/layout/AuthLayout';
-import SettingsLayout from 'components/layout/SettingsLayout';
-import ResetPassword from 'components/auth/login/password/ResetPassword';
-import Spinner from 'components/layout/utils/Spinner';
+import AuthLayout from '@components/layout/AuthLayout';
+import SettingsLayout from '@components/layout/SettingsLayout';
+import ResetPassword from '@components/auth/login/password/ResetPassword';
+import Spinner from '@components/layout/utils/Spinner';
 
 const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 	return (

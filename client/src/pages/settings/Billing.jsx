@@ -3,22 +3,22 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { connect } from 'react-redux';
-import { cancelStripeSub } from 'redux/actions/auth';
+import { cancelStripeSub } from '@redux/actions/auth';
 import {
 	getSuccessfulPayments,
 	getActivePlanDetails,
-} from 'redux/actions/users';
+} from '@redux/actions/users';
 
 import {
 	capitalize,
 	truncate,
 	planCheckerByPrice,
 	formatTimestamp,
-} from 'utils/utils';
-import AuthLayout from 'components/layout/AuthLayout';
-import NullState from 'components/layout/utils/NullState';
-import Spinner from 'components/layout/utils/Spinner';
-import SettingsLayout from 'components/layout/SettingsLayout';
+} from '@utils/utils';
+import AuthLayout from '@components/layout/AuthLayout';
+import NullState from '@components/layout/utils/NullState';
+import Spinner from '@components/layout/utils/Spinner';
+import SettingsLayout from '@components/layout/SettingsLayout';
 
 const BillingPage = ({
 	auth: { user, loading: authLoading, isAuthenticated },

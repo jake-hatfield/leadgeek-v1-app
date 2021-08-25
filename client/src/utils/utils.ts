@@ -1,29 +1,29 @@
-import React, { useEffect } from 'react';
+import React, { RefObject, useEffect } from 'react';
 
 import { DateTime } from 'luxon';
 
-export const capitalize = (s) => {
-	return s[0].toUpperCase() + s.slice(1);
+export const capitalize = (string: string) => {
+	return string[0].toUpperCase() + string.slice(1);
 };
 
-export const truncate = (str, n) => {
-	return str.length > n ? str.substr(0, n - 1) + '...' : str;
+export const truncate = (string: string, n: number) => {
+	return string.length > n ? string.substr(0, n - 1) + '...' : string;
 };
 
-export const truncateAndObfuscate = (str, n) => {
-	const string = str.slice(3);
-	return string.length > n ? string.substr(0, n - 1) + 'xxxx' : str;
+export const truncateAndObfuscate = (string: string, n: number) => {
+	const newString = string.slice(3);
+	return newString.length > n ? newString.substr(0, n - 1) + 'xxxx' : string;
 };
 
-export const numberWithCommas = (x) => {
-	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+export const numberWithCommas = (n: number) => {
+	return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
-export const lengthChecker = (array) => {
+export const arrayLengthChecker = (array: []): string | number => {
 	return array.length > 99 ? '99+' : array.length;
 };
 
-export const domainFromURL = (url) => {
+export const returnDomainFromUrl = (url: string) => {
 	let result, match;
 	if (
 		(match = url.match(
@@ -39,8 +39,11 @@ export const domainFromURL = (url) => {
 };
 
 // bsr / category % calculator
-export const calculateBSR = (currentRank, category) => {
-	let totalItems;
+export const calculateBSR = (
+	currentRank: number,
+	category: string
+): string | number => {
+	let totalItems: number;
 	if (category === 'Appliances') {
 		totalItems = 616462;
 	} else if (category.includes('Arts')) {
@@ -96,33 +99,26 @@ export const calculateBSR = (currentRank, category) => {
 	} else if (category === 'Video Games') {
 		totalItems = 730691;
 	}
-	if (!totalItems) {
+	if (!totalItems!) {
 		return '-';
 	} else {
 		return ((currentRank / totalItems) * 100).toFixed(3);
 	}
 };
 
-export const openLinkHandler = (retailerLink, amzLink) => {
+export const openLinkHandler = (retailerLink: string, amzLink: string) => {
 	window.open(retailerLink);
 	window.open(amzLink);
 };
 
-export function useStickyState(defaultValue, key) {
-	const [value, setValue] = React.useState(() => {
-		const stickyValue = window.localStorage.getItem(key);
-		return stickyValue !== null ? JSON.parse(stickyValue) : defaultValue;
-	});
-	React.useEffect(() => {
-		window.localStorage.setItem(key, JSON.stringify(value));
-	}, [key, value]);
-	return [value, setValue];
-}
-
-export const useOutsideMousedown = (ref, setState_1, setState_2) => {
+export const useOutsideMousedown = (
+	ref: RefObject<HTMLElement>,
+	setState_1: React.Dispatch<boolean>,
+	setState_2: React.Dispatch<boolean>
+) => {
 	useEffect(() => {
-		function handleClickOutside(event) {
-			if (ref.current && !ref.current.contains(event.target)) {
+		function handleClickOutside(e: any) {
+			if (ref.current && !ref.current.contains(e.target)) {
 				setState_1(false);
 				if (setState_2) {
 					setState_2(false);
@@ -136,10 +132,14 @@ export const useOutsideMousedown = (ref, setState_1, setState_2) => {
 	}, [ref, setState_1, setState_2]);
 };
 
-export const useOutsideMouseup = (ref, setState_1, setState_2) => {
+export const useOutsideMouseup = (
+	ref: RefObject<HTMLElement>,
+	setState_1: React.Dispatch<boolean>,
+	setState_2: React.Dispatch<boolean>
+) => {
 	useEffect(() => {
-		function handleClickOutside(event) {
-			if (ref.current && !ref.current.contains(event.target)) {
+		function handleClickOutside(e: any) {
+			if (ref.current && !ref.current.contains(e.target)) {
 				setState_1(false);
 				if (setState_2) {
 					setState_2(false);
@@ -153,7 +153,7 @@ export const useOutsideMouseup = (ref, setState_1, setState_2) => {
 	}, [ref, setState_1, setState_2]);
 };
 
-export const planCheckerByPrice = (price) => {
+export const planCheckerByPrice = (price: number) => {
 	let plan;
 	if (price === 12900) {
 		plan = 'Grow';
@@ -167,11 +167,11 @@ export const planCheckerByPrice = (price) => {
 	return plan;
 };
 
-export const calcAffCommission = (price) => {
+export const calcAffCommission = (price: number) => {
 	return (price * 0.25) / 100;
 };
 
-export const formatTimestamp = (timestamp, showYear) => {
+export const formatTimestamp = (timestamp: number, showYear: boolean) => {
 	const isoTime = new Date(timestamp * 1000).toJSON();
 	if (showYear) {
 		return DateTime.fromISO(isoTime).toFormat('LLL dd, yyyy');
@@ -180,40 +180,28 @@ export const formatTimestamp = (timestamp, showYear) => {
 	}
 };
 
-export const getPayout = (instance) => {
+export const calcNextPossiblePayoutDate = (instance: number) => {
 	let dt = DateTime.now();
 	let cache = Number(dt.toFormat('dd'));
 
-	let newDate = dt;
+	let newDate = dt.set({ day: 15, hour: 23, minute: 59, second: 59 });
 	if (cache >= 15) {
 		if (instance === 1) {
-			newDate.plus({ months: 1 });
+			return newDate.plus({ months: 1 });
 		} else {
-			newDate.plus({ months: -1 });
+			return newDate.plus({ months: -1 });
 		}
 	}
-
-	const nextPayoutDate = newDate.set({
-		days: 15,
-		hours: 23,
-		minutes: 59,
-		seconds: 59,
-	});
-
-	return nextPayoutDate;
 };
 
-export const calcNextPayoutDate = (date) => {
+export const calcNextPayoutDate = (date: number) => {
 	const isoTime = new Date(date * 1000).toJSON();
 	let dt = DateTime.fromISO(isoTime).plus({ months: 2 });
 	let cache = Number(dt.toFormat('dd'));
-	let newDate = dt;
+	let newDate = dt.set({ hour: 23, minute: 59, second: 59 });
 	if (cache >= 15) {
-		newDate = dt.set({ days: 15 }).plus({ months: 1 });
+		return newDate.set({ day: 15 }).plus({ months: 1 });
 	} else {
-		newDate = dt.set({ days: 15 });
+		return newDate.set({ day: 15 });
 	}
-	const payoutDate = newDate.set({ hours: 23, minutes: 59, seconds: 59 });
-
-	return payoutDate;
 };

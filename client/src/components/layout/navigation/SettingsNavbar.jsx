@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { logout } from 'redux/actions/auth';
+import { logout } from '@redux/actions/auth';
 
 const NavbarLink = ({ link }) => {
 	const [hover, setHover] = useState(false);

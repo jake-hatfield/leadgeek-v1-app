@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const setAuthToken = (token) => {
+export const setAuthToken = (token: string) => {
 	if (token) {
 		axios.defaults.headers.common['x-auth-token'] = token;
 		localStorage.setItem('token', token);
@@ -10,23 +10,13 @@ export const setAuthToken = (token) => {
 	}
 };
 
-export const setResetPwToken = (token) => {
+export const setResetPwToken = (token: string) => {
 	if (token) {
 		axios.defaults.headers.common['x-auth-token'] = token;
 		localStorage.setItem('resetPwToken', token);
 	} else {
 		delete axios.defaults.headers.common['x-auth-token'];
 		localStorage.removeItem('resetPwToken');
-	}
-};
-
-export const setStripeToken = (token) => {
-	if (token) {
-		axios.defaults.headers.common['x-auth-token'] = token;
-		localStorage.setItem('stripeSubscription', token);
-	} else {
-		delete axios.defaults.headers.common['x-auth-token'];
-		localStorage.removeItem('stripeSubscription');
 	}
 };
 

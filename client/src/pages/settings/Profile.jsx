@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { DateTime } from 'luxon';
 
-import AuthLayout from 'components/layout/AuthLayout';
-import SettingsLayout from 'components/layout/SettingsLayout';
-import FormField from 'components/layout/utils/FormField';
-import Spinner from 'components/layout/utils/Spinner';
+import AuthLayout from '@components/layout/AuthLayout';
+import SettingsLayout from '@components/layout/SettingsLayout';
+import FormField from '@components/layout/utils/FormField';
+import Spinner from '@components/layout/utils/Spinner';
 
 const Dashboard = ({ auth: { user, loading, isAuthenticated } }) => {
 	return (

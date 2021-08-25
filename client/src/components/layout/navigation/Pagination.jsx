@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import { numberWithCommas } from 'utils/utils';
+import { numberWithCommas } from '@utils/utils';
 
 const Pagination = ({
 	pagination,
