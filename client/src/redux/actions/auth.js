@@ -64,7 +64,8 @@ export const register = (name, email, password) => async (dispatch) => {
 
 // login user
 export const login = (email, password) => async (dispatch) => {
-	const body = JSON.stringify({ email, password });
+	const emailToLowerCase = email.toLowerCase();
+	const body = JSON.stringify({ email: emailToLowerCase, password });
 	try {
 		const res = await axios.post('/api/auth', body, config);
 		dispatch({
@@ -98,7 +99,8 @@ export const logout = () => async (dispatch) => {
 
 // forgot password
 export const forgotPassword = (email) => async (dispatch) => {
-	const body = JSON.stringify({ email });
+	const emailToLowerCase = email.toLowerCase();
+	const body = JSON.stringify({ email: emailToLowerCase });
 	try {
 		const res = await axios.post('/api/users/forgot-password', body, config);
 		if (res.data.msg === 'Password recovery email sent successfully') {
@@ -168,7 +170,9 @@ export const resetPwValidation = (resetPwToken) => async (dispatch) => {
 
 // update password
 export const updatePassword = (email, password) => async (dispatch) => {
-	const body = JSON.stringify({ email, password });
+	const emailToLowerCase = email.toLowerCase();
+	console.log(emailToLowerCase);
+	const body = JSON.stringify({ email: emailToLowerCase, password });
 	try {
 		axios.put('/api/users/update-password', body, config).then((res) => {
 			if (res.data === 'Password was successfully updated') {
