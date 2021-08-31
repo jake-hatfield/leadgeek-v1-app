@@ -1,14 +1,27 @@
 import React from 'react';
 
-import PropTypes from 'prop-types';
 import { Preloader, Oval } from 'react-preloader-icon';
 
-const Spinner = ({ divWidth, spinnerWidth, noMargin, search, text }) => {
+interface SpinnerProps {
+	divWidth: string | null;
+	spinnerWidth: string | null;
+	margin: boolean;
+	search: boolean;
+	text: string | null;
+}
+
+const Spinner: React.FC<SpinnerProps> = ({
+	divWidth,
+	spinnerWidth,
+	margin,
+	search,
+	text,
+}) => {
 	return (
 		<div
-			className={`${divWidth} flex flex-col items-center justify-center ${
-				!noMargin && 'mt-16'
-			}`}
+			className={`${
+				divWidth ? divWidth : ''
+			} flex flex-col items-center justify-center ${margin ? 'mt-16' : ''}`}
 		>
 			<Preloader
 				use={Oval}
@@ -24,11 +37,6 @@ const Spinner = ({ divWidth, spinnerWidth, noMargin, search, text }) => {
 			)}
 		</div>
 	);
-};
-
-Spinner.propTypes = {
-	search: PropTypes.bool,
-	text: PropTypes.string,
 };
 
 export default Spinner;

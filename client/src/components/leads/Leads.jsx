@@ -314,22 +314,6 @@ const classes = {
 	navToolsWrapper: 'flex items-center',
 };
 
-Leads.propTypes = {
-	leads: PropTypes.array.isRequired,
-	pagination: PropTypes.object.isRequired,
-	type: PropTypes.string.isRequired,
-	headerTitle: PropTypes.string,
-	user: PropTypes.object.isRequired,
-	authLoading: PropTypes.bool.isRequired,
-	feed: PropTypes.object.isRequired,
-	filters: PropTypes.object.isRequired,
-	leadLoading: PropTypes.bool.isRequired,
-	currentLead: PropTypes.object,
-	search: PropTypes.bool,
-	getAllLeads: PropTypes.func.isRequired,
-	clearCurrentLead: PropTypes.func.isRequired,
-};
-
 const mapStateToProps = (state, ownProps) => {
 	const {
 		leads,

@@ -19,7 +19,7 @@ const UserSchema = new Schema({
 		type: Date,
 		default: Date.now,
 	},
-	lastLogin: {
+	lastLoggedIn: {
 		type: Date,
 		default: null,
 	},
@@ -116,11 +116,12 @@ const UserSchema = new Schema({
 			leadId: { type: Schema.Types.ObjectId, ref: 'Lead' },
 		},
 	],
-	unviewedLeads: [
-		{
-			leadId: { type: Schema.Types.ObjectId, ref: 'Lead' },
-		},
-	],
+	// comments: [
+	// 	{
+	// 		date: { type: Date, default: Date.now() },
+	// 		leadId: { type: string },
+	// 	},
+	// ],
 });
 
 module.exports = User = mongoose.model('user', UserSchema);
