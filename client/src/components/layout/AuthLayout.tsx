@@ -6,8 +6,6 @@ import { useAppSelector } from '@utils/hooks';
 // import Alert from "@features/alert/Alert"
 import Navbar from './navigation/Navbar';
 
-import { User } from '@utils/interfaces/User';
-
 interface AuthLayoutProps {
 	// removeAlert: () => void;
 	children: React.ReactNode;

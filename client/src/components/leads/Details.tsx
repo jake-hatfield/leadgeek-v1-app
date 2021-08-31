@@ -6,16 +6,12 @@ import React, {
 	useState,
 } from 'react';
 
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import {
-	handleLikeLead,
-	handleArchiveLead,
-	addComment,
-	clearCurrentLead,
-} from '@redux/actions/leads';
+import { useAppDispatch, useAppSelector } from '@utils/hooks';
+
 import { DateTime } from 'luxon';
 import ReactImageMagnify from 'react-image-magnify';
+
+import Button from '@components/layout/utils/Button';
 
 import {
 	truncate,
@@ -24,114 +20,39 @@ import {
 	calculateBSR,
 	openLinkHandler,
 } from '@utils/utils';
-import Button from '@components/layout/utils/Button';
+import {
+	handleLikeLead,
+	handleArchiveLead,
+	addComment,
+} from '@components/features/leads/leadsSlice';
+import { Lead } from '@utils/interfaces/Lead';
 
-const HeaderButton = ({ active, disabled, action, state, desc }) => {
-	const [hover, setHover] = useState(false);
-	return (
-		<button
-			onMouseEnter={() => setHover(true)}
-			onMouseLeave={() => setHover(false)}
-			onClick={() => action()}
-			className={`relative ml-2 p-1 hover:bg-gray-100 rounded-md ${
-				state && 'text-purple-600'
-			} hover:text-gray-700 ring-gray transition duration-100 ease-in-out`}
-		>
-			{state || !disabled ? (
-				<div className='flex items-center justify-center'>
-					<svg
-						xmlns='http://www.w3.org/2000/svg'
-						viewBox='0 0 20 20'
-						fill='currentColor'
-						stroke={state && 'currentColor'}
-						className='h-5 w-5'
-					>
-						{active}
-					</svg>
-				</div>
-			) : (
-				<div className='flex items-center justify-center'>
-					<svg
-						xmlns='http://www.w3.org/2000/svg'
-						fill='none'
-						viewBox='0 0 20 20'
-						stroke='currentColor'
-						className='h-5 w-5'
-					>
-						{disabled}
-					</svg>
-				</div>
-			)}
-			{hover && (
-				<div className='absolute top-0 right-0 z-10 min-w-max mt-2 mr-6 p-2 transform translate-y-6 translate-x-8 rounded-md shadow-md bg-gray-900 text-left text-white text-sm'>
-					{desc}
-				</div>
-			)}
-		</button>
-	);
-};
+interface DetailsProps {
+	currentLead: any;
+	userId: string;
+	liked: Lead[];
+	archived: Lead[];
+	comments: any[];
+	showDetails: boolean;
+	setShowDetails: React.Dispatch<boolean>;
+	clearCurrentLead: () => void;
+}
 
-const PrimaryMetric = ({ title, value }) => {
-	return (
-		<div className='first:mt-0 mt-1 flex items-end justify-between'>
-			<div className='text-sm text-gray-800'>{title}</div>
-			<div className='py-1 px-2 rounded-lg bg-gray-900 font-semibold text-xs text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out'>
-				{value}
-			</div>
-		</div>
-	);
-};
-
-PrimaryMetric.propTypes = {
-	title: PropTypes.string.isRequired,
-	value: PropTypes.string.isRequired,
-};
-
-const Note = ({ desc, nullState, link }) => {
-	return (
-		<div className='py-1'>
-			{desc && link ? (
-				<a
-					href={`https://www.rakuten.com/${link}`}
-					target='__blank'
-					rel='noopener noreferrer'
-					className='py-1 px-2 rounded-lg bg-purple-500 border border-purple-500 text-xs text-white shadow-sm hover:bg-purple-600 hover:shadow-md transition duration-100 ease-in-out'
-				>
-					{desc}
-				</a>
-			) : desc ? (
-				<div className='inline-block py-1 px-2 rounded-lg bg-gray-900 border border-gray-900 text-xs text-white shadow-sm'>
-					{desc}
-				</div>
-			) : (
-				<div className='inline-block py-1 px-2 rounded-lg bg-gray-100 border border-gray-200 text-xs text-gray-600'>
-					{nullState}
-				</div>
-			)}
-		</div>
-	);
-};
-
-Note.propTypes = {
-	desc: PropTypes.string.isRequired,
-	nullState: PropTypes.string.isRequired,
-};
-
-const Details = ({
+const Details: React.FC<DetailsProps> = ({
 	currentLead,
 	userId,
 	liked,
 	archived,
 	comments,
-	unitFee,
-	lbFee,
 	showDetails,
 	setShowDetails,
-	handleLikeLead,
-	handleArchiveLead,
-	addComment,
 	clearCurrentLead,
 }) => {
+	const dispatch = useAppDispatch();
+	// redux selectors
+	const unitFee = useAppSelector((state) => state.filters.prep.unit);
+	const lbFee = useAppSelector((state) => state.filters.prep.lb);
+
 	const [fullTitle, toggleFullTitle] = useState(false);
 	const [overviewActive, setOverviewActive] = useState(true);
 	const { data } = currentLead;
@@ -144,7 +65,7 @@ const Details = ({
 	}, []);
 	// close modal on click outside
 	const modalRef = useRef();
-	const closeModal = (e) => {
+	const closeModal = (e: any) => {
 		if (modalRef.current === e.target) {
 			setShowDetails(false);
 		}
@@ -165,6 +86,8 @@ const Details = ({
 	const [like, setLike] = useState(
 		liked.some((lead) => lead._id === currentLead._id) ? true : false
 	);
+
+	// like/archive/comment handlers
 	useEffect(() => {
 		if (liked.some((lead) => lead._id === currentLead._id)) {
 			setLike(true);
@@ -192,20 +115,21 @@ const Details = ({
 			setComment('');
 		}
 	}, [liked]);
+
 	const primaryLinks = [
 		{ title: 'Overview', onClick: () => setOverviewActive(true) },
 	];
 
 	const primaryButtons = [
 		{
-			active: (
+			activePath: (
 				<path
 					fillRule='evenodd'
 					d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
 					clipRule='evenodd'
 				/>
 			),
-			disabled: (
+			disabledPath: (
 				<path
 					strokeLinecap='round'
 					strokeLinejoin='round'
@@ -215,12 +139,13 @@ const Details = ({
 					clipRule='evenodd'
 				/>
 			),
-			action: () => handleLikeLead(userId, currentLead._id),
+			onClick: () =>
+				dispatch(handleLikeLead({ userId, leadId: currentLead._id })),
 			state: like,
-			desc: like ? 'Unlike this lead' : 'Like this lead',
+			description: <span>{like ? 'Unlike this lead' : 'Like this lead'}</span>,
 		},
 		{
-			active: (
+			activePath: (
 				<path
 					strokeLinecap='round'
 					strokeLinejoin='round'
@@ -228,7 +153,7 @@ const Details = ({
 					d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
 				/>
 			),
-			disabled: (
+			disabledPath: (
 				<path
 					strokeLinecap='round'
 					strokeLinejoin='round'
@@ -236,39 +161,53 @@ const Details = ({
 					d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
 				/>
 			),
-			action: () => handleArchiveLead(userId, currentLead._id),
+			onClick: () =>
+				dispatch(handleArchiveLead({ userId, leadId: currentLead._id })),
 			state: archive,
-			desc: archive ? 'Unarchive this lead' : 'Archive this lead',
+			description: (
+				<span>{archive ? 'Unarchive this lead' : 'Archive this lead'}</span>
+			),
 		},
-
 		{
-			active: (
+			activePath: (
 				<path
 					fillRule='evenodd'
 					d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z'
 					clipRule='evenodd'
 				/>
 			),
-			disabled: null,
-			action: () => openLinkHandler(data.retailerLink, data.amzLink),
+			disabledPath: (
+				<path
+					fillRule='evenodd'
+					d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z'
+					clipRule='evenodd'
+				/>
+			),
+			onClick: () => openLinkHandler(data.retailerLink, data.amzLink),
 			state: null,
-			desc: 'Open both links',
+			description: <span>Open both links</span>,
 		},
 		{
-			active: (
+			activePath: (
 				<path
 					fillRule='evenodd'
 					d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
 					clipRule='evenodd'
 				/>
 			),
-			disabled: null,
-			action: () => {
+			disabledPath: (
+				<path
+					fillRule='evenodd'
+					d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+					clipRule='evenodd'
+				/>
+			),
+			onClick: () => {
 				clearCurrentLead();
 				setShowDetails(false);
 			},
 			state: null,
-			desc: (
+			description: (
 				<div>
 					<span>Close details</span>
 					<span className='ml-2 p-0.5 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
@@ -278,17 +217,19 @@ const Details = ({
 			),
 		},
 	];
+
 	const primaryMetrics = [
 		{
 			title: 'Net profit',
 			value: `$${(
-				data.netProfit - (unitFee || lbFee * data.weight || 0)
+				data.netProfit - (unitFee || (lbFee ? lbFee * data.weight : 0))
 			).toFixed(2)}`,
 		},
 		{
 			title: 'Return on investment',
 			value: `${(
-				((data.netProfit.toFixed(2) - (unitFee || lbFee * data.weight || 0)) /
+				((data.netProfit.toFixed(2) -
+					(unitFee || (lbFee ? lbFee * data.weight : 0))) /
 					data.buyPrice.toFixed(2)) *
 				100
 			).toFixed(0)}%`,
@@ -301,10 +242,15 @@ const Details = ({
 	const date = DateTime.fromISO(data.date).toFormat('LLL dd, H:mm');
 	const [copyText, setCopyText] = useState(false);
 	const [copiedText, setCopiedText] = useState(false);
-	const notes = [data.promo, data.cashback, data.variations, data.shipping];
+	const notes: (string | null)[] = [
+		data.promo,
+		data.cashback,
+		data.variations,
+		data.shipping,
+	];
 	const [noteCount, setNoteCount] = useState(0);
 	const checkNotes = () => {
-		setNoteCount(notes.filter((note) => note !== ''));
+		setNoteCount(notes.filter((note) => note !== '').length);
 	};
 	const [identifyingText, setIdentifyingText] = useState('');
 
@@ -323,7 +269,7 @@ const Details = ({
 	}, [currentLead]);
 
 	const [comment, setComment] = useState('');
-	const onChange = (e) => {
+	const onChange = (e: any) => {
 		setComment(e.target.value);
 	};
 
@@ -333,7 +279,7 @@ const Details = ({
 	return (
 		<Fragment>
 			<div
-				ref={modalRef}
+				// ref={modalRef}
 				onClick={(e) => {
 					closeModal(e);
 					clearCurrentLead();
@@ -362,11 +308,11 @@ const Details = ({
 								{primaryButtons.map((button, i) => (
 									<HeaderButton
 										key={i}
-										active={button.active}
-										disabled={button.disabled}
-										action={button.action}
+										activePath={button.activePath}
+										disabledPath={button.disabledPath}
+										onClick={button.onClick}
 										state={button.state}
-										desc={button.desc}
+										description={button.description}
 									/>
 								))}
 							</div>
@@ -378,7 +324,7 @@ const Details = ({
 							<div>
 								<div className='flex justify-between'>
 									<div className='w-1/3 z-40'>
-										<ReactImageMagnify
+										{/* <ReactImageMagnify
 											{...{
 												smallImage: {
 													alt: data.title,
@@ -393,7 +339,7 @@ const Details = ({
 													height: '200%',
 												},
 											}}
-										/>
+										/> */}
 									</div>
 									<header className='relative w-2/3 ml-8'>
 										<h3
@@ -515,7 +461,7 @@ const Details = ({
 															/>
 														</svg>
 													)}
-													<span className={copiedText ? 'ml-1' : null}>
+													<span className={copiedText ? 'ml-1' : ''}>
 														{copiedText
 															? `${identifyingText} copied`
 															: `Copy ${identifyingText}`}
@@ -576,34 +522,29 @@ const Details = ({
 											<span
 												className={`${'bg-gray-100 border border-gray-200 text-gray-600  ml-2 py-1 px-2 rounded-lg shadow-sm text-xs'}`}
 											>
-												{noteCount.length}
+												{noteCount}
 											</span>
 										</header>
 										<div className='grid grid-flow-row gap-x-4 mt-3 text-sm'>
 											<Note
-												title={'Cashback'}
-												desc={data.cashback}
+												description={data.cashback}
 												link={returnDomainFromUrl(data.retailerLink)}
 												nullState={'No applicable cashback'}
 											/>
 											<Note
-												title={'Promos'}
-												desc={data.promo}
+												description={data.promo}
 												nullState={'No applicable promos'}
 											/>
 											<Note
-												title={'Shipping'}
-												desc={data.shipping}
+												description={data.shipping}
 												nullState={'No shipping notes'}
 											/>
 											<Note
-												title={'Seller notes'}
-												desc={data.notes}
+												description={data.notes}
 												nullState={'No seller notes'}
 											/>
 											<Note
-												title={'Variations'}
-												desc={data.variations}
+												description={data.variations}
 												nullState={'No variation notes'}
 											/>
 										</div>
@@ -626,11 +567,23 @@ const Details = ({
 											<div className='flex items-center justify-end'>
 												<Button
 													text={'Comment'}
-													cta={comment && true}
 													onClick={(e) => {
 														e.preventDefault();
-														addComment(comment, userId, currentLead._id);
+														dispatch(
+															addComment({
+																comment,
+																userId,
+																leadId: currentLead._id,
+															})
+														);
 													}}
+													width={null}
+													margin={null}
+													size={null}
+													cta={comment ? true : false}
+													path={null}
+													conditional={null}
+													conditionalDisplay={null}
 												/>
 											</div>
 										</form>
@@ -645,39 +598,110 @@ const Details = ({
 	);
 };
 
-Details.propTypes = {
-	currentLead: PropTypes.object.isRequired,
-	userId: PropTypes.string.isRequired,
-	liked: PropTypes.array.isRequired,
-	archived: PropTypes.array.isRequired,
-	unitFee: PropTypes.number,
-	lbFee: PropTypes.number,
-	showDetails: PropTypes.bool.isRequired,
-	setShowDetails: PropTypes.func.isRequired,
-	handleLikeLead: PropTypes.func.isRequired,
-	handleArchiveLead: PropTypes.func.isRequired,
-	clearCurrentLead: PropTypes.func.isRequired,
+interface HeaderButtonProps {
+	activePath: JSX.Element;
+	disabledPath: JSX.Element;
+	onClick: () => void;
+	state: boolean | null;
+	description: JSX.Element;
+}
+
+const HeaderButton: React.FC<HeaderButtonProps> = ({
+	activePath,
+	disabledPath,
+	onClick,
+	state,
+	description,
+}) => {
+	const [hover, setHover] = useState(false);
+	return (
+		<button
+			onMouseEnter={() => setHover(true)}
+			onMouseLeave={() => setHover(false)}
+			onClick={() => onClick()}
+			className={`relative ml-2 p-1 hover:bg-gray-100 rounded-md ${
+				state && 'text-purple-600'
+			} hover:text-gray-700 ring-gray transition duration-100 ease-in-out`}
+		>
+			{state || !disabledPath ? (
+				<div className='flex items-center justify-center'>
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						viewBox='0 0 20 20'
+						fill='currentColor'
+						stroke={state ? 'currentColor' : ''}
+						className='h-5 w-5'
+					>
+						{activePath}
+					</svg>
+				</div>
+			) : (
+				<div className='flex items-center justify-center'>
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						fill='none'
+						viewBox='0 0 20 20'
+						stroke='currentColor'
+						className='h-5 w-5'
+					>
+						{disabledPath}
+					</svg>
+				</div>
+			)}
+			{hover && (
+				<div className='absolute top-0 right-0 z-10 min-w-max mt-2 mr-6 p-2 transform translate-y-6 translate-x-8 rounded-md shadow-md bg-gray-900 text-left text-white text-sm'>
+					{description}
+				</div>
+			)}
+		</button>
+	);
 };
 
-const mapStateToProps = (state, ownProps) => {
-	const { unit: unitFee, lb: lbFee } = state.filters.prep;
-	const { currentLead, userId, liked, archived, showDetails, setShowDetails } =
-		ownProps;
-	return {
-		currentLead,
-		userId,
-		liked,
-		archived,
-		unitFee,
-		lbFee,
-		showDetails,
-		setShowDetails,
-	};
+interface PrimaryMetricProps {
+	title: string;
+	value: string;
+}
+
+const PrimaryMetric: React.FC<PrimaryMetricProps> = ({ title, value }) => {
+	return (
+		<div className='first:mt-0 mt-1 flex items-end justify-between'>
+			<div className='text-sm text-gray-800'>{title}</div>
+			<div className='py-1 px-2 rounded-lg bg-gray-900 font-semibold text-xs text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out'>
+				{value}
+			</div>
+		</div>
+	);
 };
 
-export default connect(mapStateToProps, {
-	handleLikeLead,
-	handleArchiveLead,
-	addComment,
-	clearCurrentLead,
-})(Details);
+interface NoteProps {
+	description: string;
+	nullState: string;
+	link?: string;
+}
+
+const Note: React.FC<NoteProps> = ({ description, nullState, link }) => {
+	return (
+		<div className='py-1'>
+			{description && link ? (
+				<a
+					href={`https://www.rakuten.com/${link}`}
+					target='__blank'
+					rel='noopener noreferrer'
+					className='py-1 px-2 rounded-lg bg-purple-500 border border-purple-500 text-xs text-white shadow-sm hover:bg-purple-600 hover:shadow-md transition duration-100 ease-in-out'
+				>
+					{description}
+				</a>
+			) : description ? (
+				<div className='inline-block py-1 px-2 rounded-lg bg-gray-900 border border-gray-900 text-xs text-white shadow-sm'>
+					{description}
+				</div>
+			) : (
+				<div className='inline-block py-1 px-2 rounded-lg bg-gray-100 border border-gray-200 text-xs text-gray-600'>
+					{nullState}
+				</div>
+			)}
+		</div>
+	);
+};
+
+export default Details;

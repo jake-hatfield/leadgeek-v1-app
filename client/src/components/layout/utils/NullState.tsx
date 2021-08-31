@@ -4,7 +4,21 @@ import { Link } from 'react-router-dom';
 
 import Button from '@components/layout/utils/Button';
 
-const NullState = ({ header, text, path, link, linkText }) => {
+interface NullStateProps {
+	header: string;
+	text: string;
+	path: JSX.Element;
+	link: string;
+	linkText: string;
+}
+
+const NullState: React.FC<NullStateProps> = ({
+	header,
+	text,
+	path,
+	link,
+	linkText,
+}) => {
 	return (
 		<div className={nullStateClasses.nullStateWrapper}>
 			<div className={nullStateClasses.svgWrapper}>
@@ -31,8 +45,13 @@ const NullState = ({ header, text, path, link, linkText }) => {
 					<Button
 						text={'Reload the page'}
 						onClick={() => window.location.reload()}
+						width={null}
+						margin={null}
 						size={'sm'}
 						cta={true}
+						path={null}
+						conditional={null}
+						conditionalDisplay={null}
 					/>
 				</div>
 			)}

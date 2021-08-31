@@ -4,7 +4,7 @@ import { getFeedLeads } from '@features/leads/leadsSlice';
 
 import AuthLayout from '@components/layout/AuthLayout';
 import Leads from '@components/leads/Leads';
-// import Spinner from '@components/layout/utils/Spinner';
+import Spinner from '@components/layout/utils/Spinner';
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
 
 const Feed = () => {
@@ -42,8 +42,13 @@ const Feed = () => {
 			/>
 		</AuthLayout>
 	) : (
-		<div>Hello</div>
-		// <Spinner text={'Loading...'} />
+		<Spinner
+			divWidth={null}
+			spinnerWidth={null}
+			margin={false}
+			search={false}
+			text={'Loading...'}
+		/>
 	);
 };
 
