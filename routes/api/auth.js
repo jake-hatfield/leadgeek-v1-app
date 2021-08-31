@@ -51,7 +51,7 @@ router.post('/', async (req, res) => {
 			return res.status(400).json({
 				errors: [
 					{
-						msg: 'Uh-oh! Email & password combination not correct. Please try again or reset your password.',
+						msg: 'Email & password combination not correct. Please try again or reset your password.',
 					},
 				],
 			});

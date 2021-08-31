@@ -4,17 +4,7 @@ import { NavLink } from 'react-router-dom';
 
 import { useOutsideMouseup } from '@utils/utils';
 
-function AltDropdown({
-	items,
-	open,
-	setOpen,
-	logout,
-	logoutUser,
-	name,
-	loading,
-	activeSubscription,
-}) {
-	const toggle = () => setOpen(!open);
+function AltDropdown({ items, open, setOpen, logout, logoutUser, name }) {
 	const wrapperRef = useRef(null);
 
 	useOutsideMouseup(wrapperRef, setOpen);
@@ -59,7 +49,6 @@ function AltDropdown({
 							<span className='font-semibold text-sm text-gray-800'>
 								{item.title}
 							</span>
-							<span className='text-sm text-gray-600'>{item.dateString}</span>
 						</NavLink>
 					))}
 

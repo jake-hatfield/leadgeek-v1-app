@@ -1,40 +1,51 @@
 import React, { useState } from 'react';
 
+import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { setJWT, getUserData } from '@components/features/auth/authSlice';
+
 import { Redirect, Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { login } from '@redux/actions/auth';
 
 import DefaultLayout from '@components/layout/DefaultLayout';
 import FormField from '@components/layout/utils/FormField';
 import PasswordFormField from '@components/layout/utils/PasswordFormField';
 import Button from '@components/layout/utils/Button';
-// import LoginImage from '@components/auth/login/LoginImage';
 import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
+import setAuthToken from '@utils/authTokens';
 
-interface LoginPageProps {
-	login: any;
-	isAuthenticated: boolean;
-}
+const Login: React.FC = () => {
+	const dispatch = useAppDispatch();
+	const readyStatus = useAppSelector((state) => state.auth.status);
+	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-const Login: React.FC<LoginPageProps> = ({ login, isAuthenticated }) => {
-	console.log(login);
 	const [formData, setFormData] = useState({
 		email: '',
 		password: '',
 	});
 	const { email, password } = formData;
+
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
-	const onSubmit = (e: any) => {
+
+	const onSubmit = async (e: any) => {
 		e.preventDefault();
-		login(email, password);
+		const {
+			payload: { token },
+		} = await dispatch(setJWT({ email, password }));
+		if (token && readyStatus === 'idle') {
+			setAuthToken(token);
+			const test = await dispatch(getUserData());
+			console.log(test);
+		} else {
+			console.log('boo');
+		}
 	};
 
 	if (isAuthenticated) {
 		return <Redirect to='/leads' />;
 	}
+
 	return (
 		<DefaultLayout>
 			<section className={classes.wrapper}>
@@ -121,8 +132,4 @@ const classes = {
 	subheaderLink: 'ml-2 block md:inline-block link',
 };
 
-const mapStateToProps = (state: any) => ({
-	isAuthenticated: state.auth.isAuthenticated,
-});
-
-export default connect(mapStateToProps, { login })(Login);
+export default Login;

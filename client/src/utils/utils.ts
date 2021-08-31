@@ -2,6 +2,12 @@ import React, { RefObject, useEffect } from 'react';
 
 import { DateTime } from 'luxon';
 
+export const config = {
+	headers: {
+		'Content-Type': 'application/json',
+	},
+};
+
 export const capitalize = (string: string) => {
 	return string[0].toUpperCase() + string.slice(1);
 };
@@ -117,14 +123,15 @@ export const useOutsideMousedown = (
 	setState_2: React.Dispatch<boolean>
 ) => {
 	useEffect(() => {
-		function handleClickOutside(e: any) {
-			if (ref.current && !ref.current.contains(e.target)) {
+		const handleClickOutside = (e: any) => {
+			console.log(e.target);
+			if (ref.current && !ref.current.contains(e.target as Node)) {
 				setState_1(false);
 				if (setState_2) {
 					setState_2(false);
 				}
 			}
-		}
+		};
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);

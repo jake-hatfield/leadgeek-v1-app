@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 
+import axios from 'axios';
+
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { forgotPassword } from '../redux/actions/auth';
 import { setAlert } from '../redux/actions/alert';
 
 import DefaultLayout from '@components/layout/DefaultLayout';
@@ -13,13 +14,55 @@ import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
 import Button from '@components/layout/utils/Button';
 
-const ForgotPassword = ({ forgotPassword, setAlert }) => {
+import { setResetPwToken } from '@utils/authTokens';
+import { config } from '@utils/utils';
+
+const ForgotPassword = ({ setAlert }) => {
 	const [formData, setFormData] = useState({
 		email: '',
 	});
 	const { email } = formData;
 	const onChange = (e) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
+
+	const forgotPassword = (email) => async (dispatch) => {
+		const emailToLowerCase = email.toLowerCase();
+		const body = JSON.stringify({ email: emailToLowerCase });
+		try {
+			const res = await axios.post('/api/users/forgot-password', body, config);
+			if (res.data.msg === 'Password recovery email sent successfully') {
+				dispatch(
+					setAlert(
+						'Email sent',
+						`An email has been sent to ${email} if an account is associated.`,
+						'success'
+					)
+				);
+				const { token } = res.data;
+				setResetPwToken(token);
+			}
+		} catch (error) {
+			// make sure people can't guess user's password by trial and error
+			const errorMsg = error.response.data;
+			if (errorMsg === 'Email not found in database') {
+				dispatch(
+					setAlert(
+						'Email sent',
+						`An email has been sent to ${email} if an account is associated.`,
+						'success'
+					)
+				);
+			} else {
+				dispatch(
+					setAlert(
+						'Error sending email',
+						'Email could not be sent. Please contact LeadGeek support.',
+						'danger'
+					)
+				);
+			}
+		}
+	};
 	const sendEmail = (e) => {
 		e.preventDefault();
 		if (email === '') {
@@ -97,7 +140,6 @@ const ForgotPassword = ({ forgotPassword, setAlert }) => {
 
 ForgotPassword.propTypes = {
 	setAlert: PropTypes.func.isRequired,
-	forgotPassword: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -105,6 +147,4 @@ const mapStateToProps = (state) => ({
 	setAlert: state.alert,
 });
 
-export default connect(mapStateToProps, { setAlert, forgotPassword })(
-	ForgotPassword
-);
+export default connect(mapStateToProps, { setAlert })(ForgotPassword);

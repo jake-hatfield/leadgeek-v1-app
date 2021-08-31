@@ -39,11 +39,6 @@ NavbarLink.propTypes = {
 
 const SettingsNavbar = () => {
 	const primaryLinks = [
-		// {
-		// 	title: 'Profile',
-		// 	link: '/settings/profile/',
-		// 	desc: 'View & edit your profile',
-		// },
 		{
 			title: 'Security',
 			link: '/settings/security/',
