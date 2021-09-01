@@ -16,7 +16,7 @@ import {
 	openLinkHandler,
 	useOutsideMousedown,
 } from '@utils/utils';
-import { Lead } from '@utils/interfaces/Leads/Lead';
+import { Lead } from '@utils/interfaces/leads/Lead';
 import { User } from '@utils/interfaces/User';
 
 interface LeadRowProps {

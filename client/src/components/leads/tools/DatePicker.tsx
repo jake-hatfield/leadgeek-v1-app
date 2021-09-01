@@ -4,7 +4,17 @@ import { DateTime } from 'luxon-business-days';
 
 import { useOutsideMousedown } from '@utils/utils';
 
-const DatePicker = ({
+interface DatePickerProps {
+	type: string;
+	date: boolean;
+	setDate: React.Dispatch<React.SetStateAction<boolean>>;
+	dateCreated: string;
+	lastUpdated: string | null;
+	setDateLimit: any;
+	setPage: any;
+}
+
+const DatePicker: React.FC<DatePickerProps> = ({
 	date,
 	setDate,
 	dateCreated,
@@ -14,7 +24,7 @@ const DatePicker = ({
 	setPage,
 }) => {
 	const wrapperRef = useRef(null);
-	useOutsideMousedown(wrapperRef, setDate);
+	useOutsideMousedown(wrapperRef, setDate, null);
 	// close modal on esc key
 	const keyPress = useCallback(
 		(e) => {

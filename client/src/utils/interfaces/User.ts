@@ -1,4 +1,4 @@
-import { Lead } from './Leads/Lead';
+import { Lead } from './leads/Lead';
 
 export interface User {
 	_id: string;

@@ -25,7 +25,7 @@ import {
 	handleArchiveLead,
 	addComment,
 } from '@components/features/leads/leadsSlice';
-import { Lead } from '@utils/interfaces/Leads/Lead';
+import { Lead } from '@utils/interfaces/leads/Lead';
 
 interface DetailsProps {
 	currentLead: any;

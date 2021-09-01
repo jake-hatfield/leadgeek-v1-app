@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 import { numberWithCommas } from '@utils/utils';
 
-import { Pagination } from '@utils/interfaces/Leads/Pagination';
+import { Pagination } from '@utils/interfaces/leads/Pagination';
 
 interface PaginationProps {
 	pagination: Pagination;

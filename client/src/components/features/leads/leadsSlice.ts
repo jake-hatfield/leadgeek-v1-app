@@ -2,11 +2,10 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import axios from 'axios';
 
+import { Lead } from '@utils/interfaces/leads/Lead';
+import { Pagination } from '@utils/interfaces/leads/Pagination';
 import { User } from '@utils/interfaces/User';
-import { Lead } from '@utils/interfaces/Leads/Lead';
-import { Pagination } from '@utils/interfaces/Leads/Pagination';
 import { config } from '@utils/utils';
-import { query } from 'express-validator';
 
 interface LeadState {
 	totalByIds: Lead[];
@@ -22,7 +21,7 @@ interface LeadsState {
 	archived: LeadState;
 	search: any;
 	currentLead: Lead | null;
-	lastUpdated: Date | null;
+	lastUpdated: string | null;
 }
 
 const initialState: LeadsState = {

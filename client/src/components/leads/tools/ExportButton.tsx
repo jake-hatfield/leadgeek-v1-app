@@ -1,10 +1,22 @@
 import React from 'react';
 
-import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { CSVLink } from 'react-csv';
 
-const ExportButton = ({ user, leads, setExportLeads }) => {
+import { User } from '@utils/interfaces/User';
+import { Lead } from '@utils/interfaces/leads/Lead';
+
+interface ExportButtonProps {
+	user: User;
+	leads: Lead[];
+	setExportLeads: any;
+}
+
+const ExportButton: React.FC<ExportButtonProps> = ({
+	user,
+	leads,
+	setExportLeads,
+}) => {
 	const currentLocalDate = DateTime.now().setLocale('el').toLocaleString();
 	const headers = [
 		{ label: 'Source', key: 'data.source' },
@@ -62,12 +74,6 @@ const ExportButton = ({ user, leads, setExportLeads }) => {
 			<span className='ml-2'>Confirm</span>
 		</CSVLink>
 	);
-};
-
-ExportButton.propTypes = {
-	user: PropTypes.object.isRequired,
-	leads: PropTypes.array.isRequired,
-	setExportLeads: PropTypes.func.isRequired,
 };
 
 export default ExportButton;

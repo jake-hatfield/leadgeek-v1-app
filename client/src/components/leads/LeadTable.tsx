@@ -4,7 +4,7 @@ import LeadRow from './LeadRow';
 import NullState from '@components/layout/utils/NullState';
 import Spinner from '../layout/utils/Spinner';
 
-import { Lead } from '@utils/interfaces/Leads/Lead';
+import { Lead } from '@utils/interfaces/leads/Lead';
 import { User } from '@utils/interfaces/User';
 
 interface LeadTableProps {

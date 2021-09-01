@@ -23,8 +23,8 @@ import Details from './Details';
 import Button from '../layout/utils/Button';
 import Spinner from '../layout/utils/Spinner';
 
-import { Lead } from '@utils/interfaces/Leads/Lead';
-import { Pagination } from '@utils/interfaces/Leads/Pagination';
+import { Lead } from '@utils/interfaces/leads/Lead';
+import { Pagination } from '@utils/interfaces/leads/Pagination';
 import { User } from '@utils/interfaces/User';
 
 interface LeadsProps {
@@ -235,11 +235,11 @@ const Leads: React.FC<LeadsProps> = ({
 								)}
 								{date && (
 									<DatePicker
+										type={type}
 										date={date}
 										setDate={setDate}
 										dateCreated={user.dateCreated}
 										lastUpdated={lastUpdated}
-										type={type}
 										setDateLimit={setDateLimit}
 										setPage={setPage}
 									/>

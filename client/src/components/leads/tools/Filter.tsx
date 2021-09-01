@@ -1,24 +1,30 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-
 import FilterItem from './FilterItem';
 import { useOutsideMousedown } from '@utils/utils';
-import { getLeads } from '@redux/actions/leads';
-import { setFilterCount, clearFilters } from '@redux/actions/filters';
+import { getFeedLeads } from '@features/leads/leadsSlice';
+import { setFilterCount, clearFilters } from '@features/filters/filtersSlice';
 
-const Filter = ({
-	user,
-	filters,
-	filter,
-	setFilter,
-	setFilterCount,
-	getLeads,
-	clearFilters,
-}) => {
+import { useAppSelector, useAppDispatch } from '@utils/hooks';
+
+import { User } from '@utils/interfaces/User';
+
+interface FilterProps {
+	user: User;
+	filters: any;
+	filter: any;
+	setFilter: React.Dispatch<React.SetStateAction<boolean>>;
+	setFilterCount: React.Dispatch<React.SetStateAction<number>>;
+}
+
+const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
+	const dispatch = useAppDispatch();
+
+	const user = useAppSelector((state) => state.auth.user);
+	const filters = useAppSelector((state) => state.filters);
+
 	const wrapperRef = useRef(null);
-	useOutsideMousedown(wrapperRef, setFilter);
+	useOutsideMousedown(wrapperRef, setFilter, null);
 	// close modal on esc key
 	const keyPress = useCallback(
 		(e) => {
@@ -35,6 +41,7 @@ const Filter = ({
 
 	const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =
 		filters;
+
 	const filterItems = [
 		{
 			title: 'Profit',
@@ -156,7 +163,7 @@ const Filter = ({
 						onClick={() => {
 							setFilter(false);
 							setFilterCount();
-							getLeads(user, 1, filters);
+							getFeedLeads(user, 1, filters);
 						}}
 						className='font-semibold text-sm text-purple-500 rounded-sm hover:text-purple-600 transition-colors duration-100 ease-in-out ring-purple'
 					>
@@ -182,7 +189,7 @@ const Filter = ({
 								setClear(true);
 								clearFilters();
 								setFilter(false);
-								getLeads(user, 1, emptyFilters);
+								getFeedLeads(user, 1, emptyFilters);
 							}}
 							className='font-semibold text-sm text-red-500 hover:text-red-600 rounded-sm transition-colors duration-100 ease-in-out ring-red'
 						>
@@ -195,24 +202,4 @@ const Filter = ({
 	);
 };
 
-Filter.propTypes = {
-	user: PropTypes.object.isRequired,
-	filters: PropTypes.object.isRequired,
-	filter: PropTypes.bool.isRequired,
-	setFilter: PropTypes.func.isRequired,
-	getLeads: PropTypes.func.isRequired,
-	clearFilters: PropTypes.func.isRequired,
-};
-
-const mapStateToProps = (state, ownProps) => {
-	const { user } = state.auth;
-	const { filters } = state;
-	const { filter, setFilter } = ownProps;
-	return { user, filters, filter, setFilter };
-};
-
-export default connect(mapStateToProps, {
-	setFilterCount,
-	getLeads,
-	clearFilters,
-})(Filter);
+export default Filter;
