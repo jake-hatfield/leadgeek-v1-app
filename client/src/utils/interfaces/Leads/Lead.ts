@@ -27,7 +27,7 @@ export interface Lead {
 		variations: string;
 		notes: string;
 		img: string;
-		date: Date;
+		date: string;
 	};
 	plan: 'bundle' | 'pro' | 'grow'[];
 }

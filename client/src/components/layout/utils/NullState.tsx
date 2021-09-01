@@ -46,7 +46,7 @@ const NullState: React.FC<NullStateProps> = ({
 						text={'Reload the page'}
 						onClick={() => window.location.reload()}
 						width={null}
-						margin={null}
+						margin={false}
 						size={'sm'}
 						cta={true}
 						path={null}

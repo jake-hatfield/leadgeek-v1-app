@@ -1,12 +1,12 @@
-import { Lead } from './Lead';
+import { Lead } from './Leads/Lead';
 
 export interface User {
 	_id: string;
 	name: string;
 	email: string;
 	password?: string;
-	dateCreated: Date;
-	lastLoggedIn: Date | null;
+	dateCreated: string;
+	lastLoggedIn: string | null;
 	subscription: {
 		cusId?: string;
 		subIds: { id: string | null; active: boolean }[];
@@ -18,7 +18,7 @@ export interface User {
 		brand?: string;
 	};
 	resetPwToken: string | null;
-	resetPwExpires: Date | null;
+	resetPwExpires: string | null;
 	role: 'user' | 'grow' | 'pro' | 'bundle' | 'affiliate' | 'admin' | 'master';
 	referrals: {
 		referred: {
@@ -29,11 +29,11 @@ export interface User {
 			isReferrer: boolean;
 			lgid: string | null;
 			paypalEmail: string | null;
-			dateCreated?: Date;
+			dateCreated?: string;
 			clients?: { userId: string; cusId: string };
 		};
 	};
 	likedLeads: Lead[];
 	archivedLeads: Lead[];
-	comments: { date: Date; leadId: string; comment: string }[];
+	comments: { date: string; leadId: string; comment: string }[];
 }

@@ -1,7 +1,12 @@
 import React from 'react';
 
-const SearchBar = ({
-	route,
+interface SearchBarProps {
+	placeholder: string | null;
+	onSearchChange: any;
+	handleSearchSubmit: any;
+}
+
+const SearchBar: React.FC<SearchBarProps> = ({
 	placeholder,
 	onSearchChange,
 	handleSearchSubmit,
@@ -10,7 +15,7 @@ const SearchBar = ({
 		<div className='flex items-center justify-end text-gray-300'>
 			<div className='w-72 relative z-0 text-gray-600'>
 				<form
-					action={`/${route || 'search'}`}
+					action='/search'
 					method='GET'
 					onSubmit={(e) => handleSearchSubmit(e)}
 				>

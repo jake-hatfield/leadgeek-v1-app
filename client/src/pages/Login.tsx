@@ -16,7 +16,7 @@ import setAuthToken from '@utils/authTokens';
 
 const Login: React.FC = () => {
 	const dispatch = useAppDispatch();
-	const readyStatus = useAppSelector((state) => state.auth.status);
+	const status = useAppSelector((state) => state.auth.status);
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
 	const [formData, setFormData] = useState({
@@ -28,12 +28,12 @@ const Login: React.FC = () => {
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 
-	const onSubmit = async (e: any) => {
+	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		const {
 			payload: { token },
 		} = await dispatch(setJWT({ email, password }));
-		if (token && readyStatus === 'idle') {
+		if (token && status === 'idle') {
 			setAuthToken(token);
 			const test = await dispatch(getUserData());
 			console.log(test);
@@ -89,7 +89,7 @@ const Login: React.FC = () => {
 										text={'Log in'}
 										onClick={onSubmit}
 										width={'w-full'}
-										margin={null}
+										margin={false}
 										path={null}
 										conditional={null}
 										conditionalDisplay={null}

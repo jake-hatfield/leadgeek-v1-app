@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 const initialState = {
 	count: +localStorage.getItem('filterCount')! || null,
@@ -43,12 +43,56 @@ const initialState = {
 	dateLimits: { min: null, max: null, selected: null },
 };
 
+// export const setItemLimit = (type, itemLimit) => async (dispatch) => {
+// 	try {
+// 		if (itemLimit) {
+// 			let typeFilter;
+// 			if (type === 'feed' || type === 'liked' || type === 'archived') {
+// 				typeFilter = 'leadsLimit';
+// 			} else {
+// 				typeFilter = `${type}Limit`;
+// 			}
+// 			localStorage.setItem(typeFilter, itemLimit);
+// 			return dispatch({
+// 				type: SET_ITEM_LIMIT,
+// 				payload: { typeFilter, itemLimit },
+// 			});
+// 		}
+// 	} catch (error) {
+// 		console.log(error);
+// 	}
+// };
+
+// export const setDateLimit = (min, max, selected) => async (dispatch) => {
+// 	try {
+// 		if (min || max) {
+// 			return dispatch({
+// 				type: `SET_DATE_FILTER`,
+// 				payload: {
+// 					min,
+// 					max,
+// 					selected,
+// 				},
+// 			});
+// 		}
+// 	} catch (error) {
+// 		console.log(error);
+// 	}
+// };
+
 export const filtersSlice = createSlice({
 	name: 'filters',
 	initialState,
-	reducers: {},
+	reducers: {
+		setDateLimit: (state, action: PayloadAction<string>) => {
+			console.log(action.payload);
+		},
+		setItemLimit: (state, action) => {
+			console.log(action.payload);
+		},
+	},
 });
 
-export const {} = filtersSlice.actions;
+export const { setDateLimit, setItemLimit } = filtersSlice.actions;
 
 export default filtersSlice.reducer;

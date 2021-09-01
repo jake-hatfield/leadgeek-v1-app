@@ -30,15 +30,18 @@ const Feed = () => {
 			dispatch(getFeedLeads({ user, page, filters }));
 	}, [status, isAuthenticated, user, page, filters, dispatch]);
 
-	return status === 'idle' ? (
+	return status === 'idle' && user ? (
 		<AuthLayout>
 			<Leads
 				leads={feed.pageByIds}
 				pagination={feed.pagination}
 				type={'feed'}
 				itemLimit={itemLimit}
+				headerTitle={null}
 				user={user}
 				status={status}
+				search={false}
+				currentSearchParam={null}
 			/>
 		</AuthLayout>
 	) : (

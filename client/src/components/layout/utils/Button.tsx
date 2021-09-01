@@ -4,7 +4,7 @@ interface ButtonProps {
 	text: string;
 	onClick(arg: any): any;
 	width: string | null;
-	margin: string | null;
+	margin: boolean;
 	size: string | null;
 	cta: boolean;
 	path: any;

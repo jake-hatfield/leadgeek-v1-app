@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 
-import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from '@redux/actions/auth';
 
-const NavbarLink = ({ link }) => {
+interface NavbarLinkProps {
+	link: {
+		title: string;
+		link: string;
+		description: string;
+		new: boolean;
+	};
+}
+
+const NavbarLink: React.FC<NavbarLinkProps> = ({ link }) => {
 	const [hover, setHover] = useState(false);
 	return (
 		<div v-for='item in items'>
@@ -18,7 +26,7 @@ const NavbarLink = ({ link }) => {
 			>
 				{hover && (
 					<div className='w-auto max-w-md mt-2 ml-2 p-2 absolute left-0 z-40 transform -translate-y-1 translate-x-56 rounded-lg bg-gray-900 shadow-md text-white text-sm whitespace-nowrap'>
-						{link.desc}
+						{link.description}
 					</div>
 				)}
 				<span>{link.title}</span>
@@ -32,27 +40,25 @@ const NavbarLink = ({ link }) => {
 	);
 };
 
-NavbarLink.propTypes = {
-	link: PropTypes.object.isRequired,
-	showMenu: PropTypes.bool,
-};
-
 const SettingsNavbar = () => {
 	const primaryLinks = [
 		{
 			title: 'Security',
 			link: '/settings/security/',
-			desc: 'Change your password & security preferences',
+			description: 'Change your password & security preferences',
+			new: false,
 		},
 		{
 			title: 'Billing',
 			link: '/settings/billing/',
-			desc: 'Manage your Leadgeek plans',
+			description: 'Manage your Leadgeek plans',
+			new: false,
 		},
 		{
 			title: 'Affiliates',
 			link: '/settings/affiliates/',
-			desc: 'Generate your unique affiliate link and view earned commissions',
+			description:
+				'Generate your unique affiliate link and view earned commissions',
 			new: true,
 		},
 	];

@@ -25,7 +25,7 @@ import {
 	handleArchiveLead,
 	addComment,
 } from '@components/features/leads/leadsSlice';
-import { Lead } from '@utils/interfaces/Lead';
+import { Lead } from '@utils/interfaces/Leads/Lead';
 
 interface DetailsProps {
 	currentLead: any;
@@ -578,7 +578,7 @@ const Details: React.FC<DetailsProps> = ({
 														);
 													}}
 													width={null}
-													margin={null}
+													margin={false}
 													size={null}
 													cta={comment ? true : false}
 													path={null}

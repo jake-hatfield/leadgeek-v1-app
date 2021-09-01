@@ -1,26 +1,18 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import axios from 'axios';
 
 import { User } from '@utils/interfaces/User';
-import { Lead } from '@utils/interfaces/Lead';
+import { Lead } from '@utils/interfaces/Leads/Lead';
+import { Pagination } from '@utils/interfaces/Leads/Pagination';
 import { config } from '@utils/utils';
-import { string } from 'prop-types';
+import { query } from 'express-validator';
 
 interface LeadState {
 	totalByIds: Lead[];
 	totalAllIds: string[];
 	pageByIds: any;
-	pagination: {
-		page: number;
-		hasNextPage: boolean | null;
-		hasPreviousPage: boolean;
-		nextPage: number | null;
-		previousPage: number | null;
-		lastPage: number | null;
-		totalItems: number | null;
-		filteredItems: number | null;
-	};
+	pagination: Pagination;
 }
 
 interface LeadsState {
@@ -29,6 +21,7 @@ interface LeadsState {
 	liked: LeadState;
 	archived: LeadState;
 	search: any;
+	currentLead: Lead | null;
 	lastUpdated: Date | null;
 }
 
@@ -94,8 +87,47 @@ const initialState: LeadsState = {
 		},
 		searchValue: null,
 	},
+	currentLead: null,
 	lastUpdated: null,
 };
+
+export const addComment = createAsyncThunk(
+	'leads/addComment',
+	async (
+		options: { comment: string; userId: string; leadId: string },
+		{ dispatch }
+	) => {
+		try {
+			const { comment, userId, leadId } = options;
+			const body = JSON.stringify({ comment, userId, leadId });
+			const { data } = await axios.post('/api/leads/add-comment', body, config);
+			if (data.message === 'Comment was added') {
+				// dispatch({
+				//     type: SET_COMMENT,
+				//     payload: data.comments,
+				// });
+				return data.comments;
+			} else {
+				// dispatch(
+				//     setAlert(
+				//         'Something went wrong',
+				//         "Your comment couldn't be added right now",
+				//         'danger'
+				//     )
+				// );
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+export const getAllLeads = createAsyncThunk(
+	'leads/getAllLeads',
+	async (options, { dispatch }) => {
+		console.log(options);
+	}
+);
 
 export const getFeedLeads = createAsyncThunk(
 	'leads/getFeedLeads',
@@ -130,35 +162,41 @@ export const getFeedLeads = createAsyncThunk(
 	}
 );
 
-export const handleLikeLead = createAsyncThunk(
-	'leads/handleLikeLead',
+export const getSearchResults = createAsyncThunk(
+	'leads/getSearchResults',
 	async (
 		options: {
-			userId: string;
-			leadId: string;
+			query: string;
+			role: string;
+			dateCreated: string;
+			page: number;
+			newSearch: boolean;
+			itemLimit: number;
 		},
 		{ dispatch }
 	) => {
-		try {
-			const { userId, leadId } = options;
-			const body = JSON.stringify({ userId, leadId });
-			const res = await axios.post('/api/leads/handle-like-lead', body, config);
-			if (res.status === 200) {
-				const { message, leads, title } = res.data;
-				// dispatch(setAlert(message, truncate(title, 50), 'success'));
-				return {
-					leadId,
-					leads,
-				};
-			}
-		} catch (error) {
-			console.log(error);
+		const { query, role, dateCreated, page, newSearch, itemLimit } = options;
+		if (newSearch) {
+			// dispatch clear current search
 		}
+		const body = JSON.stringify({
+			q: query,
+			role,
+			dateCreated,
+			page,
+			itemLimit,
+		});
+		const { data } = await axios.post('/api/search', body, config);
+		console.log(data);
+		return {
+			data,
+			query,
+		};
 	}
 );
 
 export const handleArchiveLead = createAsyncThunk(
-	'leads/handleLikeLead',
+	'leads/handleArchiveLead',
 	async (
 		options: {
 			userId: string;
@@ -188,30 +226,26 @@ export const handleArchiveLead = createAsyncThunk(
 	}
 );
 
-export const addComment = createAsyncThunk(
-	'leads/addComment',
+export const handleLikeLead = createAsyncThunk(
+	'leads/handleLikeLead',
 	async (
-		options: { comment: string; userId: string; leadId: string },
+		options: {
+			userId: string;
+			leadId: string;
+		},
 		{ dispatch }
 	) => {
 		try {
-			const { comment, userId, leadId } = options;
-			const body = JSON.stringify({ comment, userId, leadId });
-			const { data } = await axios.post('/api/leads/add-comment', body, config);
-			if (data.message === 'Comment was added') {
-				// dispatch({
-				//     type: SET_COMMENT,
-				//     payload: data.comments,
-				// });
-				return data.comments;
-			} else {
-				// dispatch(
-				//     setAlert(
-				//         'Something went wrong',
-				//         "Your comment couldn't be added right now",
-				//         'danger'
-				//     )
-				// );
+			const { userId, leadId } = options;
+			const body = JSON.stringify({ userId, leadId });
+			const res = await axios.post('/api/leads/handle-like-lead', body, config);
+			if (res.status === 200) {
+				const { message, leads, title } = res.data;
+				// dispatch(setAlert(message, truncate(title, 50), 'success'));
+				return {
+					leadId,
+					leads,
+				};
 			}
 		} catch (error) {
 			console.log(error);
@@ -259,9 +293,25 @@ export const addComment = createAsyncThunk(
 export const leadsSlice = createSlice({
 	name: 'leads',
 	initialState,
-	reducers: {},
+	reducers: {
+		setCurrentLead: (state, action: PayloadAction<Lead>) => {
+			state.currentLead = action.payload;
+		},
+		clearCurrentLead: (state) => {
+			state.currentLead = null;
+		},
+		setPage: (state, action) => {
+			console.log(action.payload);
+		},
+	},
 	extraReducers: (builder) => {
 		builder
+			.addCase(addComment.fulfilled, (state, action) => {
+				console.log(action);
+			})
+			.addCase(getAllLeads.pending, (state) => {
+				state.status = 'loading';
+			})
 			.addCase(getFeedLeads.pending, (state) => {
 				state.status = 'loading';
 			})
@@ -287,19 +337,19 @@ export const leadsSlice = createSlice({
 				state.feed.pagination.totalItems = totalItems;
 				state.feed.pagination.filteredItems = filteredItems;
 				state.lastUpdated = lastUpdated;
+			})
+			.addCase(getSearchResults.pending, (state) => {
+				state.search.status = 'loading';
+			})
+			.addCase(handleArchiveLead.fulfilled, (state, action) => {
+				console.log(action);
+			})
+			.addCase(handleLikeLead.fulfilled, (state, action) => {
+				console.log(action);
 			});
-		// .addCase(handleLikeLead.fulfilled, (state, action) => {
-		// 	console.log(action);
-		// })
-		// .addCase(handleArchiveLead.fulfilled, (state, action) => {
-		// 	console.log(action);
-		// })
-		// .addCase(addComment.fulfilled, (state, action) => {
-		// 	console.log(action);
-		// });
 	},
 });
 
-export const {} = leadsSlice.actions;
+export const { setCurrentLead, clearCurrentLead, setPage } = leadsSlice.actions;
 
 export default leadsSlice.reducer;
