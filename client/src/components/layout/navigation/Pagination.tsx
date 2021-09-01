@@ -4,12 +4,24 @@ import { Link } from 'react-router-dom';
 
 import { numberWithCommas } from '@utils/utils';
 
-const Pagination = ({
+import { Pagination } from '@utils/interfaces/Leads/Pagination';
+
+interface PaginationProps {
+	pagination: Pagination;
+	type: string;
+	itemLimit: number;
+	status: string;
+	padding: boolean;
+	setPage: any;
+	setItemLimit: any;
+}
+
+const PaginationComponent: React.FC<PaginationProps> = ({
 	pagination,
 	type,
 	itemLimit,
 	status,
-	noPadding,
+	padding,
 	setPage,
 	setItemLimit,
 }) => {
@@ -24,11 +36,12 @@ const Pagination = ({
 	} = pagination;
 	const buttonClasses =
 		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold border border-gray-200 text-gray-600 hover:text-gray-700 transition duration-100 ease-in-out ring-purple';
-	const itemsFrom = previousPage
-		? previousPage * (itemLimit || 15) + 1
-		: previousPage + 1;
+	const itemsFrom =
+		previousPage && previousPage > 0
+			? previousPage * (itemLimit || 15) + 1
+			: previousPage && previousPage + 1;
 	const itemsTo =
-		filteredItems < page * (itemLimit || 15)
+		filteredItems && filteredItems < page * (itemLimit || 15)
 			? filteredItems
 			: page * (itemLimit || 15);
 	const [selectValue, setSelectValue] = useState(itemLimit || 15);
@@ -37,17 +50,17 @@ const Pagination = ({
 	return status === 'idle' ? (
 		<article
 			className={`flex items-center justify-between mt-4 ${
-				!noPadding && 'container'
+				!padding && 'container'
 			} text-gray-600`}
 		>
-			{filteredItems > 0 ? (
+			{filteredItems && filteredItems > 0 ? (
 				<div className='flex items-center text-sm'>
 					<span>View</span>
 					<select
 						value={selectValue}
 						onChange={(e) => {
 							setItemLimit(type, e.currentTarget.value);
-							setSelectValue(e.currentTarget.value);
+							setSelectValue(+e.currentTarget.value);
 						}}
 						className='w-16 mx-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm cursor-pointer ring-purple minimal-scrollbar'
 					>
@@ -65,7 +78,7 @@ const Pagination = ({
 			<div className='flex items-center justify-between text-sm'>
 				{filteredItems ? (
 					<div className='relative flex items-center'>
-						{filteredItems > 0 && totalItems > filteredItems && (
+						{filteredItems > 0 && totalItems && totalItems > filteredItems && (
 							<button
 								onClick={() => setFilteredMessage((prev) => !prev)}
 								onMouseEnter={() => setFilteredMessage(true)}
@@ -84,7 +97,7 @@ const Pagination = ({
 										clipRule='evenodd'
 									/>
 								</svg>
-								{filteredMessage && (
+								{filteredMessage && totalItems && (
 									<div className='absolute z-10 bottom-0 py-2 px-4 transform -translate-y-8 rounded-md shadow-md bg-gray-900 text-left text-white text-sm'>
 										<p>
 											<span className='font-semibold text-purple-300'>
@@ -139,4 +152,4 @@ const Pagination = ({
 	);
 };
 
-export default Pagination;
+export default PaginationComponent;

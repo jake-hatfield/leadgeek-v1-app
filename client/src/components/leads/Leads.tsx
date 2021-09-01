@@ -52,8 +52,9 @@ const Leads: React.FC<LeadsProps> = ({
 }) => {
 	const dispatch = useAppDispatch();
 	// redux selectors
-	const feed = useAppSelector((state) => state.leads.feed);
 	const leadStatus = useAppSelector((state) => state.leads.status);
+	const feed = useAppSelector((state) => state.leads.feed);
+	const currentLead = useAppSelector((state) => state.leads.currentLead);
 	const lastUpdated = useAppSelector((state) => state.leads.lastUpdated);
 	const filters = useAppSelector((state) => state.filters);
 
@@ -278,17 +279,17 @@ const Leads: React.FC<LeadsProps> = ({
 				/>
 				{pagination && (
 					<PaginationComponent
+						status={leadStatus}
 						pagination={pagination}
 						type={type}
-						status={leadStatus}
-						setPage={setPage}
 						itemLimit={itemLimit}
-						noPadding={null}
+						padding={false}
+						setPage={setPage}
 						setItemLimit={setItemLimit}
 					/>
 				)}
 			</section>
-			{/* {showDetails && currentLead && (
+			{showDetails && currentLead && (
 				<Details
 					currentLead={currentLead}
 					userId={userId}
@@ -299,7 +300,7 @@ const Leads: React.FC<LeadsProps> = ({
 					setShowDetails={setShowDetails}
 					clearCurrentLead={clearCurrentLead}
 				/>
-			)} */}
+			)}
 		</>
 	) : (
 		<div>Hello</div>

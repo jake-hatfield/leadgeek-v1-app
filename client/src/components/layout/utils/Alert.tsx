@@ -1,9 +1,13 @@
 import React, { Fragment } from 'react';
 
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '@utils/hooks';
 
-const Alert = ({ alerts, removeAlert }) => {
+import { removeAlert } from '@features/alert/alertSlice';
+
+const Alert = () => {
+	const dispatch = useAppDispatch();
+	const alerts = useAppSelector((state) => state.alert);
+
 	const alertIcons = [
 		{
 			title: 'danger',
@@ -37,7 +41,7 @@ const Alert = ({ alerts, removeAlert }) => {
 		},
 	];
 
-	const setIcon = (alertType) => {
+	const setIcon = (alertType: string) => {
 		const foundIcon = alertIcons.find(
 			(alertIcon) => alertIcon.title === alertType
 		);
@@ -96,11 +100,11 @@ const Alert = ({ alerts, removeAlert }) => {
 
 								<div className='ml-2'>
 									<h4 className='font-semibold text-gray-900'>{alert.title}</h4>
-									<p className='mt-2 text-sm text-gray-600'>{alert.msg}</p>
+									<p className='mt-2 text-sm text-gray-600'>{alert.message}</p>
 								</div>
 							</div>
 							<button
-								onClick={() => removeAlert(alert.id)}
+								onClick={() => dispatch(removeAlert(alert.id))}
 								className={`text-gray-400 rounded-md ring-gray`}
 							>
 								<svg
@@ -123,12 +127,4 @@ const Alert = ({ alerts, removeAlert }) => {
 	);
 };
 
-Alert.propTypes = {
-	alerts: PropTypes.array.isRequired,
-	removeAlert: PropTypes.func.isRequired,
-};
-
-const mapStateToProps = (state) => ({
-	alerts: state.alert,
-});
-export default connect(mapStateToProps)(Alert);
+export default Alert;

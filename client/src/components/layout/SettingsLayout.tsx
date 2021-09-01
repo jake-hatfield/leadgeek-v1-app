@@ -2,16 +2,26 @@ import React, { useState, useEffect } from 'react';
 
 import SettingsNavbar from '@components/layout/navigation/SettingsNavbar';
 
-const SettingsLayout = ({
+import { User } from '@utils/interfaces/User';
+
+interface SettingsLayoutProps {
+	children: React.ReactNode;
+	isAuthenticated: boolean;
+	user: User;
+	title: string;
+	description: string;
+	pill: any;
+}
+
+const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 	children,
-	title,
-	desc,
-	pill,
-	loading,
 	isAuthenticated,
 	user,
+	title,
+	description,
+	pill,
 }) => {
-	const [initials, setInitials] = useState('');
+	const [initials, setInitials] = useState<string[]>([]);
 	useEffect(() => {
 		if (isAuthenticated) {
 			let userInitials = user.name.split(' ').map((n) => n[0]);
@@ -49,7 +59,7 @@ const SettingsLayout = ({
 									</span>
 								)}
 							</div>
-							<p className='text-gray-800'>{desc}</p>
+							<p className='text-gray-800'>{description}</p>
 						</div>
 					</div>
 					<div>{children}</div>

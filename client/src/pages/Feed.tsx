@@ -50,7 +50,7 @@ const Feed = () => {
 			spinnerWidth={null}
 			margin={false}
 			search={false}
-			text={'Loading...'}
+			text={'Loading feed results...'}
 		/>
 	);
 };

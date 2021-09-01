@@ -65,7 +65,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	const viewDetailsHandler = () => {
 		newLead && setNewLead(false);
 		setShowDetails(!showDetails);
-		setCurrentLead(lead);
+		dispatch(setCurrentLead(lead));
 		setQuickView(false);
 		setExpandedView(false);
 	};
