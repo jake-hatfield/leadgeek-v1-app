@@ -1,20 +1,15 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-import FilterItem from './FilterItem';
+// import FilterItem from './FilterItem';
 import { useOutsideMousedown } from '@utils/utils';
 import { getFeedLeads } from '@features/leads/leadsSlice';
-import { setFilterCount, clearFilters } from '@features/filters/filtersSlice';
+import { setFilterCount } from '@features/filters/filtersSlice';
 
 import { useAppSelector, useAppDispatch } from '@utils/hooks';
 
-import { User } from '@utils/interfaces/User';
-
 interface FilterProps {
-	user: User;
-	filters: any;
-	filter: any;
+	filter: boolean;
 	setFilter: React.Dispatch<React.SetStateAction<boolean>>;
-	setFilterCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
@@ -41,6 +36,39 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 
 	const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =
 		filters;
+
+	const clearFilters = () => {
+		try {
+			let keysToRemove = [
+				'netProfitMin',
+				'netProfitMax',
+				'buyPriceMin',
+				'buyPriceMax',
+				'sellPriceMin',
+				'sellPriceMax',
+				'roiMin',
+				'roiMax',
+				'bsrMin',
+				'bsrMax',
+				'monthlySalesMin',
+				'monthlySalesMax',
+				'weightMin',
+				'weightMax',
+				'filterCount',
+			];
+			keysToRemove.forEach((key) => localStorage.removeItem(key));
+			// dispatch({ type: CLEAR_FILTERS });
+			// return dispatch(
+			//     setAlert(
+			//         'All filters were removed',
+			//         'Unfiltered leads are now showing.',
+			//         'success'
+			//     )
+			// );
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
 	const filterItems = [
 		{
@@ -78,7 +106,6 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 		{
 			title: "Best seller's rank",
 			subtitle: 'BSR',
-			subtitleValue: null,
 			min: bsr.min,
 			max: bsr.max,
 			val: 'bsr',
@@ -86,7 +113,6 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 		{
 			title: 'Monthly sales',
 			subtitle: 'Sales / mo.',
-			subtitleValue: null,
 			min: monthlySales.min,
 			max: monthlySales.max,
 			val: 'monthlySales',
@@ -99,10 +125,12 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 			max: weight.max,
 			val: 'weight',
 		},
-		{
-			title: 'Category',
-			subtitle: 'Select a category',
-		},
+		// {
+		// 	title: 'Category',
+		// 	subtitle: 'Select a category',
+		// 	min: null,
+		// 	max: null,
+		// },
 	];
 
 	const [clear, setClear] = useState(false);
@@ -149,7 +177,7 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 		dateLimits: { min: null, max: null, selected: null },
 	};
 
-	return (
+	return user ? (
 		<article
 			ref={wrapperRef}
 			className='absolute top-0 right-0 z-10 w-64 transform translate-y-12 -translate-x-48 pt-4 pb-1 rounded-lg bg-white shadow-lg border border-gray-200 text-gray-900'
@@ -163,14 +191,14 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 						onClick={() => {
 							setFilter(false);
 							setFilterCount();
-							getFeedLeads(user, 1, filters);
+							getFeedLeads({ user, page: 1, filters });
 						}}
 						className='font-semibold text-sm text-purple-500 rounded-sm hover:text-purple-600 transition-colors duration-100 ease-in-out ring-purple'
 					>
 						Apply
 					</button>
 				</header>
-				{filterItems.map((item, i) => (
+				{/* {filterItems.map((item, i) => (
 					<FilterItem
 						key={i}
 						title={item.title}
@@ -181,7 +209,7 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 						val={item.val}
 						clear={clear}
 					/>
-				))}
+				))} */}
 				<div className='border-t border-gray-200'>
 					<div className='flex justify-end py-2 px-4'>
 						<button
@@ -189,7 +217,7 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 								setClear(true);
 								clearFilters();
 								setFilter(false);
-								getFeedLeads(user, 1, emptyFilters);
+								getFeedLeads({ user, page: 1, filters: emptyFilters });
 							}}
 							className='font-semibold text-sm text-red-500 hover:text-red-600 rounded-sm transition-colors duration-100 ease-in-out ring-red'
 						>
@@ -199,6 +227,8 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 				</div>
 			</div>
 		</article>
+	) : (
+		<div>Hello</div>
 	);
 };
 

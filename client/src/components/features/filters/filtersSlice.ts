@@ -84,15 +84,50 @@ export const filtersSlice = createSlice({
 	name: 'filters',
 	initialState,
 	reducers: {
+		clearPrepFilter: (state) => {
+			console.log(state);
+		},
 		setDateLimit: (state, action: PayloadAction<string>) => {
 			console.log(action.payload);
 		},
+		setFilterCount: (state) => {
+			const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =
+				state;
+			const allFilters = [
+				netProfit.min,
+				netProfit.max,
+				buyPrice.min,
+				buyPrice.max,
+				sellPrice.min,
+				sellPrice.max,
+				roi.min,
+				roi.max,
+				bsr.min,
+				bsr.max,
+				monthlySales.min,
+				monthlySales.max,
+				weight.min,
+				weight.max,
+			];
+			const notNullable = allFilters.filter((f) => f !== null).length;
+			localStorage.setItem('filterCount', notNullable.toString());
+			state.count = notNullable;
+		},
 		setItemLimit: (state, action) => {
+			console.log(action.payload);
+		},
+		setPrepFilter: (state, action: PayloadAction<string>) => {
 			console.log(action.payload);
 		},
 	},
 });
 
-export const { setDateLimit, setItemLimit } = filtersSlice.actions;
+export const {
+	clearPrepFilter,
+	setDateLimit,
+	setFilterCount,
+	setItemLimit,
+	setPrepFilter,
+} = filtersSlice.actions;
 
 export default filtersSlice.reducer;
