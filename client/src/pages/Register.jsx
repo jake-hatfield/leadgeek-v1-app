@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Redirect, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { register } from '@redux/actions/auth';
-import { setAlert } from '@redux/actions/alert';
+import { setAlert } from '@features/alert/alertSlice';
 
 import DefaultLayout from '@components/layout/DefaultLayout';
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';

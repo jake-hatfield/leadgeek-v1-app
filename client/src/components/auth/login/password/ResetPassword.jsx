@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { updatePassword } from '@redux/actions/auth';
-import { setAlert } from '@redux/actions/alert';
+import { setAlert } from '@features/alert/alertSlice';
 
 import FormField from '@components/layout/utils/FormField';
 import { ReactComponent as Check } from '@assets/images/svgs/check.svg';

@@ -1,16 +1,225 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-
 import axios from 'axios';
+
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { setAlert } from '@features/alert/alertSlice';
 
 import { Lead } from '@utils/interfaces/leads/Lead';
 import { Pagination } from '@utils/interfaces/leads/Pagination';
 import { User } from '@utils/interfaces/User';
-import { config } from '@utils/utils';
+import { config, truncate } from '@utils/utils';
+
+export const addComment = createAsyncThunk(
+	'leads/addComment',
+	async (
+		options: { comment: string; userId: string; leadId: string },
+		{ dispatch }
+	) => {
+		try {
+			const { comment, userId, leadId } = options;
+			const body = JSON.stringify({ comment, userId, leadId });
+			const { data } = await axios.post('/api/leads/add-comment', body, config);
+			if (data.message === 'Comment was added') {
+				return data.comments;
+			} else {
+				dispatch(
+					setAlert({
+						title: 'Something went wrong',
+						message: "Your comment couldn't be added right now",
+						alertType: 'danger',
+					})
+				);
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+export const getAllLeads = createAsyncThunk(
+	'leads/getAllLeads',
+	async (options: { role: string; dateCreated: string }, { dispatch }) => {
+		const { role, dateCreated } = options;
+		const body = JSON.stringify({
+			role,
+			dateCreated,
+		});
+		const { data } = await axios.post('/api/leads/all', body, config);
+		return data;
+	}
+);
+
+export const getArchivedLeads = createAsyncThunk(
+	'leads/getArchivedLeads',
+	async (
+		options: { leads: Lead[]; page: number; itemLimit: number },
+		{ dispatch }
+	) => {
+		try {
+			const { leads, page, itemLimit } = options;
+			const body = JSON.stringify({ leads, page, itemLimit });
+			const { data } = await axios.post('/api/leads/archived', body, config);
+			return data;
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+export const getFeedLeads = createAsyncThunk(
+	'leads/getFeedLeads',
+	async (options: { user: User; page: number; filters: any }, { dispatch }) => {
+		try {
+			const { _id, lastLoggedIn, role } = options.user;
+			const body = JSON.stringify({
+				_id,
+				lastLoggedIn,
+				role,
+				page: options.page,
+				filters: options.filters,
+			});
+			const { data } = await axios.post('/api/leads', body, config);
+			if (data.message === 'There are no leads to show') {
+				// dispatch({ type: NO_LEAD_RESULTS });
+				// dispatch(
+				// 	setAlert(
+				// 		data.message,
+				// 		"Please check that your filters aren't too strict or try refreshing the page",
+				// 		'warning'
+				// 	)
+				// );
+			} else {
+				return data;
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+export const getLikedLeads = createAsyncThunk(
+	'leads/getLikedLeads',
+	async (
+		options: { leads: Lead[]; page: number; itemLimit: number },
+		{ dispatch }
+	) => {
+		try {
+			const { leads, page, itemLimit } = options;
+			const body = JSON.stringify({ leads, page, itemLimit });
+			const { data } = await axios.post('/api/leads/liked', body, config);
+			console.log(data);
+			return data;
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+export const getSearchResults = createAsyncThunk(
+	'leads/getSearchResults',
+	async (
+		options: {
+			query: string;
+			role: string;
+			dateCreated: string;
+			page: number;
+			newSearch: boolean;
+			itemLimit: number;
+		},
+		{ dispatch }
+	) => {
+		const { query, role, dateCreated, page, newSearch, itemLimit } = options;
+		// if (newSearch) {
+		// 	return null;
+		// }
+		const body = JSON.stringify({
+			query,
+			role,
+			dateCreated,
+			page,
+			itemLimit,
+		});
+		const { data } = await axios.post('/api/search', body, config);
+		return {
+			data,
+			query,
+		};
+	}
+);
+
+export const handleArchiveLead = createAsyncThunk(
+	'leads/handleArchiveLead',
+	async (
+		options: {
+			userId: string;
+			leadId: string;
+		},
+		{ dispatch }
+	) => {
+		try {
+			const { userId, leadId } = options;
+			const body = JSON.stringify({ userId, leadId });
+			const res = await axios.post(
+				'/api/leads/handle-archive-lead',
+				body,
+				config
+			);
+			if (res.status === 200) {
+				const { message, leads, title } = res.data;
+				dispatch(
+					setAlert({
+						title: truncate(title, 50),
+						message,
+						alertType: 'success',
+					})
+				);
+				return {
+					leadId,
+					leads,
+				};
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+export const handleLikeLead = createAsyncThunk(
+	'leads/handleLikeLead',
+	async (
+		options: {
+			userId: string;
+			leadId: string;
+		},
+		{ dispatch }
+	) => {
+		try {
+			const { userId, leadId } = options;
+			const body = JSON.stringify({ userId, leadId });
+			const res = await axios.post('/api/leads/handle-like-lead', body, config);
+			if (res.status === 200) {
+				const { message, leads, title } = res.data;
+				dispatch(
+					setAlert({
+						title: truncate(title, 50),
+						message,
+						alertType: 'success',
+					})
+				);
+				return {
+					leadId,
+					leads,
+				};
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
 
 interface LeadState {
 	totalByIds: Lead[];
 	totalAllIds: string[];
-	pageByIds: any;
+	pageByIds: Lead[];
 	pagination: Pagination;
 }
 
@@ -19,13 +228,19 @@ interface LeadsState {
 	feed: LeadState;
 	liked: LeadState;
 	archived: LeadState;
-	search: any;
+	search: {
+		totalByIds: Lead[];
+		totalAllIds: string[];
+		pageByIds: Lead[];
+		pagination: Pagination;
+		searchValue: string | null;
+	};
 	currentLead: Lead | null;
 	lastUpdated: string | null;
 }
 
 const initialState: LeadsState = {
-	status: 'idle',
+	status: 'loading',
 	feed: {
 		totalByIds: [],
 		totalAllIds: [],
@@ -83,211 +298,13 @@ const initialState: LeadsState = {
 			previousPage: null,
 			lastPage: null,
 			totalItems: null,
+			filteredItems: null,
 		},
 		searchValue: null,
 	},
 	currentLead: null,
 	lastUpdated: null,
 };
-
-export const addComment = createAsyncThunk(
-	'leads/addComment',
-	async (
-		options: { comment: string; userId: string; leadId: string },
-		{ dispatch }
-	) => {
-		try {
-			const { comment, userId, leadId } = options;
-			const body = JSON.stringify({ comment, userId, leadId });
-			const { data } = await axios.post('/api/leads/add-comment', body, config);
-			if (data.message === 'Comment was added') {
-				// dispatch({
-				//     type: SET_COMMENT,
-				//     payload: data.comments,
-				// });
-				return data.comments;
-			} else {
-				// dispatch(
-				//     setAlert(
-				//         'Something went wrong',
-				//         "Your comment couldn't be added right now",
-				//         'danger'
-				//     )
-				// );
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
-);
-
-export const getAllLeads = createAsyncThunk(
-	'leads/getAllLeads',
-	async (options, { dispatch }) => {
-		console.log(options);
-	}
-);
-
-export const getFeedLeads = createAsyncThunk(
-	'leads/getFeedLeads',
-	async (options: { user: User; page: number; filters: any }, { dispatch }) => {
-		try {
-			const { _id, lastLoggedIn, role } = options.user;
-			const body = JSON.stringify({
-				_id,
-				lastLoggedIn,
-				role,
-				page: options.page,
-				filters: options.filters,
-			});
-			const { data } = await axios.post('/api/leads', body, config);
-			if (data.message === 'There are no leads to show') {
-				// dispatch({ type: NO_LEAD_RESULTS });
-				// dispatch(
-				// 	setAlert(
-				// 		data.message,
-				// 		"Please check that your filters aren't too strict or try refreshing the page",
-				// 		'warning'
-				// 	)
-				// );
-				console.log(data.message);
-			} else {
-				console.log(data);
-				return data;
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
-);
-
-export const getSearchResults = createAsyncThunk(
-	'leads/getSearchResults',
-	async (
-		options: {
-			query: string;
-			role: string;
-			dateCreated: string;
-			page: number;
-			newSearch: boolean;
-			itemLimit: number;
-		},
-		{ dispatch }
-	) => {
-		const { query, role, dateCreated, page, newSearch, itemLimit } = options;
-		if (newSearch) {
-			// dispatch clear current search
-		}
-		const body = JSON.stringify({
-			q: query,
-			role,
-			dateCreated,
-			page,
-			itemLimit,
-		});
-		const { data } = await axios.post('/api/search', body, config);
-		console.log(data);
-		return {
-			data,
-			query,
-		};
-	}
-);
-
-export const handleArchiveLead = createAsyncThunk(
-	'leads/handleArchiveLead',
-	async (
-		options: {
-			userId: string;
-			leadId: string;
-		},
-		{ dispatch }
-	) => {
-		try {
-			const { userId, leadId } = options;
-			const body = JSON.stringify({ userId, leadId });
-			const res = await axios.post(
-				'/api/leads/handle-archive-lead',
-				body,
-				config
-			);
-			if (res.status === 200) {
-				const { message, leads, title } = res.data;
-				// dispatch(setAlert(message, truncate(title, 50), 'success'));
-				return {
-					leadId,
-					leads,
-				};
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
-);
-
-export const handleLikeLead = createAsyncThunk(
-	'leads/handleLikeLead',
-	async (
-		options: {
-			userId: string;
-			leadId: string;
-		},
-		{ dispatch }
-	) => {
-		try {
-			const { userId, leadId } = options;
-			const body = JSON.stringify({ userId, leadId });
-			const res = await axios.post('/api/leads/handle-like-lead', body, config);
-			if (res.status === 200) {
-				const { message, leads, title } = res.data;
-				// dispatch(setAlert(message, truncate(title, 50), 'success'));
-				return {
-					leadId,
-					leads,
-				};
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
-);
-
-// TODO: Dispatch alerts once alert component is up
-// export const getLeads = (user, page, filters) => async (dispatch) => {
-// 	try {
-// 		dispatch({ type: LOADING });
-// 		const { _id, lastLoggedIn, role, unviewedLeads } = user;
-// 		const body = JSON.stringify({
-// 			_id,
-// 			lastLoggedIn,
-// 			role,
-// 			unviewedLeads,
-// 			page,
-// 			filters,
-// 		});
-// const { data } = await axios.post('/api/leads', body, config);
-// if (data.message === 'There are no leads to show') {
-// 	dispatch({ type: NO_LEAD_RESULTS });
-// 	dispatch(
-// 		setAlert(
-// 			data.message,
-// 			"Please check that your filters aren't too strict or try refreshing the page",
-// 			'warning'
-// 		)
-// 	);
-// } else {
-// 	dispatch({
-// 		type: GET_LEADS,
-// 		payload: {
-// 			data,
-// 		},
-// 	});
-// }
-// 		return dispatch({ type: FINISHED_LOADING });
-// 	} catch (error) {
-// 		console.log(error);
-// 	}
-// };
 
 export const leadsSlice = createSlice({
 	name: 'leads',
@@ -299,17 +316,52 @@ export const leadsSlice = createSlice({
 		clearCurrentLead: (state) => {
 			state.currentLead = null;
 		},
-		setPage: (state, action) => {
-			console.log(action.payload);
+		setLeadLoading: (state) => {
+			state.status = 'loading';
+		},
+		setPage: (state, action: PayloadAction<{ page: number; type: string }>) => {
+			const { page, type } = action.payload;
+			switch (type) {
+				case 'feed':
+					state.feed.pagination.page = page;
+					break;
+				case 'liked':
+					state.liked.pagination.page = page;
+					break;
+				case 'archived':
+					state.archived.pagination.page = page;
+					break;
+				case 'search':
+					state.archived.pagination.page = page;
+					break;
+				default:
+					break;
+			}
 		},
 	},
 	extraReducers: (builder) => {
 		builder
-			.addCase(addComment.fulfilled, (state, action) => {
-				console.log(action);
+			.addCase(getAllLeads.fulfilled, (state, action) => {
+				state.feed.totalByIds = action.payload.feed;
 			})
-			.addCase(getAllLeads.pending, (state) => {
-				state.status = 'loading';
+			.addCase(getArchivedLeads.fulfilled, (state, action) => {
+				const {
+					archivedLeads,
+					page,
+					hasNextPage,
+					hasPreviousPage,
+					nextPage,
+					previousPage,
+					totalItems,
+				} = action.payload;
+				state.status = 'idle';
+				state.archived.pageByIds = archivedLeads;
+				state.archived.pagination.page = page;
+				state.archived.pagination.hasNextPage = hasNextPage;
+				state.archived.pagination.hasPreviousPage = hasPreviousPage;
+				state.archived.pagination.nextPage = nextPage;
+				state.archived.pagination.previousPage = previousPage;
+				state.archived.pagination.totalItems = totalItems;
 			})
 			.addCase(getFeedLeads.pending, (state) => {
 				state.status = 'loading';
@@ -337,8 +389,51 @@ export const leadsSlice = createSlice({
 				state.feed.pagination.filteredItems = filteredItems;
 				state.lastUpdated = lastUpdated;
 			})
+			.addCase(getLikedLeads.fulfilled, (state, action) => {
+				const {
+					likedLeads,
+					page,
+					hasNextPage,
+					hasPreviousPage,
+					nextPage,
+					previousPage,
+					totalItems,
+				} = action.payload;
+				state.status = 'idle';
+				state.liked.pageByIds = likedLeads;
+				state.liked.pagination.page = page;
+				state.liked.pagination.hasNextPage = hasNextPage;
+				state.liked.pagination.hasPreviousPage = hasPreviousPage;
+				state.liked.pagination.nextPage = nextPage;
+				state.liked.pagination.previousPage = previousPage;
+				state.liked.pagination.totalItems = totalItems;
+			})
 			.addCase(getSearchResults.pending, (state) => {
-				state.search.status = 'loading';
+				state.status = 'loading';
+			})
+			.addCase(getSearchResults.fulfilled, (state, action) => {
+				const {
+					data: {
+						leads,
+						page,
+						hasNextPage,
+						hasPreviousPage,
+						nextPage,
+						previousPage,
+						totalItems,
+					},
+					query,
+				} = action.payload;
+				state.status = 'idle';
+				state.search.pageByIds = leads;
+				state.search.pagination.page = page;
+				state.search.pagination.page = page;
+				state.search.pagination.hasNextPage = hasNextPage;
+				state.search.pagination.hasPreviousPage = hasPreviousPage;
+				state.search.pagination.nextPage = nextPage;
+				state.search.pagination.previousPage = previousPage;
+				state.search.pagination.totalItems = totalItems;
+				state.search.searchValue = query;
 			})
 			.addCase(handleArchiveLead.fulfilled, (state, action) => {
 				console.log(action);
@@ -349,6 +444,7 @@ export const leadsSlice = createSlice({
 	},
 });
 
-export const { setCurrentLead, clearCurrentLead, setPage } = leadsSlice.actions;
+export const { setCurrentLead, clearCurrentLead, setLeadLoading, setPage } =
+	leadsSlice.actions;
 
 export default leadsSlice.reducer;

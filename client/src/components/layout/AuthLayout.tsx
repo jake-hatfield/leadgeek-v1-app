@@ -1,29 +1,39 @@
 import React, { Fragment } from 'react';
 
+// redux
 import { useAppSelector } from '@utils/hooks';
-// import { removeAlert } from '@features/alert/alertSlice';
+import Alert from '@components/features/alert/Alerts';
 
-// import Alert from "@features/alert/Alert"
-import Navbar from './navigation/Navbar';
+// components
+import Navbar from '@components/layout/navigation/Navbar';
+import Spinner from '@components/layout/utils/Spinner';
 
 interface AuthLayoutProps {
-	// removeAlert: () => void;
 	children: React.ReactNode;
 }
 
 const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
+	// auth state
 	const status = useAppSelector((state) => state.auth.status);
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 	const user = useAppSelector((state) => state.auth.user);
 
 	return (
 		<Fragment>
-			{/* <Alert removeAlert={removeAlert} /> */}
-			{status === 'idle' && user && isAuthenticated && (
+			<Alert />
+			{status === 'idle' && isAuthenticated && user ? (
 				<div className='min-h-screen relative flex'>
 					<Navbar />
 					<main className='h-full w-full content'>{children}</main>
 				</div>
+			) : (
+				<Spinner
+					divWidth={null}
+					center={true}
+					spinnerWidth={null}
+					margin={false}
+					text={'Loading account...'}
+				/>
 			)}
 		</Fragment>
 	);

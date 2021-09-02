@@ -10,8 +10,7 @@ const ITEMS_PER_PAGE = 15;
 // @access      Private
 router.post('/', auth, async (req, res) => {
 	try {
-		const { q, role, dateCreated, page, itemLimit } = req.body;
-		console.log(itemLimit);
+		const { query, role, dateCreated, page, itemLimit } = req.body;
 		let roleFilter = [role.toString()];
 		let administrator;
 		const administrativeRoles = ['master', 'admin'];
@@ -19,7 +18,7 @@ router.post('/', auth, async (req, res) => {
 			administrator = true;
 		}
 		const leads = await Lead.fuzzySearch({
-			query: q,
+			query,
 			prefixOnly: true,
 			exact: true,
 			...(!administrator && { plan: { $in: roleFilter } }),
@@ -31,7 +30,7 @@ router.post('/', auth, async (req, res) => {
 			.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
 			.limit(itemLimit || ITEMS_PER_PAGE);
 		const totalItems = await Lead.fuzzySearch({
-			query: q,
+			query,
 			prefixOnly: true,
 			exact: true,
 			...(!administrator && { plan: { $in: roleFilter } }),

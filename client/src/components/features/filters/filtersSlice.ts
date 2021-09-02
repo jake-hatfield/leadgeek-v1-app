@@ -113,8 +113,12 @@ export const filtersSlice = createSlice({
 			localStorage.setItem('filterCount', notNullable.toString());
 			state.count = notNullable;
 		},
-		setItemLimit: (state, action) => {
-			console.log(action.payload);
+		setItemLimit: (
+			state,
+			action: PayloadAction<{ type: string; itemLimit: number }>
+		) => {
+			const { type, itemLimit: newLimit } = action.payload;
+			state.itemLimits.leadsLimit = +newLimit;
 		},
 		setPrepFilter: (state, action: PayloadAction<string>) => {
 			console.log(action.payload);

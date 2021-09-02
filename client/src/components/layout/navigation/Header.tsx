@@ -4,7 +4,7 @@ import { Redirect, useLocation } from 'react-router-dom';
 
 import { useAppDispatch } from '@utils/hooks';
 import { getSearchResults } from '@features/leads/leadsSlice';
-// import { setAlert } from '@redux/actions/alert';
+import { setAlert } from '@features/alert/alertSlice';
 
 import SearchBar from '@components/layout/navigation/SearchBar';
 
@@ -22,16 +22,20 @@ const Header: React.FC<HeaderProps> = ({
 	searchActive,
 }) => {
 	const dispatch = useAppDispatch();
-	// search helpers
+	const location = useLocation();
+
+	// local state
+	const [redirectToSearch, setRedirectToSearch] = useState(false);
 	const [query, setQuery] = useState('');
+
+	// search helpers
 	const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setQuery(e.target.value);
 	};
-	const [redirectToSearch, setRedirectToSearch] = useState(false);
-	const location = useLocation();
+
+	// handle search submit
 	const handleSearchSubmit = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault();
-
 		if (query) {
 			if (location.pathname !== '/search') {
 				setRedirectToSearch(true);
@@ -47,11 +51,13 @@ const Header: React.FC<HeaderProps> = ({
 				})
 			);
 		} else {
-			// setAlert(
-			// 	'No value was entered',
-			// 	'Please enter a search value and try again.',
-			// 	'danger'
-			// );
+			dispatch(
+				setAlert({
+					title: 'No value was entered',
+					message: 'Please enter a search value and try again.',
+					alertType: 'danger',
+				})
+			);
 		}
 	};
 

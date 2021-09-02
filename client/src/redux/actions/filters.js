@@ -6,7 +6,7 @@ import {
 	CLEAR_PREP_FILTER,
 	SET_ITEM_LIMIT,
 } from './types';
-import { setAlert } from './alert';
+import { setAlert } from '@features/alert/alertSlice';
 
 export const setMinMaxFilter = (min, max, val) => (dispatch) => {
 	try {

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 
+// components
 import SettingsNavbar from '@components/layout/navigation/SettingsNavbar';
 
+// utils
 import { User } from '@utils/interfaces/User';
 
 interface SettingsLayoutProps {
@@ -27,7 +29,8 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 			let userInitials = user.name.split(' ').map((n) => n[0]);
 			setInitials(userInitials);
 		}
-	}, [isAuthenticated]);
+	}, [isAuthenticated, user.name]);
+
 	return (
 		<div className='flex flex-row'>
 			<SettingsNavbar />

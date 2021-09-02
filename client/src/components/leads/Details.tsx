@@ -6,36 +6,44 @@ import React, {
 	useState,
 } from 'react';
 
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
-
+// packages
 import { DateTime } from 'luxon';
 import ReactImageMagnify from 'react-image-magnify';
 
-import Button from '@components/layout/utils/Button';
-
+// redux
+import { useAppDispatch, useAppSelector } from '@utils/hooks';
 import {
-	truncate,
-	numberWithCommas,
-	returnDomainFromUrl,
-	calculateBSR,
-	openLinkHandler,
-} from '@utils/utils';
-import {
+	clearCurrentLead,
 	handleLikeLead,
 	handleArchiveLead,
 	addComment,
-} from '@components/features/leads/leadsSlice';
+} from '@features/leads/leadsSlice';
+
+// components
+import Button from '@components/layout/utils/Button';
+
+// utils
+import {
+	calculateBSR,
+	numberWithCommas,
+	openLinkHandler,
+	returnDomainFromUrl,
+	truncate,
+} from '@utils/utils';
 import { Lead } from '@utils/interfaces/leads/Lead';
 
 interface DetailsProps {
-	currentLead: any;
+	currentLead: Lead;
 	userId: string;
 	liked: Lead[];
 	archived: Lead[];
-	comments: any[];
+	comments: {
+		date: string;
+		leadId: string;
+		comment: string;
+	}[];
 	showDetails: boolean;
 	setShowDetails: React.Dispatch<boolean>;
-	clearCurrentLead: () => void;
 }
 
 const Details: React.FC<DetailsProps> = ({
@@ -46,16 +54,24 @@ const Details: React.FC<DetailsProps> = ({
 	comments,
 	showDetails,
 	setShowDetails,
-	clearCurrentLead,
 }) => {
 	const dispatch = useAppDispatch();
 	// redux selectors
 	const unitFee = useAppSelector((state) => state.filters.prep.unit);
 	const lbFee = useAppSelector((state) => state.filters.prep.lb);
 
+	// local state
+	const [comment, setComment] = useState('');
+	const [copiedText, setCopiedText] = useState(false);
+	const [copyText, setCopyText] = useState(false);
 	const [fullTitle, toggleFullTitle] = useState(false);
+	const [identifyingText, setIdentifyingText] = useState('');
+	const [noteCount, setNoteCount] = useState(0);
 	const [overviewActive, setOverviewActive] = useState(true);
+
+	// descructure necessary items
 	const { data } = currentLead;
+
 	// prevent scroll while active
 	useEffect(() => {
 		document.body.style.overflow = 'hidden';
@@ -63,9 +79,10 @@ const Details: React.FC<DetailsProps> = ({
 			document.body.style.overflow = 'unset';
 		};
 	}, []);
+
 	// close modal on click outside
 	const modalRef = useRef();
-	const closeModal = (e: any) => {
+	const closeModal = (e: React.MouseEvent<HTMLDivElement>) => {
 		if (modalRef.current === e.target) {
 			setShowDetails(false);
 		}
@@ -94,7 +111,7 @@ const Details: React.FC<DetailsProps> = ({
 		} else {
 			setLike(false);
 		}
-	}, [liked]);
+	}, [liked, currentLead._id]);
 	const [archive, setArchive] = useState(
 		archived.some((lead) => lead._id === currentLead._id) ? true : false
 	);
@@ -104,7 +121,7 @@ const Details: React.FC<DetailsProps> = ({
 		} else {
 			setArchive(false);
 		}
-	}, [archived]);
+	}, [archived, currentLead._id]);
 	useEffect(() => {
 		const hasComment = comments.filter(
 			(comment) => comment.leadId === currentLead._id
@@ -116,10 +133,12 @@ const Details: React.FC<DetailsProps> = ({
 		}
 	}, [liked]);
 
+	// primary links in details header
 	const primaryLinks = [
 		{ title: 'Overview', onClick: () => setOverviewActive(true) },
 	];
 
+	// buttons in details header
 	const primaryButtons = [
 		{
 			activePath: (
@@ -203,7 +222,7 @@ const Details: React.FC<DetailsProps> = ({
 				/>
 			),
 			onClick: () => {
-				clearCurrentLead();
+				dispatch(clearCurrentLead());
 				setShowDetails(false);
 			},
 			state: null,
@@ -218,6 +237,7 @@ const Details: React.FC<DetailsProps> = ({
 		},
 	];
 
+	// primary metrics on right side of details popup
 	const primaryMetrics = [
 		{
 			title: 'Net profit',
@@ -228,9 +248,9 @@ const Details: React.FC<DetailsProps> = ({
 		{
 			title: 'Return on investment',
 			value: `${(
-				((data.netProfit.toFixed(2) -
+				((+data.netProfit.toFixed(2) -
 					(unitFee || (lbFee ? lbFee * data.weight : 0))) /
-					data.buyPrice.toFixed(2)) *
+					+data.buyPrice.toFixed(2)) *
 				100
 			).toFixed(0)}%`,
 		},
@@ -239,37 +259,37 @@ const Details: React.FC<DetailsProps> = ({
 			value: `${numberWithCommas(data.monthlySales)} /mo.`,
 		},
 	];
+
+	// set date
 	const date = DateTime.fromISO(data.date).toFormat('LLL dd, H:mm');
-	const [copyText, setCopyText] = useState(false);
-	const [copiedText, setCopiedText] = useState(false);
+
+	// set notes & handlers
 	const notes: (string | null)[] = [
 		data.promo,
 		data.cashback,
 		data.variations,
 		data.shipping,
 	];
-	const [noteCount, setNoteCount] = useState(0);
 	const checkNotes = () => {
 		setNoteCount(notes.filter((note) => note !== '').length);
 	};
-	const [identifyingText, setIdentifyingText] = useState('');
-
-	useEffect(() => {
-		if (data.asin.startsWith('B', 0)) {
-			setIdentifyingText('ASIN');
-		} else {
-			setIdentifyingText('ISBN');
-		}
-	}, [identifyingText]);
-
 	useEffect(() => {
 		if (currentLead) {
 			checkNotes();
 		}
 	}, [currentLead]);
 
-	const [comment, setComment] = useState('');
-	const onChange = (e: any) => {
+	// set ASIN/ISBN identifying text
+	useEffect(() => {
+		if (data.asin.startsWith('B', 0)) {
+			setIdentifyingText('ASIN');
+		} else {
+			setIdentifyingText('ISBN');
+		}
+	}, [identifyingText, data.asin]);
+
+	// change handler for comments
+	const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setComment(e.target.value);
 	};
 
@@ -282,7 +302,8 @@ const Details: React.FC<DetailsProps> = ({
 				// ref={modalRef}
 				onClick={(e) => {
 					closeModal(e);
-					clearCurrentLead();
+					dispatch(clearCurrentLead());
+					setShowDetails(false);
 				}}
 				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
 			/>
@@ -323,23 +344,31 @@ const Details: React.FC<DetailsProps> = ({
 						<div className='mt-4'>
 							<div>
 								<div className='flex justify-between'>
-									<div className='w-1/3 z-40'>
-										{/* <ReactImageMagnify
+									<div className='w-1/3 z-40 bg-white'>
+										<ReactImageMagnify
 											{...{
 												smallImage: {
 													alt: data.title,
 													isFluidWidth: true,
 													src: data.img,
+													width: 200,
+													height: 200,
 												},
 												largeImage: {
+													alt: data.title,
 													src: data.img,
+													width: 600,
+													height: 600,
 												},
 												enlargedImageContainerDimensions: {
 													width: '200%',
 													height: '200%',
 												},
+												className: 'bg-white',
+												enlargedImageContainerClassName:
+													'bg-white rounded-lg shadow-xl border border-gray-200',
 											}}
-										/> */}
+										/>
 									</div>
 									<header className='relative w-2/3 ml-8'>
 										<h3
@@ -613,7 +642,9 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 	state,
 	description,
 }) => {
+	// local state
 	const [hover, setHover] = useState(false);
+
 	return (
 		<button
 			onMouseEnter={() => setHover(true)}

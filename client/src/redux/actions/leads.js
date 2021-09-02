@@ -19,7 +19,7 @@ import {
 
 import axios from 'axios';
 
-import { setAlert } from './alert';
+import { setAlert } from '@features/alert/alertSlice';
 import { truncate } from '@utils/utils';
 
 // application/json config object
@@ -201,19 +201,6 @@ export const addComment = (comment, userId, leadId) => async (dispatch) => {
 				)
 			);
 		}
-	} catch (error) {
-		console.log(error);
-	}
-};
-
-export const viewLead = (userId, leadId) => async (dispatch) => {
-	try {
-		const body = JSON.stringify({ userId, leadId });
-		const res = await axios.post('/api/leads/view', body, config);
-		dispatch({
-			type: VIEW_LEAD,
-			payload: res.data,
-		});
 	} catch (error) {
 		console.log(error);
 	}

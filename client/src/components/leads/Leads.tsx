@@ -1,28 +1,32 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 
-import { NavLink } from 'react-router-dom';
+// packages
 import { DateTime } from 'luxon';
+import { NavLink } from 'react-router-dom';
 
+// redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { setAlert } from '@features/alert/alertSlice';
+import { setItemLimit, setDateLimit } from '@features/filters/filtersSlice';
 import {
 	getAllLeads,
-	clearCurrentLead,
+	setLeadLoading,
 	setPage,
 } from '@features/leads/leadsSlice';
-import { setItemLimit, setDateLimit } from '@features/filters/filtersSlice';
-import { setAlert } from '@redux/actions/alert';
 
-import Header from '../layout/navigation/Header';
+// components
+import Button from '@components/layout/utils/Button';
 import DatePicker from './tools/DatePicker';
-import Filter from './tools/Filter';
-import Prep from './tools/Prep';
-import ExportButton from './tools/ExportButton';
-import LeadTable from './LeadTable';
-import PaginationComponent from '../layout/navigation/Pagination';
 import Details from './Details';
-import Button from '../layout/utils/Button';
-import Spinner from '../layout/utils/Spinner';
+import ExportButton from './tools/ExportButton';
+import Filter from './tools/Filter';
+import Header from '@components/layout/navigation/Header';
+import LeadTable from './LeadTable';
+import PaginationComponent from '@components/layout/navigation/Pagination';
+import Prep from './tools/Prep';
+import Spinner from '@components/layout/utils/Spinner';
 
+// utils
 import { Lead } from '@utils/interfaces/leads/Lead';
 import { Pagination } from '@utils/interfaces/leads/Pagination';
 import { User } from '@utils/interfaces/User';
@@ -51,18 +55,22 @@ const Leads: React.FC<LeadsProps> = ({
 	currentSearchParam,
 }) => {
 	const dispatch = useAppDispatch();
-	// redux selectors
+	// lead state
 	const leadStatus = useAppSelector((state) => state.leads.status);
 	const feed = useAppSelector((state) => state.leads.feed);
 	const currentLead = useAppSelector((state) => state.leads.currentLead);
 	const lastUpdated = useAppSelector((state) => state.leads.lastUpdated);
+	// filter state
 	const filters = useAppSelector((state) => state.filters);
 
-	const [showDetails, setShowDetails] = useState(false);
+	// local state
 	const [date, setDate] = useState(false);
+	const [exportLeads, setExportLeads] = useState(false);
 	const [filter, setFilter] = useState(false);
 	const [prep, setPrep] = useState(false);
+	const [showDetails, setShowDetails] = useState(false);
 
+	// destructure necessary items
 	const {
 		_id: userId,
 		role,
@@ -71,15 +79,20 @@ const Leads: React.FC<LeadsProps> = ({
 		archivedLeads,
 		comments,
 	} = user;
+	const {
+		count: filterCount,
+		dateLimits: { selected: dateSelected },
+	} = filters;
 
-	const likedCount = likedLeads && likedLeads.length > 0 && likedLeads.length;
-	const archivedCount =
-		archivedLeads && archivedLeads.length > 0 && archivedLeads.length;
+	// set counts for "liked" & "archived"
+	const likedCount = likedLeads?.length > 0 && likedLeads.length;
+	const archivedCount = archivedLeads?.length > 0 && archivedLeads.length;
 
+	// navigation links in header
 	const primaryLinks = [
 		{
 			title: 'Feed',
-			link: '',
+			link: '/',
 			count: null,
 		},
 		{
@@ -94,11 +107,7 @@ const Leads: React.FC<LeadsProps> = ({
 		},
 	];
 
-	const {
-		count: filterCount,
-		dateLimits: { selected: dateSelected },
-	} = filters;
-
+	// tools in header
 	const tools = [
 		{
 			text: 'Filters',
@@ -117,6 +126,7 @@ const Leads: React.FC<LeadsProps> = ({
 			onClick: () => setPrep((prev) => !prev),
 			conditional: filters.prep.unit || filters.prep.lb,
 			conditionalDisplay: (
+				// checkmark
 				<span className='h-5 w-5 absolute top-0 right-0 flex items-center justify-center rounded-full bg-white text-purple-500 transform -translate-y-1 translate-x-3'>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
@@ -135,21 +145,25 @@ const Leads: React.FC<LeadsProps> = ({
 		},
 	];
 
-	const [exportLeads, setExportLeads] = useState(false);
+	// handler for exporting leads
 	const handleExport = async () => {
 		try {
-			// getAllLeads(user);
+			dispatch(getAllLeads({ role: user.role, dateCreated: user.dateCreated }));
 			setExportLeads(true);
 		} catch (error) {
-			setAlert(
-				'Error exporting leads',
-				'Please try again or refresh the page.',
-				'danger'
+			console.log(error);
+			dispatch(
+				setAlert({
+					title: 'Error exporting leads',
+					message: 'Please try again or refresh the page.',
+					alertType: 'danger',
+				})
 			);
 		}
 	};
+
 	return authStatus === 'idle' && user ? (
-		<>
+		<Fragment>
 			<section className={classes.leadsWrapper}>
 				<Header
 					title={headerTitle}
@@ -157,6 +171,7 @@ const Leads: React.FC<LeadsProps> = ({
 					dateCreated={dateCreated}
 					searchActive={true}
 				/>
+				{/* show primary links & tools if not a search */}
 				{!search && (
 					<nav className={classes.navWrapper}>
 						<div className={classes.nav}>
@@ -166,7 +181,7 @@ const Leads: React.FC<LeadsProps> = ({
 										key={i}
 										exact
 										to={`/leads${link.link}`}
-										// onClick={() => setLoading()}
+										onClick={() => dispatch(setLeadLoading())}
 										className={classes.navLink}
 										activeClassName={classes.navLinkActive}
 									>
@@ -182,20 +197,14 @@ const Leads: React.FC<LeadsProps> = ({
 							<div className={classes.navToolsWrapper}>
 								<Button
 									text={
-										// dateSelected
-										// 	? dateSelected
-										// 	: `${
-										// 			DateTime.fromISO(user.dateCreated).toFormat(
-										// 				'LLL dd, yyyy'
-										// 			) || 'Jan 1, 2021'
-										// 	  } - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
-										// 	  'All leads'
-										`${
-											DateTime.fromISO(user.dateCreated).toFormat(
-												'LLL dd, yyyy'
-											) || 'Jan 1, 2021'
-										} - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
-										'All leads'
+										dateSelected
+											? dateSelected!
+											: `${
+													DateTime.fromISO(user?.dateCreated).toFormat(
+														'LLL dd, yyyy'
+													) || 'Jan 1, 2021'
+											  } - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
+											  'All leads'
 									}
 									onClick={() => setDate((prev) => !prev)}
 									width={null}
@@ -220,6 +229,7 @@ const Leads: React.FC<LeadsProps> = ({
 										conditionalDisplay={tool.conditionalDisplay}
 									/>
 								))}
+								{/* handle active or inactive states for tools */}
 								{!exportLeads && (
 									<Button
 										text='Export'
@@ -256,9 +266,9 @@ const Leads: React.FC<LeadsProps> = ({
 									) : (
 										<Spinner
 											divWidth={'w-28'}
+											center={false}
 											spinnerWidth={'sm'}
 											margin={false}
-											search={false}
 											text={null}
 										/>
 									))}
@@ -266,17 +276,27 @@ const Leads: React.FC<LeadsProps> = ({
 						</div>
 					</nav>
 				)}
-				<LeadTable
-					leads={leads}
-					user={user}
-					liked={likedLeads}
-					archived={archivedLeads}
-					status={leadStatus}
-					showDetails={showDetails}
-					setShowDetails={setShowDetails}
-					type={type}
-					currentSearchParam={currentSearchParam}
-				/>
+				{leadStatus === 'idle' ? (
+					<LeadTable
+						leads={leads}
+						user={user}
+						liked={likedLeads}
+						archived={archivedLeads}
+						status={leadStatus}
+						showDetails={showDetails}
+						setShowDetails={setShowDetails}
+						type={type}
+						currentSearchParam={currentSearchParam}
+					/>
+				) : (
+					<Spinner
+						divWidth={null}
+						center={false}
+						spinnerWidth={null}
+						margin={true}
+						text={'Loading leads...'}
+					/>
+				)}
 				{pagination && (
 					<PaginationComponent
 						status={leadStatus}
@@ -298,15 +318,21 @@ const Leads: React.FC<LeadsProps> = ({
 					comments={comments || []}
 					showDetails={showDetails}
 					setShowDetails={setShowDetails}
-					clearCurrentLead={clearCurrentLead}
 				/>
 			)}
-		</>
+		</Fragment>
 	) : (
-		<div>Hello</div>
+		<Spinner
+			divWidth={null}
+			center={true}
+			spinnerWidth={null}
+			margin={false}
+			text={'Loading leads...'}
+		/>
 	);
 };
 
+// svg paths for tools
 const svgList = {
 	calendar: (
 		<path
@@ -338,6 +364,7 @@ const svgList = {
 	),
 };
 
+// classes for component
 const classes = {
 	leadsWrapper: 'relative my-6',
 	navWrapper: 'mt-6 container',

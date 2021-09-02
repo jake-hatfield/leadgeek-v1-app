@@ -2,48 +2,59 @@ import React, { useEffect } from 'react';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
-import { getFeedLeads } from '@features/leads/leadsSlice';
+import { getSearchResults } from '@features/leads/leadsSlice';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
 import Leads from '@components/leads/Leads';
 import Spinner from '@components/layout/utils/Spinner';
 
-const Feed = () => {
+const Search = () => {
 	const dispatch = useAppDispatch();
 	// auth state
 	const status = useAppSelector((state) => state.auth.status);
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 	const user = useAppSelector((state) => state.auth.user);
-	// lead state
-	const feed = useAppSelector((state) => state.leads.feed);
-	const filters = useAppSelector((state) => state.filters);
+	// search state
+	const search = useAppSelector((state) => state.leads.search);
+	// filters state
+	const itemLimit = useAppSelector(
+		(state) => state.filters.itemLimits.searchLimit
+	);
 	// destructure necessary items
-	const { page } = feed.pagination;
-	const {
-		itemLimits: { leadsLimit: itemLimit },
-	} = filters;
+	const { page } = search.pagination;
+	const { searchValue } = search;
 
-	// call getFeedLeads
+	// call getSearchResults
 	useEffect(() => {
 		status === 'idle' &&
 			isAuthenticated &&
 			user &&
-			dispatch(getFeedLeads({ user, page, filters }));
-	}, [status, isAuthenticated, user, page, filters, dispatch]);
+			searchValue &&
+			dispatch(
+				getSearchResults({
+					query: searchValue,
+					role: user.role,
+					dateCreated: user.dateCreated,
+					page,
+					newSearch: false,
+					itemLimit,
+				})
+			);
+	}, [status, isAuthenticated, user, searchValue, itemLimit, page, dispatch]);
 
 	return status === 'idle' && user ? (
 		<AuthLayout>
 			<Leads
-				leads={feed.pageByIds}
-				pagination={feed.pagination}
-				type={'feed'}
+				leads={search.pageByIds}
+				pagination={search.pagination}
+				type={'search'}
 				itemLimit={itemLimit}
-				headerTitle={null}
 				user={user}
 				status={status}
-				search={false}
-				currentSearchParam={null}
+				headerTitle={'Search results'}
+				search={true}
+				currentSearchParam={searchValue}
 			/>
 		</AuthLayout>
 	) : (
@@ -59,4 +70,4 @@ const Feed = () => {
 	);
 };
 
-export default Feed;
+export default Search;

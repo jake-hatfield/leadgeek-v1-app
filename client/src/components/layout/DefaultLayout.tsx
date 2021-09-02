@@ -1,18 +1,16 @@
 import React, { Fragment } from 'react';
 
-// import { removeAlert } from '@redux/actions/alert';
-
-// import {Alert} from '@features/alert/Alert'
+// redux
+import Alert from '@components/features/alert/Alerts';
 
 interface DefaultLayoutProps {
-	// removeAlert: () => void;
 	children: React.ReactNode;
 }
 
 const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
 	return (
 		<Fragment>
-			{/* <Alert removeAlert={removeAlert} /> */}
+			<Alert />
 			<main className='relative flex flex-col h-screen'>{children}</main>
 		</Fragment>
 	);

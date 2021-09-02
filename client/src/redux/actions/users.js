@@ -11,7 +11,7 @@ import {
 	SET_PAYPAL_EMAIL,
 	FINISHED_AFFILIATE_PAYMENTS_LOADING,
 } from './types';
-import { setAlert } from './alert';
+import { setAlert } from '@features/alert/alertSlice';
 
 const config = {
 	headers: {

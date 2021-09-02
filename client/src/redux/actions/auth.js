@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { setAlert } from './alert';
+import { setAlert } from '@features/alert/alertSlice';
 import {
 	REGISTER_SUCCESS,
 	REGISTER_FAIL,

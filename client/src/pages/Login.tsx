@@ -36,7 +36,6 @@ const Login: React.FC = () => {
 		if (token && status === 'idle') {
 			setAuthToken(token);
 			const test = await dispatch(getUserData());
-			console.log(test);
 		} else {
 			console.log('boo');
 		}

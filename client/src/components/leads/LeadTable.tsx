@@ -1,4 +1,4 @@
-import React, { SetStateAction } from 'react';
+import React from 'react';
 
 import LeadRow from './LeadRow';
 import NullState from '@components/layout/utils/NullState';
@@ -35,10 +35,10 @@ const LeadTable: React.FC<LeadTableProps> = ({
 			{status === 'loading' ? (
 				<Spinner
 					divWidth={null}
+					center={false}
 					spinnerWidth={null}
 					margin={false}
-					search={true}
-					text={'Loading...'}
+					text={'Loading leads...'}
 				/>
 			) : leads.length > 0 ? (
 				<table className={classes.table} id='leads'>
@@ -126,6 +126,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	);
 };
 
+// svg paths for nullState
 const svgList = {
 	feed: (
 		<path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
@@ -147,6 +148,7 @@ const svgList = {
 	),
 };
 
+// classes for component
 const classes = {
 	tableWrapper: 'relative mt-6 container',
 	table: 'w-full table-auto',

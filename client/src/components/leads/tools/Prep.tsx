@@ -2,7 +2,7 @@ import React, { useRef, useCallback, useState, useEffect } from 'react';
 
 import { getFeedLeads } from '@features/leads/leadsSlice';
 import { setPrepFilter, clearPrepFilter } from '@features/filters/filtersSlice';
-import { setAlert } from '@redux/actions/alert';
+import { setAlert } from '@features/alert/alertSlice';
 import { useOutsideMousedown } from '@utils/utils';
 import { useAppSelector, useAppDispatch } from '@utils/hooks';
 

@@ -1,82 +1,90 @@
 import React, { useState } from 'react';
 
+import { NavLink } from 'react-router-dom';
 import axios from 'axios';
 
-import PropTypes from 'prop-types';
-import { NavLink } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { setAlert } from '../redux/actions/alert';
+import { setAlert } from '@features/alert/alertSlice';
 
 import DefaultLayout from '@components/layout/DefaultLayout';
 import FormField from '@components/layout/utils/FormField';
-import LoginImage from '@components/auth/login/LoginImage';
+// import LoginImage from '@components/auth/login/LoginImage';
 import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
 import Button from '@components/layout/utils/Button';
 
 import { setResetPwToken } from '@utils/authTokens';
 import { config } from '@utils/utils';
+import { useAppDispatch } from '@utils/hooks';
 
-const ForgotPassword = ({ setAlert }) => {
+const ForgotPassword = () => {
+	const dispatch = useAppDispatch();
 	const [formData, setFormData] = useState({
 		email: '',
 	});
 	const { email } = formData;
-	const onChange = (e) =>
+	const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 
-	const forgotPassword = (email) => async (dispatch) => {
+	const forgotPassword = async (email: string) => {
 		const emailToLowerCase = email.toLowerCase();
 		const body = JSON.stringify({ email: emailToLowerCase });
 		try {
-			const res = await axios.post('/api/users/forgot-password', body, config);
-			if (res.data.msg === 'Password recovery email sent successfully') {
+			const { data } = await axios.post(
+				'/api/users/forgot-password',
+				body,
+				config
+			);
+			if (data.msg === 'Password recovery email sent successfully') {
 				dispatch(
-					setAlert(
-						'Email sent',
-						`An email has been sent to ${email} if an account is associated.`,
-						'success'
+					dispatch(
+						setAlert({
+							title: 'Email sent',
+							message: `An email has been sent to ${email} if an account is associated.`,
+							alertType: 'success',
+						})
 					)
 				);
-				const { token } = res.data;
+				const { token } = data;
 				setResetPwToken(token);
 			}
 		} catch (error) {
 			// make sure people can't guess user's password by trial and error
-			const errorMsg = error.response.data;
-			if (errorMsg === 'Email not found in database') {
-				dispatch(
-					setAlert(
-						'Email sent',
-						`An email has been sent to ${email} if an account is associated.`,
-						'success'
-					)
-				);
-			} else {
-				dispatch(
-					setAlert(
-						'Error sending email',
-						'Email could not be sent. Please contact LeadGeek support.',
-						'danger'
-					)
-				);
-			}
+			// const errorMsg = error.response.data;
+			// if (errorMsg === 'Email not found in database') {
+			// 	dispatch(
+			// 		setAlert({
+			// 			title: 'Email sent',
+			// 			message: `An email has been sent to ${email} if an account is associated.`,
+			// 			alertType: 'success',
+			// 		})
+			// 	);
+			// } else {
+			// 	dispatch(
+			// 		setAlert({
+			// 			title: 'Error sending email',
+			// 			message:
+			// 				'Email could not be sent. Please contact LeadGeek support.',
+			// 			alertType: 'danger',
+			// 		})
+			// 	);
+			// }
 		}
 	};
-	const sendEmail = (e) => {
+
+	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (email === '') {
-			setAlert(
-				'Please enter your email',
-				'The email field is required. Please enter one and try again.',
-				'danger'
+			dispatch(
+				setAlert({
+					title: 'Please enter your email',
+					message:
+						'The email field is required. Please enter one and try again.',
+					alertType: 'danger',
+				})
 			);
 		} else {
 			forgotPassword(email);
 		}
-	};
-	const onSubmit = (e) => {
-		sendEmail(e);
 	};
 	return (
 		<DefaultLayout>
@@ -112,14 +120,20 @@ const ForgotPassword = ({ setAlert }) => {
 									name='email'
 									value={email}
 									onChange={onChange}
+									required={true}
+									styles={null}
 								/>
 								<div className='mt-4'>
 									<Button
 										text={'Send email'}
 										onClick={onSubmit}
 										width={'w-full'}
+										margin={false}
 										size={'sm'}
+										path={null}
 										cta={true}
+										conditional={null}
+										conditionalDisplay={null}
 									/>
 								</div>
 								<div className='mt-4 text-sm text-gray-400'>
@@ -132,19 +146,10 @@ const ForgotPassword = ({ setAlert }) => {
 					</div>
 					<DefaultFooter />
 				</div>
-				<LoginImage />
+				{/* <LoginImage /> */}
 			</section>
 		</DefaultLayout>
 	);
 };
 
-ForgotPassword.propTypes = {
-	setAlert: PropTypes.func.isRequired,
-};
-
-const mapStateToProps = (state) => ({
-	resetPassword: state.auth.resetPassword,
-	setAlert: state.alert,
-});
-
-export default connect(mapStateToProps, { setAlert })(ForgotPassword);
+export default ForgotPassword;

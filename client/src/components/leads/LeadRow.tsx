@@ -1,19 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+// packages
+import { DateTime } from 'luxon';
+
+// redux
 import { useAppDispatch } from '@utils/hooks';
 import {
-	handleLikeLead,
 	handleArchiveLead,
+	handleLikeLead,
 	setCurrentLead,
 } from '@features/leads/leadsSlice';
 
-import { DateTime } from 'luxon';
-
+// utils
 import {
-	truncate,
-	numberWithCommas,
 	calculateBSR,
+	numberWithCommas,
 	openLinkHandler,
+	truncate,
 	useOutsideMousedown,
 } from '@utils/utils';
 import { Lead } from '@utils/interfaces/leads/Lead';
@@ -41,19 +44,30 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	lbFee,
 }) => {
 	const dispatch = useAppDispatch();
-	// redux selectors
-	const { data } = lead;
-	const [rowHover, setRowHover] = useState(false);
-	const [newLead, setNewLead] = useState(false);
-	const [quickView, setQuickView] = useState(false);
+
+	// local state
 	const [expandedView, setExpandedView] = useState(false);
-	const [titleHover, setTitleHover] = useState(false);
 	const [eyeDesc, setEyeDesc] = useState(false);
 	const [linkDesc, setLinkDesc] = useState(false);
+	const [newLead, setNewLead] = useState(false);
+	const [rowHover, setRowHover] = useState(false);
+	const [titleHover, setTitleHover] = useState(false);
+	const [quickView, setQuickView] = useState(false);
+	const [viewCompetition, setViewCompetition] = useState(false);
+	const [viewImage, setViewImage] = useState(false);
+
+	// destructure necessary items
+	const { data } = lead;
+
+	// disable active states on mousedown
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setQuickView, setExpandedView);
+
+	// set like status & handlers
+	const [like, setLike] = useState(
+		liked.some((l) => l._id === lead._id) ? true : false
+	);
 	useEffect(() => {
-		// set like status
 		for (let i = 0; i < user.likedLeads.length; i++) {
 			if (user.likedLeads[i]._id === lead._id) {
 				setLike(true);
@@ -61,24 +75,15 @@ const LeadRow: React.FC<LeadRowProps> = ({
 			}
 		}
 	}, [user, lead._id]);
-	const datePosted = DateTime.fromISO(data.date).toFormat('LLL dd');
-	const viewDetailsHandler = () => {
-		newLead && setNewLead(false);
-		setShowDetails(!showDetails);
-		dispatch(setCurrentLead(lead));
-		setQuickView(false);
-		setExpandedView(false);
-	};
-	const [like, setLike] = useState(
-		liked.some((l) => l._id === lead._id) ? true : false
-	);
 	useEffect(() => {
 		if (liked.some((l) => l._id === lead._id)) {
 			setLike(true);
 		} else {
 			setLike(false);
 		}
-	}, [liked]);
+	}, [liked, lead._id]);
+
+	// set archive status & handler
 	const [archive, setArchive] = useState(
 		archived.some((l) => l._id === lead._id) ? true : false
 	);
@@ -88,21 +93,34 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		} else {
 			setArchive(false);
 		}
-	}, [archived]);
+	}, [archived, lead._id]);
+
+	// set date
+	const datePosted = DateTime.fromISO(data.date).toFormat('LLL dd');
+
+	// handle details on view
+	const viewDetailsHandler = () => {
+		newLead && setNewLead(false);
+		setShowDetails(!showDetails);
+		dispatch(setCurrentLead(lead));
+		setQuickView(false);
+		setExpandedView(false);
+	};
+
+	// handle liking leads
 	const favoriteHandler = (e: any) => {
 		e.stopPropagation();
 		newLead && setNewLead(false);
-		handleLikeLead({ userId: user._id, leadId: lead._id });
+		dispatch(handleLikeLead({ userId: user._id, leadId: lead._id }));
 	};
+	// handle archiving leads
 	const archiveHandler = (e: any) => {
 		e.stopPropagation();
 		newLead && setNewLead(false);
-		handleArchiveLead({ userId: user._id, leadId: lead._id });
+		dispatch(handleArchiveLead({ userId: user._id, leadId: lead._id }));
 	};
 
-	const [viewImage, setViewImage] = useState(false);
-	const [viewCompetition, setViewCompetition] = useState(false);
-
+	// classes for component
 	const classes = {
 		rowWrapper:
 			'relative px-1 border-b border-gray-200 hover:bg-gray-100 cursor-pointer',
@@ -454,6 +472,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	);
 };
 
+// svg list for cells
 const svgList = {
 	heart: (
 		<path

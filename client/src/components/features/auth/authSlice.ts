@@ -1,10 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// import { setAlert } from '@redux/actions/alert';
+import { setAlert } from '@features/alert/alertSlice';
 
 import { User } from '@utils/interfaces/User';
 import { config } from '@utils/utils';
+import { addComment } from '../leads/leadsSlice';
 
 interface AuthState {
 	status: 'idle' | 'loading' | 'failed';
@@ -31,6 +32,35 @@ export const getUserData = createAsyncThunk('auth/getUserData', async () => {
 		return null;
 	}
 });
+
+export const validateResetPwToken = createAsyncThunk(
+	'auth/validateResetPwToken',
+	async (options: { resetPwToken: string }, { dispatch }) => {
+		try {
+			const { resetPwToken } = options;
+			const body = JSON.stringify({ resetPwToken });
+			const { data } = await axios.post(
+				'/api/users/reset-password-validation',
+				body,
+				config
+			);
+			if (data.msg === 'Password reset link was validated') {
+				return data.user;
+			} else {
+				return dispatch(
+					setAlert({
+						title: 'Error resetting password',
+						message:
+							"Your password couldn't be reset. Please request a new email link or contact support.",
+						alertType: 'danger',
+					})
+				);
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
 
 export const setJWT = createAsyncThunk(
 	'auth/setJWT',
@@ -61,37 +91,6 @@ export const setJWT = createAsyncThunk(
 	}
 );
 
-// reset password validation
-// export const resetPwValidation = (resetPwToken) => async (dispatch) => {
-// 	const body = JSON.stringify({ resetPwToken });
-// 	try {
-// 		dispatch({
-// 			type: CHECK_RESET_PASSWORD_TOKEN,
-// 		});
-// 		const res = await axios.post(
-// 			'/api/users/reset-password-validation',
-// 			body,
-// 			config
-// 		);
-// 		if (res.data.msg === 'Password reset link was validated') {
-// 			dispatch({
-// 				type: SET_RESET_PASSWORD_TOKEN,
-// 				payload: res.data.user,
-// 			});
-// 		} else {
-// 			return dispatch(
-// 				setAlert(
-// 					'Error resetting password',
-// 					"Your password couldn't be reset. Please request a new email link or contact support.",
-// 					'danger'
-// 				)
-// 			);
-// 		}
-// 	} catch (error) {
-// 		console.log(error);
-// 	}
-// };
-
 export const authSlice = createSlice({
 	name: 'auth',
 	initialState,
@@ -106,6 +105,11 @@ export const authSlice = createSlice({
 	},
 	extraReducers: (builder) => {
 		builder
+			.addCase(addComment.fulfilled, (state, action) => {
+				if (state.user) {
+					state.user.comments = action.payload;
+				}
+			})
 			.addCase(getUserData.pending, (state) => {
 				state.status = 'loading';
 			})
@@ -120,6 +124,14 @@ export const authSlice = createSlice({
 				state.isAuthenticated = false;
 				state.user = null;
 				state.validatedResetPwToken = false;
+			})
+			.addCase(validateResetPwToken.pending, (state) => {
+				state.status = 'loading';
+			})
+			.addCase(validateResetPwToken.fulfilled, (state, action) => {
+				state.user!.email = action.payload;
+				state.status = 'idle';
+				state.validatedResetPwToken = true;
 			})
 			.addCase(setJWT.pending, (state) => {
 				state.status = 'loading';

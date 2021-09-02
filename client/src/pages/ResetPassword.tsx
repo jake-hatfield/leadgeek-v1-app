@@ -1,33 +1,33 @@
 import React, { useState, useEffect } from 'react';
 
-import PropTypes from 'prop-types';
 import { Redirect, NavLink } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { resetPwValidation } from '@redux/actions/auth';
+import { validateResetPwToken } from '@features/auth/authSlice';
 
 import DefaultLayout from '@components/layout/DefaultLayout';
-import ResetPassword from '@components/auth/login/password/ResetPassword';
-import LoginImage from '@components/auth/login/LoginImage';
+// import ResetPassword from '@components/auth/login/password/ResetPassword';
+// import LoginImage from '@components/auth/login/LoginImage';
 import Spinner from '@components/layout/utils/Spinner';
 import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
+import { useAppDispatch, useAppSelector } from '@utils/hooks';
 
-const ResetPasswordPage = ({
-	user,
-	loading,
-	isAuthenticated,
-	validatedResetPwToken,
-	resetPwValidation,
-}) => {
-	const [resetPwToken] = useState(localStorage.resetPwToken);
+const ResetPasswordPage = () => {
+	const dispatch = useAppDispatch();
+	const status = useAppSelector((state) => state.auth.status);
+	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+	const validatedResetPwToken = useAppSelector(
+		(state) => state.auth.validatedResetPwToken
+	);
+	const userEmail = useAppSelector((state) => state.auth.user?.email);
+	const [resetPwToken] = useState<string>(localStorage.resetPwToken);
 	// check for valid token
 	useEffect(() => {
-		resetPwValidation(resetPwToken);
+		dispatch(validateResetPwToken({ resetPwToken }));
 	}, []);
 	if (isAuthenticated) {
 		return <Redirect to='/leads' />;
 	}
-	return !loading ? (
+	return status === 'idle' ? (
 		<DefaultLayout>
 			{validatedResetPwToken ? (
 				<section className='h-screen relative flex justify-center bg-gray-100'>
@@ -43,11 +43,11 @@ const ResetPasswordPage = ({
 								<h1 className='text-xl md:text-2xl lg:text-3xl font-black text-gray-900'>
 									Reset password
 								</h1>
-								<ResetPassword
-									email={user.email}
+								{/* <ResetPassword
+									email={userEmail}
 									loading={loading}
 									fullWidthButton={true}
-								/>
+								/> */}
 							</div>
 						</div>
 						<div className='mt-6 xl:mt-0 mb-6 container'>
@@ -55,7 +55,7 @@ const ResetPasswordPage = ({
 							reserved.
 						</div>
 					</div>
-					<LoginImage />
+					{/* <LoginImage /> */}
 				</section>
 			) : (
 				<section className='h-screen relative flex justify-center bg-gray-100'>
@@ -95,27 +95,19 @@ const ResetPasswordPage = ({
 						</div>
 						<DefaultFooter />
 					</div>
-					<LoginImage />
+					{/* <LoginImage /> */}
 				</section>
 			)}
 		</DefaultLayout>
 	) : (
-		<Spinner />
+		<Spinner
+			divWidth={null}
+			center={true}
+			spinnerWidth={null}
+			margin={false}
+			text={null}
+		/>
 	);
 };
 
-ResetPasswordPage.propTypes = {
-	isAuthenticated: PropTypes.bool.isRequired,
-	loading: PropTypes.bool.isRequired,
-	validatedResetPwToken: PropTypes.bool.isRequired,
-	resetPwValidation: PropTypes.func.isRequired,
-};
-
-const mapStateToProps = (state) => {
-	const { user, loading, isAuthenticated, validatedResetPwToken } = state.auth;
-	return { user, loading, isAuthenticated, validatedResetPwToken };
-};
-
-export default connect(mapStateToProps, {
-	resetPwValidation,
-})(ResetPasswordPage);
+export default ResetPasswordPage;

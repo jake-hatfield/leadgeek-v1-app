@@ -116,12 +116,13 @@ const UserSchema = new Schema({
 			leadId: { type: Schema.Types.ObjectId, ref: 'Lead' },
 		},
 	],
-	// comments: [
-	// 	{
-	// 		date: { type: Date, default: Date.now() },
-	// 		leadId: { type: string },
-	// 	},
-	// ],
+	comments: [
+		{
+			date: { type: Date, default: Date.now() },
+			leadId: { type: String, required: true },
+			comment: { type: String },
+		},
+	],
 });
 
 module.exports = User = mongoose.model('user', UserSchema);

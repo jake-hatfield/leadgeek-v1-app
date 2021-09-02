@@ -4,23 +4,25 @@ import { Preloader, Oval } from 'react-preloader-icon';
 
 interface SpinnerProps {
 	divWidth: string | null;
+	center: boolean;
 	spinnerWidth: string | null;
 	margin: boolean;
-	search: boolean;
 	text: string | null;
 }
 
 const Spinner: React.FC<SpinnerProps> = ({
 	divWidth,
+	center,
 	spinnerWidth,
 	margin,
-	search,
 	text,
 }) => {
 	return (
 		<div
-			className={`${
-				divWidth ? divWidth : ''
+			className={`${divWidth ? divWidth : ''} ${
+				center
+					? 'absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2'
+					: ''
 			} flex flex-col items-center justify-center ${margin ? 'mt-16' : ''}`}
 		>
 			<Preloader
@@ -30,7 +32,7 @@ const Spinner: React.FC<SpinnerProps> = ({
 				strokeColor='#5d55fa'
 				duration={500}
 			/>
-			{search && (
+			{text && (
 				<div className='mt-8 font-semibold text-gray-600'>
 					{text || 'Loading results...'}
 				</div>

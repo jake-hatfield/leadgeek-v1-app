@@ -681,6 +681,11 @@ router.post('/handle-archive-lead', auth, async (req, res) => {
 router.post('/add-comment', auth, async (req, res) => {
 	try {
 		const { comment, userId, leadId } = req.body;
+		if (!comment || !userId || !leadId) {
+			return res
+				.status(400)
+				.json({ message: 'Required information is missing' });
+		}
 		let message;
 		const lead = await Lead.findById(leadId);
 		if (lead) {

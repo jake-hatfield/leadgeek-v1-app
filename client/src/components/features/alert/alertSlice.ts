@@ -11,13 +11,23 @@ export const leadsSlice = createSlice({
 		removeAlert: (state, action: PayloadAction<string>) => {
 			return state.filter((alert) => alert.id !== action.payload);
 		},
-		// setAlert: (state, action: PayloadAction<Alert>) => {
-		// 	const alert = action.payload;
-		// 	return state.push(alert);
-		// },
+		setAlert: {
+			reducer: (state, action: PayloadAction<Alert>) => {
+				state.push(action.payload);
+			},
+			prepare: (alert: {
+				title: string;
+				message: string;
+				alertType: 'success' | 'warning' | 'danger';
+			}) => {
+				const { title, message, alertType } = alert;
+				const id = nanoid();
+				return { payload: { id, title, message, alertType } };
+			},
+		},
 	},
 });
 
-export const { removeAlert } = leadsSlice.actions;
+export const { removeAlert, setAlert } = leadsSlice.actions;
 
 export default leadsSlice.reducer;
