@@ -136,7 +136,6 @@ router.post('/', auth, async (req, res) => {
 			return res.status(200).send({ status: 'failure', message });
 		}
 		console.log('Getting paginated leads...');
-		const { unviewedLeads } = user;
 		let totalItems, filteredItems, lastUpdated, administrator;
 		let roleFilter = [role.toString()];
 
@@ -407,7 +406,6 @@ router.post('/', auth, async (req, res) => {
 
 			return res.status(200).send({
 				feed,
-				unviewedLeads,
 				totalItems,
 				filteredItems,
 				page,
@@ -459,25 +457,6 @@ router.post('/all', auth, async (req, res) => {
 	} catch (error) {
 		console.error(error.message);
 		return res.status(500).send('Server error');
-	}
-});
-
-// @route       POST api/view
-// @description Update unviewed leads in database on view
-// @access      Private
-router.post('/view', auth, async (req, res) => {
-	try {
-		const { userId, leadId } = req.body;
-		let user = await User.findById(userId);
-		const newUnviewedLeads = user.unviewedLeads.filter(
-			(lead) => lead._id.toString() !== leadId.toString()
-		);
-		user.unviewedLeads = newUnviewedLeads;
-		await user.save();
-		return res.status(200).send(newUnviewedLeads);
-	} catch (error) {
-		console.log(error.message);
-		return res.status(500).send('Sever error');
 	}
 });
 

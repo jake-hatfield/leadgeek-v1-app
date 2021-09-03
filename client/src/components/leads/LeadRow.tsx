@@ -100,7 +100,6 @@ const LeadRow: React.FC<LeadRowProps> = ({
 
 	// handle details on view
 	const viewDetailsHandler = () => {
-		newLead && setNewLead(false);
 		setShowDetails(!showDetails);
 		dispatch(setCurrentLead(lead));
 		setQuickView(false);
@@ -110,13 +109,13 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	// handle liking leads
 	const favoriteHandler = (e: any) => {
 		e.stopPropagation();
-		newLead && setNewLead(false);
+		setLike((prev) => !prev);
 		dispatch(handleLikeLead({ userId: user._id, leadId: lead._id }));
 	};
 	// handle archiving leads
 	const archiveHandler = (e: any) => {
 		e.stopPropagation();
-		newLead && setNewLead(false);
+		setArchive((prev) => !prev);
 		dispatch(handleArchiveLead({ userId: user._id, leadId: lead._id }));
 	};
 

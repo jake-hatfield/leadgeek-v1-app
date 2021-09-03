@@ -67,12 +67,21 @@ export const getArchivedLeads = createAsyncThunk(
 
 export const getFeedLeads = createAsyncThunk(
 	'leads/getFeedLeads',
-	async (options: { user: User; page: number; filters: any }, { dispatch }) => {
+	async (
+		options: {
+			user: {
+				id: string;
+				role: string;
+			};
+			page: number;
+			filters: any;
+		},
+		{ dispatch }
+	) => {
 		try {
-			const { _id, lastLoggedIn, role } = options.user;
+			const { id, role } = options.user;
 			const body = JSON.stringify({
-				_id,
-				lastLoggedIn,
+				_id: id,
 				role,
 				page: options.page,
 				filters: options.filters,
@@ -436,10 +445,16 @@ export const leadsSlice = createSlice({
 				state.search.searchValue = query;
 			})
 			.addCase(handleArchiveLead.fulfilled, (state, action) => {
-				console.log(action);
+				const newArchived = state.archived.pageByIds.filter(
+					(lead) => lead._id !== action.payload?.leadId
+				);
+				state.archived.pageByIds = newArchived;
 			})
 			.addCase(handleLikeLead.fulfilled, (state, action) => {
-				console.log(action);
+				const newLiked = state.liked.pageByIds.filter(
+					(lead) => lead._id !== action.payload?.leadId
+				);
+				state.liked.pageByIds = newLiked;
 			});
 	},
 });

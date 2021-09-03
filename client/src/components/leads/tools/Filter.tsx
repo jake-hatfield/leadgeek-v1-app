@@ -191,7 +191,14 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 						onClick={() => {
 							setFilter(false);
 							setFilterCount();
-							getFeedLeads({ user, page: 1, filters });
+							getFeedLeads({
+								user: {
+									id: user._id,
+									role: user.role,
+								},
+								page: 1,
+								filters,
+							});
 						}}
 						className='font-semibold text-sm text-purple-500 rounded-sm hover:text-purple-600 transition-colors duration-100 ease-in-out ring-purple'
 					>
@@ -217,7 +224,14 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 								setClear(true);
 								clearFilters();
 								setFilter(false);
-								getFeedLeads({ user, page: 1, filters: emptyFilters });
+								getFeedLeads({
+									user: {
+										id: user._id,
+										role: user.role,
+									},
+									page: 1,
+									filters: emptyFilters,
+								});
 							}}
 							className='font-semibold text-sm text-red-500 hover:text-red-600 rounded-sm transition-colors duration-100 ease-in-out ring-red'
 						>

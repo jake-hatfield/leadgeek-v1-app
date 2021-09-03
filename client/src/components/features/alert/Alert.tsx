@@ -35,7 +35,7 @@ const Alert: React.FC<AlertProps> = ({ id, title, message, alertType }) => {
 		setTimeout(() => {
 			dispatch(removeAlert(id));
 		}, 6000);
-	});
+	}, []);
 
 	return (
 		<div

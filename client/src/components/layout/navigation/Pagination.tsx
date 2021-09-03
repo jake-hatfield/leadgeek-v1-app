@@ -65,7 +65,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 				!padding && 'container'
 			} text-gray-600`}
 		>
-			{filteredItems && filteredItems > 0 && (
+			{filteredItems && filteredItems > 0 ? (
 				<div className='flex items-center text-sm'>
 					<span>View</span>
 					<select
@@ -86,6 +86,8 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 					</select>
 					<span>results per page</span>
 				</div>
+			) : (
+				<div />
 			)}
 			<div className='flex items-center justify-between text-sm'>
 				{filteredItems ? (

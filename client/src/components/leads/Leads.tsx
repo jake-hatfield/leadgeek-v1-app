@@ -7,7 +7,7 @@ import { NavLink } from 'react-router-dom';
 // redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
 import { setAlert } from '@features/alert/alertSlice';
-import { setItemLimit, setDateLimit } from '@features/filters/filtersSlice';
+import { setItemLimit } from '@features/filters/filtersSlice';
 import {
 	getAllLeads,
 	setLeadLoading,
@@ -250,8 +250,6 @@ const Leads: React.FC<LeadsProps> = ({
 										setDate={setDate}
 										dateCreated={user.dateCreated}
 										lastUpdated={lastUpdated}
-										setDateLimit={setDateLimit}
-										setPage={setPage}
 									/>
 								)}
 								{filter && <Filter filter={filter} setFilter={setFilter} />}

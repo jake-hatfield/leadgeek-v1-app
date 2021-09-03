@@ -5,7 +5,11 @@ import axios from 'axios';
 
 // redux
 import { setAlert } from '@features/alert/alertSlice';
-import { addComment } from '@features/leads/leadsSlice';
+import {
+	addComment,
+	handleArchiveLead,
+	handleLikeLead,
+} from '@features/leads/leadsSlice';
 
 // utils
 import { config } from '@utils/utils';
@@ -166,6 +170,12 @@ export const authSlice = createSlice({
 				state.isAuthenticated = false;
 				state.user = null;
 				state.validatedResetPwToken = false;
+			})
+			.addCase(handleLikeLead.fulfilled, (state, action) => {
+				state.user!.likedLeads! = action.payload?.leads;
+			})
+			.addCase(handleArchiveLead.fulfilled, (state, action) => {
+				state.user!.archivedLeads! = action.payload?.leads;
 			})
 			.addCase(validateResetPwToken.pending, (state) => {
 				state.status = 'loading';

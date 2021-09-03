@@ -1,6 +1,54 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const initialState = {
+type NumberOrNull = number | null;
+interface FilterState {
+	count: NumberOrNull;
+	netProfit: {
+		min: NumberOrNull;
+		max: NumberOrNull;
+	};
+	buyPrice: {
+		min: NumberOrNull;
+		max: NumberOrNull;
+	};
+	sellPrice: {
+		min: NumberOrNull;
+		max: NumberOrNull;
+	};
+	roi: {
+		min: NumberOrNull;
+		max: NumberOrNull;
+	};
+	bsr: {
+		min: NumberOrNull;
+		max: NumberOrNull;
+	};
+	monthlySales: {
+		min: NumberOrNull;
+		max: NumberOrNull;
+	};
+	weight: {
+		min: NumberOrNull;
+		max: NumberOrNull;
+	};
+	category: string[];
+	prep: {
+		unit: NumberOrNull;
+		lb: NumberOrNull;
+	};
+	itemLimits: {
+		leadsLimit: number;
+		searchLimit: number;
+		usersLimit: number;
+	};
+	dateLimits: {
+		min: string | null;
+		max: string | null;
+		selected: string | null;
+	};
+}
+
+const initialState: FilterState = {
 	count: +localStorage.getItem('filterCount')! || null,
 	netProfit: {
 		min: +localStorage.getItem('netProfitMin')! || null,
@@ -43,26 +91,6 @@ const initialState = {
 	dateLimits: { min: null, max: null, selected: null },
 };
 
-// export const setItemLimit = (type, itemLimit) => async (dispatch) => {
-// 	try {
-// 		if (itemLimit) {
-// 			let typeFilter;
-// 			if (type === 'feed' || type === 'liked' || type === 'archived') {
-// 				typeFilter = 'leadsLimit';
-// 			} else {
-// 				typeFilter = `${type}Limit`;
-// 			}
-// 			localStorage.setItem(typeFilter, itemLimit);
-// 			return dispatch({
-// 				type: SET_ITEM_LIMIT,
-// 				payload: { typeFilter, itemLimit },
-// 			});
-// 		}
-// 	} catch (error) {
-// 		console.log(error);
-// 	}
-// };
-
 // export const setDateLimit = (min, max, selected) => async (dispatch) => {
 // 	try {
 // 		if (min || max) {
@@ -87,8 +115,15 @@ export const filtersSlice = createSlice({
 		clearPrepFilter: (state) => {
 			console.log(state);
 		},
-		setDateLimit: (state, action: PayloadAction<string>) => {
-			console.log(action.payload);
+		setDateLimit: (
+			state,
+			action: PayloadAction<{
+				min: string;
+				max: string | null;
+				selected: string;
+			}>
+		) => {
+			state.dateLimits.min = action.payload.min;
 		},
 		setFilterCount: (state) => {
 			const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =

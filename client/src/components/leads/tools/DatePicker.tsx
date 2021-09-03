@@ -1,7 +1,14 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 
+// packages
 import { DateTime } from 'luxon-business-days';
 
+// redux
+import { useAppDispatch } from '@utils/hooks';
+import { setDateLimit } from '@features/filters/filtersSlice';
+import { setPage } from '@features/leads/leadsSlice';
+
+// utils
 import { useOutsideMousedown } from '@utils/utils';
 
 interface DatePickerProps {
@@ -10,8 +17,6 @@ interface DatePickerProps {
 	setDate: React.Dispatch<React.SetStateAction<boolean>>;
 	dateCreated: string;
 	lastUpdated: string | null;
-	setDateLimit: any;
-	setPage: any;
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({
@@ -20,9 +25,9 @@ const DatePicker: React.FC<DatePickerProps> = ({
 	dateCreated,
 	lastUpdated,
 	type,
-	setDateLimit,
-	setPage,
 }) => {
+	const dispatch = useAppDispatch();
+	// modal close handlers
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setDate, null);
 	// close modal on esc key
@@ -38,36 +43,40 @@ const DatePicker: React.FC<DatePickerProps> = ({
 		document.addEventListener('keydown', keyPress);
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
+
+	// set dates
 	const mostRecentDay = DateTime.fromISO(lastUpdated || DateTime.now());
 	const previousDay = mostRecentDay.minusBusiness({ days: 1 });
 	const lastFiveStart = mostRecentDay.minusBusiness({ days: 5 });
 	const last30Start = mostRecentDay.minusBusiness({ days: 30 });
 	const lastDay = DateTime.fromISO(dateCreated);
+
+	// date options in picker
 	const dateOptions = [
 		{
 			title: 'Most recent day',
 			dateString: mostRecentDay.toFormat('LLL dd'),
 			onClick: () => {
-				setDateLimit(
-					mostRecentDay.toISODate(),
-					null,
-					mostRecentDay.toFormat('LLL dd, yyyy')
+				dispatch(
+					setDateLimit({
+						min: mostRecentDay.toISODate(),
+						max: null,
+						selected: mostRecentDay.toFormat('LLL dd, yyyy'),
+					})
 				);
-				setPage(1, type);
-				setDate(false);
 			},
 		},
 		{
 			title: 'Previous day',
 			dateString: previousDay.toFormat('LLL dd'),
 			onClick: () => {
-				setDateLimit(
-					previousDay.startOf('day'),
-					previousDay.endOf('day'),
-					previousDay.toFormat('LLL dd, yyyy')
+				dispatch(
+					setDateLimit({
+						min: previousDay.startOf('day'),
+						max: previousDay.endOf('day'),
+						selected: previousDay.toFormat('LLL dd, yyyy'),
+					})
 				);
-				setPage(1, type);
-				setDate(false);
 			},
 		},
 		{
@@ -76,15 +85,15 @@ const DatePicker: React.FC<DatePickerProps> = ({
 				'LLL dd'
 			)} - ${mostRecentDay.toFormat('LLL dd')}`,
 			onClick: () => {
-				setDateLimit(
-					lastFiveStart.toISODate(),
-					null,
-					`${lastFiveStart.toFormat('LLL dd, yyyy')} - ${mostRecentDay.toFormat(
-						'LLL dd'
-					)}`
+				dispatch(
+					setDateLimit({
+						min: lastFiveStart.toISODate(),
+						max: null,
+						selected: `${lastFiveStart.toFormat(
+							'LLL dd, yyyy'
+						)} - ${mostRecentDay.toFormat('LLL dd')}`,
+					})
 				);
-				setPage(1, type);
-				setDate(false);
 			},
 		},
 		{
@@ -93,15 +102,15 @@ const DatePicker: React.FC<DatePickerProps> = ({
 				'LLL dd'
 			)}`,
 			onClick: () => {
-				setDateLimit(
-					last30Start.toISODate(),
-					mostRecentDay.toISO(),
-					`${last30Start.toFormat('LLL dd, yyyy')} - ${mostRecentDay.toFormat(
-						'LLL dd'
-					)}`
+				dispatch(
+					setDateLimit({
+						min: last30Start.toISODate(),
+						max: mostRecentDay.toISO(),
+						selected: `${last30Start.toFormat(
+							'LLL dd, yyyy'
+						)} - ${mostRecentDay.toFormat('LLL dd')}`,
+					})
 				);
-				setPage(1, type);
-				setDate(false);
 			},
 		},
 		{
@@ -110,18 +119,19 @@ const DatePicker: React.FC<DatePickerProps> = ({
 				'LLL dd, yyyy'
 			)} - ${mostRecentDay.toFormat('LLL dd')}`,
 			onClick: () => {
-				setDateLimit(
-					lastDay.toISODate(),
-					mostRecentDay.toISO(),
-					`${lastDay.toFormat('LLL dd, yyyy')} - ${mostRecentDay.toFormat(
-						'LLL dd'
-					)}`
+				dispatch(
+					setDateLimit({
+						min: lastDay.toISODate(),
+						max: mostRecentDay.toISO(),
+						selected: `${lastDay.toFormat(
+							'LLL dd, yyyy'
+						)} - ${mostRecentDay.toFormat('LLL dd')}`,
+					})
 				);
-				setPage(1, type);
-				setDate(false);
 			},
 		},
 	];
+
 	return (
 		<article
 			ref={wrapperRef}
@@ -137,7 +147,11 @@ const DatePicker: React.FC<DatePickerProps> = ({
 					{dateOptions.map((dateOption, i) => (
 						<li key={i} className='list-none'>
 							<button
-								onClick={dateOption.onClick}
+								onClick={() => {
+									dateOption.onClick();
+									setPage({ page: 1, type });
+									setDate(false);
+								}}
 								className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
 							>
 								<span className='font-semibold text-sm text-gray-700'>

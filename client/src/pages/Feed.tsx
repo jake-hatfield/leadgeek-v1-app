@@ -28,9 +28,11 @@ const Feed = () => {
 	useEffect(() => {
 		status === 'idle' &&
 			isAuthenticated &&
-			user &&
-			dispatch(getFeedLeads({ user, page, filters }));
-	}, [status, isAuthenticated, user, page, filters, dispatch]);
+			user?._id &&
+			dispatch(
+				getFeedLeads({ user: { id: user._id, role: user.role }, page, filters })
+			);
+	}, [status, isAuthenticated, user?._id, user?.role, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
 		<AuthLayout>

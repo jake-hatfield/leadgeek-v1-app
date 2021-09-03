@@ -63,7 +63,16 @@ const Prep: React.FC<PrepProps> = ({ prep, setPrep }) => {
 						<button
 							onClick={() => {
 								// setPrepFilter(prepFee);
-								dispatch(getFeedLeads({ user, page: 1, filters }));
+								dispatch(
+									getFeedLeads({
+										user: {
+											id: user._id,
+											role: user.role,
+										},
+										page: 1,
+										filters,
+									})
+								);
 								setPrep((prev) => !prev);
 							}}
 							className='font-semibold text-sm text-purple-500 rounded-sm hover:text-purple-600 transition-colors duration-100 ease-in-out ring-purple'
@@ -102,7 +111,16 @@ const Prep: React.FC<PrepProps> = ({ prep, setPrep }) => {
 							<button
 								onClick={() => {
 									dispatch(clearPrepFilter());
-									dispatch(getFeedLeads({ user, page: 1, filters }));
+									dispatch(
+										getFeedLeads({
+											user: {
+												id: user._id,
+												role: user.role,
+											},
+											page: 1,
+											filters,
+										})
+									);
 									setPrep((prev) => !prev);
 								}}
 								className='font-semibold text-sm text-red-500 rounded-sm ring-red'
