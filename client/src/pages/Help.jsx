@@ -113,7 +113,7 @@ const Help = ({ user, loading }) => {
 	return (
 		<AuthLayout>
 			{!loading ? (
-				<section className='my-6'>
+				<section className='mb-6'>
 					<Header title={'Help panel'} _id={userId} role={role} />
 					<div className='mt-6 container'>
 						<div>

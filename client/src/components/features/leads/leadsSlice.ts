@@ -52,7 +52,7 @@ export const getArchivedLeads = createAsyncThunk(
 	'leads/getArchivedLeads',
 	async (
 		options: { leads: Lead[]; page: number; itemLimit: number },
-		{ dispatch }
+		{ rejectWithValue }
 	) => {
 		try {
 			const { leads, page, itemLimit } = options;
@@ -61,6 +61,7 @@ export const getArchivedLeads = createAsyncThunk(
 			return data;
 		} catch (error) {
 			console.log(error);
+			return rejectWithValue(error);
 		}
 	}
 );
@@ -76,7 +77,7 @@ export const getFeedLeads = createAsyncThunk(
 			page: number;
 			filters: any;
 		},
-		{ dispatch }
+		{ rejectWithValue }
 	) => {
 		try {
 			const { id, role } = options.user;
@@ -88,19 +89,12 @@ export const getFeedLeads = createAsyncThunk(
 			});
 			const { data } = await axios.post('/api/leads', body, config);
 			if (data.message === 'There are no leads to show') {
-				// dispatch({ type: NO_LEAD_RESULTS });
-				// dispatch(
-				// 	setAlert(
-				// 		data.message,
-				// 		"Please check that your filters aren't too strict or try refreshing the page",
-				// 		'warning'
-				// 	)
-				// );
 			} else {
 				return data;
 			}
 		} catch (error) {
 			console.log(error);
+			return rejectWithValue(error);
 		}
 	}
 );
@@ -109,7 +103,7 @@ export const getLikedLeads = createAsyncThunk(
 	'leads/getLikedLeads',
 	async (
 		options: { leads: Lead[]; page: number; itemLimit: number },
-		{ dispatch }
+		{ rejectWithValue }
 	) => {
 		try {
 			const { leads, page, itemLimit } = options;
@@ -119,6 +113,7 @@ export const getLikedLeads = createAsyncThunk(
 			return data;
 		} catch (error) {
 			console.log(error);
+			return rejectWithValue(error);
 		}
 	}
 );
@@ -372,10 +367,15 @@ export const leadsSlice = createSlice({
 				state.archived.pagination.previousPage = previousPage;
 				state.archived.pagination.totalItems = totalItems;
 			})
+			.addCase(getArchivedLeads.rejected, (state, action) => {
+				console.log(action);
+				state.status = 'failed';
+			})
 			.addCase(getFeedLeads.pending, (state) => {
 				state.status = 'loading';
 			})
 			.addCase(getFeedLeads.fulfilled, (state, action) => {
+				console.log(action);
 				const {
 					feed,
 					page,
@@ -398,6 +398,10 @@ export const leadsSlice = createSlice({
 				state.feed.pagination.filteredItems = filteredItems;
 				state.lastUpdated = lastUpdated;
 			})
+			.addCase(getFeedLeads.rejected, (state, action) => {
+				console.log(action);
+				state.status = 'failed';
+			})
 			.addCase(getLikedLeads.fulfilled, (state, action) => {
 				const {
 					likedLeads,
@@ -416,6 +420,10 @@ export const leadsSlice = createSlice({
 				state.liked.pagination.nextPage = nextPage;
 				state.liked.pagination.previousPage = previousPage;
 				state.liked.pagination.totalItems = totalItems;
+			})
+			.addCase(getLikedLeads.rejected, (state, action) => {
+				console.log(action);
+				state.status = 'failed';
 			})
 			.addCase(getSearchResults.pending, (state) => {
 				state.status = 'loading';

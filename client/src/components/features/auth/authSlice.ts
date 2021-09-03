@@ -39,11 +39,13 @@ export const authenticateUser = createAsyncThunk(
 	) => {
 		try {
 			const { email, password } = options;
+			console.log(email, password);
 			const emailToLowerCase = email.toLowerCase();
 			const body = JSON.stringify({ email: emailToLowerCase, password });
-			const { data } = await axios.post('/api/auth', body, config);
-			if (data.token) {
-				return data.token;
+			const res = await axios.post('/api/auth', body, config);
+			console.log(res);
+			if (res.data.token) {
+				return res.data.token;
 			}
 		} catch (error) {
 			console.log(error);
@@ -145,8 +147,9 @@ export const authSlice = createSlice({
 				state.status = 'loading';
 			})
 			.addCase(authenticateUser.fulfilled, (state, action) => {
+				console.log(action.payload);
 				state.status = 'idle';
-				state.token = action.payload?.token;
+				state.token = action.payload;
 				state.isAuthenticated = true;
 			})
 			.addCase(authenticateUser.rejected, (state) => {

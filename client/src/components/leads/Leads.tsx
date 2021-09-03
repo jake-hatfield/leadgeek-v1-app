@@ -319,7 +319,7 @@ const Leads: React.FC<LeadsProps> = ({
 				/>
 			)}
 		</Fragment>
-	) : (
+	) : authStatus === 'loading' ? (
 		<Spinner
 			divWidth={null}
 			center={true}
@@ -327,6 +327,11 @@ const Leads: React.FC<LeadsProps> = ({
 			margin={false}
 			text={'Loading leads...'}
 		/>
+	) : (
+		<div>
+			There was an error making that request. If this issue persists, please
+			contact Leadgeek support.
+		</div>
 	);
 };
 
@@ -364,7 +369,7 @@ const svgList = {
 
 // classes for component
 const classes = {
-	leadsWrapper: 'relative my-6',
+	leadsWrapper: 'relative mb-6',
 	navWrapper: 'mt-6 container',
 	nav: 'relative flex items-end justify-between pb-2 border-b border-gray-200',
 	navLink:

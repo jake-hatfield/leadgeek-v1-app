@@ -1,27 +1,31 @@
 import React, { useState } from 'react';
 
+// packages
+import { Redirect, Link } from 'react-router-dom';
+
+// redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
 import {
 	authenticateUser,
 	getUserData,
 } from '@components/features/auth/authSlice';
 
-import { Redirect, Link } from 'react-router-dom';
-
+// components
+import Button from '@components/layout/utils/Button';
+import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 import DefaultLayout from '@components/layout/DefaultLayout';
 import FormField from '@components/layout/utils/FormField';
 import PasswordFormField from '@components/layout/utils/PasswordFormField';
-import Button from '@components/layout/utils/Button';
-import DefaultFooter from '@components/layout/navigation/DefaultFooter';
-
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
+
+// utils
 import setAuthToken from '@utils/authTokens';
-import { setAlert } from '@components/features/alert/alertSlice';
 
 const Login: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const status = useAppSelector((state) => state.auth.status);
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+	const token = useAppSelector((state) => state.auth.token);
 
 	const [formData, setFormData] = useState({
 		email: '',
@@ -41,7 +45,7 @@ const Login: React.FC = () => {
 		}
 	};
 
-	if (isAuthenticated) {
+	if (isAuthenticated && token) {
 		return <Redirect to='/leads' />;
 	}
 
@@ -51,7 +55,9 @@ const Login: React.FC = () => {
 				<div className={classes.border} />
 				<div className={classes.content}>
 					<header className={classes.contentHeader}>
-						<LeadGeekLogo className={classes.logoLg} />
+						<a href='https://leadgeek.io/'>
+							<LeadGeekLogo className={classes.logoLg} />
+						</a>
 					</header>
 					<section className='container'>
 						<article className={classes.card}>
@@ -118,7 +124,7 @@ const Login: React.FC = () => {
 
 const classes = {
 	wrapper: 'min-h-screen relative flex justify-center bg-gray-100',
-	border: 'h-2 absolute z-10 inset-x-0 top-0 bg-purple-300',
+	border: 'h-2 absolute z-10 inset-x-0 top-0 bg-purple-500',
 	content:
 		'xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100',
 	contentHeader: 'mt-6 hidden md:block container',

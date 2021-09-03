@@ -32,7 +32,12 @@ const LeadTable: React.FC<LeadTableProps> = ({
 }) => {
 	return (
 		<section className={classes.tableWrapper}>
-			{status === 'loading' ? (
+			{status === 'failed' ? (
+				<div>
+					There was an error making that request. If this issue persists, please
+					contact Leadgeek support.
+				</div>
+			) : status === 'loading' ? (
 				<Spinner
 					divWidth={null}
 					center={false}

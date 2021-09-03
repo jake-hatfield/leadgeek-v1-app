@@ -348,7 +348,7 @@ const Admin = ({
 		<AuthLayout>
 			{!loading ? (
 				role === 'admin' || role === 'master' ? (
-					<section className='my-6'>
+					<section className='mb-6'>
 						<Header title={'Admin panel'} _id={userId} role={role} />
 						<div className='mt-6 container'>
 							<div>
