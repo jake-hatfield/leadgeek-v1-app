@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
-import { setJWT, getUserData } from '@components/features/auth/authSlice';
+import {
+	authenticateUser,
+	getUserData,
+} from '@components/features/auth/authSlice';
 
 import { Redirect, Link } from 'react-router-dom';
 
@@ -13,6 +16,7 @@ import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
 import setAuthToken from '@utils/authTokens';
+import { setAlert } from '@components/features/alert/alertSlice';
 
 const Login: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -30,14 +34,10 @@ const Login: React.FC = () => {
 
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		const {
-			payload: { token },
-		} = await dispatch(setJWT({ email, password }));
-		if (token && status === 'idle') {
-			setAuthToken(token);
-			const test = await dispatch(getUserData());
-		} else {
-			console.log('boo');
+		const res = await dispatch(authenticateUser({ email, password }));
+		if (res.meta.requestStatus !== 'rejected' && status === 'idle') {
+			setAuthToken(res.payload);
+			return dispatch(getUserData());
 		}
 	};
 

@@ -1,4 +1,5 @@
 import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
+import { authenticateUser } from '@features/auth/authSlice';
 
 import { Alert } from '@utils/interfaces/Alert';
 
@@ -26,6 +27,11 @@ export const leadsSlice = createSlice({
 			},
 		},
 	},
+	// extraReducers: (builder) => {
+	// 	builder.addCase(authenticateUser.fulfilled, (state) => {
+	// 		state = initialState;
+	// 	});
+	// },
 });
 
 export const { removeAlert, setAlert } = leadsSlice.actions;

@@ -77,7 +77,7 @@ export const getActivePlanDetails = (subIds) => async (dispatch) => {
 	try {
 		const body = JSON.stringify({ subIds });
 		const {
-			data: { msg: message, subscription },
+			data: { message, subscription },
 		} = await axios.post('/api/users/get-active-plan-details', body, config);
 		if (message === 'Subscription data found') {
 			dispatch({
@@ -100,7 +100,7 @@ export const getAffiliatePayments =
 		try {
 			const body = JSON.stringify({ clients, affCreated });
 			const {
-				data: { msg: message, affPayments },
+				data: { message, affPayments },
 			} = await axios.post('/api/users/get-affiliate-payments', body, config);
 			if (message === 'Referred clients with valid payments were found.') {
 				dispatch({
@@ -132,16 +132,16 @@ export const updatePaypalEmail =
 			}
 			const body = JSON.stringify({ id, newEmail });
 			const {
-				data: { status, msg },
+				data: { status, message },
 			} = await axios.put('/api/users/update-affiliate-paypal', body, config);
 			if (status === 'success') {
 				dispatch({
 					type: SET_PAYPAL_EMAIL,
 					payload: newEmail,
 				});
-				dispatch(setAlert('Update success', msg, 'success'));
+				dispatch(setAlert('Update success', message, 'success'));
 			} else {
-				dispatch(setAlert('Update failure', msg, 'danger'));
+				dispatch(setAlert('Update failure', message, 'danger'));
 			}
 		} catch (error) {
 			console.log(error);

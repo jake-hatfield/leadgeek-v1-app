@@ -186,7 +186,7 @@ export const addComment = (comment, userId, leadId) => async (dispatch) => {
 	try {
 		const body = JSON.stringify({ comment, userId, leadId });
 		const { data } = await axios.post('/api/leads/add-comment', body, config);
-		console.log(data.msg);
+		console.log(data.message);
 		if (data.message === 'Comment was added') {
 			dispatch({
 				type: SET_COMMENT,

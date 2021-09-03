@@ -54,7 +54,7 @@ export const register = (name, email, password) => async (dispatch) => {
 	} catch (error) {
 		const errors = error.response.data.errors;
 		if (errors) {
-			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+			errors.forEach((error) => dispatch(setAlert(error.message, 'danger')));
 		}
 		dispatch({
 			type: REGISTER_FAIL,
@@ -103,7 +103,7 @@ export const forgotPassword = (email) => async (dispatch) => {
 	const body = JSON.stringify({ email: emailToLowerCase });
 	try {
 		const res = await axios.post('/api/users/forgot-password', body, config);
-		if (res.data.msg === 'Password recovery email sent successfully') {
+		if (res.data.message === 'Password recovery email sent successfully') {
 			dispatch(
 				setAlert(
 					'Email sent',
@@ -149,7 +149,7 @@ export const resetPwValidation = (resetPwToken) => async (dispatch) => {
 			body,
 			config
 		);
-		if (res.data.msg === 'Password reset link was validated') {
+		if (res.data.message === 'Password reset link was validated') {
 			dispatch({
 				type: SET_RESET_PASSWORD_TOKEN,
 				payload: res.data.user,
@@ -201,7 +201,7 @@ export const updatePassword = (email, password) => async (dispatch) => {
 	} catch (error) {
 		const errors = error.response.data.errors;
 		if (errors) {
-			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+			errors.forEach((error) => dispatch(setAlert(error.message, 'danger')));
 		}
 	}
 };
@@ -228,7 +228,7 @@ const updateStripeSubInDb = (customerId, subscription) => async (dispatch) => {
 	} catch (error) {
 		const errors = error.response.data.errors;
 		if (errors) {
-			errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+			errors.forEach((error) => dispatch(setAlert(error.message, 'danger')));
 		}
 	}
 };
@@ -243,8 +243,8 @@ export const cancelStripeSub =
 				body,
 				config
 			);
-			const { msg, subscription } = res.data;
-			if (msg === 'Subscription was successfully canceled.') {
+			const { message, subscription } = res.data;
+			if (message === 'Subscription was successfully canceled.') {
 				dispatch(updateStripeSubInDb(customerId, subscription));
 				dispatch(
 					setAlert(
@@ -257,7 +257,7 @@ export const cancelStripeSub =
 				dispatch(
 					setAlert(
 						'Cancellation error',
-						`${msg} Please contact support@leadgeek.io if you need help.`,
+						`${message} Please contact support@leadgeek.io if you need help.`,
 						'danger'
 					)
 				);
@@ -265,7 +265,7 @@ export const cancelStripeSub =
 		} catch (error) {
 			const errors = error.response.data.errors;
 			if (errors) {
-				errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+				errors.forEach((error) => dispatch(setAlert(error.message, 'danger')));
 			}
 		}
 	};

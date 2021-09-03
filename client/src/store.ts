@@ -15,6 +15,10 @@ const store = configureStore({
 		leads: leadsReducer,
 		users: usersReducer,
 	},
+	middleware: (getDefaultMiddleware) =>
+		getDefaultMiddleware({
+			serializableCheck: false,
+		}),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

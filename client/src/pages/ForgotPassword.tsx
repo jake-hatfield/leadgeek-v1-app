@@ -34,7 +34,7 @@ const ForgotPassword = () => {
 				body,
 				config
 			);
-			if (data.msg === 'Password recovery email sent successfully') {
+			if (data.message === 'Password recovery email sent successfully') {
 				dispatch(
 					dispatch(
 						setAlert({

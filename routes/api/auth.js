@@ -12,6 +12,7 @@ const User = require('../../models/User');
 // @access      Private
 router.get('/', auth, async (req, res) => {
 	try {
+		console.log(req.user.id);
 		const user = await User.findById(req.user.id).select('-password');
 		return res.json(user);
 	} catch (error) {
@@ -31,15 +32,16 @@ router.post('/', async (req, res) => {
 	}
 	// destructure email and pw out of the body
 	const { email, password } = req.body;
-
 	try {
 		// see if user exists
 		let user = await User.findOne({ email });
 		if (!user) {
-			return res.status(400).json({
+			return res.status(401).json({
+				token: null,
 				errors: [
 					{
-						msg: 'Email & password combination not correct. Please try again or reset your password.',
+						message:
+							'Email & password combination not correct. Please try again or reset your password.',
 					},
 				],
 			});
@@ -48,10 +50,12 @@ router.post('/', async (req, res) => {
 		// validate password with bcrypt
 		const isMatch = await bcrypt.compare(password, user.password);
 		if (!isMatch) {
-			return res.status(400).json({
+			return res.status(401).json({
+				token: null,
 				errors: [
 					{
-						msg: 'Email & password combination not correct. Please try again or reset your password.',
+						message:
+							'Email & password combination not correct. Please try again or reset your password.',
 					},
 				],
 			});
@@ -73,7 +77,7 @@ router.post('/', async (req, res) => {
 			{ expiresIn: 60 * 60 * 24 * 5 },
 			(err, token) => {
 				if (err) throw err;
-				res.json({ token });
+				res.json({ token, errors: null });
 			}
 		);
 	} catch (err) {
@@ -95,7 +99,8 @@ router.post('/surrogate-user', auth, async (req, res) => {
 				return res.status(400).json({
 					errors: [
 						{
-							msg: 'Email & password combination not correct. Please try again or reset your password.',
+							message:
+								'Email & password combination not correct. Please try again or reset your password.',
 						},
 					],
 				});
@@ -119,7 +124,7 @@ router.post('/surrogate-user', auth, async (req, res) => {
 			return res.status(200).json({
 				errors: [
 					{
-						msg: 'No user found.',
+						message: 'No user found.',
 					},
 				],
 			});
@@ -143,7 +148,7 @@ router.post('/get-stripe-subscriptions', async (req, res) => {
 			return res.status(400).json({
 				errors: [
 					{
-						msg: message,
+						message,
 					},
 				],
 			});
@@ -153,7 +158,7 @@ router.post('/get-stripe-subscriptions', async (req, res) => {
 			return res.status(400).json({
 				errors: [
 					{
-						msg: message,
+						message,
 					},
 				],
 			});
@@ -166,13 +171,13 @@ router.post('/get-stripe-subscriptions', async (req, res) => {
 				return res.status(400).json({
 					errors: [
 						{
-							msg: message,
+							message,
 						},
 					],
 				});
 			}
 			return res.status(200).send({
-				msg: message,
+				message,
 				activeSubscriptions: user.subId,
 				paymentMethodId: user.paymentMethod.id,
 			});

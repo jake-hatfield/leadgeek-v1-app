@@ -1,11 +1,15 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+// packages
 import axios from 'axios';
 
+// redux
 import { setAlert } from '@features/alert/alertSlice';
+import { addComment } from '@features/leads/leadsSlice';
 
-import { User } from '@utils/interfaces/User';
+// utils
 import { config } from '@utils/utils';
-import { addComment } from '../leads/leadsSlice';
+import { User } from '@utils/interfaces/User';
 
 interface AuthState {
 	status: 'idle' | 'loading' | 'failed';
@@ -23,15 +27,47 @@ const initialState: AuthState = {
 	validatedResetPwToken: false,
 };
 
-export const getUserData = createAsyncThunk('auth/getUserData', async () => {
-	try {
-		const res = await axios.get('/api/auth');
-		return res.data;
-	} catch (error) {
-		console.log(error);
-		return null;
+export const authenticateUser = createAsyncThunk(
+	'auth/authenticateUser',
+	async (
+		options: { email: string; password: string },
+		{ dispatch, rejectWithValue }
+	) => {
+		try {
+			const { email, password } = options;
+			const emailToLowerCase = email.toLowerCase();
+			const body = JSON.stringify({ email: emailToLowerCase, password });
+			const { data } = await axios.post('/api/auth', body, config);
+			if (data.token) {
+				return data.token;
+			}
+		} catch (error) {
+			console.log(error);
+			dispatch(
+				setAlert({
+					title: 'Login error',
+					message:
+						"Email & password combination aren't correct. Please try again or reset your password.",
+					alertType: 'danger',
+				})
+			);
+			return rejectWithValue(error);
+		}
 	}
-});
+);
+
+export const getUserData = createAsyncThunk(
+	'auth/getUserData',
+	async (_, { rejectWithValue }) => {
+		try {
+			const res = await axios.get('/api/auth');
+			return res.data;
+		} catch (error) {
+			console.log(error);
+			return rejectWithValue(error);
+		}
+	}
+);
 
 export const validateResetPwToken = createAsyncThunk(
 	'auth/validateResetPwToken',
@@ -44,7 +80,7 @@ export const validateResetPwToken = createAsyncThunk(
 				body,
 				config
 			);
-			if (data.msg === 'Password reset link was validated') {
+			if (data.message === 'Password reset link was validated') {
 				return data.user;
 			} else {
 				return dispatch(
@@ -58,34 +94,24 @@ export const validateResetPwToken = createAsyncThunk(
 			}
 		} catch (error) {
 			console.log(error);
+			return error;
 		}
 	}
 );
 
-export const setJWT = createAsyncThunk(
-	'auth/setJWT',
-	async (
-		userCredentials: { email: string; password: string },
-		{ dispatch }
-	) => {
+export const surrogateUser = createAsyncThunk(
+	'auth/surrogateUser',
+	async (options: { id: string }) => {
 		try {
-			const { email, password } = userCredentials;
-			const emailToLowerCase = email.toLowerCase();
-			const body = JSON.stringify({ email: emailToLowerCase, password });
-			const res = await axios.post('/api/auth', body, config);
-			if (res.data) {
-				return res.data;
-			} else {
-				// dispatch(
-				// 	setAlert(
-				// 		'Login error',
-				// 		"Email & password combination aren't correct. Please try again or reset your password.",
-				// 		'danger'
-				// 	)
-				// );
-				console.log('There was an error logging in!');
-			}
-		} catch (error: any) {
+			const { id } = options;
+			const body = JSON.stringify({ id });
+			const { data } = await axios.post(
+				'/api/auth/surrogate-user',
+				body,
+				config
+			);
+			return data;
+		} catch (error) {
 			console.log(error);
 		}
 	}
@@ -96,6 +122,7 @@ export const authSlice = createSlice({
 	initialState,
 	reducers: {
 		removeUserData: (state) => {
+			localStorage.removeItem('token');
 			state.token = null;
 			state.status = 'idle';
 			state.isAuthenticated = false;
@@ -110,16 +137,31 @@ export const authSlice = createSlice({
 					state.user.comments = action.payload;
 				}
 			})
+			.addCase(authenticateUser.pending, (state) => {
+				state.status = 'loading';
+			})
+			.addCase(authenticateUser.fulfilled, (state, action) => {
+				state.status = 'idle';
+				state.token = action.payload?.token;
+				state.isAuthenticated = true;
+			})
+			.addCase(authenticateUser.rejected, (state) => {
+				state.status = 'idle';
+				state.token = null;
+				state.isAuthenticated = false;
+				state.user = null;
+				state.validatedResetPwToken = false;
+			})
 			.addCase(getUserData.pending, (state) => {
 				state.status = 'loading';
 			})
-			.addCase(getUserData.fulfilled, (state, action) => {
+			.addCase(getUserData.fulfilled, (state, action: PayloadAction<User>) => {
 				state.status = 'idle';
 				state.isAuthenticated = true;
 				state.user = action.payload;
 			})
 			.addCase(getUserData.rejected, (state) => {
-				state.status = 'failed';
+				state.status = 'idle';
 				state.token = null;
 				state.isAuthenticated = false;
 				state.user = null;
@@ -133,19 +175,10 @@ export const authSlice = createSlice({
 				state.status = 'idle';
 				state.validatedResetPwToken = true;
 			})
-			.addCase(setJWT.pending, (state) => {
-				state.status = 'loading';
-			})
-			.addCase(setJWT.fulfilled, (state, action) => {
-				state.status = 'idle';
-				state.token = action.payload;
-			})
-			.addCase(setJWT.rejected, (state) => {
-				state.status = 'failed';
-				state.token = null;
-				state.isAuthenticated = false;
-				state.user = null;
-				state.validatedResetPwToken = false;
+			.addCase(surrogateUser.fulfilled, (state, action) => {
+				const { token, user } = action.payload;
+				state.token = token;
+				state.user = user;
 			});
 	},
 });

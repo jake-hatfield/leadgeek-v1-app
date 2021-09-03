@@ -20,7 +20,9 @@ router.post('/', async (req, res) => {
 	const { name, email, password } = req.body;
 	if (!name || !email || !password) {
 		return res.status(400).json({
-			errors: [{ msg: 'Please make sure all required information is present' }],
+			errors: [
+				{ message: 'Please make sure all required information is present' },
+			],
 		});
 	}
 	try {
@@ -30,7 +32,8 @@ router.post('/', async (req, res) => {
 			return res.status(400).json({
 				errors: [
 					{
-						msg: "There's no LeadGeek subscription associated with that email. Please try another email or sign up for a plan.",
+						message:
+							"There's no LeadGeek subscription associated with that email. Please try another email or sign up for a plan.",
 					},
 				],
 			});
@@ -41,7 +44,8 @@ router.post('/', async (req, res) => {
 			return res.status(400).json({
 				errors: [
 					{
-						msg: 'An account already exists under that email. Please try a different email or log in.',
+						message:
+							'An account already exists under that email. Please try a different email or log in.',
 					},
 				],
 			});
@@ -93,7 +97,8 @@ router.post('/', async (req, res) => {
 		return res.status(500).json({
 			errors: [
 				{
-					msg: 'There was an error creating your account. Please try again later or contact support.',
+					message:
+						'There was an error creating your account. Please try again later or contact support.',
 				},
 			],
 		});
@@ -127,7 +132,8 @@ router.post('/get-all-users', auth, async (req, res) => {
 			return res.status(400).json({
 				errors: [
 					{
-						msg: 'There was an error fetching all users. You done something wrong, boy.',
+						message:
+							'There was an error fetching all users. You done something wrong, boy.',
 					},
 				],
 			});
@@ -210,7 +216,8 @@ router.post('/forgot-password', async (req, res) => {
 						if (err) {
 							console.error('There was an error sending the email: ', err);
 							return res.status(200).json({
-								msg: 'There was an error sending the password recovery email',
+								message:
+									'There was an error sending the password recovery email',
 							});
 						} else {
 							console.log(
@@ -220,7 +227,7 @@ router.post('/forgot-password', async (req, res) => {
 						}
 					});
 					return res.status(200).json({
-						msg: 'Password recovery email sent successfully',
+						message: 'Password recovery email sent successfully',
 						token,
 					});
 				}
@@ -248,13 +255,13 @@ router.post('/reset-password-validation', async (req, res) => {
 		if (!user) {
 			console.error('Token not found.');
 			return res.status(400).json({
-				errors: [{ msg: 'Password reset link expired or invalid' }],
+				errors: [{ message: 'Password reset link expired or invalid' }],
 			});
 		} else {
 			console.log('Token found!');
 			return res.status(200).send({
 				user: user.email,
-				msg: 'Password reset link was validated',
+				message: 'Password reset link was validated',
 			});
 		}
 	} catch (error) {
@@ -304,24 +311,24 @@ router.post('/cancel-subscription', async (req, res) => {
 		if (!retrievedSub) {
 			return res
 				.status(200)
-				.json({ msg: 'Subscription could not be canceled.' });
+				.json({ message: 'Subscription could not be canceled.' });
 		}
 		if (retrievedSub.status === 'canceled') {
 			return res
 				.status(200)
-				.json({ msg: 'This subscription is already canceled.' });
+				.json({ message: 'This subscription is already canceled.' });
 		} else {
 			const canceledSubscription = await stripe.subscriptions.del(
 				subscriptionId
 			);
 			if (canceledSubscription.status === 'canceled') {
 				return res.json({
-					msg: 'Subscription was successfully canceled.',
+					message: 'Subscription was successfully canceled.',
 					subscription: canceledSubscription,
 				});
 			} else {
 				return res.json({
-					msg: 'There was an error trying to cancel this subscription.',
+					message: 'There was an error trying to cancel this subscription.',
 				});
 			}
 		}
@@ -346,7 +353,7 @@ router.post('/update-db-subscription', async (req, res) => {
 		} else {
 			console.log('Subscription index not found.');
 			return res.status(200).json({
-				msg: 'There was an error in updating your subscription.',
+				message: 'There was an error in updating your subscription.',
 			});
 		}
 	} catch (error) {
@@ -390,16 +397,16 @@ router.post('/get-successful-payments', auth, async (req, res) => {
 			if (successfulPayments.length > 0) {
 				return res
 					.status(200)
-					.json({ msg: 'Payments found', payments: successfulPayments });
+					.json({ message: 'Payments found', payments: successfulPayments });
 			} else {
 				return res.status(200).json({
-					msg: 'No payments found',
+					message: 'No payments found',
 					payments: [],
 				});
 			}
 		} else {
 			return res.status(200).json({
-				msg: 'No payments found',
+				message: 'No payments found',
 				payments: [],
 			});
 		}
@@ -437,13 +444,13 @@ router.post('/get-active-plan-details', auth, async (req, res) => {
 			message = 'Subscription data found';
 			console.log(message);
 			return res.status(200).json({
-				msg: message,
+				message,
 				subscription: subscriptionData,
 			});
 		} else {
 			message = 'No active subscriptions found';
 			console.log(message);
-			return res.status(200).json({ msg: message, subscription: null });
+			return res.status(200).json({ message, subscription: null });
 		}
 	} catch (error) {
 		console.error(error.message);
@@ -495,16 +502,16 @@ router.post('/get-affiliate-payments', auth, async (req, res) => {
 			if (affPayments.length > 0) {
 				message = 'Referred clients with valid payments were found.';
 				console.log(message);
-				return res.status(200).json({ msg: message, affPayments });
+				return res.status(200).json({ message, affPayments });
 			} else {
 				message = 'No referred clients found';
 				console.log(message);
-				return res.status(200).json({ msg: message, affPayments: [] });
+				return res.status(200).json({ message, affPayments: [] });
 			}
 		} else {
 			let message = 'No referred clients found';
 			console.log(message);
-			return res.status(200).json({ msg: message, affPayments: [] });
+			return res.status(200).json({ message, affPayments: [] });
 		}
 	} catch (error) {
 		console.error(error.message);
@@ -522,11 +529,11 @@ router.put('/update-affiliate-paypal', auth, async (req, res) => {
 		if (affiliate) {
 			return res
 				.status(200)
-				.json({ status: 'success', msg: 'Your PayPal email was updated' });
+				.json({ status: 'success', message: 'Your PayPal email was updated' });
 		} else {
 			return res.status(200).json({
 				status: 'failure',
-				msg: 'Your PayPal email could not be updated',
+				message: 'Your PayPal email could not be updated',
 			});
 		}
 	} catch (error) {

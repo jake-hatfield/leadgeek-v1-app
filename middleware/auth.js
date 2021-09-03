@@ -8,7 +8,7 @@ module.exports = function (req, res, next) {
 	// check if no token
 	if (!token) {
 		return res.status(401).json({
-			msg: 'No token, authorization denied',
+			message: 'No token, authorization denied',
 		});
 	}
 
@@ -16,7 +16,7 @@ module.exports = function (req, res, next) {
 	try {
 		jwt.verify(token, jwtSecret, (error, decoded) => {
 			if (error) {
-				return res.status(401).json({ msg: 'Token is not valid' });
+				return res.status(401).json({ message: 'Token is not valid' });
 			} else {
 				req.user = decoded.user;
 				next();
@@ -24,6 +24,6 @@ module.exports = function (req, res, next) {
 		});
 	} catch (error) {
 		console.error('something wrong with auth middleware');
-		res.status(500).json({ msg: 'Server Error' });
+		res.status(500).json({ message: 'Server Error' });
 	}
 };
