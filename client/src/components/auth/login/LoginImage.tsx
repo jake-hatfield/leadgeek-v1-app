@@ -1,8 +1,11 @@
 import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
-const LoginImage = ({ auth: { isAuthenticated } }) => {
+// redux
+import { useAppSelector } from '@utils/hooks';
+
+const LoginImage = () => {
+	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+
 	return (
 		<Fragment>
 			{!isAuthenticated && (
@@ -32,12 +35,4 @@ const LoginImage = ({ auth: { isAuthenticated } }) => {
 	);
 };
 
-LoginImage.propTypes = {
-	auth: PropTypes.object.isRequired,
-};
-
-const mapStateToProps = (state) => ({
-	auth: state.auth,
-});
-
-export default connect(mapStateToProps)(LoginImage);
+export default LoginImage;

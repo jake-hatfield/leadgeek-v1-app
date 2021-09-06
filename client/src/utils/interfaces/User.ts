@@ -30,7 +30,7 @@ export interface User {
 			lgid: string | null;
 			paypalEmail: string | null;
 			dateCreated?: string;
-			clients?: { userId: string; cusId: string };
+			clients?: { userId: string; cusId: string }[];
 		};
 	};
 	likedLeads: Lead[];

@@ -221,7 +221,7 @@ const navLinks = {
 	dropdownItems: [
 		{
 			title: 'Settings',
-			link: 'settings/profile/',
+			link: 'settings/security/',
 			path: null,
 		},
 	],

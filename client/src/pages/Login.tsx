@@ -15,6 +15,7 @@ import Button from '@components/layout/utils/Button';
 import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 import DefaultLayout from '@components/layout/DefaultLayout';
 import FormField from '@components/layout/utils/FormField';
+import LoginImage from '@components/auth/login/LoginImage';
 import PasswordFormField from '@components/layout/utils/PasswordFormField';
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
 
@@ -116,7 +117,7 @@ const Login: React.FC = () => {
 					</section>
 					<DefaultFooter />
 				</div>
-				{/* <LoginImage /> */}
+				<LoginImage />
 			</section>
 		</DefaultLayout>
 	);

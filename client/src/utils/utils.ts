@@ -197,6 +197,8 @@ export const calcNextPossiblePayoutDate = (instance: number) => {
 		} else {
 			return newDate.plus({ months: -1 });
 		}
+	} else {
+		return newDate;
 	}
 };
 
