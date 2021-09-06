@@ -1,14 +1,27 @@
 import React, { Fragment, useEffect, useState } from 'react';
 
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { DateTime } from 'luxon';
 
 import AuthLayout from '@components/layout/AuthLayout';
 import Header from '@components/layout/navigation/Header';
 import Spinner from '@components/layout/utils/Spinner';
+import { useAppSelector } from '@utils/hooks';
 
-const HelpItem = ({ title, desc, path, color, actions }) => {
+interface HelpItemProps {
+	title: string;
+	description: string;
+	path: JSX.Element;
+	color: string;
+	actions: { title: string; link: string; external: boolean }[];
+}
+
+const HelpItem: React.FC<HelpItemProps> = ({
+	title,
+	description,
+	path,
+	color,
+	actions,
+}) => {
 	return (
 		<Fragment>
 			<article
@@ -29,7 +42,7 @@ const HelpItem = ({ title, desc, path, color, actions }) => {
 						</span>
 						<h3 className='ml-2 font-semibold text-gray-900'>{title}</h3>
 					</div>
-					<p className='mt-2 text-sm text-gray-700'>{desc}</p>
+					<p className='mt-2 text-sm text-gray-700'>{description}</p>
 					{actions.map((action, i) => (
 						<div key={i} className='mt-2'>
 							{action.external && (
@@ -50,24 +63,23 @@ const HelpItem = ({ title, desc, path, color, actions }) => {
 	);
 };
 
-HelpItem.propTypes = {
-	title: PropTypes.string.isRequired,
-	desc: PropTypes.string.isRequired,
-	path: PropTypes.object.isRequired,
-	color: PropTypes.string.isRequired,
-	actions: PropTypes.array.isRequired,
-};
+const Help: React.FC = () => {
+	// auth state
+	const status = useAppSelector((state) => state.auth.status);
+	const user = useAppSelector((state) => state.auth.user);
+	// local state
+	const [currentTime, setCurrentTime] = useState('');
 
-const Help = ({ user, loading }) => {
-	const { _id: userId, role } = user;
-	const [currentTime, setCurrentTime] = useState(0);
+	// set current time on mount (for email timestamp)
 	useEffect(() => {
 		setCurrentTime(DateTime.now().toLocaleString(DateTime.DATETIME_MED));
 	}, []);
+
 	const helpItems = [
 		{
 			title: 'Support',
-			desc: 'Have a question about selling on Amazon? Ask away! Please allow up to 24 hours for a response.',
+			description:
+				'Have a question about selling on Amazon? Ask away! Please allow up to 24 hours for a response.',
 			path: (
 				<path
 					fillRule='evenodd'
@@ -86,7 +98,8 @@ const Help = ({ user, loading }) => {
 		},
 		{
 			title: 'Software',
-			desc: 'This software is still in early-access, so we highly encourage you to report bugs or offer feature suggestions. Help us make this better for you!',
+			description:
+				'This software is still in early-access, so we highly encourage you to report bugs or offer feature suggestions. Help us make this better for you!',
 			path: (
 				<path
 					fillRule='evenodd'
@@ -112,9 +125,14 @@ const Help = ({ user, loading }) => {
 
 	return (
 		<AuthLayout>
-			{!loading ? (
+			{status === 'idle' && user ? (
 				<section className='mb-6'>
-					<Header title={'Help panel'} _id={userId} role={role} />
+					<Header
+						title={'Help panel'}
+						role={user.role}
+						dateCreated={user.dateCreated}
+						searchActive={false}
+					/>
 					<div className='mt-6 container'>
 						<div>
 							<h2 className='font-semibold text-xl text-gray-900'>Resources</h2>
@@ -128,7 +146,7 @@ const Help = ({ user, loading }) => {
 								<HelpItem
 									key={i}
 									title={item.title}
-									desc={item.desc}
+									description={item.description}
 									path={item.path}
 									color={item.color}
 									actions={item.actions}
@@ -138,20 +156,16 @@ const Help = ({ user, loading }) => {
 					</div>
 				</section>
 			) : (
-				<Spinner />
+				<Spinner
+					divWidth={null}
+					center={false}
+					spinnerWidth={null}
+					margin={false}
+					text={'Loading Help panel...'}
+				/>
 			)}
 		</AuthLayout>
 	);
 };
 
-Help.propTypes = {
-	user: PropTypes.object.isRequired,
-	loading: PropTypes.bool.isRequired,
-};
-
-const mapStateToProps = (state) => {
-	const { user, loading } = state.auth;
-	return { user, loading };
-};
-
-export default connect(mapStateToProps)(Help);
+export default Help;

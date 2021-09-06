@@ -100,11 +100,11 @@ const Details: React.FC<DetailsProps> = ({
 		document.addEventListener('keydown', keyPress);
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
+
+	// like/archive/comment handlers
 	const [like, setLike] = useState(
 		liked.some((lead) => lead._id === currentLead._id) ? true : false
 	);
-
-	// like/archive/comment handlers
 	useEffect(() => {
 		if (liked.some((lead) => lead._id === currentLead._id)) {
 			setLike(true);

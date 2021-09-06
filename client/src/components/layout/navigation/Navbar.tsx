@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// packages
 import { NavLink } from 'react-router-dom';
 
+// redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
 import { removeUserData } from '@components/features/auth/authSlice';
 
-import { useOutsideMouseup } from '@utils/utils';
+// components
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
 
+// utils
+import { useOutsideMouseup } from '@utils/utils';
 interface NavbarLinkProps {
 	link: {
 		title: string;
@@ -17,6 +21,7 @@ interface NavbarLinkProps {
 }
 
 const NavbarLink: React.FC<NavbarLinkProps> = ({ link }) => {
+	// local state
 	const [hover, setHover] = useState(false);
 
 	return (
@@ -47,16 +52,16 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({ link }) => {
 
 const Navbar = () => {
 	const dispatch = useAppDispatch();
+	// auth state
 	const role = useAppSelector((state) => state.auth.user?.role);
 	const name = useAppSelector((state) => state.auth.user?.name);
-	// state & local storage
+	// local state & local storage
 	const [hover, setHover] = useState(false);
 	const [userDropdown, setUserDropdown] = useState(false);
 
+	// modal handlers
 	const wrapperRef = useRef(null);
-
 	useOutsideMouseup(wrapperRef, setUserDropdown, null);
-
 	// close modal on esc key
 	const keyPress = useCallback(
 		(e) => {
@@ -71,6 +76,7 @@ const Navbar = () => {
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
 
+	// clear user data on logout
 	const logoutUser = () => {
 		dispatch(removeUserData());
 		setUserDropdown(false);

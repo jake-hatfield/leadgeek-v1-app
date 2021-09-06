@@ -14,6 +14,7 @@ import {
 // utils
 import { config } from '@utils/utils';
 import { User } from '@utils/interfaces/User';
+import { login } from '@redux/actions/auth';
 
 interface AuthState {
 	status: 'idle' | 'loading' | 'failed';
@@ -123,6 +124,45 @@ export const surrogateUser = createAsyncThunk(
 	}
 );
 
+export const updatePassword = createAsyncThunk(
+	'auth/updatePassword',
+	async (options: { email: string; password: string }, { dispatch }) => {
+		try {
+			const { email, password } = options;
+			const emailToLowerCase = email.toLowerCase();
+			const body = JSON.stringify({ email: emailToLowerCase, password });
+			const { data } = await axios.put(
+				'/api/users/update-password',
+				body,
+				config
+			);
+			if (data === 'Password was successfully updated') {
+				dispatch(
+					setAlert({
+						title: 'Reset success',
+						message: 'Your password was successfully updated.',
+						alertType: 'success',
+					})
+				);
+				localStorage.removeItem('resetPwToken');
+				dispatch(login(emailToLowerCase, password));
+				return;
+			} else {
+				return dispatch(
+					setAlert({
+						title: 'Error resetting password',
+						message:
+							"Your password couldn't be updated. Please contact support.",
+						alertType: 'danger',
+					})
+				);
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
 export const authSlice = createSlice({
 	name: 'auth',
 	initialState,
@@ -180,6 +220,15 @@ export const authSlice = createSlice({
 			.addCase(handleArchiveLead.fulfilled, (state, action) => {
 				state.user!.archivedLeads! = action.payload?.leads;
 			})
+			.addCase(surrogateUser.fulfilled, (state, action) => {
+				const { token, user } = action.payload;
+				state.token = token;
+				state.user = user;
+			})
+			.addCase(updatePassword.fulfilled, (state) => {
+				state.user = null;
+				state.validatedResetPwToken = false;
+			})
 			.addCase(validateResetPwToken.pending, (state) => {
 				state.status = 'loading';
 			})
@@ -187,11 +236,6 @@ export const authSlice = createSlice({
 				state.user!.email = action.payload;
 				state.status = 'idle';
 				state.validatedResetPwToken = true;
-			})
-			.addCase(surrogateUser.fulfilled, (state, action) => {
-				const { token, user } = action.payload;
-				state.token = token;
-				state.user = user;
 			});
 	},
 });

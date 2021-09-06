@@ -120,6 +120,48 @@
 // 		clearAllPills();
 // 	}, [clear]);
 
+// TODO: handle checks on the front end so state can be updated purely in reducer
+
+// let calculatedMinValue;
+// let calculatedMaxValue;
+// if (min > 0) {
+//     if (val === 'roi') {
+//         calculatedMinValue = min / 100;
+//     } else {
+//         calculatedMinValue = min;
+//     }
+//     let key = `${val}Min`;
+//     localStorage.setItem(key, calculatedMinValue.toString());
+// }
+// if (max > 0) {
+//     if (val === 'roi') {
+//         calculatedMaxValue = max / 100;
+//     } else {
+//         calculatedMaxValue = max;
+//     }
+//     let key = `${val}Max`;
+//     localStorage.setItem(key, calculatedMaxValue.toString());
+// }
+// if (min || max) {
+//     // return dispatch({
+//     // 	type: `SET_${val.toUpperCase()}_FILTER`,
+//     // 	payload: {
+//     // 		min: calculatedMinValue ? +calculatedMinValue : null,
+//     // 		max: calculatedMaxValue ? +calculatedMaxValue : null,
+//     // 	},
+//     // });
+//     state[val] = min;
+// }
+// if (max && min >= max) {
+//     return dispatch(
+//         setAlert({
+//             title: 'Error creating the filter',
+//             message: 'Minimum value cannot be greater than maximum value.',
+//             alertType: 'danger',
+//         })
+//     );
+// }
+
 // 	return (
 // 		<div
 // 			ref={wrapperRef}

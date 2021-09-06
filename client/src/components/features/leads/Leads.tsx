@@ -16,14 +16,14 @@ import {
 
 // components
 import Button from '@components/layout/utils/Button';
-import DatePicker from './tools/DatePicker';
+import DatePicker from '../filters/DatePicker';
 import Details from './Details';
-import ExportButton from './tools/ExportButton';
-import Filter from './tools/Filter';
+import ExportButton from './ExportButton';
+import Filter from '../filters/Filter';
 import Header from '@components/layout/navigation/Header';
 import LeadTable from './LeadTable';
 import PaginationComponent from '@components/layout/navigation/Pagination';
-import Prep from './tools/Prep';
+import Prep from '../filters/Prep';
 import Spinner from '@components/layout/utils/Spinner';
 
 // utils

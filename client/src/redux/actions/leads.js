@@ -29,25 +29,6 @@ const config = {
 	},
 };
 
-export const exportLeads = () => async (dispatch) => {
-	try {
-		const { data } = await axios.get('/api/leads/export');
-		console.log(data);
-		if (data === 'Leads were added to the database.') {
-			await axios.post(
-				'https://api.netlify.com/build_hooks/60f1da8987d39d7d6bceae55'
-			);
-			dispatch(setAlert('Upload success', data, 'success'));
-		} else {
-			let message =
-				'See error code in the console or check Google Sheets for duplicate/missing attributes.';
-			dispatch(setAlert('Error uploading leads', message, 'danger'));
-		}
-	} catch (error) {
-		console.log(error);
-	}
-};
-
 export const getLeads = (user, page, filters) => async (dispatch) => {
 	try {
 		dispatch({ type: LOADING });

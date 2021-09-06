@@ -6,7 +6,7 @@ import { getSearchResults } from '@features/leads/leadsSlice';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
-import Leads from '@components/leads/Leads';
+import Leads from '@components/features/leads/Leads';
 import Spinner from '@components/layout/utils/Spinner';
 
 const Search = () => {

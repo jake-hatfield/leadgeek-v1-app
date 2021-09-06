@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { updatePassword } from '@redux/actions/auth';
+import { updatePassword } from '@features/auth/authSlice';
 import { setAlert } from '@features/alert/alertSlice';
 
 import FormField from '@components/layout/utils/FormField';
@@ -27,6 +27,76 @@ const ResetPassword = ({
 	const checkSyles =
 		'inline-block h-4 w-4 text-teal-500 bg-teal-200 rounded-full';
 	const xStyles = 'inline-block h-4 w-4 text-red-500 bg-red-200 rounded-full';
+
+	// reset password validation
+	// export const resetPwValidation = (resetPwToken) => async (dispatch) => {
+	// 	const body = JSON.stringify({ resetPwToken });
+	// 	try {
+	// 		dispatch({
+	// 			type: CHECK_RESET_PASSWORD_TOKEN,
+	// 		});
+	// 		const res = await axios.post(
+	// 			'/api/users/reset-password-validation',
+	// 			body,
+	// 			config
+	// 		);
+	// 		if (res.data.message === 'Password reset link was validated') {
+	// 			dispatch({
+	// 				type: SET_RESET_PASSWORD_TOKEN,
+	// 				payload: res.data.user,
+	// 			});
+	// 		} else {
+	// 			return dispatch(
+	// 				setAlert(
+	// 					'Error resetting password',
+	// 					"Your password couldn't be reset. Please request a new email link or contact support.",
+	// 					'danger'
+	// 				)
+	// 			);
+	// 		}
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 	}
+	// };
+
+	// update password x
+	// export const updatePassword = (email, password) => async (dispatch) => {
+	// 	const emailToLowerCase = email.toLowerCase();
+	// 	console.log(emailToLowerCase);
+	// 	const body = JSON.stringify({ email: emailToLowerCase, password });
+	// 	try {
+	// 		axios.put('/api/users/update-password', body, config).then((res) => {
+	// 			if (res.data === 'Password was successfully updated') {
+	// 				dispatch(
+	// 					setAlert(
+	// 						'Reset success',
+	// 						'Your password was successfully updated.',
+	// 						'success'
+	// 					)
+	// 				);
+	// 				dispatch({ type: REMOVE_RESET_PASSWORD_TOKEN });
+	// 				dispatch(login(email, password));
+	// 				dispatch({ type: LOGIN_SUCCESS });
+	// 				localStorage.removeItem('resetPwToken');
+	// 			} else {
+	// 				dispatch(
+	// 					setAlert(
+	// 						'Error resetting password',
+	// 						"Your password couldn't be updated. Please contact support.",
+	// 						'danger'
+	// 					)
+	// 				);
+	// 			}
+	// 			return;
+	// 		});
+	// 	} catch (error) {
+	// 		const errors = error.response.data.errors;
+	// 		if (errors) {
+	// 			errors.forEach((error) => dispatch(setAlert(error.message, 'danger')));
+	// 		}
+	// 	}
+	// };
+
 	const securityMeasureBullets = [
 		{
 			svg: (

@@ -2,7 +2,7 @@ import React from 'react';
 
 import LeadRow from './LeadRow';
 import NullState from '@components/layout/utils/NullState';
-import Spinner from '../layout/utils/Spinner';
+import Spinner from '../../layout/utils/Spinner';
 
 import { Lead } from '@utils/interfaces/leads/Lead';
 import { User } from '@utils/interfaces/User';
@@ -49,7 +49,6 @@ const LeadTable: React.FC<LeadTableProps> = ({
 				<table className={classes.table} id='leads'>
 					<thead className={classes.tableHeadWrapper}>
 						<tr className={classes.tableHead}>
-							{/* <th className='p-2' /> */}
 							<th className={classes.tableHeadCell} />
 							<th className={classes.tableHeadCell}>Title</th>
 							<th className={classes.tableHeadCell}>Category</th>

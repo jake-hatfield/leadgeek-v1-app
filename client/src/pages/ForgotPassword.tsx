@@ -47,27 +47,27 @@ const ForgotPassword = () => {
 				const { token } = data;
 				setResetPwToken(token);
 			}
-		} catch (error) {
+		} catch (error: any) {
 			// make sure people can't guess user's password by trial and error
-			// const errorMsg = error.response.data;
-			// if (errorMsg === 'Email not found in database') {
-			// 	dispatch(
-			// 		setAlert({
-			// 			title: 'Email sent',
-			// 			message: `An email has been sent to ${email} if an account is associated.`,
-			// 			alertType: 'success',
-			// 		})
-			// 	);
-			// } else {
-			// 	dispatch(
-			// 		setAlert({
-			// 			title: 'Error sending email',
-			// 			message:
-			// 				'Email could not be sent. Please contact LeadGeek support.',
-			// 			alertType: 'danger',
-			// 		})
-			// 	);
-			// }
+			const errorMsg = error?.response.data;
+			if (errorMsg === 'Email not found in database') {
+				dispatch(
+					setAlert({
+						title: 'Email sent',
+						message: `An email has been sent to ${email} if an account is associated.`,
+						alertType: 'success',
+					})
+				);
+			} else {
+				dispatch(
+					setAlert({
+						title: 'Error sending email',
+						message:
+							'Email could not be sent. Please contact LeadGeek support.',
+						alertType: 'danger',
+					})
+				);
+			}
 		}
 	};
 

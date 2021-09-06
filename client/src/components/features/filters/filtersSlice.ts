@@ -155,6 +155,43 @@ export const filtersSlice = createSlice({
 			const { type, itemLimit: newLimit } = action.payload;
 			state.itemLimits.leadsLimit = +newLimit;
 		},
+		// setMinMaxFilter: (
+		// 	state,
+		// 	action: PayloadAction<{ min: number; max: number; val: string }>
+		// ) => {
+		// 	const { min, max, val } = action.payload;
+
+		// 	let calculatedMinValue;
+		// 	let calculatedMaxValue;
+		// 	if (min > 0) {
+		// 		if (val === 'roi') {
+		// 			calculatedMinValue = min / 100;
+		// 		} else {
+		// 			calculatedMinValue = min;
+		// 		}
+		// 		let key = `${val}Min`;
+		// 		localStorage.setItem(key, calculatedMinValue.toString());
+		// 	}
+		// 	if (max > 0) {
+		// 		if (val === 'roi') {
+		// 			calculatedMaxValue = max / 100;
+		// 		} else {
+		// 			calculatedMaxValue = max;
+		// 		}
+		// 		let key = `${val}Max`;
+		// 		localStorage.setItem(key, calculatedMaxValue.toString());
+		// 	}
+		// 	if (min || max) {
+		// 		// return dispatch({
+		// 		// 	type: `SET_${val.toUpperCase()}_FILTER`,
+		// 		// 	payload: {
+		// 		// 		min: calculatedMinValue ? +calculatedMinValue : null,
+		// 		// 		max: calculatedMaxValue ? +calculatedMaxValue : null,
+		// 		// 	},
+		// 		// });
+		// 		state[val] = min;
+		// 	}
+		// },
 		setPrepFilter: (state, action: PayloadAction<string>) => {
 			console.log(action.payload);
 		},

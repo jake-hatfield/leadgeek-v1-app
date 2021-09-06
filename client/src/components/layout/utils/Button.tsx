@@ -1,11 +1,11 @@
 import React from 'react';
 
 interface ButtonProps {
-	text: string;
-	onClick(arg: any): any;
 	width: string | null;
 	margin: boolean;
 	size: string | null;
+	text: string;
+	onClick(arg: any): any;
 	cta: boolean;
 	path: any;
 	conditional: any;

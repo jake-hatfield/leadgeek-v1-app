@@ -4,7 +4,7 @@ import { useAppSelector, useAppDispatch } from '@utils/hooks';
 import { getLikedLeads } from '@features/leads/leadsSlice';
 
 import AuthLayout from '@components/layout/AuthLayout';
-import Leads from '@components/leads/Leads';
+import Leads from '@components/features/leads/Leads';
 import Spinner from '@components/layout/utils/Spinner';
 
 const LikedPage = () => {

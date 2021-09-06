@@ -27,6 +27,7 @@ const ResetPasswordPage = () => {
 	if (isAuthenticated) {
 		return <Redirect to='/leads' />;
 	}
+
 	return status === 'idle' ? (
 		<DefaultLayout>
 			{validatedResetPwToken ? (

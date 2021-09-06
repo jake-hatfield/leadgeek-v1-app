@@ -5,7 +5,6 @@ import { setAlert } from '@features/alert/alertSlice';
 
 import { Lead } from '@utils/interfaces/leads/Lead';
 import { Pagination } from '@utils/interfaces/leads/Pagination';
-import { User } from '@utils/interfaces/User';
 import { config, truncate } from '@utils/utils';
 
 export const addComment = createAsyncThunk(
@@ -367,15 +366,13 @@ export const leadsSlice = createSlice({
 				state.archived.pagination.previousPage = previousPage;
 				state.archived.pagination.totalItems = totalItems;
 			})
-			.addCase(getArchivedLeads.rejected, (state, action) => {
-				console.log(action);
+			.addCase(getArchivedLeads.rejected, (state) => {
 				state.status = 'failed';
 			})
 			.addCase(getFeedLeads.pending, (state) => {
 				state.status = 'loading';
 			})
 			.addCase(getFeedLeads.fulfilled, (state, action) => {
-				console.log(action);
 				const {
 					feed,
 					page,
@@ -398,8 +395,7 @@ export const leadsSlice = createSlice({
 				state.feed.pagination.filteredItems = filteredItems;
 				state.lastUpdated = lastUpdated;
 			})
-			.addCase(getFeedLeads.rejected, (state, action) => {
-				console.log(action);
+			.addCase(getFeedLeads.rejected, (state) => {
 				state.status = 'failed';
 			})
 			.addCase(getLikedLeads.fulfilled, (state, action) => {
@@ -421,8 +417,7 @@ export const leadsSlice = createSlice({
 				state.liked.pagination.previousPage = previousPage;
 				state.liked.pagination.totalItems = totalItems;
 			})
-			.addCase(getLikedLeads.rejected, (state, action) => {
-				console.log(action);
+			.addCase(getLikedLeads.rejected, (state) => {
 				state.status = 'failed';
 			})
 			.addCase(getSearchResults.pending, (state) => {
