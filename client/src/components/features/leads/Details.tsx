@@ -162,6 +162,7 @@ const Details: React.FC<DetailsProps> = ({
 				dispatch(handleLikeLead({ userId, leadId: currentLead._id })),
 			state: like,
 			description: <span>{like ? 'Unlike this lead' : 'Like this lead'}</span>,
+			last: false,
 		},
 		{
 			activePath: (
@@ -186,6 +187,7 @@ const Details: React.FC<DetailsProps> = ({
 			description: (
 				<span>{archive ? 'Unarchive this lead' : 'Archive this lead'}</span>
 			),
+			last: false,
 		},
 		{
 			activePath: (
@@ -199,6 +201,7 @@ const Details: React.FC<DetailsProps> = ({
 			onClick: () => openLinkHandler(data.retailerLink, data.amzLink),
 			state: null,
 			description: <span>Open both links</span>,
+			last: false,
 		},
 		{
 			activePath: (
@@ -222,6 +225,7 @@ const Details: React.FC<DetailsProps> = ({
 					</span>
 				</div>
 			),
+			last: true,
 		},
 	];
 
@@ -322,6 +326,7 @@ const Details: React.FC<DetailsProps> = ({
 										onClick={button.onClick}
 										state={button.state}
 										description={button.description}
+										last={button.last}
 									/>
 								))}
 							</div>
@@ -621,6 +626,7 @@ interface HeaderButtonProps {
 	onClick: () => void;
 	state: boolean | null;
 	description: JSX.Element;
+	last: boolean;
 }
 
 const HeaderButton: React.FC<HeaderButtonProps> = ({
@@ -629,6 +635,7 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 	onClick,
 	state,
 	description,
+	last,
 }) => {
 	// local state
 	const [hover, setHover] = useState(false);
@@ -668,7 +675,11 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 				</div>
 			)}
 			{hover && (
-				<div className='absolute top-0 left-1/2 z-10 min-w-max mt-2 mr-6 p-2 transform translate-y-6 -translate-x-1/2 rounded-md shadow-md bg-gray-900 text-left text-white text-xs'>
+				<div
+					className={`absolute top-0 ${
+						last ? 'right-0 translate-x-6' : 'left-1/2 -translate-x-1/2'
+					}  z-10 min-w-max mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-left text-white text-xs`}
+				>
 					{description}
 				</div>
 			)}

@@ -67,7 +67,6 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 		>
 			{filteredItems && filteredItems > 0 ? (
 				<div className='flex items-center text-sm'>
-					<span>View</span>
 					<select
 						value={selectValue}
 						onChange={(e) => {
@@ -76,7 +75,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 							);
 							setSelectValue(+e.currentTarget.value);
 						}}
-						className='w-16 mx-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm cursor-pointer ring-purple minimal-scrollbar'
+						className='w-16 mr-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm cursor-pointer ring-purple minimal-scrollbar'
 					>
 						{pageLimits.map((category, i) => (
 							<option key={i} value={category} className='hover:bg-purple-500'>

@@ -40,11 +40,9 @@ export const authenticateUser = createAsyncThunk(
 	) => {
 		try {
 			const { email, password } = options;
-			console.log(email, password);
 			const emailToLowerCase = email.toLowerCase();
 			const body = JSON.stringify({ email: emailToLowerCase, password });
 			const res = await axios.post('/api/auth', body, config);
-			console.log(res);
 			if (res.data.token) {
 				return res.data.token;
 			}
@@ -187,7 +185,6 @@ export const authSlice = createSlice({
 				state.status = 'loading';
 			})
 			.addCase(authenticateUser.fulfilled, (state, action) => {
-				console.log(action.payload);
 				state.status = 'idle';
 				state.token = action.payload;
 				state.isAuthenticated = true;
