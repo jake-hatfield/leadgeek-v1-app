@@ -6,7 +6,7 @@ import { validateResetPwToken } from '@features/auth/authSlice';
 import DefaultLayout from '@components/layout/DefaultLayout';
 // import ResetPassword from '@components/auth/login/password/ResetPassword';
 // import LoginImage from '@components/auth/login/LoginImage';
-import Spinner from '@components/layout/utils/Spinner';
+import Spinner from '@components/utils/Spinner';
 import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
 import { useAppDispatch, useAppSelector } from '@utils/hooks';

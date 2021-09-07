@@ -10,9 +10,9 @@ import { useAppSelector } from '@utils/hooks';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
-import NullState from '@components/layout/utils/NullState';
+import NullState from '@components/utils/NullState';
 import SettingsLayout from '@components/layout/SettingsLayout';
-import Spinner from '@components/layout/utils/Spinner';
+import Spinner from '@components/utils/Spinner';
 
 // utils
 import {

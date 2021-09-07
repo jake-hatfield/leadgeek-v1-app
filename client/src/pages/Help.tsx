@@ -4,7 +4,7 @@ import { DateTime } from 'luxon';
 
 import AuthLayout from '@components/layout/AuthLayout';
 import Header from '@components/layout/navigation/Header';
-import Spinner from '@components/layout/utils/Spinner';
+import Spinner from '@components/utils/Spinner';
 import { useAppSelector } from '@utils/hooks';
 
 interface HelpItemProps {

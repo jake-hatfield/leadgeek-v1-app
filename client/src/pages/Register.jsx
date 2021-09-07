@@ -9,8 +9,8 @@ import { setAlert } from '@features/alert/alertSlice';
 import DefaultLayout from '@components/layout/DefaultLayout';
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
 
-import FormField from '@components/layout/utils/FormField';
-import PasswordFormField from '@components/layout/utils/PasswordFormField';
+import FormField from '@components/utils/FormField';
+import PasswordFormField from '@components/utils/PasswordFormField';
 import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 import { ReactComponent as Check } from '@assets/images/svgs/check.svg';
 import { ReactComponent as X } from '@assets/images/svgs/x.svg';

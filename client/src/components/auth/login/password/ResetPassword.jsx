@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { updatePassword } from '@features/auth/authSlice';
 import { setAlert } from '@features/alert/alertSlice';
 
-import FormField from '@components/layout/utils/FormField';
+import FormField from '@components/utils/FormField';
 import { ReactComponent as Check } from '@assets/images/svgs/check.svg';
 import { ReactComponent as X } from '@assets/images/svgs/x.svg';
 

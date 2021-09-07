@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Link } from 'react-router-dom';
 
-import Button from '@components/layout/utils/Button';
+import Button from '@components/utils/Button';
 
 interface NullStateProps {
 	header: string;

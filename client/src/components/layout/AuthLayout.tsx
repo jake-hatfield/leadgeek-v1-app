@@ -6,7 +6,7 @@ import Alert from '@components/features/alert/Alerts';
 
 // components
 import Navbar from '@components/layout/navigation/Navbar';
-import Spinner from '@components/layout/utils/Spinner';
+import Spinner from '@components/utils/Spinner';
 
 interface AuthLayoutProps {
 	children: React.ReactNode;

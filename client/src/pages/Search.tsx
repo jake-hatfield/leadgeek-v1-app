@@ -7,7 +7,7 @@ import { getSearchResults } from '@features/leads/leadsSlice';
 // components
 import AuthLayout from '@components/layout/AuthLayout';
 import Leads from '@components/features/leads/Leads';
-import Spinner from '@components/layout/utils/Spinner';
+import Spinner from '@components/utils/Spinner';
 
 const Search = () => {
 	const dispatch = useAppDispatch();
@@ -18,9 +18,7 @@ const Search = () => {
 	// search state
 	const search = useAppSelector((state) => state.leads.search);
 	// filters state
-	const itemLimit = useAppSelector(
-		(state) => state.filters.itemLimits.searchLimit
-	);
+	const itemLimit = useAppSelector((state) => state.filters.itemLimit);
 	// destructure necessary items
 	const { page } = search.pagination;
 	const { searchValue } = search;

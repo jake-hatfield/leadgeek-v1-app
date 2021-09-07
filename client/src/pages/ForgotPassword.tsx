@@ -6,11 +6,11 @@ import axios from 'axios';
 import { setAlert } from '@features/alert/alertSlice';
 
 import DefaultLayout from '@components/layout/DefaultLayout';
-import FormField from '@components/layout/utils/FormField';
+import FormField from '@components/utils/FormField';
 // import LoginImage from '@components/auth/login/LoginImage';
 import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
-import Button from '@components/layout/utils/Button';
+import Button from '@components/utils/Button';
 
 import { setResetPwToken } from '@utils/authTokens';
 import { config } from '@utils/utils';

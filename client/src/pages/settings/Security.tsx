@@ -6,7 +6,7 @@ import React from 'react';
 import AuthLayout from '@components/layout/AuthLayout';
 import SettingsLayout from '@components/layout/SettingsLayout';
 import ResetPassword from '@components/auth/login/password/ResetPassword';
-import Spinner from '@components/layout/utils/Spinner';
+import Spinner from '@components/utils/Spinner';
 import { useAppSelector } from '@utils/hooks';
 
 const Dashboard = () => {

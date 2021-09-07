@@ -36,11 +36,7 @@ interface FilterState {
 		unit: NumberOrNull;
 		lb: NumberOrNull;
 	};
-	itemLimits: {
-		leadsLimit: number;
-		searchLimit: number;
-		usersLimit: number;
-	};
+	itemLimit: number;
 	dateLimits: {
 		min: string | null;
 		max: string | null;
@@ -83,11 +79,7 @@ const initialState: FilterState = {
 		unit: +localStorage.getItem('unitFee')! || null,
 		lb: +localStorage.getItem('lbFee')! || null,
 	},
-	itemLimits: {
-		leadsLimit: +localStorage.getItem('leadsLimit')! || 15,
-		searchLimit: +localStorage.getItem('searchLimit')! || 15,
-		usersLimit: +localStorage.getItem('usersLimit')! || 10,
-	},
+	itemLimit: +localStorage.getItem('leadsLimit')! || 15,
 	dateLimits: { min: null, max: null, selected: null },
 };
 
@@ -112,6 +104,10 @@ export const filtersSlice = createSlice({
 	name: 'filters',
 	initialState,
 	reducers: {
+		clearFilters: (state) => {
+			state.count = null;
+			return initialState;
+		},
 		clearPrepFilter: (state) => {
 			console.log(state);
 		},
@@ -124,6 +120,8 @@ export const filtersSlice = createSlice({
 			}>
 		) => {
 			state.dateLimits.min = action.payload.min;
+			state.dateLimits.max = action.payload.max;
+			state.dateLimits.selected = action.payload.selected;
 		},
 		setFilterCount: (state) => {
 			const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =
@@ -153,7 +151,7 @@ export const filtersSlice = createSlice({
 			action: PayloadAction<{ type: string; itemLimit: number }>
 		) => {
 			const { type, itemLimit: newLimit } = action.payload;
-			state.itemLimits.leadsLimit = +newLimit;
+			state.itemLimit = +newLimit;
 		},
 		// setMinMaxFilter: (
 		// 	state,
@@ -199,6 +197,7 @@ export const filtersSlice = createSlice({
 });
 
 export const {
+	clearFilters,
 	clearPrepFilter,
 	setDateLimit,
 	setFilterCount,

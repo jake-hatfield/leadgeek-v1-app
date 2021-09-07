@@ -1,8 +1,8 @@
 import React from 'react';
 
 import LeadRow from './LeadRow';
-import NullState from '@components/layout/utils/NullState';
-import Spinner from '../../layout/utils/Spinner';
+import NullState from '@components/utils/NullState';
+import Spinner from '@components/utils/Spinner';
 
 import { Lead } from '@utils/interfaces/leads/Lead';
 import { User } from '@utils/interfaces/User';

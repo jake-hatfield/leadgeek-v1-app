@@ -18,10 +18,10 @@ import { setItemLimit } from '@features/filters/filtersSlice';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
-import Button from '@components/layout/utils/Button';
+import Button from '@components/utils/Button';
 import Header from '@components/layout/navigation/Header';
 import PaginationComponent from '@components/layout/navigation/Pagination';
-import Spinner from '@components/layout/utils/Spinner';
+import Spinner from '@components/utils/Spinner';
 import { ReactComponent as Check } from '@assets/images/svgs/check.svg';
 import { ReactComponent as X } from '@assets/images/svgs/x.svg';
 

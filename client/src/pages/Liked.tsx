@@ -5,7 +5,7 @@ import { getLikedLeads } from '@features/leads/leadsSlice';
 
 import AuthLayout from '@components/layout/AuthLayout';
 import Leads from '@components/features/leads/Leads';
-import Spinner from '@components/layout/utils/Spinner';
+import Spinner from '@components/utils/Spinner';
 
 const LikedPage = () => {
 	const dispatch = useAppDispatch();
@@ -18,9 +18,7 @@ const LikedPage = () => {
 	const filters = useAppSelector((state) => state.filters);
 	// destructure necessary items
 	const { page } = liked.pagination;
-	const {
-		itemLimits: { leadsLimit: itemLimit },
-	} = filters;
+	const { itemLimit } = filters;
 
 	useEffect(() => {
 		status === 'idle' &&

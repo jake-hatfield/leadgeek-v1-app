@@ -24,11 +24,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
 						name='q'
 						placeholder={placeholder || 'Enter a search...'}
 						onChange={onSearchChange}
-						className='py-2 pl-10 w-full rounded-lg border-none text-sm placeholder-gray-600 transition duration-100 ease-in-out ring-purple'
+						className='py-2 pl-8 w-full rounded-lg border-none text-sm placeholder-gray-600 transition duration-100 ease-in-out ring-purple'
 					/>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
-						className='mt-2 ml-3 absolute top-0 left-0 h-4 w-4'
+						className='mt-2.5 ml-2 absolute top-0 left-0 h-4 w-4'
 						fill='none'
 						viewBox='0 0 24 24'
 						stroke='currentColor'

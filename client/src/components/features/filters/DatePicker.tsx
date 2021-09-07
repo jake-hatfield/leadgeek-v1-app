@@ -5,6 +5,7 @@ import { DateTime } from 'luxon-business-days';
 
 // redux
 import { useAppDispatch } from '@utils/hooks';
+import { setAlert } from '@features/alert/alertSlice';
 import { setDateLimit } from '@features/filters/filtersSlice';
 import { setPage } from '@features/leads/leadsSlice';
 
@@ -20,11 +21,11 @@ interface DatePickerProps {
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({
+	type,
 	date,
 	setDate,
 	dateCreated,
 	lastUpdated,
-	type,
 }) => {
 	const dispatch = useAppDispatch();
 	// modal close handlers
@@ -48,14 +49,19 @@ const DatePicker: React.FC<DatePickerProps> = ({
 	const mostRecentDay = DateTime.fromISO(lastUpdated || DateTime.now());
 	const previousDay = mostRecentDay.minusBusiness({ days: 1 });
 	const lastFiveStart = mostRecentDay.minusBusiness({ days: 5 });
+	const lastFourteenStart = mostRecentDay.minusBusiness({ days: 10 });
 	const last30Start = mostRecentDay.minusBusiness({ days: 30 });
 	const lastDay = DateTime.fromISO(dateCreated);
 
 	// date options in picker
 	const dateOptions = [
 		{
-			title: 'Most recent day',
+			title:
+				mostRecentDay.startOf('day') <= DateTime.now().startOf('day')
+					? 'Today'
+					: 'Most recent day',
 			dateString: mostRecentDay.toFormat('LLL dd'),
+			min: mostRecentDay,
 			onClick: () => {
 				dispatch(
 					setDateLimit({
@@ -67,8 +73,13 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			},
 		},
 		{
-			title: 'Previous day',
+			title:
+				previousDay.startOf('day') <=
+				DateTime.now().minusBusiness({ days: 1 }).startOf('day')
+					? 'Yesterday'
+					: 'Previous day',
 			dateString: previousDay.toFormat('LLL dd'),
+			min: previousDay,
 			onClick: () => {
 				dispatch(
 					setDateLimit({
@@ -80,10 +91,11 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			},
 		},
 		{
-			title: 'Last 5 days',
+			title: 'Last 7 days',
 			dateString: `${lastFiveStart.toFormat(
 				'LLL dd'
 			)} - ${mostRecentDay.toFormat('LLL dd')}`,
+			min: lastFiveStart,
 			onClick: () => {
 				dispatch(
 					setDateLimit({
@@ -97,10 +109,29 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			},
 		},
 		{
+			title: 'Last 14 days',
+			dateString: `${lastFourteenStart.toFormat(
+				'LLL dd'
+			)} - ${mostRecentDay.toFormat('LLL dd')}`,
+			min: lastFourteenStart,
+			onClick: () => {
+				dispatch(
+					setDateLimit({
+						min: lastFourteenStart.toISODate(),
+						max: null,
+						selected: `${lastFourteenStart.toFormat(
+							'LLL dd, yyyy'
+						)} - ${mostRecentDay.toFormat('LLL dd')}`,
+					})
+				);
+			},
+		},
+		{
 			title: 'Last 30 days',
 			dateString: `${last30Start.toFormat('LLL dd')} - ${mostRecentDay.toFormat(
 				'LLL dd'
 			)}`,
+			min: last30Start,
 			onClick: () => {
 				dispatch(
 					setDateLimit({
@@ -118,6 +149,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			dateString: `${lastDay.toFormat(
 				'LLL dd, yyyy'
 			)} - ${mostRecentDay.toFormat('LLL dd')}`,
+			min: lastDay,
 			onClick: () => {
 				dispatch(
 					setDateLimit({
@@ -131,6 +163,40 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			},
 		},
 	];
+
+	const validateDateRange = (dateCreated: string, minDate: string) => {
+		if (
+			DateTime.fromISO(dateCreated).startOf('day') <=
+			DateTime.fromISO(minDate).startOf('day')
+		) {
+			return true;
+		} else {
+			return false;
+		}
+	};
+
+	const handleSetDate = (
+		dateCreated: string,
+		minDate: string,
+		cb: () => void
+	) => {
+		let validDate = validateDateRange(dateCreated, minDate);
+		console.log(validDate);
+		if (validDate) {
+			cb();
+			setPage({ page: 1, type });
+			return setDate(false);
+		} else {
+			dispatch(
+				setAlert({
+					title: 'Invalid date range',
+					message:
+						'This date range is older than your Leadgeek account. Please select a valid date range.',
+					alertType: 'danger',
+				})
+			);
+		}
+	};
 
 	return (
 		<article
@@ -148,11 +214,17 @@ const DatePicker: React.FC<DatePickerProps> = ({
 						<li key={i} className='list-none'>
 							<button
 								onClick={() => {
-									dateOption.onClick();
-									setPage({ page: 1, type });
-									setDate(false);
+									handleSetDate(
+										dateCreated,
+										dateOption.min,
+										dateOption.onClick
+									);
 								}}
-								className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
+								className={`${
+									validateDateRange(dateCreated, dateOption.min)
+										? 'hover:bg-gray-100'
+										: 'opacity-25 cursor-default'
+								} w-full py-2 px-4 flex items-center justify-between transition-colors duration-100 ease-in-out focus:outline-none`}
 							>
 								<span className='font-semibold text-sm text-gray-700'>
 									{dateOption.title}

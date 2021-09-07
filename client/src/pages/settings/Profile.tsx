@@ -9,8 +9,8 @@ import { useAppSelector } from '@utils/hooks';
 // components
 import AuthLayout from '@components/layout/AuthLayout';
 import SettingsLayout from '@components/layout/SettingsLayout';
-import FormField from '@components/layout/utils/FormField';
-import Spinner from '@components/layout/utils/Spinner';
+import FormField from '@components/utils/FormField';
+import Spinner from '@components/utils/Spinner';
 
 const ProfilePage = () => {
 	const status = useAppSelector((state) => state.auth.status);

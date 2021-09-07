@@ -7,7 +7,7 @@ import { getFeedLeads } from '@features/leads/leadsSlice';
 // components
 import AuthLayout from '@components/layout/AuthLayout';
 import Leads from '@components/features/leads/Leads';
-import Spinner from '@components/layout/utils/Spinner';
+import Spinner from '@components/utils/Spinner';
 
 const Feed = () => {
 	const dispatch = useAppDispatch();
@@ -20,9 +20,7 @@ const Feed = () => {
 	const filters = useAppSelector((state) => state.filters);
 	// destructure necessary items
 	const { page } = feed.pagination;
-	const {
-		itemLimits: { leadsLimit: itemLimit },
-	} = filters;
+	const { itemLimit } = filters;
 
 	// call getFeedLeads
 	useEffect(() => {

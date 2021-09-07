@@ -20,7 +20,7 @@ import {
 } from '@features/leads/leadsSlice';
 
 // components
-import Button from '@components/layout/utils/Button';
+import Button from '@components/utils/Button';
 
 // utils
 import {
@@ -367,7 +367,7 @@ const Details: React.FC<DetailsProps> = ({
 											{truncate(data.title, 40)}
 										</h3>
 										{fullTitle && (
-											<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-white text-sm'>
+											<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-white text-xs'>
 												{data.title}
 											</div>
 										)}
@@ -463,13 +463,13 @@ const Details: React.FC<DetailsProps> = ({
 												)}
 											</div>
 											{(copyText || copiedText) && (
-												<div className='absolute right-0 flex items-center p-2 transform -translate-y-2 -translate-x-6 rounded-lg shadow-md bg-gray-900 text-white text-xs'>
+												<div className='absolute right-0 flex items-center p-2 transform -translate-y-10 translate-x-5 rounded-lg shadow-md bg-gray-900 text-white text-xs'>
 													{copiedText && (
 														<svg
 															xmlns='http://www.w3.org/2000/svg'
 															viewBox='0 0 20 20'
 															fill='currentColor'
-															className='h-4 w-4 text-purple-300'
+															className='h-4 w-4 text-teal-300'
 														>
 															<path
 																fillRule='evenodd'
@@ -668,7 +668,7 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 				</div>
 			)}
 			{hover && (
-				<div className='absolute top-0 right-0 z-10 min-w-max mt-2 mr-6 p-2 transform translate-y-6 translate-x-8 rounded-md shadow-md bg-gray-900 text-left text-white text-sm'>
+				<div className='absolute top-0 left-1/2 z-10 min-w-max mt-2 mr-6 p-2 transform translate-y-6 -translate-x-1/2 rounded-md shadow-md bg-gray-900 text-left text-white text-xs'>
 					{description}
 				</div>
 			)}

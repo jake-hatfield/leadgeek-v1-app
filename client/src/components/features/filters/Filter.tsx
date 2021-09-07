@@ -1,11 +1,17 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-// import FilterItem from './FilterItem';
-import { useOutsideMousedown } from '@utils/utils';
-import { getFeedLeads } from '@features/leads/leadsSlice';
-import { setFilterCount } from '@features/filters/filtersSlice';
-
+// redux
 import { useAppSelector, useAppDispatch } from '@utils/hooks';
+import { setAlert } from '@features/alert/alertSlice';
+import { clearFilters, setFilterCount } from '@features/filters/filtersSlice';
+import { getFeedLeads } from '@features/leads/leadsSlice';
+
+// components
+import FilterItem from './FilterItem';
+import Spinner from '@components/utils/Spinner';
+
+// utils
+import { useOutsideMousedown } from '@utils/utils';
 
 interface FilterProps {
 	filter: boolean;
@@ -14,10 +20,17 @@ interface FilterProps {
 
 const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 	const dispatch = useAppDispatch();
-
+	// auth state
 	const user = useAppSelector((state) => state.auth.user);
 	const filters = useAppSelector((state) => state.filters);
+	// local state
+	const [clear, setClear] = useState(false);
 
+	// destructure necessary items
+	const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =
+		filters;
+
+	// close modal handlers
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setFilter, null);
 	// close modal on esc key
@@ -34,40 +47,46 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
 
-	const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =
-		filters;
-
-	const clearFilters = () => {
-		try {
-			let keysToRemove = [
-				'netProfitMin',
-				'netProfitMax',
-				'buyPriceMin',
-				'buyPriceMax',
-				'sellPriceMin',
-				'sellPriceMax',
-				'roiMin',
-				'roiMax',
-				'bsrMin',
-				'bsrMax',
-				'monthlySalesMin',
-				'monthlySalesMax',
-				'weightMin',
-				'weightMax',
-				'filterCount',
-			];
-			keysToRemove.forEach((key) => localStorage.removeItem(key));
-			// dispatch({ type: CLEAR_FILTERS });
-			// return dispatch(
-			//     setAlert(
-			//         'All filters were removed',
-			//         'Unfiltered leads are now showing.',
-			//         'success'
-			//     )
-			// );
-		} catch (error) {
-			console.log(error);
-		}
+	const handleClearFilters = () => {
+		setClear(true);
+		let keysToRemove = [
+			'netProfitMin',
+			'netProfitMax',
+			'buyPriceMin',
+			'buyPriceMax',
+			'sellPriceMin',
+			'sellPriceMax',
+			'roiMin',
+			'roiMax',
+			'bsrMin',
+			'bsrMax',
+			'monthlySalesMin',
+			'monthlySalesMax',
+			'weightMin',
+			'weightMax',
+			'filterCount',
+		];
+		keysToRemove.forEach((key) => localStorage.removeItem(key));
+		dispatch(clearFilters());
+		setFilter(false);
+		user &&
+			dispatch(
+				getFeedLeads({
+					user: {
+						id: user._id,
+						role: user.role,
+					},
+					page: 1,
+					filters: emptyFilters,
+				})
+			);
+		return dispatch(
+			setAlert({
+				title: 'All filters were removed',
+				message: 'Unfiltered leads are now showing.',
+				alertType: 'success',
+			})
+		);
 	};
 
 	const filterItems = [
@@ -125,15 +144,14 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 			max: weight.max,
 			val: 'weight',
 		},
-		// {
-		// 	title: 'Category',
-		// 	subtitle: 'Select a category',
-		// 	min: null,
-		// 	max: null,
-		// },
+		{
+			title: 'Category',
+			subtitle: 'Select a category',
+			min: null,
+			max: null,
+		},
 	];
 
-	const [clear, setClear] = useState(false);
 	const emptyFilters = {
 		count: null,
 		netProfit: {
@@ -169,11 +187,7 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 			unit: null,
 			lb: null,
 		},
-		itemLimits: {
-			leadsLimit: 15,
-			searchLimit: 15,
-			usersLimit: 15,
-		},
+		itemLimit: 15,
 		dateLimits: { min: null, max: null, selected: null },
 	};
 
@@ -205,7 +219,7 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 						Apply
 					</button>
 				</header>
-				{/* {filterItems.map((item, i) => (
+				{filterItems.map((item, i) => (
 					<FilterItem
 						key={i}
 						title={item.title}
@@ -216,22 +230,12 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 						val={item.val}
 						clear={clear}
 					/>
-				))} */}
+				))}
 				<div className='border-t border-gray-200'>
 					<div className='flex justify-end py-2 px-4'>
 						<button
 							onClick={() => {
-								setClear(true);
-								clearFilters();
-								setFilter(false);
-								getFeedLeads({
-									user: {
-										id: user._id,
-										role: user.role,
-									},
-									page: 1,
-									filters: emptyFilters,
-								});
+								handleClearFilters();
 							}}
 							className='font-semibold text-sm text-red-500 hover:text-red-600 rounded-sm transition-colors duration-100 ease-in-out ring-red'
 						>
@@ -242,7 +246,13 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 			</div>
 		</article>
 	) : (
-		<div>Hello</div>
+		<Spinner
+			divWidth={null}
+			center={false}
+			spinnerWidth={null}
+			margin={false}
+			text={''}
+		/>
 	);
 };
 

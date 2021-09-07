@@ -15,7 +15,7 @@ import {
 } from '@features/leads/leadsSlice';
 
 // components
-import Button from '@components/layout/utils/Button';
+import Button from '@components/utils/Button';
 import DatePicker from '../filters/DatePicker';
 import Details from './Details';
 import ExportButton from './ExportButton';
@@ -24,7 +24,7 @@ import Header from '@components/layout/navigation/Header';
 import LeadTable from './LeadTable';
 import PaginationComponent from '@components/layout/navigation/Pagination';
 import Prep from '../filters/Prep';
-import Spinner from '@components/layout/utils/Spinner';
+import Spinner from '@components/utils/Spinner';
 
 // utils
 import { Lead } from '@utils/interfaces/leads/Lead';
@@ -286,6 +286,11 @@ const Leads: React.FC<LeadsProps> = ({
 						type={type}
 						currentSearchParam={currentSearchParam}
 					/>
+				) : leadStatus === 'failed' ? (
+					<div>
+						There was an error making that request. If this issue persists,
+						please contact Leadgeek support.
+					</div>
 				) : (
 					<Spinner
 						divWidth={null}
@@ -377,7 +382,7 @@ const classes = {
 	navLinkActive:
 		'text-purple-500 hover:text-purple-500 border-b-2 border-purple-600',
 	navLinkCounter:
-		'h-4 w-4 absolute top-0 right-0 flex items-center justify-center p-1 rounded-full bg-purple-500 group-hover:bg-purple-600 text-xs text-white transform -translate-y-3 translate-x-5',
+		'h-4 w-4 absolute top-0 right-0 flex items-center justify-center py-2.5 px-3 rounded-full bg-purple-500 group-hover:bg-purple-600 text-xs text-white transform -translate-y-4 translate-x-7',
 	navToolsWrapper: 'flex items-center',
 };
 

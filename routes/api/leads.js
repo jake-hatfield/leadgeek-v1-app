@@ -118,7 +118,7 @@ router.post('/', auth, async (req, res) => {
 				monthlySales,
 				weight,
 				category,
-				itemLimits: { leadsLimit: itemLimit },
+				itemLimit,
 				dateLimits: { min: minDate, max: maxDate },
 			},
 		} = req.body;
