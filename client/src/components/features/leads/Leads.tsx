@@ -252,7 +252,9 @@ const Leads: React.FC<LeadsProps> = ({
 										lastUpdated={lastUpdated}
 									/>
 								)}
-								{filter && <Filter filter={filter} setFilter={setFilter} />}
+								{filter && (
+									<Filter filterActive={filter} setFilterActive={setFilter} />
+								)}
 								{prep && <Prep prep={prep} setPrep={setPrep} />}
 								{exportLeads &&
 									(feed.totalByIds.length > 0 ? (

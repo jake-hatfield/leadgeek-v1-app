@@ -66,7 +66,7 @@ const Header: React.FC<HeaderProps> = ({
 	}
 
 	return (
-		<header className='py-4 border-b border-gray-300'>
+		<header className='pt-4 pb-2 border-b border-gray-200'>
 			<div className='flex items-center justify-between container'>
 				<div className='flex items-center'>
 					<h1 className='text-3xl text-gray-900 font-bold'>

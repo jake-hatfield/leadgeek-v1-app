@@ -33,7 +33,7 @@ const Button: React.FC<ButtonProps> = ({
 			} font-semibold ${
 				cta
 					? 'bg-purple-500 hover:bg-purple-600 text-white'
-					: 'text-gray-500 hover:text-gray-700'
+					: 'text-gray-600 hover:text-gray-700'
 			} transition-main ring-purple`}
 		>
 			{path && (

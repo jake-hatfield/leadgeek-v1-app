@@ -1,5 +1,4 @@
 import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
-import { authenticateUser } from '@features/auth/authSlice';
 
 import { Alert } from '@utils/interfaces/Alert';
 
@@ -11,6 +10,9 @@ export const leadsSlice = createSlice({
 	reducers: {
 		removeAlert: (state, action: PayloadAction<string>) => {
 			return state.filter((alert) => alert.id !== action.payload);
+		},
+		removeAllAlerts: () => {
+			return initialState;
 		},
 		setAlert: {
 			reducer: (state, action: PayloadAction<Alert>) => {
@@ -34,6 +36,6 @@ export const leadsSlice = createSlice({
 	// },
 });
 
-export const { removeAlert, setAlert } = leadsSlice.actions;
+export const { removeAlert, removeAllAlerts, setAlert } = leadsSlice.actions;
 
 export default leadsSlice.reducer;

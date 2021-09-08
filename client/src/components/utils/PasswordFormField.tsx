@@ -43,12 +43,12 @@ const PasswordFormField: React.FC<PasswordFormFieldProps> = ({
 				<button
 					onClick={togglePasswordVisibility}
 					type='button'
-					className='mt-3 mr-2 absolute right-0 rounded-md text-gray-400 focus:outline-none focus:shadow-outline'
+					className='mt-3 mr-4 absolute right-0 rounded-md text-gray-400 focus:outline-none focus:shadow-outline'
 				>
 					{passwordShown ? (
-						<EyeClosed className='mt-1 h-4' />
+						<EyeClosed className='mt-2 h-4' />
 					) : (
-						<EyeOpen className='mt-1 h-4' />
+						<EyeOpen className='mt-2 h-4' />
 					)}
 				</button>
 			</div>

@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type NumberOrNull = number | null;
 interface FilterState {
-	count: NumberOrNull;
+	count: number;
 	netProfit: {
 		min: NumberOrNull;
 		max: NumberOrNull;
@@ -32,6 +32,7 @@ interface FilterState {
 		max: NumberOrNull;
 	};
 	category: string[];
+	source: string[];
 	prep: {
 		unit: NumberOrNull;
 		lb: NumberOrNull;
@@ -44,8 +45,8 @@ interface FilterState {
 	};
 }
 
-const initialState: FilterState = {
-	count: +localStorage.getItem('filterCount')! || null,
+const initialState: any = {
+	count: +localStorage.getItem('filterCount')! || 0,
 	netProfit: {
 		min: +localStorage.getItem('netProfitMin')! || null,
 		max: +localStorage.getItem('netProfitMax')! || null,
@@ -75,6 +76,7 @@ const initialState: FilterState = {
 		max: +localStorage.getItem('weightMax')! || null,
 	},
 	category: [],
+	source: [],
 	prep: {
 		unit: +localStorage.getItem('unitFee')! || null,
 		lb: +localStorage.getItem('lbFee')! || null,
@@ -83,47 +85,75 @@ const initialState: FilterState = {
 	dateLimits: { min: null, max: null, selected: null },
 };
 
-// export const setDateLimit = (min, max, selected) => async (dispatch) => {
-// 	try {
-// 		if (min || max) {
-// 			return dispatch({
-// 				type: `SET_DATE_FILTER`,
-// 				payload: {
-// 					min,
-// 					max,
-// 					selected,
-// 				},
-// 			});
-// 		}
-// 	} catch (error) {
-// 		console.log(error);
-// 	}
-// };
-
 export const filtersSlice = createSlice({
 	name: 'filters',
 	initialState,
 	reducers: {
 		clearFilters: (state) => {
-			state.count = null;
-			return initialState;
+			state.count = 0;
+			state.netProfit = {
+				min: null,
+				max: null,
+			};
+			state.buyPrice = {
+				min: null,
+				max: null,
+			};
+			state.sellPrice = {
+				min: null,
+				max: null,
+			};
+			state.roi = {
+				min: null,
+				max: null,
+			};
+			state.bsr = {
+				min: null,
+				max: null,
+			};
+			state.monthlySales = {
+				min: null,
+				max: null,
+			};
+			state.weight = {
+				min: null,
+				max: null,
+			};
+			state.category = [];
+			state.source = [];
+			state.prep = {
+				unit: null,
+				lb: null,
+			};
+			state.itemLimit = 15;
+			state.dateLimits = { min: null, max: null, selected: null };
 		},
 		clearPrepFilter: (state) => {
 			console.log(state);
 		},
-		setDateLimit: (
+		createFilter: (
 			state,
 			action: PayloadAction<{
-				min: string;
-				max: string | null;
-				selected: string;
+				type: string;
+				operator: string;
+				value: string | number;
 			}>
 		) => {
-			state.dateLimits.min = action.payload.min;
-			state.dateLimits.max = action.payload.max;
-			state.dateLimits.selected = action.payload.selected;
-		},
-		setFilterCount: (state) => {
+			const { type, operator, value } = action.payload;
+			let processedValue;
+			if (type === 'roi') {
+				processedValue = +value / 100;
+			} else {
+				processedValue = value;
+			}
+			if (operator === 'gte') {
+				state[type].min = processedValue;
+			} else if (operator === 'lte') {
+				state[type].max = processedValue;
+			} else {
+				state[type].push(processedValue);
+			}
+			localStorage.setItem(`${type}Min`, processedValue.toString());
 			const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =
 				state;
 			const allFilters = [
@@ -144,52 +174,27 @@ export const filtersSlice = createSlice({
 			];
 			const notNullable = allFilters.filter((f) => f !== null).length;
 			localStorage.setItem('filterCount', notNullable.toString());
-			state.count = notNullable;
+			state.count = notNullable + state.category.length + state.source.length;
+		},
+		setDateLimit: (
+			state,
+			action: PayloadAction<{
+				min: string;
+				max: string | null;
+				selected: string;
+			}>
+		) => {
+			state.dateLimits.min = action.payload.min;
+			state.dateLimits.max = action.payload.max;
+			state.dateLimits.selected = action.payload.selected;
 		},
 		setItemLimit: (
 			state,
 			action: PayloadAction<{ type: string; itemLimit: number }>
 		) => {
-			const { type, itemLimit: newLimit } = action.payload;
+			const { itemLimit: newLimit } = action.payload;
 			state.itemLimit = +newLimit;
 		},
-		// setMinMaxFilter: (
-		// 	state,
-		// 	action: PayloadAction<{ min: number; max: number; val: string }>
-		// ) => {
-		// 	const { min, max, val } = action.payload;
-
-		// 	let calculatedMinValue;
-		// 	let calculatedMaxValue;
-		// 	if (min > 0) {
-		// 		if (val === 'roi') {
-		// 			calculatedMinValue = min / 100;
-		// 		} else {
-		// 			calculatedMinValue = min;
-		// 		}
-		// 		let key = `${val}Min`;
-		// 		localStorage.setItem(key, calculatedMinValue.toString());
-		// 	}
-		// 	if (max > 0) {
-		// 		if (val === 'roi') {
-		// 			calculatedMaxValue = max / 100;
-		// 		} else {
-		// 			calculatedMaxValue = max;
-		// 		}
-		// 		let key = `${val}Max`;
-		// 		localStorage.setItem(key, calculatedMaxValue.toString());
-		// 	}
-		// 	if (min || max) {
-		// 		// return dispatch({
-		// 		// 	type: `SET_${val.toUpperCase()}_FILTER`,
-		// 		// 	payload: {
-		// 		// 		min: calculatedMinValue ? +calculatedMinValue : null,
-		// 		// 		max: calculatedMaxValue ? +calculatedMaxValue : null,
-		// 		// 	},
-		// 		// });
-		// 		state[val] = min;
-		// 	}
-		// },
 		setPrepFilter: (state, action: PayloadAction<string>) => {
 			console.log(action.payload);
 		},
@@ -199,8 +204,8 @@ export const filtersSlice = createSlice({
 export const {
 	clearFilters,
 	clearPrepFilter,
+	createFilter,
 	setDateLimit,
-	setFilterCount,
 	setItemLimit,
 	setPrepFilter,
 } = filtersSlice.actions;

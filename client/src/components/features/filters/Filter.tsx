@@ -2,49 +2,78 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 // redux
 import { useAppSelector, useAppDispatch } from '@utils/hooks';
-import { setAlert } from '@features/alert/alertSlice';
-import { clearFilters } from '@features/filters/filtersSlice';
+import { removeAllAlerts, setAlert } from '@features/alert/alertSlice';
+import { clearFilters, createFilter } from '@features/filters/filtersSlice';
 import { getFeedLeads } from '@features/leads/leadsSlice';
 
 // components
 import Button from '@components/utils/Button';
+import SelectComponent from '@components/utils/Select';
 import Spinner from '@components/utils/Spinner';
 
 // utils
 import { useOutsideMousedown } from '@utils/utils';
+import { User } from '@utils/interfaces/User';
 
 interface FilterProps {
-	filter: boolean;
-	setFilter: React.Dispatch<React.SetStateAction<boolean>>;
+	filterActive: boolean;
+	setFilterActive: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
+const Filter: React.FC<FilterProps> = ({ filterActive, setFilterActive }) => {
 	const dispatch = useAppDispatch();
 	// auth state
 	const user = useAppSelector((state) => state.auth.user);
 	const filters = useAppSelector((state) => state.filters);
 	// local state
 	const [addFilter, setAddFilter] = useState(false);
-	const [clear, setClear] = useState(false);
+	const [categoryActive, setCategoryActive] = useState(false);
+	const [filter, setFilter] = useState<{
+		typeIs: {
+			type: string;
+			title: string;
+			value: string;
+		};
+		valueIs: {
+			type: string;
+			title: string;
+			value: string;
+		};
+		value: string | number;
+	}>({
+		typeIs: {
+			type: typeOptions[0].type,
+			title: typeOptions[0].title,
+			value: typeOptions[0].value,
+		},
+		valueIs: {
+			type: '',
+			title:
+				typeOptions[0].type === 'numeric'
+					? numericValueOptions[0].title
+					: textValueOptions[0].title,
+			value:
+				typeOptions[0].type === 'numeric'
+					? numericValueOptions[0].value
+					: textValueOptions[0].value,
+		},
+		value: '',
+	});
 	const [filterDescription, setFilterDescription] = useState(false);
 	const [typeActive, setTypeActive] = useState(false);
 	const [valueActive, setValueActive] = useState(false);
 
-	// destructure necessary items
-	const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =
-		filters;
-
 	// close modal handlers
 	const wrapperRef = useRef(null);
-	useOutsideMousedown(wrapperRef, setFilter, null);
+	useOutsideMousedown(wrapperRef, setFilterActive, null);
 	// close modal on esc key
 	const keyPress = useCallback(
 		(e) => {
-			if (e.key === 'Escape' && filter) {
-				setFilter(false);
+			if (e.key === 'Escape' && filterActive) {
+				setFilterActive(false);
 			}
 		},
-		[setFilter, filter]
+		[setFilterActive, filterActive]
 	);
 	useEffect(() => {
 		document.addEventListener('keydown', keyPress);
@@ -52,7 +81,6 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 	}, [keyPress]);
 
 	const handleClearFilters = () => {
-		setClear(true);
 		let keysToRemove = [
 			'netProfitMin',
 			'netProfitMax',
@@ -72,7 +100,7 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 		];
 		keysToRemove.forEach((key) => localStorage.removeItem(key));
 		dispatch(clearFilters());
-		setFilter(false);
+		setFilterActive(false);
 		user &&
 			dispatch(
 				getFeedLeads({
@@ -93,120 +121,54 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 		);
 	};
 
-	const filterItems = [
-		{
-			title: 'Profit',
-			subtitle: 'Profit',
-			subtitleValue: '($)',
-			min: netProfit.min,
-			max: netProfit.max,
-			val: 'netProfit',
-		},
-		{
-			title: 'Buy price',
-			subtitle: 'Buy price',
-			subtitleValue: '($)',
-			min: buyPrice.min,
-			max: buyPrice.max,
-			val: 'buyPrice',
-		},
-		{
-			title: 'Sell price',
-			subtitle: 'Sell price',
-			subtitleValue: '($)',
-			min: sellPrice.min,
-			max: sellPrice.max,
-			val: 'sellPrice',
-		},
-		{
-			title: 'Return on investment',
-			subtitle: 'ROI',
-			subtitleValue: '(%)',
-			min: roi.min,
-			max: roi.max,
-			val: 'roi',
-		},
-		{
-			title: "Best seller's rank",
-			subtitle: 'BSR',
-			min: bsr.min,
-			max: bsr.max,
-			val: 'bsr',
-		},
-		{
-			title: 'Monthly sales',
-			subtitle: 'Sales / mo.',
-			min: monthlySales.min,
-			max: monthlySales.max,
-			val: 'monthlySales',
-		},
-		{
-			title: 'Weight',
-			subtitle: 'Weight',
-			subtitleValue: '(lb)',
-			min: weight.min,
-			max: weight.max,
-			val: 'weight',
-		},
-		{
-			title: 'Category',
-			subtitle: 'Select a category',
-			min: null,
-			max: null,
-		},
-	];
-
-	const emptyFilters = {
-		count: null,
-		netProfit: {
-			min: null,
-			max: null,
-		},
-		buyPrice: {
-			min: null,
-			max: null,
-		},
-		sellPrice: {
-			min: null,
-			max: null,
-		},
-		roi: {
-			min: null,
-			max: null,
-		},
-		bsr: {
-			min: null,
-			max: null,
-		},
-		monthlySales: {
-			min: null,
-			max: null,
-		},
-		weight: {
-			min: null,
-			max: null,
-		},
-		category: [],
-		prep: {
-			unit: null,
-			lb: null,
-		},
-		itemLimit: 15,
-		dateLimits: { min: null, max: null, selected: null },
+	const handleFilterSubmit = (user: User) => {
+		// make sure an empty string isn't being passed as a value
+		if (!filter.value) {
+			return dispatch(
+				setAlert({
+					title: 'Error creating filter',
+					message: 'Please enter a valid number',
+					alertType: 'danger',
+				})
+			);
+		}
+		// make sure the max filter isn't smaller than the min filter
+		if (
+			filter.typeIs.type === 'numeric' &&
+			filter.valueIs.value === 'lte' &&
+			filters[filter.typeIs.value].min > filter.value
+		) {
+			return dispatch(
+				setAlert({
+					title: 'Error creating filter',
+					message:
+						"The minimum filter can't be smaller than the maximum filter",
+					alertType: 'danger',
+				})
+			);
+		}
+		// clear all alerts if we've made it past the checks
+		dispatch(removeAllAlerts());
+		// create the filter
+		dispatch(
+			createFilter({
+				type: filter.typeIs.value,
+				operator: filter.valueIs.value,
+				value: filter.value,
+			})
+		);
+		// get the newly filtered leads
+		return getFeedLeads({
+			user: {
+				id: user._id,
+				role: user.role,
+			},
+			page: 1,
+			filters,
+		});
 	};
 
-	const typeOptions = [{ type: 'numeric', title: 'Net profit' }];
-
-	const valueOptions = [
-		{
-			value: 'gte',
-			text: 'Greater than or equal to',
-		},
-		{
-			value: 'gte',
-			text: 'Less than or equal to',
-		},
-	];
+	console.log(filter.typeIs, filter.valueIs, filter.value);
 
 	return user ? (
 		<article
@@ -215,30 +177,10 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 		>
 			<div className='relative'>
 				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>
-					<div>
-						<h5 className='inline-block font-bold text-lg'>Filters</h5>
-					</div>
-					{/* <button
-						onClick={() => {
-							setFilter(false);
-							setFilterCount();
-							getFeedLeads({
-								user: {
-									id: user._id,
-									role: user.role,
-								},
-								page: 1,
-								filters,
-							});
-						}}
-						className='font-semibold text-sm text-purple-500 rounded-sm hover:text-purple-600 transition-colors duration-100 ease-in-out ring-purple'
-					>
-						Apply
-					</button> */}
+					<h5 className='inline-block font-bold text-lg'>Filters</h5>
 					<button
 						onClick={(e) => {
 							e.stopPropagation();
-							// setToggleItem((prev) => !prev);
 							setAddFilter(true);
 						}}
 						onMouseEnter={() => setFilterDescription(true)}
@@ -267,131 +209,135 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 				{addFilter ? (
 					<div>
 						<div className='py-6 px-4'>
-							<div className='relative flex items-center shadow-sm rounded-lg text-sm'>
-								<div className='w-16 py-2 px-2 bg-gray-100 rounded-l-lg font-semibold text-center text-gray-700 border border-gray-200'>
-									Type
-								</div>
-								<button
-									type='button'
-									className='relative w-full pl-2 pr-10 py-2 bg-white border-t border-b border-r border-gray-200 rounded-r-lg text-left cursor-default ring-purple ring-inset'
-									aria-haspopup='listbox'
-									aria-expanded='true'
-									aria-labelledby='listbox-label'
-									onClick={() => setTypeActive((prev) => !prev)}
-								>
-									<span className='flex items-center'>
-										<span className='ml-2 block truncate'>
-											Greater than or equal to
-										</span>
-									</span>
-									<span className='ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none'>
-										<svg
-											className='h-4 w-4 text-gray-400'
-											xmlns='http://www.w3.org/2000/svg'
-											viewBox='0 0 20 20'
-											fill='currentColor'
-											aria-hidden='true'
-										>
-											<path
-												fill-rule='evenodd'
-												d='M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
-												clip-rule='evenodd'
-											/>
-										</svg>
-									</span>
-								</button>
-								{typeActive && (
-									<ul
-										className='absolute right-0 z-10 max-h-56 w-full mt-1 py-1 bg-white border border-gray-200 shadow-md rounded-lg text-sm overflow-auto focus:outline-none transform translate-y-12'
-										tabIndex={-1}
-										role='listbox'
-										aria-labelledby='listbox-label'
-										aria-activedescendant='listbox-option-3'
-									>
-										{typeOptions.map((typeOption, i) => (
-											<li
-												key={i}
-												className=' py-2 pl-3 pr-9 text-gray-900 cursor-default select-none relative hover:bg-gray-100'
-												id={`listbox-option-${i - 1}`}
-												role='option'
-											>
-												{typeOption.title}
-											</li>
-										))}
-									</ul>
-								)}
-							</div>
-							<div className='relative mt-2 flex items-center shadow-sm rounded-lg text-sm'>
-								<div className='w-16 py-2 px-2 bg-gray-100 rounded-l-lg font-semibold text-center text-gray-700 border border-gray-200'>
-									Value
-								</div>
-								<button
-									type='button'
-									className='relative w-full pl-2 pr-10 py-2 bg-white border-t border-b border-r border-gray-200 rounded-r-lg text-left cursor-default ring-purple ring-inset'
-									aria-haspopup='listbox'
-									aria-expanded='true'
-									aria-labelledby='listbox-label'
-									onClick={() => setValueActive((prev) => !prev)}
-								>
-									<span className='flex items-center'>
-										<span className='ml-2 block truncate'>
-											Greater than or equal to
-										</span>
-									</span>
-									<span className='ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none'>
-										<svg
-											className='h-4 w-4 text-gray-400'
-											xmlns='http://www.w3.org/2000/svg'
-											viewBox='0 0 20 20'
-											fill='currentColor'
-											aria-hidden='true'
-										>
-											<path
-												fill-rule='evenodd'
-												d='M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
-												clip-rule='evenodd'
-											/>
-										</svg>
-									</span>
-								</button>
-								{valueActive && (
-									<ul
-										className='absolute right-0 z-10 max-h-56 w-full mt-1 py-1 bg-white border border-gray-200 shadow-md rounded-lg text-sm overflow-auto focus:outline-none transform translate-y-16'
-										tabIndex={-1}
-										role='listbox'
-										aria-labelledby='listbox-label'
-										aria-activedescendant='listbox-option-3'
-									>
-										{valueOptions.map((valueOption, i) => (
-											<li
-												key={i}
-												className=' py-2 pl-3 pr-9 text-gray-900 cursor-default select-none relative hover:bg-gray-100'
-												id={`listbox-option-${i - 1}`}
-												role='option'
-											>
-												{valueOption.text}
-											</li>
-										))}
-									</ul>
-								)}
-							</div>
-							<input
-								type='text'
-								className='mt-2 form-field'
-								placeholder='Enter a value...'
-							/>
-							<div className='mt-2'>
-								<Button
-									text={'Apply'}
-									onClick={() => console.log('hello')}
-									width={'w-20'}
-									margin={false}
-									path={null}
-									conditional={null}
-									conditionalDisplay={null}
-									size={'xs'}
-									cta={true}
+							<div>
+								<SelectComponent
+									title={'Type'}
+									options={typeOptions}
+									selectedOption={filter.typeIs.title}
+									openState={typeActive}
+									setOpenState={setTypeActive}
+									handleClick={(option: {
+										type: string;
+										title: string;
+										value: string;
+									}) =>
+										setFilter({
+											...filter,
+											typeIs: {
+												type: option.type,
+												title: option.title,
+												value: option.value,
+											},
+											valueIs: {
+												type: option.type,
+												title:
+													option.type === 'numeric'
+														? numericValueOptions[0].title
+														: textValueOptions[0].title,
+												value:
+													option.type === 'numeric'
+														? numericValueOptions[0].value
+														: textValueOptions[0].value,
+											},
+											value:
+												option.value === 'category'
+													? 'Appliances'
+													: typeof filter.value === 'number'
+													? filter.value
+													: '',
+										})
+									}
 								/>
+							</div>
+							<div className='mt-2'>
+								<SelectComponent
+									title={'Value'}
+									options={
+										filter.typeIs.type === 'numeric'
+											? numericValueOptions
+											: textValueOptions
+									}
+									selectedOption={filter.valueIs.title}
+									openState={valueActive}
+									setOpenState={setValueActive}
+									handleClick={(option: {
+										type: string;
+										title: string;
+										value: string;
+									}) =>
+										setFilter({
+											...filter,
+											valueIs: {
+												type: option.type,
+												title: option.title,
+												value: option.value,
+											},
+										})
+									}
+								/>
+							</div>
+							{filter.typeIs.value === 'category' ? (
+								<div className='mt-2'>
+									<SelectComponent
+										title={'Item'}
+										options={categoryOptions}
+										selectedOption={filter.value}
+										openState={categoryActive}
+										setOpenState={setCategoryActive}
+										handleClick={(option: { title: string }) =>
+											setFilter({
+												...filter,
+												value: option.title,
+											})
+										}
+									/>
+								</div>
+							) : (
+								<input
+									type='text'
+									className='mt-2 form-field'
+									onChange={(e) =>
+										setFilter({
+											...filter,
+											value: +e.target.value,
+										})
+									}
+									placeholder='Enter a value...'
+								/>
+							)}
+
+							<div className='flex items-center justify-end'>
+								<div className='mt-2'>
+									<Button
+										text={'Cancel'}
+										onClick={() => {
+											setAddFilter(false);
+										}}
+										width={'w-20'}
+										margin={false}
+										path={null}
+										conditional={null}
+										conditionalDisplay={null}
+										size={'xs'}
+										cta={false}
+									/>
+								</div>
+
+								<div className='mt-2 ml-4'>
+									<Button
+										text={'Apply'}
+										onClick={() => {
+											handleFilterSubmit(user);
+										}}
+										width={'w-20'}
+										margin={false}
+										path={null}
+										conditional={null}
+										conditionalDisplay={null}
+										size={'xs'}
+										cta={true}
+									/>
+								</div>
 							</div>
 						</div>
 						<div className='border-t border-gray-200'>
@@ -425,5 +371,106 @@ const Filter: React.FC<FilterProps> = ({ filter, setFilter }) => {
 		/>
 	);
 };
+
+const emptyFilters = {
+	count: 0,
+	netProfit: {
+		min: null,
+		max: null,
+	},
+	buyPrice: {
+		min: null,
+		max: null,
+	},
+	sellPrice: {
+		min: null,
+		max: null,
+	},
+	roi: {
+		min: null,
+		max: null,
+	},
+	bsr: {
+		min: null,
+		max: null,
+	},
+	monthlySales: {
+		min: null,
+		max: null,
+	},
+	weight: {
+		min: null,
+		max: null,
+	},
+	category: [],
+	source: [],
+	prep: {
+		unit: null,
+		lb: null,
+	},
+	itemLimit: 15,
+	dateLimits: { min: null, max: null, selected: null },
+};
+
+const typeOptions = [
+	{ type: 'numeric', title: 'Profit', value: 'netProfit' },
+	{ type: 'numeric', title: 'Buy price', value: 'buyPrice' },
+	{ type: 'numeric', title: 'Sell price', value: 'sellPrice' },
+	{ type: 'numeric', title: 'Return on investment', value: 'roi' },
+	{ type: 'numeric', title: "Best seller's rank", value: 'bsr' },
+	{ type: 'numeric', title: 'Monthly sales', value: 'monthlySales' },
+	{ type: 'numeric', title: 'Weight', value: 'weight' },
+	{ type: 'text', title: 'Category', value: 'category' },
+];
+
+const numericValueOptions = [
+	{
+		type: 'numeric',
+		title: 'Greater than',
+		value: 'gte',
+	},
+	{
+		type: 'numeric',
+		title: 'Less than',
+		value: 'lte',
+	},
+];
+
+const textValueOptions = [
+	{
+		type: 'text',
+		title: 'Equals',
+		value: 'eq',
+	},
+];
+
+const categoryOptions = [
+	{ title: 'Appliances' },
+	{ title: 'Arts, Crafts, & Sewing' },
+	{ title: 'Automotive Parts & Accessories' },
+	{ title: 'Baby' },
+	{ title: 'Beauty & Personal Care' },
+	{ title: 'Books' },
+	{ title: 'CDs & Vinyl' },
+	{ title: 'Cell Phones & Accessories' },
+	{ title: 'Clothing, Shoes & Jewelry' },
+	{ title: 'Computers' },
+	{ title: 'Electronics' },
+	{ title: 'Garden & Outdoor' },
+	{ title: 'Grocery & Gourmet Food' },
+	{ title: 'Handmade' },
+	{ title: 'Health, Household & Baby Care' },
+	{ title: 'Home & Kitchen' },
+	{ title: 'Industrial & Scientific' },
+	{ title: 'Luggage & Travel Gear' },
+	{ title: 'Movies & TV' },
+	{ title: 'Musical Instruments' },
+	{ title: 'Office Products' },
+	{ title: 'Pet Supplies' },
+	{ title: 'Sports & Outdoors' },
+	{ title: 'Tools & Home Improvement' },
+	{ title: 'Toys & Games' },
+	{ title: 'Video Games' },
+];
 
 export default Filter;
