@@ -23,6 +23,7 @@ export type FilterTitles =
 export type FilterOperators = 'gte' | 'lte' | 'eq';
 
 export interface Filter {
+	id: string;
 	type: FilterTypes;
 	title: FilterTitles;
 	operator: FilterOperators;

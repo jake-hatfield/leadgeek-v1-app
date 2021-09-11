@@ -210,12 +210,12 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 
 		// create the filter
 		dispatch(
-			createFilter({
-				type: filter.typeIs.value,
-				title: filter.typeIs.title,
-				operator: filter.valueIs.value,
-				value: filter.value,
-			})
+			createFilter(
+				filter.typeIs.value,
+				filter.typeIs.title,
+				filter.valueIs.value,
+				filter.value
+			)
 		);
 
 		// reset local filter state
@@ -534,11 +534,7 @@ const ActiveFilter: React.FC<ActiveFilterProps> = ({ filter }) => {
 				</span>
 			</div>
 			<button
-				onClick={() =>
-					dispatch(
-						clearFilter({ type: filter.type, operator: filter.operator })
-					)
-				}
+				onClick={() => dispatch(clearFilter({ id: filter.id }))}
 				onMouseEnter={() => setFilterDescription(true)}
 				onMouseLeave={() => setFilterDescription(false)}
 				className='relative p-1 rounded-md hover:bg-purple-500 text-gray-500 hover:text-white transition duration-100 ease-in-out ring-gray'

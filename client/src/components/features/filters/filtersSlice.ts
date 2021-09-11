@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
 
 import {
 	Filter,
@@ -26,16 +26,15 @@ export const filtersSlice = createSlice({
 		clearFilter: (
 			state,
 			action: PayloadAction<{
-				type: FilterTypes;
-				operator: FilterOperators;
+				id: string;
 			}>
 		) => {
-			const { type, operator } = action.payload;
-			state.filters = state.filters
-				.filter((filter) => filter.type !== type)
-				.filter((filter) => filter.operator !== operator);
+			state.filters = state.filters.filter(
+				(filter) => filter.id !== action.payload.id
+			);
 			state.count = state.filters.length;
 		},
+
 		clearFilters: (state) => {
 			state.count = 0;
 			state.filters = [];
@@ -43,48 +42,70 @@ export const filtersSlice = createSlice({
 		clearPrepFilter: (state) => {
 			console.log(state);
 		},
-		createFilter: (
-			state,
-			action: PayloadAction<{
-				type: FilterTypes;
-				title: FilterTitles;
-				operator: FilterOperators;
-				value: string | number;
-			}>
-		) => {
-			const { type, title, operator, value } = action.payload;
+		createFilter: {
+			reducer: (
+				state,
+				action: PayloadAction<{
+					id: string;
+					type: FilterTypes;
+					title: FilterTitles;
+					operator: FilterOperators;
+					value: string | number;
+				}>
+			) => {
+				const { id, type, title, operator, value } = action.payload;
 
-			// perform actions to the input value to make it able to processed the same way for all types
-			let processedValue;
-			if (type === 'roi') {
-				processedValue = +value / 100;
-			} else {
-				processedValue = value;
-			}
+				// perform actions to the input value to make it able to processed the same way for all types
+				let processedValue;
+				if (type === 'roi') {
+					processedValue = +value / 100;
+				} else {
+					processedValue = value;
+				}
 
-			// create a new filter object
-			const newFilter: Filter = {
-				type,
-				title,
-				operator,
-				value: processedValue,
-			};
+				// create a new filter object
+				const newFilter: Filter = {
+					id,
+					type,
+					title,
+					operator,
+					value: processedValue,
+				};
 
-			// see if a filter already exists and return the index if it does
-			const index = state.filters.findIndex(
-				(filter: Filter) =>
-					filter.type === newFilter.type &&
-					filter.operator === newFilter.operator
-			);
-			if (index < 0) {
-				// create a new filter
-				state.filters.push(newFilter);
-			} else {
-				// update already existing filter
-				state.filters[index] = newFilter;
-			}
-			// update the count to the current number of applied filters
-			state.count = state.filters.length;
+				// see if a filter already exists and return the index if it does
+				const index = state.filters.findIndex(
+					(filter: Filter) =>
+						filter.type === newFilter.type &&
+						filter.operator === newFilter.operator
+				);
+				if (index < 0) {
+					// create a new filter
+					state.filters.push(newFilter);
+				} else {
+					// update already existing filter
+					state.filters[index] = newFilter;
+				}
+				// update the count to the current number of applied filters
+				state.count = state.filters.length;
+			},
+			prepare: (
+				type: FilterTypes,
+				title: FilterTitles,
+				operator: FilterOperators,
+				value: string | number
+			) => {
+				const id = nanoid();
+
+				return {
+					payload: {
+						id,
+						type,
+						title,
+						operator,
+						value,
+					},
+				};
+			},
 		},
 		setDateLimit: (
 			state,
