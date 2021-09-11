@@ -1,87 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-type NumberOrNull = number | null;
-interface FilterState {
-	count: number;
-	netProfit: {
-		min: NumberOrNull;
-		max: NumberOrNull;
-	};
-	buyPrice: {
-		min: NumberOrNull;
-		max: NumberOrNull;
-	};
-	sellPrice: {
-		min: NumberOrNull;
-		max: NumberOrNull;
-	};
-	roi: {
-		min: NumberOrNull;
-		max: NumberOrNull;
-	};
-	bsr: {
-		min: NumberOrNull;
-		max: NumberOrNull;
-	};
-	monthlySales: {
-		min: NumberOrNull;
-		max: NumberOrNull;
-	};
-	weight: {
-		min: NumberOrNull;
-		max: NumberOrNull;
-	};
-	category: string[];
-	source: string[];
-	prep: {
-		unit: NumberOrNull;
-		lb: NumberOrNull;
-	};
-	itemLimit: number;
-	dateLimits: {
-		min: string | null;
-		max: string | null;
-		selected: string | null;
-	};
-}
+import {
+	Filter,
+	FilterOperators,
+	FilterState,
+	FilterTitles,
+	FilterTypes,
+} from '@utils/interfaces/Filter';
 
-const initialState: any = {
+const initialState: FilterState = {
 	count: +localStorage.getItem('filterCount')! || 0,
-	netProfit: {
-		min: +localStorage.getItem('netProfitMin')! || null,
-		max: +localStorage.getItem('netProfitMax')! || null,
-	},
-	buyPrice: {
-		min: +localStorage.getItem('buyPriceMin')! || null,
-		max: +localStorage.getItem('buyPriceMax')! || null,
-	},
-	sellPrice: {
-		min: +localStorage.getItem('sellPriceMin')! || null,
-		max: +localStorage.getItem('sellPriceMax')! || null,
-	},
-	roi: {
-		min: +localStorage.getItem('roiMin')! || null,
-		max: +localStorage.getItem('roiMax')! || null,
-	},
-	bsr: {
-		min: +localStorage.getItem('bsrMin')! || null,
-		max: +localStorage.getItem('bsrMax')! || null,
-	},
-	monthlySales: {
-		min: +localStorage.getItem('monthlySalesMin')! || null,
-		max: +localStorage.getItem('monthlySalesMax')! || null,
-	},
-	weight: {
-		min: +localStorage.getItem('weightMin')! || null,
-		max: +localStorage.getItem('weightMax')! || null,
-	},
-	category: [],
-	source: [],
+	filters: [],
 	prep: {
 		unit: +localStorage.getItem('unitFee')! || null,
 		lb: +localStorage.getItem('lbFee')! || null,
 	},
-	itemLimit: +localStorage.getItem('leadsLimit')! || 15,
+	itemLimit: +localStorage.getItem('itemLimit')! || 15,
 	dateLimits: { min: null, max: null, selected: null },
 };
 
@@ -89,44 +23,22 @@ export const filtersSlice = createSlice({
 	name: 'filters',
 	initialState,
 	reducers: {
+		clearFilter: (
+			state,
+			action: PayloadAction<{
+				type: FilterTypes;
+				operator: FilterOperators;
+			}>
+		) => {
+			const { type, operator } = action.payload;
+			state.filters = state.filters
+				.filter((filter) => filter.type !== type)
+				.filter((filter) => filter.operator !== operator);
+			state.count = state.filters.length;
+		},
 		clearFilters: (state) => {
 			state.count = 0;
-			state.netProfit = {
-				min: null,
-				max: null,
-			};
-			state.buyPrice = {
-				min: null,
-				max: null,
-			};
-			state.sellPrice = {
-				min: null,
-				max: null,
-			};
-			state.roi = {
-				min: null,
-				max: null,
-			};
-			state.bsr = {
-				min: null,
-				max: null,
-			};
-			state.monthlySales = {
-				min: null,
-				max: null,
-			};
-			state.weight = {
-				min: null,
-				max: null,
-			};
-			state.category = [];
-			state.source = [];
-			state.prep = {
-				unit: null,
-				lb: null,
-			};
-			state.itemLimit = 15;
-			state.dateLimits = { min: null, max: null, selected: null };
+			state.filters = [];
 		},
 		clearPrepFilter: (state) => {
 			console.log(state);
@@ -134,47 +46,45 @@ export const filtersSlice = createSlice({
 		createFilter: (
 			state,
 			action: PayloadAction<{
-				type: string;
-				operator: string;
+				type: FilterTypes;
+				title: FilterTitles;
+				operator: FilterOperators;
 				value: string | number;
 			}>
 		) => {
-			const { type, operator, value } = action.payload;
+			const { type, title, operator, value } = action.payload;
+
+			// perform actions to the input value to make it able to processed the same way for all types
 			let processedValue;
 			if (type === 'roi') {
 				processedValue = +value / 100;
 			} else {
 				processedValue = value;
 			}
-			if (operator === 'gte') {
-				state[type].min = processedValue;
-			} else if (operator === 'lte') {
-				state[type].max = processedValue;
+
+			// create a new filter object
+			const newFilter: Filter = {
+				type,
+				title,
+				operator,
+				value: processedValue,
+			};
+
+			// see if a filter already exists and return the index if it does
+			const index = state.filters.findIndex(
+				(filter: Filter) =>
+					filter.type === newFilter.type &&
+					filter.operator === newFilter.operator
+			);
+			if (index < 0) {
+				// create a new filter
+				state.filters.push(newFilter);
 			} else {
-				state[type].push(processedValue);
+				// update already existing filter
+				state.filters[index] = newFilter;
 			}
-			localStorage.setItem(`${type}Min`, processedValue.toString());
-			const { netProfit, buyPrice, sellPrice, roi, bsr, monthlySales, weight } =
-				state;
-			const allFilters = [
-				netProfit.min,
-				netProfit.max,
-				buyPrice.min,
-				buyPrice.max,
-				sellPrice.min,
-				sellPrice.max,
-				roi.min,
-				roi.max,
-				bsr.min,
-				bsr.max,
-				monthlySales.min,
-				monthlySales.max,
-				weight.min,
-				weight.max,
-			];
-			const notNullable = allFilters.filter((f) => f !== null).length;
-			localStorage.setItem('filterCount', notNullable.toString());
-			state.count = notNullable + state.category.length + state.source.length;
+			// update the count to the current number of applied filters
+			state.count = state.filters.length;
 		},
 		setDateLimit: (
 			state,
@@ -192,8 +102,8 @@ export const filtersSlice = createSlice({
 			state,
 			action: PayloadAction<{ type: string; itemLimit: number }>
 		) => {
-			const { itemLimit: newLimit } = action.payload;
-			state.itemLimit = +newLimit;
+			localStorage.setItem('itemLimit', action.payload.itemLimit.toString());
+			state.itemLimit = +action.payload.itemLimit;
 		},
 		setPrepFilter: (state, action: PayloadAction<string>) => {
 			console.log(action.payload);
@@ -202,6 +112,7 @@ export const filtersSlice = createSlice({
 });
 
 export const {
+	clearFilter,
 	clearFilters,
 	clearPrepFilter,
 	createFilter,

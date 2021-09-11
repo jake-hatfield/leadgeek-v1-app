@@ -110,19 +110,14 @@ router.post('/', auth, async (req, res) => {
 			role,
 			page,
 			filters: {
-				netProfit,
-				buyPrice,
-				sellPrice,
-				roi,
-				bsr,
-				monthlySales,
-				weight,
-				category,
-				source,
-				itemLimit,
+				filters: itemFilters,
 				dateLimits: { min: minDate, max: maxDate },
+				itemLimit,
 			},
 		} = req.body;
+
+		console.log(itemFilters);
+
 		const user = await User.findById({ _id });
 		let message;
 		if (!user) {
@@ -178,112 +173,112 @@ router.post('/', auth, async (req, res) => {
 							...(!administrator && { plan: { $in: roleFilter } }),
 							'data.date': { $gte: minDateFilter, $lte: maxDateFilter },
 						},
-						{
-							...(netProfit.min && {
-								'data.netProfit': { $gte: netProfit.min },
-							}),
-							...(netProfit.max && {
-								'data.netProfit': { $lte: netProfit.max },
-							}),
-							...(netProfit.min &&
-								netProfit.max && {
-									'data.netProfit': {
-										$gte: netProfit.min,
-										$lte: netProfit.max,
-									},
-								}),
-							...(buyPrice.min && {
-								'data.buyPrice': { $gte: buyPrice.min },
-							}),
-							...(buyPrice.max && {
-								'data.buyPrice': { $gte: buyPrice.max },
-							}),
-							...(buyPrice.min &&
-								buyPrice.max && {
-									'data.buyPrice': {
-										$gte: buyPrice.min,
-										$lte: buyPrice.max,
-									},
-								}),
-							...(sellPrice.min && {
-								'data.sellPrice': { $gte: sellPrice.min },
-							}),
-							...(sellPrice.max && {
-								'data.sellPrice': { $lte: sellPrice.max },
-							}),
-							...(sellPrice.min &&
-								sellPrice.max && {
-									'data.sellPrice': {
-										$gte: sellPrice.min,
-										$lte: sellPrice.max,
-									},
-								}),
-							...(roi.min && {
-								'data.roi': { $gte: roi.min },
-							}),
-							...(roi.max && {
-								'data.roi': { $lte: roi.max },
-							}),
-							...(roi.min &&
-								roi.max && {
-									'data.roi': {
-										$gte: roi.min,
-										$lte: roi.max,
-									},
-								}),
-							...(bsr.min && {
-								'data.bsr': { $gte: bsr.min },
-							}),
-							...(bsr.max && {
-								'data.bsr': { $gte: bsr.max },
-							}),
-							...(bsr.min &&
-								bsr.max && {
-									'data.bsr': {
-										$gte: bsr.min,
-										$lte: bsr.max,
-									},
-								}),
-							...(monthlySales.min && {
-								'data.monthlySales': {
-									$gte: monthlySales.min,
-								},
-							}),
-							...(monthlySales.max && {
-								'data.monthlySales': {
-									$lte: monthlySales.max,
-								},
-							}),
-							...(monthlySales.min &&
-								monthlySales.max && {
-									'data.monthlySales': {
-										$gte: monthlySales.min,
-										$lte: monthlySales.max,
-									},
-								}),
-							...(weight.min && {
-								'data.weight': {
-									$gte: weight.min,
-								},
-							}),
-							...(weight.max && {
-								'data.weight': {
-									$lte: weight.max,
-								},
-							}),
-							...(weight.min &&
-								weight.max && {
-									'data.weight': {
-										$gte: weight.min,
-										$lte: weight.max,
-									},
-								}),
-							...(category.length > 0 && {
-								'data.category': {
-									$in: category,
-								},
-							}),
-						},
+						// {
+						// 	...(netProfit.min && {
+						// 		'data.netProfit': { $gte: netProfit.min },
+						// 	}),
+						// 	...(netProfit.max && {
+						// 		'data.netProfit': { $lte: netProfit.max },
+						// 	}),
+						// 	...(netProfit.min &&
+						// 		netProfit.max && {
+						// 			'data.netProfit': {
+						// 				$gte: netProfit.min,
+						// 				$lte: netProfit.max,
+						// 			},
+						// 		}),
+						// 	...(buyPrice.min && {
+						// 		'data.buyPrice': { $gte: buyPrice.min },
+						// 	}),
+						// 	...(buyPrice.max && {
+						// 		'data.buyPrice': { $gte: buyPrice.max },
+						// 	}),
+						// 	...(buyPrice.min &&
+						// 		buyPrice.max && {
+						// 			'data.buyPrice': {
+						// 				$gte: buyPrice.min,
+						// 				$lte: buyPrice.max,
+						// 			},
+						// 		}),
+						// 	...(sellPrice.min && {
+						// 		'data.sellPrice': { $gte: sellPrice.min },
+						// 	}),
+						// 	...(sellPrice.max && {
+						// 		'data.sellPrice': { $lte: sellPrice.max },
+						// 	}),
+						// 	...(sellPrice.min &&
+						// 		sellPrice.max && {
+						// 			'data.sellPrice': {
+						// 				$gte: sellPrice.min,
+						// 				$lte: sellPrice.max,
+						// 			},
+						// 		}),
+						// 	...(roi.min && {
+						// 		'data.roi': { $gte: roi.min },
+						// 	}),
+						// 	...(roi.max && {
+						// 		'data.roi': { $lte: roi.max },
+						// 	}),
+						// 	...(roi.min &&
+						// 		roi.max && {
+						// 			'data.roi': {
+						// 				$gte: roi.min,
+						// 				$lte: roi.max,
+						// 			},
+						// 		}),
+						// 	...(bsr.min && {
+						// 		'data.bsr': { $gte: bsr.min },
+						// 	}),
+						// 	...(bsr.max && {
+						// 		'data.bsr': { $gte: bsr.max },
+						// 	}),
+						// 	...(bsr.min &&
+						// 		bsr.max && {
+						// 			'data.bsr': {
+						// 				$gte: bsr.min,
+						// 				$lte: bsr.max,
+						// 			},
+						// 		}),
+						// 	...(monthlySales.min && {
+						// 		'data.monthlySales': {
+						// 			$gte: monthlySales.min,
+						// 		},
+						// 	}),
+						// 	...(monthlySales.max && {
+						// 		'data.monthlySales': {
+						// 			$lte: monthlySales.max,
+						// 		},
+						// 	}),
+						// 	...(monthlySales.min &&
+						// 		monthlySales.max && {
+						// 			'data.monthlySales': {
+						// 				$gte: monthlySales.min,
+						// 				$lte: monthlySales.max,
+						// 			},
+						// 		}),
+						// 	...(weight.min && {
+						// 		'data.weight': {
+						// 			$gte: weight.min,
+						// 		},
+						// 	}),
+						// 	...(weight.max && {
+						// 		'data.weight': {
+						// 			$lte: weight.max,
+						// 		},
+						// 	}),
+						// 	...(weight.min &&
+						// 		weight.max && {
+						// 			'data.weight': {
+						// 				$gte: weight.min,
+						// 				$lte: weight.max,
+						// 			},
+						// 		}),
+						// 	...(category.length > 0 && {
+						// 		'data.category': {
+						// 			$in: category,
+						// 		},
+						// 	}),
+						// },
 					],
 				})
 					.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))

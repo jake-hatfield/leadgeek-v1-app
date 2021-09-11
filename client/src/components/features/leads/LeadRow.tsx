@@ -127,7 +127,8 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		likeCellButton: 'p-1 rounded-md ring-purple align-middle',
 		likeCellActive: 'svg-base hover:text-purple-400 transition-colors-main',
 		likeCellNull: 'p-2 px-4 svg-base',
-		titleCellWrapper: 'p-2 font-semibold',
+		titleCellWrapper:
+			'p-2 md:w-64 lg:w-72 xl:w-auto font-semibold overflow-ellipsis',
 		detailsCellWrapper: 'relative p-2 flex items-center text-gray-400',
 		detailsCellSvg: 'svg-base',
 		detailsCellButton:
@@ -142,7 +143,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		competitorCount: 'font-semibold',
 		profitCellWrapper: 'p-2 uppercase',
 		titleHover:
-			'absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-16 rounded-md shadow-md bg-gray-900 text-white text-sm',
+			'absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-12 rounded-md shadow-md bg-gray-900 text-white text-sm',
 		quickViewCellWrapper: quickView ? 'p-4' : 'p-2',
 		quickViewWrapper:
 			'all-center rounded-r-lg text-gray-500 hover:text-gray-700',
@@ -159,7 +160,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 			'w-24 mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-900 shadow-md text-white text-sm',
 		quickViewNull: 'p-2 svg-base',
 		expandedViewWrapper:
-			'absolute right-0 z-20 w-40 transform translate-y-6 md:-translate-x-6 xl:-translate-x-8 bg-white rounded-lg shadow-md border border-gray-200',
+			'absolute right-0 z-20 w-40 transform translate-y-6 bg-white rounded-lg shadow-md border border-gray-200',
 		expandedViewMenuTop: 'py-2 border-b border-gray-200',
 		expandedViewMenuBottom: 'py-2',
 		expandedViewMenuSvg: 'ml-2 svg-sm',
@@ -211,7 +212,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 				onMouseLeave={() => setTitleHover(false)}
 				className={classes.titleCellWrapper}
 			>
-				<div>{truncate(data.title, 31)}</div>
+				<div>{truncate(data.title, 60)}</div>
 			</td>
 			{/* category */}
 			<td className={classes.defaultCellWrapper}>

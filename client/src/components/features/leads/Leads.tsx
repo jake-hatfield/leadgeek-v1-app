@@ -115,7 +115,7 @@ const Leads: React.FC<LeadsProps> = ({
 			onClick: () => setFilter((prev) => !prev),
 			conditional: filterCount! > 0,
 			conditionalDisplay: (
-				<span className='h-4 w-4 absolute top-0 right-0 flex items-center justify-center p-2 rounded-full bg-purple-500 text-white transform -translate-y-1 translate-x-3'>
+				<span className='h-4 w-4 absolute top-0 right-0 flex items-center justify-center py-2.5 px-3 rounded-full bg-purple-500 text-white transform -translate-y-2 translate-x-3'>
 					{filterCount}
 				</span>
 			),
@@ -289,9 +289,18 @@ const Leads: React.FC<LeadsProps> = ({
 						currentSearchParam={currentSearchParam}
 					/>
 				) : leadStatus === 'failed' ? (
-					<div>
+					<div className='mt-6 container'>
 						There was an error making that request. If this issue persists,
-						please contact Leadgeek support.
+						please{' '}
+						<a
+							href='mailto:support@leadgeek.io'
+							target='_blank'
+							rel='noopener noreferrer'
+							className='link text-purple-500 hover:text-purple-600 rounded-lg transition-main ring-gray'
+						>
+							contact Leadgeek support
+						</a>
+						.
 					</div>
 				) : (
 					<Spinner
@@ -335,9 +344,17 @@ const Leads: React.FC<LeadsProps> = ({
 			text={'Loading leads...'}
 		/>
 	) : (
-		<div>
-			There was an error making that request. If this issue persists, please
-			contact Leadgeek support.
+		<div className='mt-6 container'>
+			There was an error making that request. If this issue persists, please{' '}
+			<a
+				href='mailto:support@leadgeek.io'
+				target='_blank'
+				rel='noopener noreferrer'
+				className='link text-purple-500 hover:text-purple-600 rounded-lg transition-main ring-gray'
+			>
+				contact Leadgeek support
+			</a>
+			.
 		</div>
 	);
 };

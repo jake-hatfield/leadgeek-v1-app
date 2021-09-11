@@ -33,9 +33,17 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	return (
 		<section className={classes.tableWrapper}>
 			{status === 'failed' ? (
-				<div>
-					There was an error making that request. If this issue persists, please
-					contact Leadgeek support.
+				<div className='mt-6 container'>
+					There was an error making that request. If this issue persists, please{' '}
+					<a
+						href='mailto:support@leadgeek.io'
+						target='_blank'
+						rel='noopener noreferrer'
+						className='link text-purple-500 hover:text-purple-600 rounded-lg transition-main ring-gray'
+					>
+						contact Leadgeek support
+					</a>
+					.
 				</div>
 			) : status === 'loading' ? (
 				<Spinner

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { setAlert } from '@features/alert/alertSlice';
 
+import { FilterState } from '@utils/interfaces/Filter';
 import { Lead } from '@utils/interfaces/leads/Lead';
 import { Pagination } from '@utils/interfaces/leads/Pagination';
 import { config, truncate } from '@utils/utils';
@@ -74,7 +75,7 @@ export const getFeedLeads = createAsyncThunk(
 				role: string;
 			};
 			page: number;
-			filters: any;
+			filters: FilterState;
 		},
 		{ rejectWithValue }
 	) => {
