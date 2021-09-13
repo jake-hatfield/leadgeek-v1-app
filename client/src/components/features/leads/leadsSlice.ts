@@ -131,10 +131,8 @@ export const getSearchResults = createAsyncThunk(
 		},
 		{ dispatch }
 	) => {
-		const { query, role, dateCreated, page, newSearch, itemLimit } = options;
-		// if (newSearch) {
-		// 	return null;
-		// }
+		const { query, role, dateCreated, page, itemLimit } = options;
+
 		const body = JSON.stringify({
 			query,
 			role,

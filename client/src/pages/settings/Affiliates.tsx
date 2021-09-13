@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 // redux
-import { updatePaypalEmail, getAffiliatePayments } from '@redux/actions/users';
+import { useAppDispatch, useAppSelector } from '@utils/hooks';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
@@ -18,7 +18,6 @@ import {
 	planCheckerByPrice,
 	truncateAndObfuscate,
 } from '@utils/utils';
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
 
 interface Payment {
 	id: string;
@@ -66,13 +65,13 @@ const AffiliatesPage = () => {
 
 	// get affiliate payments if user is authenticated & affiliate
 	useEffect(() => {
-		status === 'idle' &&
-			isAffiliate &&
-			payments.length === 0 &&
-			getAffiliatePayments(
-				user?.referrals.referrer.clients,
-				user?.referrals.referrer.dateCreated
-			);
+		// status === 'idle' &&
+		// 	isAffiliate &&
+		// 	payments.length === 0 &&
+		// 	getAffiliatePayments(
+		// 		user?.referrals.referrer.clients,
+		// 		user?.referrals.referrer.dateCreated
+		// 	);
 	}, [
 		status,
 		isAffiliate,
@@ -102,14 +101,66 @@ const AffiliatesPage = () => {
 		setAffiliateState({ ...affiliateState, [e.target.name]: e.target.value });
 	};
 
+	// export const getAffiliatePayments =
+	// (clients, affCreated) => async (dispatch) => {
+	// 	try {
+	// 		const body = JSON.stringify({ clients, affCreated });
+	// 		const {
+	// 			data: { msg: message, affPayments },
+	// 		} = await axios.post('/api/users/get-affiliate-payments', body, config);
+	// 		if (message === 'Referred clients with valid payments were found.') {
+	// 			dispatch({
+	// 				type: SET_AFFILIATE_PAYMENTS,
+	// 				payload: affPayments,
+	// 			});
+	// 		} else {
+	// 			dispatch({
+	// 				type: FINISHED_AFFILIATE_PAYMENTS_LOADING,
+	// 			});
+	// 		}
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 	}
+	// };
+
+	// export const updatePaypalEmail =
+	// (id, oldEmail, newEmail) => async (dispatch) => {
+	// 	try {
+	// 		if (oldEmail === newEmail) {
+	// 			dispatch(
+	// 				setAlert(
+	// 					'Submission error',
+	// 					'Your current and submitted PayPal emails are the same.',
+	// 					'warning'
+	// 				)
+	// 			);
+	// 		}
+	// 		const body = JSON.stringify({ id, newEmail });
+	// 		const {
+	// 			data: { status, msg },
+	// 		} = await axios.put('/api/users/update-affiliate-paypal', body, config);
+	// 		if (status === 'success') {
+	// 			dispatch({
+	// 				type: SET_PAYPAL_EMAIL,
+	// 				payload: newEmail,
+	// 			});
+	// 			dispatch(setAlert('Update success', msg, 'success'));
+	// 		} else {
+	// 			dispatch(setAlert('Update failure', msg, 'danger'));
+	// 		}
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 	}
+	// };
+
 	// submit for form
 	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		updatePaypalEmail(
-			user?._id,
-			user?.referrals.referrer.paypalEmail,
-			affiliateState.paypalEmail
-		);
+		// updatePaypalEmail(
+		// 	user?._id,
+		// 	user?.referrals.referrer.paypalEmail,
+		// 	affiliateState.paypalEmail
+		// );
 		setChangePaypal(false);
 	};
 

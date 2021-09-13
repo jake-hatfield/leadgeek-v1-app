@@ -49,7 +49,6 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	const [expandedView, setExpandedView] = useState(false);
 	const [eyeDesc, setEyeDesc] = useState(false);
 	const [linkDesc, setLinkDesc] = useState(false);
-	const [newLead, setNewLead] = useState(false);
 	const [rowHover, setRowHover] = useState(false);
 	const [titleHover, setTitleHover] = useState(false);
 	const [quickView, setQuickView] = useState(false);

@@ -30,7 +30,7 @@ const ForgotPassword = () => {
 		const body = JSON.stringify({ email: emailToLowerCase });
 		try {
 			const { data } = await axios.post(
-				'/api/users/forgot-password',
+				'/api/auth/forgot-password',
 				body,
 				config
 			);

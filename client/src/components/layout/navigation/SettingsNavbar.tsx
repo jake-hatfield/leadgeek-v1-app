@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 
 import { NavLink } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { logout } from '@redux/actions/auth';
 
 interface NavbarLinkProps {
 	link: {
@@ -79,4 +77,4 @@ const SettingsNavbar = () => {
 	);
 };
 
-export default connect(null, { logout })(SettingsNavbar);
+export default SettingsNavbar;

@@ -514,7 +514,7 @@ const ActiveFilter: React.FC<ActiveFilterProps> = ({ filter }) => {
 	};
 
 	return (
-		<li className='first:mt-0 mt-2 w-full py-2 px-4 flex items-center justify-between bg-gray-100 rounded-lg transition-colors-main focus:outline-none'>
+		<li className='first:mt-0 mt-2 w-full py-2 px-4 flex items-center justify-between bg-gray-100 border border-gray-200 shadow-sm rounded-lg transition-colors-main focus:outline-none'>
 			<div className='flex items-center pr-2'>
 				<span className='truncate'>{filter.title}</span>
 				<span className='ml-1'>

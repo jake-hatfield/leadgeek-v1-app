@@ -14,7 +14,6 @@ import {
 // utils
 import { config } from '@utils/utils';
 import { User } from '@utils/interfaces/User';
-import { login } from '@redux/actions/auth';
 
 interface AuthState {
 	status: 'idle' | 'loading' | 'failed';
@@ -39,10 +38,15 @@ export const authenticateUser = createAsyncThunk(
 		{ dispatch, rejectWithValue }
 	) => {
 		try {
+			// desctructure items
 			const { email, password } = options;
+			// set email string to all lowercase to prevent false mismatches
 			const emailToLowerCase = email.toLowerCase();
+			// prepare body JSON object
 			const body = JSON.stringify({ email: emailToLowerCase, password });
+			// make request to api
 			const res = await axios.post('/api/auth', body, config);
+			// if response contains a token, update it in auth state
 			if (res.data.token) {
 				return res.data.token;
 			}
@@ -65,11 +69,61 @@ export const getUserData = createAsyncThunk(
 	'auth/getUserData',
 	async (_, { rejectWithValue }) => {
 		try {
+			console.log('hello there');
 			const res = await axios.get('/api/auth');
 			return res.data;
 		} catch (error) {
 			console.log(error);
 			return rejectWithValue(error);
+		}
+	}
+);
+
+export const surrogateUser = createAsyncThunk(
+	'auth/surrogateUser',
+	async (options: { id: string }) => {
+		try {
+			const { id } = options;
+			const body = JSON.stringify({ id });
+			const { data } = await axios.post('/api/auth/surrogate-user', body);
+			return data;
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+export const updatePassword = createAsyncThunk(
+	'auth/updatePassword',
+	async (options: { email: string; password: string }, { dispatch }) => {
+		try {
+			const { email, password } = options;
+			const emailToLowerCase = email.toLowerCase();
+			const body = JSON.stringify({ email: emailToLowerCase, password });
+			const { data } = await axios.put('/api/auth/update-password', body);
+			if (data === 'Password was successfully updated') {
+				dispatch(
+					setAlert({
+						title: 'Reset success',
+						message: 'Your password was successfully updated.',
+						alertType: 'success',
+					})
+				);
+				localStorage.removeItem('resetPwToken');
+				// dispatch(login(emailToLowerCase, password));
+				return;
+			} else {
+				return dispatch(
+					setAlert({
+						title: 'Error resetting password',
+						message:
+							"Your password couldn't be updated. Please contact support.",
+						alertType: 'danger',
+					})
+				);
+			}
+		} catch (error) {
+			console.log(error);
 		}
 	}
 );
@@ -81,9 +135,8 @@ export const validateResetPwToken = createAsyncThunk(
 			const { resetPwToken } = options;
 			const body = JSON.stringify({ resetPwToken });
 			const { data } = await axios.post(
-				'/api/users/reset-password-validation',
-				body,
-				config
+				'/api/auth/reset-password-validation',
+				body
 			);
 			if (data.message === 'Password reset link was validated') {
 				return data.user;
@@ -100,63 +153,6 @@ export const validateResetPwToken = createAsyncThunk(
 		} catch (error) {
 			console.log(error);
 			return error;
-		}
-	}
-);
-
-export const surrogateUser = createAsyncThunk(
-	'auth/surrogateUser',
-	async (options: { id: string }) => {
-		try {
-			const { id } = options;
-			const body = JSON.stringify({ id });
-			const { data } = await axios.post(
-				'/api/auth/surrogate-user',
-				body,
-				config
-			);
-			return data;
-		} catch (error) {
-			console.log(error);
-		}
-	}
-);
-
-export const updatePassword = createAsyncThunk(
-	'auth/updatePassword',
-	async (options: { email: string; password: string }, { dispatch }) => {
-		try {
-			const { email, password } = options;
-			const emailToLowerCase = email.toLowerCase();
-			const body = JSON.stringify({ email: emailToLowerCase, password });
-			const { data } = await axios.put(
-				'/api/users/update-password',
-				body,
-				config
-			);
-			if (data === 'Password was successfully updated') {
-				dispatch(
-					setAlert({
-						title: 'Reset success',
-						message: 'Your password was successfully updated.',
-						alertType: 'success',
-					})
-				);
-				localStorage.removeItem('resetPwToken');
-				dispatch(login(emailToLowerCase, password));
-				return;
-			} else {
-				return dispatch(
-					setAlert({
-						title: 'Error resetting password',
-						message:
-							"Your password couldn't be updated. Please contact support.",
-						alertType: 'danger',
-					})
-				);
-			}
-		} catch (error) {
-			console.log(error);
 		}
 	}
 );

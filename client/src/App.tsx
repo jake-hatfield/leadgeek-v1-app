@@ -1,18 +1,23 @@
 import React, { Fragment, useEffect } from 'react';
+
+// packages
 import { BrowserRouter as Router, Switch } from 'react-router-dom';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
 // redux
 import { Provider } from 'react-redux';
 import store from './store';
-import setAuthToken from '@utils/authTokens';
-// stripe
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-// routes
-import Routes from './routes/Routes';
 import {
 	getUserData,
 	removeUserData,
 } from '@components/features/auth/authSlice';
+
+// routes
+import Routes from './routes/Routes';
+
+// utils
+import setAuthToken from '@utils/authTokens';
 
 const App: React.FC = () => {
 	useEffect(() => {

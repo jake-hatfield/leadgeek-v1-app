@@ -3,7 +3,6 @@ import React, { Fragment } from 'react';
 import { Route } from 'react-router-dom';
 
 // routes
-import Register from '@pages/Register';
 import Login from '@pages/Login';
 import ForgotPassword from '@pages/ForgotPassword';
 import ResetPassword from '@pages/ResetPassword';
@@ -23,7 +22,6 @@ import PrivateRoute from './PrivateRoute';
 const Routes = () => {
 	return (
 		<Fragment>
-			<Route exact path='/register' component={Register} />
 			<Route exact path='/login' component={Login} />
 			<Route exact path='/reset/forgot-password' component={ForgotPassword} />
 			<Route

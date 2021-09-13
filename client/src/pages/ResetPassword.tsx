@@ -18,7 +18,7 @@ const ResetPasswordPage = () => {
 	const validatedResetPwToken = useAppSelector(
 		(state) => state.auth.validatedResetPwToken
 	);
-	const userEmail = useAppSelector((state) => state.auth.user?.email);
+	// const userEmail = useAppSelector((state) => state.auth.user?.email);
 	const [resetPwToken] = useState<string>(localStorage.resetPwToken);
 	// check for valid token
 	useEffect(() => {
