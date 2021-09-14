@@ -24,6 +24,7 @@ export type FilterOperators = 'gte' | 'lte' | 'eq';
 
 export interface Filter {
 	id: string;
+	format: 'numeric' | 'text';
 	type: FilterTypes;
 	title: FilterTitles;
 	operator: FilterOperators;

@@ -173,30 +173,38 @@ router.post('/', auth, async (req, res) => {
 			administrator = true;
 		}
 
-		// set item filters
-		// const filters = itemFilters.reduce(
-		// 	(o, key) => ({ ...o, [key.id]: key.operator }, {})
-		// );
-
 		// set date filter
 		const fromJSDate = DateTime.fromJSDate(user.dateCreated);
 		const userDayCreated = fromJSDate.startOf('day').toISODate();
 		const minDateFilter = minDate ? minDate : userDayCreated;
 		const maxDateFilter = maxDate ? maxDate : Date.now();
 
-		const query = Lead.find();
+		let query: any = { $and: [], $or: [] };
 
-		const feed: any = await Lead.find()
+		for (var i = 0; i < itemFilters.length; i++) {
+			let filter = itemFilters[i];
+			if (filter.format === 'numeric') {
+				query.$and.push({
+					[`data.${[filter.type]}`]: {
+						[`$${[filter.operator]}`]: filter.value,
+					},
+				});
+			} else {
+				query.$or.push({
+					[`data.${[filter.type]}`]: {
+						[`$eq`]: filter.value,
+					},
+				});
+			}
+		}
+
+		// $and and $or can't be empty arrays, so remove them from the object before querying if they are
+		Object.keys(query).forEach((k) => query[k].length === 0 && delete query[k]);
+
+		const feed = await Lead.find(query)
 			.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
 			.limit(itemLimit || ITEMS_PER_PAGE)
 			.sort({ 'data.date': -1 });
-		// {
-		// 'data.date': { $gte: minDateFilter, $lt: maxDateFilter },
-		// }
-
-		// for (var i = 0; i < itemFilters.length; i++) {
-		// 	feed.where(`data.${itemFilters[i].title}`).equals(itemFilters[i].value);
-		// }
 
 		if (feed.length === 0) {
 			let message = 'There are no leads to show';

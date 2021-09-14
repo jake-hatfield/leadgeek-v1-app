@@ -26,7 +26,7 @@ const HelpItem: React.FC<HelpItemProps> = ({
 		<Fragment>
 			<article
 				v-for='item in items'
-				className='even:border-r even:border-l border-gray-100'
+				className='even:border-r even:border-l border-gray-200'
 			>
 				<div className='p-4 '>
 					<div className='flex items-center'>
@@ -141,7 +141,7 @@ const Help: React.FC = () => {
 								software.
 							</p>
 						</div>
-						<div className='mt-6 grid grid-cols-3 border-t border-b border-gray-100'>
+						<div className='mt-6 grid grid-cols-3 border-t border-b border-gray-200'>
 							{helpItems.map((item, i) => (
 								<HelpItem
 									key={i}

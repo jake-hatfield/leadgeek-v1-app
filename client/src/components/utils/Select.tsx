@@ -37,12 +37,12 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
 			ref={wrapperRef}
 			className='relative flex items-center shadow-sm rounded-lg text-sm'
 		>
-			<div className='w-16 py-2 px-2 bg-gray-100 rounded-l-lg font-semibold text-center text-gray-700 border border-gray-200'>
+			<div className='w-16 flex-none py-2 px-2 bg-gray-100 rounded-l-lg text-sm font-semibold text-center text-gray-700 border border-gray-200'>
 				{title}
 			</div>
 			<button
 				type='button'
-				className='relative w-full pl-2 pr-10 py-2 bg-white border-t border-b border-r border-gray-200 rounded-r-lg text-left cursor-default ring-purple ring-inset'
+				className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 bg-white border-t border-b border-r border-gray-200 rounded-r-lg text-left cursor-default ring-purple ring-inset'
 				aria-haspopup='listbox'
 				aria-expanded='true'
 				aria-labelledby='listbox-label'

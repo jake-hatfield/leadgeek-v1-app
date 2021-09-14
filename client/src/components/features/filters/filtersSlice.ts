@@ -47,13 +47,14 @@ export const filtersSlice = createSlice({
 				state,
 				action: PayloadAction<{
 					id: string;
+					format: 'numeric' | 'text';
 					type: FilterTypes;
 					title: FilterTitles;
 					operator: FilterOperators;
 					value: string | number;
 				}>
 			) => {
-				const { id, type, title, operator, value } = action.payload;
+				const { id, format, type, title, operator, value } = action.payload;
 
 				// perform actions to the input value to make it able to processed the same way for all types
 				let processedValue;
@@ -66,29 +67,36 @@ export const filtersSlice = createSlice({
 				// create a new filter object
 				const newFilter: Filter = {
 					id,
+					format,
 					type,
 					title,
 					operator,
 					value: processedValue,
 				};
 
-				// see if a filter already exists and return the index if it does
-				const index = state.filters.findIndex(
-					(filter: Filter) =>
-						filter.type === newFilter.type &&
-						filter.operator === newFilter.operator
-				);
-				if (index < 0) {
-					// create a new filter
-					state.filters.push(newFilter);
+				if (format === 'numeric') {
+					// see if a filter already exists and return the index if it does
+					const index = state.filters.findIndex(
+						(filter: Filter) =>
+							filter.type === newFilter.type &&
+							filter.operator === newFilter.operator
+					);
+					if (index < 0) {
+						// create a new filter
+						state.filters.push(newFilter);
+					} else {
+						// update already existing filter
+						state.filters[index] = newFilter;
+					}
 				} else {
-					// update already existing filter
-					state.filters[index] = newFilter;
+					// it's a text filter, so just add a new one
+					state.filters.push(newFilter);
 				}
 				// update the count to the current number of applied filters
 				state.count = state.filters.length;
 			},
 			prepare: (
+				format: 'numeric' | 'text',
 				type: FilterTypes,
 				title: FilterTitles,
 				operator: FilterOperators,
@@ -99,6 +107,7 @@ export const filtersSlice = createSlice({
 				return {
 					payload: {
 						id,
+						format,
 						type,
 						title,
 						operator,

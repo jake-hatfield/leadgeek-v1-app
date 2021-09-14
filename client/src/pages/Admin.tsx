@@ -259,7 +259,7 @@ const Admin = () => {
 							<h2 className='font-semibold text-xl text-gray-900'>Resources</h2>
 							<p>Use these tools to prevent things from catching on fire.</p>
 						</div>
-						<div className='mt-6 grid grid-cols-3 border-t border-b border-gray-100'>
+						<div className='mt-6 grid grid-cols-3 border-t border-b border-gray-200'>
 							{adminItems.map((item, i) => (
 								<AdminItem
 									key={i}
@@ -340,7 +340,7 @@ const AdminItem: React.FC<AdminItemProps> = ({
 		<Fragment>
 			<article
 				v-for='item in items'
-				className='even:border-r even:border-l border-gray-100'
+				className='even:border-r even:border-l border-gray-200'
 			>
 				{popup && (
 					<div className='absolute z-10 top-0 right-0 h-screen w-full bg-gray-900 opacity-25' />
@@ -382,7 +382,7 @@ const AdminItem: React.FC<AdminItemProps> = ({
 						width || 'max-w-lg'
 					} mx-auto p-6 rounded-lg bg-white shadow-lg transform -translate-y-1/2`}
 				>
-					<div className='relative pb-1 border-b border-gray-100'>
+					<div className='relative pb-1 border-b border-gray-200'>
 						<header className='flex items-center'>
 							<h2 className='text-xl font-bold text-gray-800'>
 								{popupHeading}
@@ -455,7 +455,7 @@ const UserTable: React.FC<UserTableProps> = ({
 			{status === 'idle' ? (
 				<div>
 					<table className='w-full mt-4 table-auto'>
-						<thead className='border-b border-gray-100'>
+						<thead className='border-b border-gray-200'>
 							<tr className='font-semibold text-left text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
 								<th className='p-2'>Name</th>
 								<th className='p-2'>Email</th>
@@ -469,7 +469,7 @@ const UserTable: React.FC<UserTableProps> = ({
 							{usersState.allUsers.map((user) => (
 								<tr
 									key={user._id}
-									className='text-sm border-b border-gray-100 hover:bg-gray-100'
+									className='text-sm border-b border-gray-200 hover:bg-gray-100'
 								>
 									<td className='py-1 px-2'>{user.name}</td>
 									<td className='py-1 px-2'>
