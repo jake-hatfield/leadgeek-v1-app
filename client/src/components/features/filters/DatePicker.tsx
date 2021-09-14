@@ -57,7 +57,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 	const dateOptions = [
 		{
 			title:
-				mostRecentDay.startOf('day') <= DateTime.now().startOf('day')
+				mostRecentDay.startOf('day') >= DateTime.now().startOf('day')
 					? 'Today'
 					: 'Most recent day',
 			dateString: mostRecentDay.toFormat('LLL dd'),
@@ -65,8 +65,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			onClick: () => {
 				dispatch(
 					setDateLimit({
-						min: mostRecentDay.toISODate(),
-						max: null,
+						min: mostRecentDay.startOf('day'),
+						max: mostRecentDay.endOf('day'),
 						selected: mostRecentDay.toFormat('LLL dd, yyyy'),
 					})
 				);
@@ -74,7 +74,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 		},
 		{
 			title:
-				previousDay.startOf('day') <=
+				previousDay.startOf('day') >=
 				DateTime.now().minusBusiness({ days: 1 }).startOf('day')
 					? 'Yesterday'
 					: 'Previous day',
@@ -99,8 +99,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			onClick: () => {
 				dispatch(
 					setDateLimit({
-						min: lastFiveStart.toISODate(),
-						max: null,
+						min: lastFiveStart.startOf('day'),
+						max: mostRecentDay.endOf('day'),
 						selected: `${lastFiveStart.toFormat(
 							'LLL dd, yyyy'
 						)} - ${mostRecentDay.toFormat('LLL dd')}`,
@@ -117,8 +117,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			onClick: () => {
 				dispatch(
 					setDateLimit({
-						min: lastFourteenStart.toISODate(),
-						max: null,
+						min: lastFourteenStart.startOf('day'),
+						max: mostRecentDay.endOf('day'),
 						selected: `${lastFourteenStart.toFormat(
 							'LLL dd, yyyy'
 						)} - ${mostRecentDay.toFormat('LLL dd')}`,
@@ -135,8 +135,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			onClick: () => {
 				dispatch(
 					setDateLimit({
-						min: last30Start.toISODate(),
-						max: mostRecentDay.toISO(),
+						min: last30Start.startOf('day'),
+						max: mostRecentDay.endOf('day'),
 						selected: `${last30Start.toFormat(
 							'LLL dd, yyyy'
 						)} - ${mostRecentDay.toFormat('LLL dd')}`,
@@ -153,8 +153,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			onClick: () => {
 				dispatch(
 					setDateLimit({
-						min: lastDay.toISODate(),
-						max: mostRecentDay.toISO(),
+						min: lastDay.startOf('day'),
+						max: mostRecentDay.endOf('day'),
 						selected: `${lastDay.toFormat(
 							'LLL dd, yyyy'
 						)} - ${mostRecentDay.toFormat('LLL dd')}`,
@@ -181,7 +181,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
 		cb: () => void
 	) => {
 		let validDate = validateDateRange(dateCreated, minDate);
-		console.log(validDate);
 		if (validDate) {
 			cb();
 			setPage({ page: 1, type });

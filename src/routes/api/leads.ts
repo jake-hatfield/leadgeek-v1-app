@@ -9,6 +9,7 @@ import auth from '@middleware/auth';
 
 // models
 import Lead from '../../models/Lead';
+import { ILead } from 'types/Lead';
 import User from '../../models/User';
 import { Filter } from '../../types/Filter';
 import { Roles } from '../../types/User';
@@ -162,35 +163,53 @@ router.post('/', auth, async (req, res) => {
 		// we can proceed getting leads
 		console.log('Getting paginated leads...');
 
-		// declare global variables
-		let totalItems, filteredItems, lastUpdated, administrator: boolean;
-
 		// set role filter
 		const roleFilter = [role.toString()];
 		// declare admin roles and set admin to true if one exists
 		const administrativeRoles = ['master', 'admin'];
 		if (administrativeRoles.indexOf(role) >= 0) {
-			administrator = true;
+			roleFilter.push('bundle');
 		}
 
 		// set date filter
 		const fromJSDate = DateTime.fromJSDate(user.dateCreated);
 		const userDayCreated = fromJSDate.startOf('day').toISODate();
 		const minDateFilter = minDate ? minDate : userDayCreated;
-		const maxDateFilter = maxDate ? maxDate : Date.now();
+		const maxDateFilter = maxDate ? maxDate : DateTime.now().toISODate();
+		// convert iso to unix timestamp
+		const isoToTimestamp = (date: string) => {
+			return new Date(date).getTime();
+		};
 
-		let query: any = { $and: [], $or: [] };
+		// set baseline params
+		const baselineQueryParams = [
+			{ plan: { $in: roleFilter } },
+			{ 'data.date': { $gte: isoToTimestamp(minDateFilter) } },
+			{ 'data.date': { $lte: isoToTimestamp(maxDateFilter) } },
+		];
 
+		// query for total items is just baseline params
+		const totalItemQuery: any = {
+			$and: [...baselineQueryParams],
+		};
+
+		// baseline query should include role and date params
+		let feedQuery: any = {
+			$and: [...baselineQueryParams],
+			$or: [],
+		};
+
+		// map through filters and assign to query
 		for (var i = 0; i < itemFilters.length; i++) {
 			let filter = itemFilters[i];
 			if (filter.format === 'numeric') {
-				query.$and.push({
+				feedQuery.$and.push({
 					[`data.${[filter.type]}`]: {
 						[`$${[filter.operator]}`]: filter.value,
 					},
 				});
 			} else {
-				query.$or.push({
+				feedQuery.$or.push({
 					[`data.${[filter.type]}`]: {
 						[`$eq`]: filter.value,
 					},
@@ -199,9 +218,12 @@ router.post('/', auth, async (req, res) => {
 		}
 
 		// $and and $or can't be empty arrays, so remove them from the object before querying if they are
-		Object.keys(query).forEach((k) => query[k].length === 0 && delete query[k]);
+		Object.keys(feedQuery).forEach(
+			(k) => feedQuery[k].length === 0 && delete feedQuery[k]
+		);
 
-		const feed = await Lead.find(query)
+		const feed = await Lead.find(feedQuery)
+			.lean()
 			.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
 			.limit(itemLimit || ITEMS_PER_PAGE)
 			.sort({ 'data.date': -1 });
@@ -211,36 +233,44 @@ router.post('/', auth, async (req, res) => {
 			console.log(message);
 			return res.status(200).send({
 				feed,
-				totalItems,
-				filteredItems,
 				page,
 				hasNextPage: false,
 				hasPreviousPage: false,
 				nextPage: 1,
 				previousPage: 0,
 				lastPage: null,
-				lastUpdated,
+				totalItems: 0,
+				filteredItems: 0,
+				lastUpdated: null,
 			});
 		} else {
-			console.log(`Total items: ${totalItems} (${filteredItems}) filtered.`);
+			// get the most recent item for date purposes
+			const mostRecentItem = await Lead.find()
+				.where('plan')
+				.in(roleFilter)
+				.sort({ 'data.date': -1 })
+				.limit(1);
+			// get the number of total items
+			const totalItems = await Lead.find()
+				.lean()
+				.countDocuments(totalItemQuery);
+			// get the number of filtered items
+			const filteredItems = await Lead.find().lean().countDocuments(feedQuery);
+
 			console.log(
-				`Successfully queried + paginated ${feed.length} database leads.`
+				`Successfully queried + paginated ${feed.length} of ${totalItems} database leads.`
 			);
 			return res.status(200).send({
 				feed,
-				totalItems,
-				filteredItems,
 				page,
-				hasNextPage: filteredItems
-					? (itemLimit || ITEMS_PER_PAGE) * page < filteredItems
-					: false,
+				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < filteredItems,
 				hasPreviousPage: page > 1,
 				nextPage: page + 1,
 				previousPage: page - 1,
-				lastPage: filteredItems
-					? Math.ceil(filteredItems / (itemLimit || ITEMS_PER_PAGE))
-					: null,
-				lastUpdated,
+				lastPage: Math.ceil(filteredItems / (itemLimit || ITEMS_PER_PAGE)),
+				totalItems,
+				filteredItems,
+				lastUpdated: mostRecentItem[0].data.date,
 			});
 		}
 	} catch (error) {
@@ -289,42 +319,100 @@ router.post('/', auth, async (req, res) => {
 // @route       POST api/liked
 // @description Send lead ids to populate the liked page
 // @access      Private
-// router.post('/liked', auth, async (req, res) => {
-// 	try {
-// 		const { leads, page, itemLimit } = req.body;
-// 		const likedLeads = await Lead.find({ _id: { $in: leads } })
-// 			.countDocuments()
-// 			.then((numLeads) => {
-// 				totalItems = numLeads;
-// 				return Lead.find({ _id: { $in: leads } })
-// 					.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
-// 					.limit(itemLimit || ITEMS_PER_PAGE)
-// 					.sort({ 'data.date': -1 });
-// 			});
-// 		let message;
-// 		if (likedLeads.length === 0) {
-// 			message = 'You have not liked any leads';
-// 			console.log(message);
-// 		} else {
-// 			message = `Successfully queried ${likedLeads.length} liked leads.`;
-// 			console.log(message);
-// 		}
-// 		return res.status(200).send({
-// 			message,
-// 			likedLeads,
-// 			page,
-// 			hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
-// 			hasPreviousPage: page > 1,
-// 			nextPage: page + 1,
-// 			previousPage: page - 1,
-// 			lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
-// 			totalItems,
-// 		});
-// 	} catch (error) {
-// 		console.log(error.message);
-// 		return res.status(500).send('Sever error');
-// 	}
-// });
+router.post('/liked', auth, async (req, res) => {
+	try {
+		// destructure necessary items from request body
+		const {
+			leads,
+			page,
+			filters: {
+				filters: itemFilters,
+				dateLimits: { min: minDate, max: maxDate },
+				itemLimit,
+			},
+		}: {
+			leads: ILead[];
+			page: number;
+			filters: {
+				filters: Filter[];
+				dateLimits: {
+					min: string;
+					max: string;
+				};
+				itemLimit: number;
+			};
+		} = req.body;
+
+		// declare global variables
+		let totalItems;
+
+		// set baseline params
+		const baselineQueryParams = [{ _id: { $in: leads } }];
+
+		// baseline query should include role and date params
+		let likedQuery: any = {
+			$and: [...baselineQueryParams],
+			$or: [],
+		};
+
+		// map through filters and assign to query
+		for (var i = 0; i < itemFilters.length; i++) {
+			let filter = itemFilters[i];
+			if (filter.format === 'numeric') {
+				likedQuery.$and.push({
+					[`data.${[filter.type]}`]: {
+						[`$${[filter.operator]}`]: filter.value,
+					},
+				});
+			} else {
+				likedQuery.$or.push({
+					[`data.${[filter.type]}`]: {
+						[`$eq`]: filter.value,
+					},
+				});
+			}
+		}
+
+		// $and and $or can't be empty arrays, so remove them from the object before querying if they are
+		Object.keys(likedQuery).forEach(
+			(k) => likedQuery[k].length === 0 && delete likedQuery[k]
+		);
+
+		// TODO: Refactor re-used code into a buildQuery method, refactor dates into a method as well
+
+		const likedLeads = await Lead.find(likedQuery)
+			.countDocuments()
+			.then((numLeads) => {
+				totalItems = numLeads;
+				return Lead.find(likedQuery)
+					.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
+					.limit(itemLimit || ITEMS_PER_PAGE)
+					.sort({ 'data.date': -1 });
+			});
+		let message;
+		if (likedLeads.length === 0) {
+			message = 'You have not liked any leads';
+			console.log(message);
+		} else {
+			message = `Successfully queried ${likedLeads.length} liked leads.`;
+			console.log(message);
+		}
+		return res.status(200).send({
+			message,
+			likedLeads,
+			page,
+			hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < 1,
+			hasPreviousPage: page > 1,
+			nextPage: page + 1,
+			previousPage: page - 1,
+			lastPage: Math.ceil(1 / (itemLimit || ITEMS_PER_PAGE)),
+			totalItems,
+		});
+	} catch (error) {
+		console.log(error.message);
+		return res.status(500).send('Sever error');
+	}
+});
 
 // @route       POST api/archived
 // @description Send lead ids to populate the archived page

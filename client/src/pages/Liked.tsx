@@ -18,14 +18,13 @@ const LikedPage = () => {
 	const filters = useAppSelector((state) => state.filters);
 	// destructure necessary items
 	const { page } = liked.pagination;
-	const { itemLimit } = filters;
 
 	useEffect(() => {
 		status === 'idle' &&
 			isAuthenticated &&
 			user &&
-			dispatch(getLikedLeads({ leads: user.likedLeads, page, itemLimit }));
-	}, [status, isAuthenticated, user, page, itemLimit, dispatch]);
+			dispatch(getLikedLeads({ leads: user.likedLeads, page, filters }));
+	}, [status, isAuthenticated, user, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
 		<AuthLayout>
@@ -33,7 +32,7 @@ const LikedPage = () => {
 				leads={liked.pageByIds}
 				pagination={liked.pagination}
 				type={'liked'}
-				itemLimit={itemLimit}
+				itemLimit={filters.itemLimit}
 				headerTitle={null}
 				user={user}
 				status={status}

@@ -8,9 +8,16 @@ import {
 	FilterTypes,
 } from '@utils/interfaces/Filter';
 
+const getLSFilters = () => {
+	const lsFilters = localStorage.getItem('filters');
+	return lsFilters ? JSON.parse(lsFilters) : [];
+};
+
+const lsFilters = getLSFilters();
+
 const initialState: FilterState = {
-	count: +localStorage.getItem('filterCount')! || 0,
-	filters: [],
+	count: lsFilters.length || 0,
+	filters: lsFilters,
 	prep: {
 		unit: +localStorage.getItem('unitFee')! || null,
 		lb: +localStorage.getItem('lbFee')! || null,
@@ -29,15 +36,38 @@ export const filtersSlice = createSlice({
 				id: string;
 			}>
 		) => {
+			// state
 			state.filters = state.filters.filter(
 				(filter) => filter.id !== action.payload.id
 			);
 			state.count = state.filters.length;
+
+			// local storage
+
+			// get any existing filters
+			const existingFilters = getLSFilters();
+			// if they exist, filter out all that aren't being deleted
+			if (existingFilters.length > 0) {
+				const newFilters = existingFilters.filter(
+					(filter: Filter) => filter.id !== action.payload.id
+				);
+				// if there are remaining filters, add them
+				if (newFilters.length > 0) {
+					localStorage.setItem('filters', JSON.stringify(newFilters));
+				} else {
+					// otherwise get rid of the item in local storage
+					localStorage.removeItem('filters');
+				}
+			}
 		},
 
 		clearFilters: (state) => {
+			// state
 			state.count = 0;
 			state.filters = [];
+
+			// local storage
+			localStorage.removeItem('filters');
 		},
 		clearPrepFilter: (state) => {
 			console.log(state);
@@ -55,6 +85,8 @@ export const filtersSlice = createSlice({
 				}>
 			) => {
 				const { id, format, type, title, operator, value } = action.payload;
+
+				// state
 
 				// perform actions to the input value to make it able to processed the same way for all types
 				let processedValue;
@@ -94,6 +126,17 @@ export const filtersSlice = createSlice({
 				}
 				// update the count to the current number of applied filters
 				state.count = state.filters.length;
+
+				// local storage
+
+				// add filter to local storage
+				const existingFilters = getLSFilters();
+				if (existingFilters.length > 0) {
+					const newFilters = JSON.stringify([...existingFilters, newFilter]);
+					localStorage.setItem('filters', newFilters);
+				} else {
+					localStorage.setItem('filters', JSON.stringify([newFilter]));
+				}
 			},
 			prepare: (
 				format: 'numeric' | 'text',

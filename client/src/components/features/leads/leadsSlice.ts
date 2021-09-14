@@ -102,12 +102,12 @@ export const getFeedLeads = createAsyncThunk(
 export const getLikedLeads = createAsyncThunk(
 	'leads/getLikedLeads',
 	async (
-		options: { leads: Lead[]; page: number; itemLimit: number },
+		options: { leads: Lead[]; page: number; filters: FilterState },
 		{ rejectWithValue }
 	) => {
 		try {
-			const { leads, page, itemLimit } = options;
-			const body = JSON.stringify({ leads, page, itemLimit });
+			const { leads, page, filters } = options;
+			const body = JSON.stringify({ leads, page, filters });
 			const { data } = await axios.post('/api/leads/liked', body, config);
 			console.log(data);
 			return data;

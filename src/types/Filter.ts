@@ -3,7 +3,7 @@ export type FilterTypes =
 	| 'buyPrice'
 	| 'sellPrice'
 	| 'roi'
-	| 'bsr'
+	| 'bsrCurrent'
 	| 'monthlySales'
 	| 'weight'
 	| 'category'

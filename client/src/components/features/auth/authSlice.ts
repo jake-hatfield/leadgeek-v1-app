@@ -69,7 +69,6 @@ export const getUserData = createAsyncThunk(
 	'auth/getUserData',
 	async (_, { rejectWithValue }) => {
 		try {
-			console.log('hello there');
 			const res = await axios.get('/api/auth');
 			return res.data;
 		} catch (error) {
