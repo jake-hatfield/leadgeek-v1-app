@@ -300,7 +300,7 @@ const Details: React.FC<DetailsProps> = ({
 				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
 			/>
 			<div className='fixed top-0 right-0 z-20 w-full max-w-2xl transform translate-y-16 -translate-x-32'>
-				<div className='relative z-40 p-6 rounded-lg shadow-xl bg-white opacity-100'>
+				<div className='relative z-40 p-6 rounded-lg shadow-xl bg-white opacity-100 border border-gray-400'>
 					<header className='flex items-center justify-between border-b border-gray-200'>
 						<div>
 							{primaryLinks.map((link, i) => (

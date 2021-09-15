@@ -2,16 +2,18 @@
 import { Router } from 'express';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { DateTime } from 'luxon';
-import mongoose from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 
 // middleware
 import auth from '@middleware/auth';
 
 // models
 import Lead from '../../models/Lead';
-import { ILead } from 'types/Lead';
-import User from '../../models/User';
+import User, { IUserDocument } from '../../models/User';
+
+// types
 import { Filter } from '../../types/Filter';
+import { ILead } from 'types/Lead';
 import { Roles } from '../../types/User';
 
 // router
@@ -193,34 +195,8 @@ router.post('/', auth, async (req, res) => {
 			$and: [...baselineQueryParams],
 		};
 
-		// baseline query should include role and date params
-		let feedQuery: any = {
-			$and: [...baselineQueryParams],
-			$or: [],
-		};
-
-		// map through filters and assign to query
-		for (var i = 0; i < itemFilters.length; i++) {
-			let filter = itemFilters[i];
-			if (filter.format === 'numeric') {
-				feedQuery.$and.push({
-					[`data.${[filter.type]}`]: {
-						[`$${[filter.operator]}`]: filter.value,
-					},
-				});
-			} else {
-				feedQuery.$or.push({
-					[`data.${[filter.type]}`]: {
-						[`$eq`]: filter.value,
-					},
-				});
-			}
-		}
-
-		// $and and $or can't be empty arrays, so remove them from the object before querying if they are
-		Object.keys(feedQuery).forEach(
-			(k) => feedQuery[k].length === 0 && delete feedQuery[k]
-		);
+		// build feed query
+		const feedQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
 
 		const feed = await Lead.find(feedQuery)
 			.lean()
@@ -325,20 +301,12 @@ router.post('/liked', auth, async (req, res) => {
 		const {
 			leads,
 			page,
-			filters: {
-				filters: itemFilters,
-				dateLimits: { min: minDate, max: maxDate },
-				itemLimit,
-			},
+			filters: { filters: itemFilters, itemLimit },
 		}: {
 			leads: ILead[];
 			page: number;
 			filters: {
 				filters: Filter[];
-				dateLimits: {
-					min: string;
-					max: string;
-				};
 				itemLimit: number;
 			};
 		} = req.body;
@@ -349,36 +317,8 @@ router.post('/liked', auth, async (req, res) => {
 		// set baseline params
 		const baselineQueryParams = [{ _id: { $in: leads } }];
 
-		// baseline query should include role and date params
-		let likedQuery: any = {
-			$and: [...baselineQueryParams],
-			$or: [],
-		};
-
-		// map through filters and assign to query
-		for (var i = 0; i < itemFilters.length; i++) {
-			let filter = itemFilters[i];
-			if (filter.format === 'numeric') {
-				likedQuery.$and.push({
-					[`data.${[filter.type]}`]: {
-						[`$${[filter.operator]}`]: filter.value,
-					},
-				});
-			} else {
-				likedQuery.$or.push({
-					[`data.${[filter.type]}`]: {
-						[`$eq`]: filter.value,
-					},
-				});
-			}
-		}
-
-		// $and and $or can't be empty arrays, so remove them from the object before querying if they are
-		Object.keys(likedQuery).forEach(
-			(k) => likedQuery[k].length === 0 && delete likedQuery[k]
-		);
-
-		// TODO: Refactor re-used code into a buildQuery method, refactor dates into a method as well
+		// build liked query
+		const likedQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
 
 		const likedLeads = await Lead.find(likedQuery)
 			.countDocuments()
@@ -389,6 +329,7 @@ router.post('/liked', auth, async (req, res) => {
 					.limit(itemLimit || ITEMS_PER_PAGE)
 					.sort({ 'data.date': -1 });
 			});
+
 		let message;
 		if (likedLeads.length === 0) {
 			message = 'You have not liked any leads';
@@ -401,11 +342,15 @@ router.post('/liked', auth, async (req, res) => {
 			message,
 			likedLeads,
 			page,
-			hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < 1,
+			hasNextPage: totalItems
+				? (itemLimit || ITEMS_PER_PAGE) * page < totalItems
+				: false,
 			hasPreviousPage: page > 1,
 			nextPage: page + 1,
 			previousPage: page - 1,
-			lastPage: Math.ceil(1 / (itemLimit || ITEMS_PER_PAGE)),
+			lastPage: totalItems
+				? Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE))
+				: null,
 			totalItems,
 		});
 	} catch (error) {
@@ -417,205 +362,252 @@ router.post('/liked', auth, async (req, res) => {
 // @route       POST api/archived
 // @description Send lead ids to populate the archived page
 // @access      Private
-// router.post('/archived', auth, async (req, res) => {
-// 	try {
-// 		const { leads, page, itemLimit } = req.body;
-// 		const archivedLeads = await Lead.find({ _id: { $in: leads } })
-// 			.countDocuments()
-// 			.then((numLeads) => {
-// 				totalItems = numLeads;
-// 				return Lead.find({ _id: { $in: leads } })
-// 					.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
-// 					.limit(itemLimit || ITEMS_PER_PAGE)
-// 					.sort({ 'data.date': -1 });
-// 			});
-// 		let message;
-// 		if (archivedLeads.length === 0) {
-// 			message = 'You have not archived any leads';
-// 			console.log(message);
-// 		} else {
-// 			let message = `Successfully queried ${archivedLeads.length} archived leads.`;
-// 			console.log(message);
-// 		}
-// 		return res.status(200).send({
-// 			message,
-// 			archivedLeads,
-// 			page,
-// 			hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
-// 			hasPreviousPage: page > 1,
-// 			nextPage: page + 1,
-// 			previousPage: page - 1,
-// 			lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
-// 			totalItems,
-// 		});
-// 	} catch (error) {
-// 		console.log(error.message);
-// 		return res.status(500).send('Sever error');
-// 	}
-// });
+router.post('/archived', auth, async (req, res) => {
+	try {
+		// destructure necessary items from request body
+		const {
+			leads,
+			page,
+			filters: { filters: itemFilters, itemLimit },
+		}: {
+			leads: ILead[];
+			page: number;
+			filters: {
+				filters: Filter[];
+				itemLimit: number;
+			};
+		} = req.body;
+
+		// declare global variables
+		let totalItems;
+
+		// set baseline params
+		const baselineQueryParams = [{ _id: { $in: leads } }];
+
+		// build liked query
+		const archivedQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
+
+		const archivedLeads = await Lead.find(archivedQuery)
+			.countDocuments()
+			.then((numLeads) => {
+				totalItems = numLeads;
+				return Lead.find(archivedQuery)
+					.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
+					.limit(itemLimit || ITEMS_PER_PAGE)
+					.sort({ 'data.date': -1 });
+			});
+
+		let message;
+		if (archivedLeads.length === 0) {
+			message = 'You have not archived any leads';
+			console.log(message);
+		} else {
+			let message = `Successfully queried ${archivedLeads.length} archived leads.`;
+			console.log(message);
+		}
+		return res.status(200).send({
+			message,
+			archivedLeads,
+			page,
+			hasNextPage: totalItems
+				? (itemLimit || ITEMS_PER_PAGE) * page < totalItems
+				: false,
+			hasPreviousPage: page > 1,
+			nextPage: page + 1,
+			previousPage: page - 1,
+			lastPage: totalItems
+				? Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE))
+				: null,
+			totalItems,
+		});
+	} catch (error) {
+		console.log(error.message);
+		return res.status(500).send('Sever error');
+	}
+});
 
 // @route       POST api/handle-like-lead
 // @description Like/unlike a lead
 // @access      Private
-// const unlikeLead = async (user, leadId) => {
-// 	const updatedLikedArray = user.likedLeads.filter(
-// 		(lead) => lead._id.toString() !== leadId.toString()
-// 	);
-// 	console.log('Lead was unliked.');
-// 	user.likedLeads = updatedLikedArray;
-// 	await user.save();
-// };
+const unlikeLead = async (user: any, leadId: ObjectId) => {
+	const updatedLikedArray = user.likedLeads.filter(
+		(lead: { _id: ObjectId }) => lead._id.toString() !== leadId.toString()
+	);
+	console.log('Lead was unliked.');
+	user.likedLeads = updatedLikedArray;
+	await user.save();
+};
 
-// const likeLead = async (user, leadId) => {
-// 	console.log('Lead was liked.');
-// 	user.likedLeads.push(leadId);
-// 	await user.save();
-// };
+const likeLead = async (user: any, leadId: ObjectId) => {
+	console.log('Lead was liked.');
+	user.likedLeads.push(leadId);
+	await user.save();
+};
 
-// router.post('/handle-like-lead', auth, async (req, res) => {
-// 	try {
-// 		const { userId, leadId } = req.body;
-// 		// find lead in the feed
-// 		const lead = await Lead.findById(leadId);
-// 		if (lead) {
-// 			// find the user's liked leads
-// 			const user = await User.findById(userId);
-// 			const likedLeads = user.likedLeads;
-// 			// check if the lead is already liked
-// 			const indexed = likedLeads
-// 				.map((l) => {
-// 					return l._id;
-// 				})
-// 				.indexOf(leadId);
-// 			if (indexed >= 0) {
-// 				unlikeLead(user, leadId);
-// 				return res.status(200).send({
-// 					message: 'Lead was unliked',
-// 					leads: user.likedLeads,
-// 					title: lead.data.title,
-// 				});
-// 			} else {
-// 				likeLead(user, leadId);
-// 				return res.status(200).send({
-// 					message: 'Lead was liked',
-// 					leads: user.likedLeads,
-// 					title: lead.data.title,
-// 				});
-// 			}
-// 		} else {
-// 			return res.status(404).send('There was an error liking this lead.');
-// 		}
-// 	} catch (error) {
-// 		console.error(error.message);
-// 		return res.status(500).send('Server error');
-// 	}
-// });
+router.post('/handle-like-lead', auth, async (req, res) => {
+	try {
+		const { userId, leadId } = req.body;
+		// find lead in the feed
+		const lead = await Lead.findById(leadId);
+		if (lead) {
+			// find the user's liked leads
+			const user = await User.findById(userId);
+			const likedLeads = user.likedLeads;
+			// check if the lead is already liked
+			const indexed = likedLeads
+				.map((l) => {
+					return l._id;
+				})
+				.indexOf(leadId);
+			if (indexed >= 0) {
+				unlikeLead(user, leadId);
+				return res.status(200).send({
+					message: 'Lead was unliked',
+					leads: user.likedLeads,
+					title: lead.data.title,
+				});
+			} else {
+				likeLead(user, leadId);
+				return res.status(200).send({
+					message: 'Lead was liked',
+					leads: user.likedLeads,
+					title: lead.data.title,
+				});
+			}
+		} else {
+			return res.status(404).send('There was an error liking this lead.');
+		}
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).send('Server error');
+	}
+});
 
 // @route       POST api/handle-archive-lead
 // @description Archive/unarchive a lead
 // @access      Private
-// const unarchiveLead = async (user, leadId) => {
-// 	const updatedArchivedArray = user.archivedLeads.filter(
-// 		(lead) => lead._id.toString() !== leadId.toString()
-// 	);
-// 	console.log('Lead was unarchived.');
-// 	user.archivedLeads = updatedArchivedArray;
-// 	await user.save();
-// };
+const unarchiveLead = async (user: any, leadId: ObjectId) => {
+	const updatedArchivedArray = user.archivedLeads.filter(
+		(lead: { _id: ObjectId }) => lead._id.toString() !== leadId.toString()
+	);
+	console.log('Lead was unarchived.');
+	user.archivedLeads = updatedArchivedArray;
+	await user.save();
+};
 
-// const archiveLead = async (user, leadId) => {
-// 	console.log('Lead was archived.');
-// 	user.archivedLeads.push(leadId);
-// 	await user.save();
-// };
+const archiveLead = async (user: any, leadId: ObjectId) => {
+	console.log('Lead was archived.');
+	user.archivedLeads.push(leadId);
+	await user.save();
+};
 
-// router.post('/handle-archive-lead', auth, async (req, res) => {
-// 	try {
-// 		const { userId, leadId } = req.body;
-// 		// find lead in the feed
-// 		const lead = await Lead.findById(leadId);
-// 		if (lead) {
-// 			// find the user's liked leads
-// 			const user = await User.findById(userId);
-// 			const archivedLeads = user.archivedLeads;
-// 			// check if the lead is already liked
-// 			const indexed = archivedLeads
-// 				.map((l) => {
-// 					return l._id;
-// 				})
-// 				.indexOf(leadId);
-// 			if (indexed >= 0) {
-// 				unarchiveLead(user, leadId);
-// 				return res.status(200).send({
-// 					message: 'Lead was unarchived',
-// 					leads: user.archivedLeads,
-// 					title: lead.data.title,
-// 				});
-// 			} else {
-// 				archiveLead(user, leadId);
-// 				return res.status(200).send({
-// 					message: 'Lead was archived',
-// 					leads: user.archivedLeads,
-// 					title: lead.data.title,
-// 				});
-// 			}
-// 		} else {
-// 			return res.status(404).send('There was an error archiving this lead.');
-// 		}
-// 	} catch (error) {
-// 		console.error(error.message);
-// 		return res.status(500).send('Server error');
-// 	}
-// });
+router.post('/handle-archive-lead', auth, async (req, res) => {
+	try {
+		const { userId, leadId } = req.body;
+		// find lead in the feed
+		const lead = await Lead.findById(leadId);
+		if (lead) {
+			// find the user's liked leads
+			const user = await User.findById(userId);
+			const archivedLeads = user.archivedLeads;
+			// check if the lead is already liked
+			const indexed = archivedLeads
+				.map((l) => {
+					return l._id;
+				})
+				.indexOf(leadId);
+			if (indexed >= 0) {
+				unarchiveLead(user, leadId);
+				return res.status(200).send({
+					message: 'Lead was unarchived',
+					leads: user.archivedLeads,
+					title: lead.data.title,
+				});
+			} else {
+				archiveLead(user, leadId);
+				return res.status(200).send({
+					message: 'Lead was archived',
+					leads: user.archivedLeads,
+					title: lead.data.title,
+				});
+			}
+		} else {
+			return res.status(404).send('There was an error archiving this lead.');
+		}
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).send('Server error');
+	}
+});
 
 // @route       POST api/add-comment
 // @description Add a comment to a lead
 // @access      Private
-// router.post('/add-comment', auth, async (req, res) => {
-// 	try {
-// 		const { comment, userId, leadId } = req.body;
-// 		if (!comment || !userId || !leadId) {
-// 			return res
-// 				.status(400)
-// 				.json({ message: 'Required information is missing' });
-// 		}
-// 		let message;
-// 		const lead = await Lead.findById(leadId);
-// 		if (lead) {
-// 			const user = await User.findById(userId);
-// 			if (user) {
-// 				const alreadyCommented = user.comments.find(
-// 					(l) => l.leadId.toString() === leadId
-// 				);
-// 				if (alreadyCommented) {
-// 					console.log('Overwriting comment...');
-// 					const newComment = {
-// 						leadId,
-// 						comment,
-// 					};
-// 					const commentIndex = user.comments.findIndex(
-// 						(l) => l.leadId.toString() === leadId
-// 					);
-// 					user.comments[commentIndex] = newComment;
-// 				} else {
-// 					console.log('Comment does not exist yet...');
-// 					user.comments.push({ leadId, comment });
-// 				}
+router.post('/add-comment', auth, async (req, res) => {
+	try {
+		const { comment, userId, leadId } = req.body;
+		if (!comment || !userId || !leadId) {
+			return res
+				.status(400)
+				.json({ message: 'Required information is missing' });
+		}
 
-// 				await user.save();
-// 				console.log('Comment saved!');
-// 				return res
-// 					.status(200)
-// 					.json({ message: 'Comment was added', comments: user.comments });
-// 			} else {
-// 				message = 'User could not be found';
-// 				return res.status(400).json({ message });
-// 			}
-// 		}
-// 	} catch (error) {
-// 		console.error(error.message);
-// 		return res.status(500).send('Server error');
-// 	}
-// });
+		// declare global variables
+		let message;
+
+		// query lead
+		const lead = await Lead.findById(leadId);
+
+		// if it exists, see if it already has a comment
+		if (lead) {
+			const user = await User.findById(userId);
+			if (user) {
+				const alreadyCommented = user.comments.find(
+					(l) => l.leadId.toString() === leadId
+				);
+
+				// if it already has a comment, update it
+				if (alreadyCommented) {
+					console.log('Overwriting comment...');
+
+					// build the new comment
+					const newComment = {
+						leadId,
+						comment,
+						date: DateTime.now().toISO(),
+					};
+
+					// find the index of it
+					const commentIndex = user.comments.findIndex(
+						(l) => l.leadId.toString() === leadId
+					);
+
+					// replace it in the array
+					user.comments[commentIndex] = newComment;
+				} else {
+					console.log('Comment does not exist yet...');
+
+					// push the new comment onto the array
+					user.comments.push({ leadId, comment });
+				}
+
+				// save the user document
+				await user.save();
+				console.log('Comment saved!');
+
+				// return successful
+				return res
+					.status(201)
+					.json({ message: 'Comment was added', comments: user.comments });
+			} else {
+				message = 'User could not be found';
+				return res.status(400).json({ message });
+			}
+		}
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).send('Server error');
+	}
+});
 
 module.exports = router;

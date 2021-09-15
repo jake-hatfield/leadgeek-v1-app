@@ -18,16 +18,13 @@ const Archived = () => {
 	const filters = useAppSelector((state) => state.filters);
 	// destructure necessary items
 	const { page } = archived.pagination;
-	const { itemLimit } = filters;
 
 	useEffect(() => {
 		status === 'idle' &&
 			isAuthenticated &&
 			user &&
-			dispatch(
-				getArchivedLeads({ leads: user.archivedLeads, page, itemLimit })
-			);
-	}, [status, isAuthenticated, user, page, itemLimit, dispatch]);
+			dispatch(getArchivedLeads({ leads: user.archivedLeads, page, filters }));
+	}, [status, isAuthenticated, user, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
 		<AuthLayout>
@@ -35,7 +32,7 @@ const Archived = () => {
 				leads={archived.pageByIds}
 				pagination={archived.pagination}
 				type={'archived'}
-				itemLimit={itemLimit}
+				itemLimit={filters.itemLimit}
 				headerTitle={null}
 				user={user}
 				status={status}

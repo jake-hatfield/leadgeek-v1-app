@@ -1,6 +1,4 @@
-import { Types } from 'mongoose';
-
-import { LeadInterface } from './Lead';
+import { Types, ObjectId } from 'mongoose';
 
 export type Roles =
 	| 'user'
@@ -46,10 +44,10 @@ export interface IUser {
 			clients: Types.Array<{ userId: string; cusId: string }>;
 		};
 	};
-	likedLeads: Types.Array<LeadInterface>;
-	archivedLeads: Types.Array<LeadInterface>;
+	likedLeads: Types.Array<{ _id: ObjectId }>;
+	archivedLeads: Types.Array<{ _id: ObjectId }>;
 	comments: Types.Array<{
-		date: Date;
+		date: string;
 		leadId: string;
 		comment: string;
 	}>;
