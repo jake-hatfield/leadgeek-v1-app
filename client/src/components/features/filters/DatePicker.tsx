@@ -13,7 +13,7 @@ import { setPage } from '@features/leads/leadsSlice';
 import { useOutsideMousedown } from '@utils/utils';
 
 interface DatePickerProps {
-	type: string;
+	type: 'feed' | 'liked' | 'archived' | 'search';
 	date: boolean;
 	setDate: React.Dispatch<React.SetStateAction<boolean>>;
 	dateCreated: string;

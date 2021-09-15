@@ -9,12 +9,13 @@ import auth from '@middleware/auth';
 
 // models
 import Lead from '../../models/Lead';
-import User, { IUserDocument } from '../../models/User';
+import User from '../../models/User';
 
 // types
 import { Filter } from '../../types/Filter';
 import { ILead } from 'types/Lead';
 import { Roles } from '../../types/User';
+import { IUser } from '../../types/User';
 
 // router
 const router = Router();
@@ -175,9 +176,10 @@ router.post('/', auth, async (req, res) => {
 
 		// set date filter
 		const fromJSDate = DateTime.fromJSDate(user.dateCreated);
-		const userDayCreated = fromJSDate.startOf('day').toISODate();
+		const userDayCreated = fromJSDate.startOf('day').toISO();
 		const minDateFilter = minDate ? minDate : userDayCreated;
-		const maxDateFilter = maxDate ? maxDate : DateTime.now().toISODate();
+		const maxDateFilter = maxDate ? maxDate : DateTime.now().toISO();
+
 		// convert iso to unix timestamp
 		const isoToTimestamp = (date: string) => {
 			return new Date(date).getTime();
@@ -256,41 +258,113 @@ router.post('/', auth, async (req, res) => {
 });
 
 // @route       GET api/leads
-// @description Get all leads by plan
+// @description Get all leads by plan and type
 // @access      Private
-// router.post('/all', auth, async (req, res) => {
-// 	try {
-// 		const { role, dateCreated } = req.body;
-// 		console.log('Getting all leads...');
-// 		let roleFilter = [role.toString()];
-// 		let administrator;
-// 		const administrativeRoles = ['master', 'admin'];
-// 		if (administrativeRoles.indexOf(role) >= 0) {
-// 			administrator = true;
-// 		}
-// 		const feed = await Lead.find({
-// 			...(!administrator && { plan: { $in: roleFilter } }),
-// 			...(!administrator && {
-// 				'data.date': { $gte: dateCreated },
-// 			}),
-// 		})
-// 			.select('data -_id')
-// 			.sort({ 'data.date': -1 });
-// 		console.log(`Total items: ${feed.length}`);
-// 		if (feed.length === 0) {
-// 			let message = 'There are no leads to show';
-// 			console.log(message);
-// 			return res.status(200).send({ message });
-// 		} else {
-// 			return res.status(200).send({
-// 				feed,
-// 			});
-// 		}
-// 	} catch (error) {
-// 		console.error(error.message);
-// 		return res.status(500).send('Server error');
-// 	}
-// });
+router.post('/all', auth, async (req, res) => {
+	try {
+		// destructure necessary items
+		const {
+			userId,
+			filters: {
+				filters: itemFilters,
+				dateLimits: { min: minDate, max: maxDate },
+			},
+			type,
+		}: {
+			userId: string;
+			filters: {
+				filters: Filter[];
+				dateLimits: {
+					min: string;
+					max: string;
+				};
+			};
+			type: 'feed' | 'liked' | 'archived' | 'search';
+		} = req.body;
+
+		// lookup user by id
+		const user = await User.findById(userId);
+
+		// no user was found (though shouldn't ever happen)
+		if (!user) {
+			let message = 'There was an error finding a user with that id.';
+			console.log(message);
+			return res.status(400).send({ status: 'failure', message });
+		}
+
+		// declare global variables
+		let leads: { _id: ObjectId }[];
+
+		// switch on type to export the right leads
+		switch (type) {
+			case 'liked':
+				leads = user.likedLeads.length > 0 ? user.likedLeads : [];
+				break;
+			case 'archived':
+				leads = user.archivedLeads.length > 0 ? user.archivedLeads : [];
+				break;
+			default:
+				leads = [];
+		}
+
+		console.log('Getting all leads...');
+
+		// set role filter
+		const roleFilter = [user.role.toString()];
+		// declare admin roles and set admin to true if one exists
+		const administrativeRoles = ['master', 'admin'];
+		if (administrativeRoles.indexOf(user.role) >= 0) {
+			roleFilter.push('bundle');
+		}
+
+		// set date filter
+		const fromJSDate = DateTime.fromJSDate(user.dateCreated);
+		const userDayCreated = fromJSDate.startOf('day').toISODate();
+		const minDateFilter = minDate ? minDate : userDayCreated;
+		const maxDateFilter = maxDate ? maxDate : DateTime.now().toISODate();
+		// convert iso to unix timestamp
+		const isoToTimestamp = (date: string) => {
+			return new Date(date).getTime();
+		};
+
+		// set baseline params
+		const baselineQueryParams: any = [
+			{ plan: { $in: roleFilter } },
+			{ 'data.date': { $gte: isoToTimestamp(minDateFilter) } },
+			{ 'data.date': { $lte: isoToTimestamp(maxDateFilter) } },
+		];
+
+		// if the leads variable is not empty, add it to the baseline query parameters
+		if (leads.length > 0) {
+			baselineQueryParams.push({ _id: { $in: leads } });
+		}
+
+		// build all leads query
+		const allLeadsQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
+
+		// query leads
+		const allLeads = await Lead.find(allLeadsQuery)
+			.lean()
+			.sort({ 'data.date': -1 });
+
+		// if the query is an empty array, return
+		if (allLeads.length === 0) {
+			let message = 'There are no leads to show';
+			console.log(message);
+			return res.status(200).send({ totalByIds: [], type, message });
+		} else {
+			// return with data
+			return res.status(200).send({
+				totalByIds: allLeads,
+				type,
+				message: 'Successfully queried leads',
+			});
+		}
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).send('Server error');
+	}
+});
 
 // @route       POST api/liked
 // @description Send lead ids to populate the liked page
@@ -320,6 +394,7 @@ router.post('/liked', auth, async (req, res) => {
 		// build liked query
 		const likedQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
 
+		// query leads
 		const likedLeads = await Lead.find(likedQuery)
 			.countDocuments()
 			.then((numLeads) => {
@@ -566,16 +641,16 @@ router.post('/add-comment', auth, async (req, res) => {
 					(l) => l.leadId.toString() === leadId
 				);
 
+				// build the new comment
+				const newComment = {
+					leadId,
+					comment,
+					date: DateTime.now().toISO(),
+				};
+
 				// if it already has a comment, update it
 				if (alreadyCommented) {
 					console.log('Overwriting comment...');
-
-					// build the new comment
-					const newComment = {
-						leadId,
-						comment,
-						date: DateTime.now().toISO(),
-					};
 
 					// find the index of it
 					const commentIndex = user.comments.findIndex(
@@ -588,7 +663,7 @@ router.post('/add-comment', auth, async (req, res) => {
 					console.log('Comment does not exist yet...');
 
 					// push the new comment onto the array
-					user.comments.push({ leadId, comment });
+					user.comments.push(newComment);
 				}
 
 				// save the user document

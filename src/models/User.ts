@@ -1,10 +1,12 @@
-import { Document, model, Model, Schema } from 'mongoose';
+import { Document, model, Model, ObjectId, Schema } from 'mongoose';
 
 import { IUser } from 'types/User';
 
 export interface IUserDocument extends IUser, Document {}
 
-interface IUserModel extends Model<IUserDocument> {}
+interface IUserModel extends Model<IUserDocument> {
+	_id: ObjectId;
+}
 
 const UserSchema: Schema<IUserDocument> = new Schema({
 	name: {

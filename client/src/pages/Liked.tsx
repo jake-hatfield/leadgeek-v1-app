@@ -30,6 +30,7 @@ const LikedPage = () => {
 		<AuthLayout>
 			<Leads
 				leads={liked.pageByIds}
+				allLeads={liked.totalByIds}
 				pagination={liked.pagination}
 				type={'liked'}
 				itemLimit={filters.itemLimit}

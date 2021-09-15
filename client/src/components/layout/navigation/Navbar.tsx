@@ -7,9 +7,6 @@ import { NavLink } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
 import { removeUserData } from '@components/features/auth/authSlice';
 
-// components
-import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
-
 // utils
 import { useOutsideMouseup } from '@utils/utils';
 interface NavbarLinkProps {
@@ -58,6 +55,7 @@ const Navbar = () => {
 	// local state & local storage
 	const [hover, setHover] = useState(false);
 	const [userDropdown, setUserDropdown] = useState(false);
+	const [firstInitial, setFirstInitial] = useState<string>('');
 
 	// modal handlers
 	const wrapperRef = useRef(null);
@@ -75,6 +73,13 @@ const Navbar = () => {
 		document.addEventListener('keydown', keyPress);
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
+
+	useEffect(() => {
+		if (name) {
+			let userInitials = name.split(' ').map((n) => n[0]);
+			setFirstInitial(userInitials[0]);
+		}
+	}, [name]);
 
 	// clear user data on logout
 	const logoutUser = () => {
@@ -117,11 +122,9 @@ const Navbar = () => {
 						}}
 						onMouseEnter={() => setHover(!userDropdown && true)}
 						onMouseLeave={() => setHover(false)}
-						className='p-2 h-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
+						className='p-2 h-10 w-10 flex items-center justify-center rounded-full bg-purple-500 text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
 					>
-						<span className='h-6 w-6 text-xl font-bold'>
-							<LeadGeekLogo />
-						</span>
+						<span className='text-lg font-bold'>{firstInitial}</span>
 						{hover && (
 							<div className='w-auto mt-2 p-2 absolute left-0 z-40 transform -translate-y-1 translate-x-14 rounded-lg bg-gray-900 shadow-md text-white text-sm text-left whitespace-nowrap'>
 								{name}

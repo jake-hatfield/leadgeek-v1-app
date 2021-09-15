@@ -9,7 +9,7 @@ import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 
 // utils
 import { numberWithCommas } from '@utils/utils';
-import { Pagination } from '@utils/interfaces/leads/Pagination';
+import { Pagination } from '@utils/interfaces/Pagination';
 
 interface PaginationProps {
 	pagination: Pagination;

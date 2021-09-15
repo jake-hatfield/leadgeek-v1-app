@@ -19,7 +19,7 @@ import {
 	truncate,
 	useOutsideMousedown,
 } from '@utils/utils';
-import { Lead } from '@utils/interfaces/leads/Lead';
+import { Lead } from '@utils/interfaces/Lead';
 import { User } from '@utils/interfaces/User';
 
 interface LeadRowProps {
@@ -120,27 +120,32 @@ const LeadRow: React.FC<LeadRowProps> = ({
 
 	// classes for component
 	const classes = {
+		categoryCellWrapper: 'p-2 w-56 truncate',
+		roiCellWrapper: 'p-2 w-24',
+		bsrCellWrapper: 'hidden xl:table-cell p-2 w-24',
+		monthlySalesCellWrapper: 'p-2 w-24',
+		dateCellWrapper: 'p-2 w-24',
 		rowWrapper:
 			'relative px-1 border-b border-gray-200 hover:bg-gray-100 cursor-pointer',
-		likeCellWrapper: 'p-2 pl-0 text-center text-gray-400',
+		likeCellWrapper: 'p-2 w-10 text-center text-gray-400',
 		likeCellButton: 'p-1 rounded-md ring-purple align-middle',
 		likeCellActive: 'svg-base hover:text-purple-400 transition-colors-main',
 		likeCellNull: 'p-2 px-4 svg-base',
 		titleCellWrapper:
-			'p-2 md:w-64 lg:w-72 xl:w-auto font-semibold overflow-ellipsis',
-		detailsCellWrapper: 'relative p-2 flex items-center text-gray-400',
+			'p-2 pr-12 w-32 md:w-48 lg:w-64 xl:w-96 font-semibold truncate',
+		detailsCellWrapper: 'relative w-20 p-2 text-gray-400',
 		detailsCellSvg: 'svg-base',
 		detailsCellButton:
 			'p-1 rounded-md hover:text-gray-600 transition-main ring-gray',
 		detailsCellImageWrapper:
-			'absolute z-10 p-2 transform lg:-translate-y-12 xl:-translate-y-16 translate-x-24 bg-white shadow-xl rounded-lg border border-gray-200',
+			'absolute z-10 p-2 transform lg:-translate-y-1/2 translate-x-16 bg-white shadow-xl rounded-lg border border-gray-200',
 		detailsCellImage: 'max-h-56 max-w-xs',
 		competitionWrapper:
 			'w-36 absolute bottom-0 z-10 p-2 transform -translate-y-12 translate-x-8 rounded-md shadow-md bg-gray-900 text-white text-sm',
 		competitionRow: 'center-between',
 		competitorType: 'font-semibold text-purple-300',
 		competitorCount: 'font-semibold',
-		profitCellWrapper: 'p-2 uppercase',
+		profitCellWrapper: 'w-36 p-2 uppercase',
 		titleHover:
 			'absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-12 rounded-md shadow-md bg-gray-900 text-white text-sm',
 		quickViewCellWrapper: quickView ? 'p-4' : 'p-2',
@@ -214,7 +219,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 				<div>{truncate(data.title, 60)}</div>
 			</td>
 			{/* category */}
-			<td className={classes.defaultCellWrapper}>
+			<td className={classes.categoryCellWrapper}>
 				{truncate(data.category, 28)}
 			</td>
 			{/* details */}
@@ -292,7 +297,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 				<span className={classes.valueIndicator}>USD</span>
 			</td>
 			{/* roi */}
-			<td className={classes.defaultCellWrapper}>
+			<td className={classes.roiCellWrapper}>
 				{(
 					((+data.netProfit?.toFixed(2) -
 						(unitFee || lbFee * data.weight || 0)) /
@@ -302,7 +307,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 				<span className={classes.valueIndicator}>%</span>
 			</td>
 			{/* bsr */}
-			<td className={classes.defaultCellWrapper}>
+			<td className={classes.bsrCellWrapper}>
 				{numberWithCommas(data.bsrCurrent)}
 				<span className={classes.valueIndicator}>
 					({calculateBSR(data.bsrCurrent, data.category)})
@@ -310,11 +315,11 @@ const LeadRow: React.FC<LeadRowProps> = ({
 				</span>
 			</td>
 			{/* monthly sales */}
-			<td className={classes.defaultCellWrapper}>
+			<td className={classes.monthlySalesCellWrapper}>
 				{numberWithCommas(data.monthlySales)}
 			</td>
 			{/* date */}
-			<td className={classes.defaultCellWrapper}>{datePosted}</td>
+			<td className={classes.dateCellWrapper}>{datePosted}</td>
 			{/* quick menu */}
 			<td className={classes.quickViewCellWrapper}>
 				<div ref={wrapperRef}>
@@ -347,9 +352,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 										<button
 											onClick={(e) => {
 												e.stopPropagation();
-												setShowDetails(!showDetails);
-												setCurrentLead(lead);
-												setExpandedView(false);
+												viewDetailsHandler();
 											}}
 											onMouseEnter={() => setEyeDesc(true)}
 											onMouseLeave={() => setEyeDesc(false)}

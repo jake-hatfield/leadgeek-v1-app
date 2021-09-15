@@ -16,8 +16,8 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({ link }) => {
 	return (
 		<div v-for='item in items'>
 			<NavLink
-				className='py-3 px-6 relative flex items-center justify-between group pb-2 font-semibold text-gray-700 hover:bg-gray-200 transition duration-100 ease-in-out ring-gray focus:ring-inset'
-				activeClassName='bg-gray-200'
+				className='py-3 px-6 relative flex items-center justify-between group pb-2 font-semibold text-gray-700 hover:bg-gray-200 hover:text-gray-800 transition duration-100 ease-in-out ring-gray focus:ring-inset'
+				activeClassName='bg-gray-200 text-gray-800'
 				onMouseEnter={() => setHover(!hover)}
 				onMouseLeave={() => setHover(false)}
 				to={link.link}

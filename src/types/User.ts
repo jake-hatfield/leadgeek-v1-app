@@ -1,4 +1,4 @@
-import { Types, ObjectId } from 'mongoose';
+import { ObjectId } from 'mongoose';
 
 export type Roles =
 	| 'user'
@@ -17,11 +17,11 @@ export interface IUser {
 	lastLoggedIn: Date;
 	subscription: {
 		cusId?: string;
-		subIds: Types.Array<{
+		subIds: {
 			id: string | null;
 			active?: boolean;
-		}>;
-		planIds: Types.Array<string>;
+		}[];
+		planIds: string[];
 	};
 	billing: {
 		paymentMethod: string | null;
@@ -41,14 +41,14 @@ export interface IUser {
 			lgid: string | null;
 			paypalEmail: string | null;
 			dateCreated: Date;
-			clients: Types.Array<{ userId: string; cusId: string }>;
+			clients: { userId: string; cusId: string }[];
 		};
 	};
-	likedLeads: Types.Array<{ _id: ObjectId }>;
-	archivedLeads: Types.Array<{ _id: ObjectId }>;
-	comments: Types.Array<{
+	likedLeads: { _id: ObjectId }[];
+	archivedLeads: { _id: ObjectId }[];
+	comments: {
 		date: string;
 		leadId: string;
 		comment: string;
-	}>;
+	}[];
 }

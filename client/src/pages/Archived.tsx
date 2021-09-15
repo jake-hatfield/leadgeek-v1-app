@@ -30,6 +30,7 @@ const Archived = () => {
 		<AuthLayout>
 			<Leads
 				leads={archived.pageByIds}
+				allLeads={archived.totalByIds}
 				pagination={archived.pagination}
 				type={'archived'}
 				itemLimit={filters.itemLimit}

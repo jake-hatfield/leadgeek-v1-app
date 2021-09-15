@@ -1,11 +1,16 @@
 import axios from 'axios';
 
+// redux
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { setAlert } from '@features/alert/alertSlice';
 
+// interfaces
 import { FilterState } from '@utils/interfaces/Filter';
-import { Lead } from '@utils/interfaces/leads/Lead';
-import { Pagination } from '@utils/interfaces/leads/Pagination';
+import { Lead, LeadTypes } from '@utils/interfaces/Lead';
+import { Pagination } from '@utils/interfaces/Pagination';
+import { Role, User } from '@utils/interfaces/User';
+
+// utils
 import { config, truncate } from '@utils/utils';
 
 export const addComment = createAsyncThunk(
@@ -15,12 +20,19 @@ export const addComment = createAsyncThunk(
 		{ dispatch }
 	) => {
 		try {
+			// destructure necessary items
 			const { comment, userId, leadId } = options;
+
+			// build request body
 			const body = JSON.stringify({ comment, userId, leadId });
+
+			// POST request to route
 			const { data } = await axios.post('/api/leads/add-comment', body, config);
+
 			if (data.message === 'Comment was added') {
 				return data.comments;
 			} else {
+				// dispatch danger alert
 				dispatch(
 					setAlert({
 						title: 'Something went wrong',
@@ -37,14 +49,29 @@ export const addComment = createAsyncThunk(
 
 export const getAllLeads = createAsyncThunk(
 	'leads/getAllLeads',
-	async (options: { role: string; dateCreated: string }, { dispatch }) => {
-		const { role, dateCreated } = options;
+	async (options: {
+		userId: string;
+		filters: FilterState;
+		type: LeadTypes;
+	}) => {
+		// destructure necessary items
+		const { userId, filters, type } = options;
+
+		// build request body
 		const body = JSON.stringify({
-			role,
-			dateCreated,
+			userId,
+			filters,
+			type,
 		});
-		const { data } = await axios.post('/api/leads/all', body, config);
-		return data;
+
+		// POST request to route
+		const {
+			data,
+		}: { data: { totalByIds: Lead[]; type: LeadTypes; message: string } } =
+			await axios.post('/api/leads/all', body, config);
+
+		console.log(data);
+		return { totalByIds: data.totalByIds, type: data.type };
 	}
 );
 
@@ -55,9 +82,15 @@ export const getArchivedLeads = createAsyncThunk(
 		{ rejectWithValue }
 	) => {
 		try {
+			// destructure necessary items
 			const { leads, page, filters } = options;
+
+			// build request body
 			const body = JSON.stringify({ leads, page, filters });
+
+			// POST request to route
 			const { data } = await axios.post('/api/leads/archived', body, config);
+
 			return data;
 		} catch (error) {
 			console.log(error);
@@ -80,16 +113,26 @@ export const getFeedLeads = createAsyncThunk(
 		{ rejectWithValue }
 	) => {
 		try {
-			const { id, role } = options.user;
+			// destructure necessary items
+			const {
+				user: { id, role },
+				page,
+				filters,
+			} = options;
+
+			// build request body
 			const body = JSON.stringify({
 				_id: id,
 				role,
-				page: options.page,
-				filters: options.filters,
+				page,
+				filters,
 			});
+
+			// POST request to route
 			const { data } = await axios.post('/api/leads', body, config);
-			if (data.message === 'There are no leads to show') {
-			} else {
+
+			// if there are leads, return data to redux store
+			if (data.message !== 'There are no leads to show') {
 				return data;
 			}
 		} catch (error) {
@@ -106,10 +149,15 @@ export const getLikedLeads = createAsyncThunk(
 		{ rejectWithValue }
 	) => {
 		try {
+			// destructure necessary items
 			const { leads, page, filters } = options;
+
+			// build request body
 			const body = JSON.stringify({ leads, page, filters });
+
+			// POST request to route
 			const { data } = await axios.post('/api/leads/liked', body, config);
-			console.log(data);
+
 			return data;
 		} catch (error) {
 			console.log(error);
@@ -131,8 +179,10 @@ export const getSearchResults = createAsyncThunk(
 		},
 		{ dispatch }
 	) => {
+		// destructure necessary items
 		const { query, role, dateCreated, page, itemLimit } = options;
 
+		// build request body
 		const body = JSON.stringify({
 			query,
 			role,
@@ -140,7 +190,10 @@ export const getSearchResults = createAsyncThunk(
 			page,
 			itemLimit,
 		});
+
+		// POST request to route
 		const { data } = await axios.post('/api/search', body, config);
+
 		return {
 			data,
 			query,
@@ -158,15 +211,24 @@ export const handleArchiveLead = createAsyncThunk(
 		{ dispatch }
 	) => {
 		try {
+			// destructure necessary items
 			const { userId, leadId } = options;
+
+			// build request body
 			const body = JSON.stringify({ userId, leadId });
+
+			// POST request to route
 			const res = await axios.post(
 				'/api/leads/handle-archive-lead',
 				body,
 				config
 			);
+
 			if (res.status === 200) {
+				// destructure necessary items
 				const { message, leads, title } = res.data;
+
+				// set success alert
 				dispatch(
 					setAlert({
 						title: truncate(title, 50),
@@ -174,6 +236,7 @@ export const handleArchiveLead = createAsyncThunk(
 						alertType: 'success',
 					})
 				);
+
 				return {
 					leadId,
 					leads,
@@ -195,11 +258,20 @@ export const handleLikeLead = createAsyncThunk(
 		{ dispatch }
 	) => {
 		try {
+			// destructure necessary items
 			const { userId, leadId } = options;
+
+			// build request body
 			const body = JSON.stringify({ userId, leadId });
+
+			// POST request to route
 			const res = await axios.post('/api/leads/handle-like-lead', body, config);
+
 			if (res.status === 200) {
+				// destructure necessary items
 				const { message, leads, title } = res.data;
+
+				// set success alert
 				dispatch(
 					setAlert({
 						title: truncate(title, 50),
@@ -207,6 +279,7 @@ export const handleLikeLead = createAsyncThunk(
 						alertType: 'success',
 					})
 				);
+
 				return {
 					leadId,
 					leads,
@@ -321,30 +394,39 @@ export const leadsSlice = createSlice({
 		setLeadLoading: (state) => {
 			state.status = 'loading';
 		},
-		setPage: (state, action: PayloadAction<{ page: number; type: string }>) => {
+		setPage: (
+			state,
+			action: PayloadAction<{
+				page: number;
+				type: LeadTypes;
+			}>
+		) => {
 			const { page, type } = action.payload;
-			switch (type) {
-				case 'feed':
-					state.feed.pagination.page = page;
-					break;
-				case 'liked':
-					state.liked.pagination.page = page;
-					break;
-				case 'archived':
-					state.archived.pagination.page = page;
-					break;
-				case 'search':
-					state.archived.pagination.page = page;
-					break;
-				default:
-					break;
+
+			if (state[type].pagination.page) {
+				state[type].pagination.page = page;
 			}
 		},
 	},
 	extraReducers: (builder) => {
 		builder
 			.addCase(getAllLeads.fulfilled, (state, action) => {
-				state.feed.totalByIds = action.payload.feed;
+				// destructure necessary items
+				const {
+					totalByIds,
+					type,
+				}: {
+					totalByIds: Lead[];
+					type: LeadTypes;
+				} = action.payload;
+
+				// if state type doesn't exist, set it to an empty array
+				if (!state[type].totalByIds) {
+					state[type].totalByIds = [];
+				}
+
+				// otherwise update the total leads in the state with the new payload
+				state[type].totalByIds = totalByIds;
 			})
 			.addCase(getArchivedLeads.fulfilled, (state, action) => {
 				const {
@@ -383,6 +465,7 @@ export const leadsSlice = createSlice({
 					filteredItems,
 					lastUpdated,
 				} = action.payload;
+
 				state.status = 'idle';
 				state.feed.pageByIds = feed;
 				state.feed.pagination.page = page;

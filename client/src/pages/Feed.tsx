@@ -36,6 +36,7 @@ const Feed = () => {
 		<AuthLayout>
 			<Leads
 				leads={feed.pageByIds}
+				allLeads={feed.totalByIds}
 				pagination={feed.pagination}
 				type={'feed'}
 				itemLimit={itemLimit}

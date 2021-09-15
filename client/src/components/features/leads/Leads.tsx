@@ -27,14 +27,15 @@ import Prep from '../filters/Prep';
 import Spinner from '@components/utils/Spinner';
 
 // utils
-import { Lead } from '@utils/interfaces/leads/Lead';
-import { Pagination } from '@utils/interfaces/leads/Pagination';
+import { Lead } from '@utils/interfaces/Lead';
+import { Pagination } from '@utils/interfaces/Pagination';
 import { User } from '@utils/interfaces/User';
 
 interface LeadsProps {
 	leads: Lead[];
+	allLeads: Lead[];
 	pagination: Pagination;
-	type: string;
+	type: 'feed' | 'liked' | 'archived' | 'search';
 	itemLimit: number;
 	headerTitle: string | null;
 	user: User;
@@ -45,6 +46,7 @@ interface LeadsProps {
 
 const Leads: React.FC<LeadsProps> = ({
 	leads,
+	allLeads,
 	pagination,
 	type,
 	itemLimit,
@@ -57,7 +59,6 @@ const Leads: React.FC<LeadsProps> = ({
 	const dispatch = useAppDispatch();
 	// lead state
 	const leadStatus = useAppSelector((state) => state.leads.status);
-	const feed = useAppSelector((state) => state.leads.feed);
 	const currentLead = useAppSelector((state) => state.leads.currentLead);
 	const lastUpdated = useAppSelector((state) => state.leads.lastUpdated);
 	// filter state
@@ -148,7 +149,7 @@ const Leads: React.FC<LeadsProps> = ({
 	// handler for exporting leads
 	const handleExport = async () => {
 		try {
-			dispatch(getAllLeads({ role: user.role, dateCreated: user.dateCreated }));
+			dispatch(getAllLeads({ userId, filters, type }));
 			setExportLeads(true);
 		} catch (error) {
 			console.log(error);
@@ -257,10 +258,10 @@ const Leads: React.FC<LeadsProps> = ({
 								)}
 								{prep && <Prep prep={prep} setPrep={setPrep} />}
 								{exportLeads &&
-									(feed.totalByIds.length > 0 ? (
+									(allLeads.length > 0 ? (
 										<ExportButton
 											user={user}
-											leads={feed.totalByIds}
+											leads={allLeads}
 											setExportLeads={setExportLeads}
 										/>
 									) : (
@@ -276,19 +277,7 @@ const Leads: React.FC<LeadsProps> = ({
 						</div>
 					</nav>
 				)}
-				{leadStatus === 'idle' ? (
-					<LeadTable
-						leads={leads}
-						user={user}
-						liked={likedLeads}
-						archived={archivedLeads}
-						status={leadStatus}
-						showDetails={showDetails}
-						setShowDetails={setShowDetails}
-						type={type}
-						currentSearchParam={currentSearchParam}
-					/>
-				) : leadStatus === 'failed' ? (
+				{leadStatus === 'failed' ? (
 					<div className='mt-6 container'>
 						There was an error making that request. If this issue persists,
 						please{' '}
@@ -303,12 +292,16 @@ const Leads: React.FC<LeadsProps> = ({
 						.
 					</div>
 				) : (
-					<Spinner
-						divWidth={null}
-						center={false}
-						spinnerWidth={null}
-						margin={true}
-						text={'Loading leads...'}
+					<LeadTable
+						leads={leads}
+						user={user}
+						liked={likedLeads}
+						archived={archivedLeads}
+						status={leadStatus}
+						showDetails={showDetails}
+						setShowDetails={setShowDetails}
+						type={type}
+						currentSearchParam={currentSearchParam}
 					/>
 				)}
 				{pagination && (
@@ -393,9 +386,9 @@ const svgList = {
 
 // classes for component
 const classes = {
-	leadsWrapper: 'relative mb-6',
-	navWrapper: 'mt-6 container',
-	nav: 'relative flex items-end justify-between pb-2 border-b border-gray-200',
+	leadsWrapper: 'relative pb-6',
+	navWrapper: 'pt-4 pb-2 border-b border-gray-400 bg-white',
+	nav: 'relative flex items-end justify-between container',
 	navLink:
 		'relative first:ml-0 ml-8 pb-2 font-semibold text-gray-600 hover:text-purple-500 hover:border-b-2 hover:border-purple-600 group transition-colors-main',
 	navLinkActive:

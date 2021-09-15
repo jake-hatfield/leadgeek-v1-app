@@ -45,6 +45,7 @@ const Search = () => {
 		<AuthLayout>
 			<Leads
 				leads={search.pageByIds}
+				allLeads={search.totalByIds}
 				pagination={search.pagination}
 				type={'search'}
 				itemLimit={itemLimit}

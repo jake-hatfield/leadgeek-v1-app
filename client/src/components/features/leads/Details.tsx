@@ -30,7 +30,7 @@ import {
 	returnDomainFromUrl,
 	truncate,
 } from '@utils/utils';
-import { Lead } from '@utils/interfaces/leads/Lead';
+import { Lead } from '@utils/interfaces/Lead';
 
 interface DetailsProps {
 	currentLead: Lead;
@@ -337,12 +337,12 @@ const Details: React.FC<DetailsProps> = ({
 						<div className='mt-4'>
 							<div>
 								<div className='flex justify-between'>
-									<div className='w-1/3 z-40 bg-white'>
+									<div className='w-1/3 h-56 z-40 bg-white'>
 										<ReactImageMagnify
 											{...{
 												smallImage: {
 													alt: data.title,
-													isFluidWidth: true,
+													isFluidWidth: false,
 													src: data.img,
 													width: 200,
 													height: 200,

@@ -31,3 +31,5 @@ export interface Lead {
 	};
 	plan: 'bundle' | 'pro' | 'grow'[];
 }
+
+export type LeadTypes = 'feed' | 'liked' | 'archived' | 'search';

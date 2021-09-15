@@ -35,7 +35,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 		<div className='flex flex-row'>
 			<SettingsNavbar />
 			<section className='mb-6 w-full'>
-				<header className='py-6 bg-gray-100 border-b border-gray-300'>
+				<header className='pt-4 pb-2 border-b border-gray-300'>
 					<h1 className='ml-72 text-3xl font-bold text-gray-900'>
 						{title || 'Settings'}
 					</h1>

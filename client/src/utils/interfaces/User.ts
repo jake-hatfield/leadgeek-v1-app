@@ -1,4 +1,13 @@
-import { Lead } from './leads/Lead';
+import { Lead } from './Lead';
+
+export type Role =
+	| 'user'
+	| 'grow'
+	| 'pro'
+	| 'bundle'
+	| 'affiliate'
+	| 'admin'
+	| 'master';
 
 export interface User {
 	_id: string;
@@ -19,7 +28,7 @@ export interface User {
 	};
 	resetPwToken: string | null;
 	resetPwExpires: string | null;
-	role: 'user' | 'grow' | 'pro' | 'bundle' | 'affiliate' | 'admin' | 'master';
+	role: Role;
 	referrals: {
 		referred: {
 			wasReferred: boolean;

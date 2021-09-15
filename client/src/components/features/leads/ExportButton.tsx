@@ -4,7 +4,7 @@ import { DateTime } from 'luxon';
 import { CSVLink } from 'react-csv';
 
 import { User } from '@utils/interfaces/User';
-import { Lead } from '@utils/interfaces/leads/Lead';
+import { Lead } from '@utils/interfaces/Lead';
 
 interface ExportButtonProps {
 	user: User;
@@ -17,7 +17,12 @@ const ExportButton: React.FC<ExportButtonProps> = ({
 	leads,
 	setExportLeads,
 }) => {
+	console.log(leads);
+
+	// set current local time
 	const currentLocalDate = DateTime.now().setLocale('el').toLocaleString();
+
+	// csv headers
 	const headers = [
 		{ label: 'Source', key: 'data.source' },
 		{ label: 'Title', key: 'data.title' },

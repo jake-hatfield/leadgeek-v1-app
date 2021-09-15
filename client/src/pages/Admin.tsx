@@ -28,7 +28,7 @@ import { ReactComponent as X } from '@assets/images/svgs/x.svg';
 // utils
 import { capitalize, config, useOutsideMousedown } from '@utils/utils';
 import { User } from '@utils/interfaces/User';
-import { Pagination } from '@utils/interfaces/leads/Pagination';
+import { Pagination } from '@utils/interfaces/Pagination';
 
 interface UsersState {
 	status: 'loading' | 'idle';
