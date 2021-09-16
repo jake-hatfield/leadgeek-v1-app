@@ -84,6 +84,7 @@ export const filtersSlice = createSlice({
 					value: string | number;
 				}>
 			) => {
+				// destructure necessary items from action payload
 				const { id, format, type, title, operator, value } = action.payload;
 
 				// state
@@ -131,11 +132,26 @@ export const filtersSlice = createSlice({
 
 				// add filter to local storage
 				const existingFilters = getLSFilters();
-				if (existingFilters.length > 0) {
-					const newFilters = JSON.stringify([...existingFilters, newFilter]);
-					localStorage.setItem('filters', newFilters);
+
+				// see if a filter already exists and return the index if it does
+				const index = existingFilters.findIndex(
+					(filter: Filter) =>
+						filter.type === newFilter.type &&
+						filter.operator === newFilter.operator
+				);
+				if (index < 0) {
+					// create a new filter
+					return localStorage.setItem(
+						'filters',
+						JSON.stringify([...existingFilters, newFilter])
+					);
 				} else {
-					localStorage.setItem('filters', JSON.stringify([newFilter]));
+					// update already existing filter
+					existingFilters[index] = newFilter;
+					return localStorage.setItem(
+						'filters',
+						JSON.stringify(existingFilters)
+					);
 				}
 			},
 			prepare: (

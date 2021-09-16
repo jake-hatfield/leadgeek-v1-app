@@ -2,7 +2,10 @@ import React, { useEffect } from 'react';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
-import { getSearchResults } from '@features/leads/leadsSlice';
+import {
+	getSearchResults,
+	setLeadIdle,
+} from '@components/features/leads/leadsSlice';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
@@ -13,33 +16,34 @@ const Search = () => {
 	const dispatch = useAppDispatch();
 	// auth state
 	const status = useAppSelector((state) => state.auth.status);
-	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 	const user = useAppSelector((state) => state.auth.user);
-	// search state
+	// lead state
 	const search = useAppSelector((state) => state.leads.search);
 	// filters state
-	const itemLimit = useAppSelector((state) => state.filters.itemLimit);
-	// destructure necessary items
-	const { page } = search.pagination;
-	const { searchValue } = search;
+	const filters = useAppSelector((state) => state.filters);
 
-	// call getSearchResults
+	// destructure necessary items
+	const {
+		pagination: { page },
+		searchValue,
+		newSearch,
+	} = search;
+
+	// set lead status to idle on load (empty search result)
 	useEffect(() => {
-		status === 'idle' &&
-			isAuthenticated &&
-			user &&
-			searchValue &&
+		if (status === 'idle' && user?._id && searchValue) {
 			dispatch(
 				getSearchResults({
+					userId: user._id,
 					query: searchValue,
-					role: user.role,
-					dateCreated: user.dateCreated,
-					page,
-					newSearch: false,
-					itemLimit,
+					page: newSearch ? 1 : page,
+					filters,
 				})
 			);
-	}, [status, isAuthenticated, user, searchValue, itemLimit, page, dispatch]);
+		} else {
+			status === 'idle' && dispatch(setLeadIdle());
+		}
+	}, [status, user?._id, searchValue, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
 		<AuthLayout>
@@ -48,12 +52,12 @@ const Search = () => {
 				allLeads={search.totalByIds}
 				pagination={search.pagination}
 				type={'search'}
-				itemLimit={itemLimit}
+				itemLimit={filters.itemLimit}
 				user={user}
 				status={status}
 				headerTitle={'Search results'}
 				search={true}
-				currentSearchParam={searchValue}
+				currentSearchValue={searchValue}
 			/>
 		</AuthLayout>
 	) : (

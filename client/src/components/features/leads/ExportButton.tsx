@@ -17,8 +17,6 @@ const ExportButton: React.FC<ExportButtonProps> = ({
 	leads,
 	setExportLeads,
 }) => {
-	console.log(leads);
-
 	// set current local time
 	const currentLocalDate = DateTime.now().setLocale('el').toLocaleString();
 

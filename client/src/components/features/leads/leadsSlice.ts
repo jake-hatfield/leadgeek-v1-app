@@ -8,7 +8,6 @@ import { setAlert } from '@features/alert/alertSlice';
 import { FilterState } from '@utils/interfaces/Filter';
 import { Lead, LeadTypes } from '@utils/interfaces/Lead';
 import { Pagination } from '@utils/interfaces/Pagination';
-import { Role, User } from '@utils/interfaces/User';
 
 // utils
 import { config, truncate } from '@utils/utils';
@@ -53,15 +52,17 @@ export const getAllLeads = createAsyncThunk(
 		userId: string;
 		filters: FilterState;
 		type: LeadTypes;
+		query: string | null;
 	}) => {
 		// destructure necessary items
-		const { userId, filters, type } = options;
+		const { userId, filters, type, query } = options;
 
 		// build request body
 		const body = JSON.stringify({
 			userId,
 			filters,
 			type,
+			query: query,
 		});
 
 		// POST request to route
@@ -70,7 +71,6 @@ export const getAllLeads = createAsyncThunk(
 		}: { data: { totalByIds: Lead[]; type: LeadTypes; message: string } } =
 			await axios.post('/api/leads/all', body, config);
 
-		console.log(data);
 		return { totalByIds: data.totalByIds, type: data.type };
 	}
 );
@@ -170,34 +170,52 @@ export const getSearchResults = createAsyncThunk(
 	'leads/getSearchResults',
 	async (
 		options: {
-			query: string;
-			role: string;
-			dateCreated: string;
+			userId: string;
+			query: string | null;
 			page: number;
-			newSearch: boolean;
-			itemLimit: number;
+			filters: FilterState;
 		},
-		{ dispatch }
+		{ rejectWithValue }
 	) => {
-		// destructure necessary items
-		const { query, role, dateCreated, page, itemLimit } = options;
+		try {
+			// destructure necessary items
+			const { userId, query, page, filters } = options;
 
-		// build request body
-		const body = JSON.stringify({
-			query,
-			role,
-			dateCreated,
-			page,
-			itemLimit,
-		});
+			// handle navigation to the search page directly without a query
+			if (!query) {
+				return {
+					data: {
+						leads: [],
+						page: 1,
+						hasNextPage: false,
+						hasPreviousPage: false,
+						nextPage: 2,
+						previousPage: 0,
+						totalItems: 0,
+					},
+					query,
+				};
+			}
 
-		// POST request to route
-		const { data } = await axios.post('/api/search', body, config);
+			// build request body
+			const body = JSON.stringify({
+				userId,
+				query,
+				page,
+				filters,
+			});
 
-		return {
-			data,
-			query,
-		};
+			// POST request to route
+			const { data } = await axios.post('/api/leads/search', body, config);
+
+			return {
+				data,
+				query,
+			};
+		} catch (error) {
+			console.log(error);
+			return rejectWithValue(error);
+		}
 	}
 );
 
@@ -309,6 +327,7 @@ interface LeadsState {
 		pageByIds: Lead[];
 		pagination: Pagination;
 		searchValue: string | null;
+		newSearch: boolean;
 	};
 	currentLead: Lead | null;
 	lastUpdated: string | null;
@@ -376,6 +395,7 @@ const initialState: LeadsState = {
 			filteredItems: null,
 		},
 		searchValue: null,
+		newSearch: false,
 	},
 	currentLead: null,
 	lastUpdated: null,
@@ -391,6 +411,9 @@ export const leadsSlice = createSlice({
 		clearCurrentLead: (state) => {
 			state.currentLead = null;
 		},
+		setLeadIdle: (state) => {
+			state.status = 'idle';
+		},
 		setLeadLoading: (state) => {
 			state.status = 'loading';
 		},
@@ -401,11 +424,14 @@ export const leadsSlice = createSlice({
 				type: LeadTypes;
 			}>
 		) => {
+			// destructure necessary items
 			const { page, type } = action.payload;
 
-			if (state[type].pagination.page) {
-				state[type].pagination.page = page;
-			}
+			state[type].pagination.page = page;
+		},
+		setSearchValue: (state, action) => {
+			state.search.newSearch = true;
+			state.search.searchValue = action.payload;
 		},
 	},
 	extraReducers: (builder) => {
@@ -528,6 +554,10 @@ export const leadsSlice = createSlice({
 				state.search.pagination.previousPage = previousPage;
 				state.search.pagination.totalItems = totalItems;
 				state.search.searchValue = query;
+				state.search.newSearch = false;
+			})
+			.addCase(getSearchResults.rejected, (state) => {
+				state.status = 'failed';
 			})
 			.addCase(handleArchiveLead.fulfilled, (state, action) => {
 				const newArchived = state.archived.pageByIds.filter(
@@ -544,7 +574,13 @@ export const leadsSlice = createSlice({
 	},
 });
 
-export const { setCurrentLead, clearCurrentLead, setLeadLoading, setPage } =
-	leadsSlice.actions;
+export const {
+	setCurrentLead,
+	clearCurrentLead,
+	setLeadIdle,
+	setLeadLoading,
+	setPage,
+	setSearchValue,
+} = leadsSlice.actions;
 
 export default leadsSlice.reducer;

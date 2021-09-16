@@ -31,8 +31,8 @@ const NullState: React.FC<NullStateProps> = ({
 					{path}
 				</svg>
 			</div>
-			<h3 className='mt-4 font-bold text-lg text-gray-900'>{header}</h3>
-			<p className='mt-2'>{text}</p>
+			<h3 className='mt-2 font-bold text-lg text-gray-900'>{header}</h3>
+			<p>{text}</p>
 			{link ? (
 				<Link
 					to={link}
@@ -60,9 +60,10 @@ const NullState: React.FC<NullStateProps> = ({
 };
 
 const nullStateClasses = {
-	nullStateWrapper: 'w-96 text-gray-600',
+	nullStateWrapper:
+		'w-96 py-4 px-8 text-gray-600 bg-white border border-gray-400 shadow-md rounded-lg',
 	svgWrapper: 'h-10 w-10',
-	svg: 'p-2 bg-gray-100 rounded-lg text-gray-500 shadow-sm',
+	svg: 'p-2 bg-gray-900 rounded-lg text-teal-300 shadow-sm',
 };
 
 export default NullState;

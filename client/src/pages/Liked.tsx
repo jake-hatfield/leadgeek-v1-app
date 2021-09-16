@@ -38,7 +38,7 @@ const LikedPage = () => {
 				user={user}
 				status={status}
 				search={false}
-				currentSearchParam={null}
+				currentSearchValue={null}
 			/>
 		</AuthLayout>
 	) : (

@@ -12,6 +12,13 @@ body {
 		Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 }
 
+::selection {
+	background: #c6f7e2;
+}
+::-moz-selection {
+	background: #c6f7e2;
+}
+
 .content {
 	margin-left: 4rem;
 	width: calc(100%-64px);
@@ -61,6 +68,18 @@ body {
 
 .default-logo-lg {
 	@apply inline-block w-16;
+}
+
+.cell-rounded-l {
+	@apply rounded-lg !important;
+}
+
+.cell-rounded-r {
+	@apply rounded-r-lg !important;
+}
+
+.row-rounded-t {
+	@apply rounded-t-lg !important;
 }
 
 .border-main {

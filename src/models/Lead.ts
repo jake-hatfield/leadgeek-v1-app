@@ -7,10 +7,12 @@ import { Filter } from 'types/Filter';
 
 export interface ILeadDocument extends ILead, Document {
 	_id: ObjectId;
+	fuzzySearch(query: any): any;
 }
 
 interface ILeadModel extends Model<ILeadDocument> {
 	buildQuery(query: any, filters: Filter[]): any;
+	fuzzySearch(query: any, filters?: any): any;
 }
 
 const LeadSchema: Schema<ILeadDocument> = new Schema({

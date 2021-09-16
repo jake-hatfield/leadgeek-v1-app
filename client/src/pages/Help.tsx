@@ -127,12 +127,7 @@ const Help: React.FC = () => {
 		<AuthLayout>
 			{status === 'idle' && user ? (
 				<section className='mb-6'>
-					<Header
-						title={'Help panel'}
-						role={user.role}
-						dateCreated={user.dateCreated}
-						searchActive={false}
-					/>
+					<Header userId={user._id} title={'Help panel'} searchActive={false} />
 					<div className='mt-6 container'>
 						<div>
 							<h2 className='font-semibold text-xl text-gray-900'>Resources</h2>

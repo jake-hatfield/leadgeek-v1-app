@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 
 // packages
 import { DateTime } from 'luxon';
@@ -41,7 +41,7 @@ interface LeadsProps {
 	user: User;
 	status: 'idle' | 'loading' | 'failed';
 	search: boolean;
-	currentSearchParam: string | null;
+	currentSearchValue: string | null;
 }
 
 const Leads: React.FC<LeadsProps> = ({
@@ -53,8 +53,7 @@ const Leads: React.FC<LeadsProps> = ({
 	headerTitle,
 	user,
 	status: authStatus,
-	search,
-	currentSearchParam,
+	currentSearchValue,
 }) => {
 	const dispatch = useAppDispatch();
 	// lead state
@@ -72,14 +71,7 @@ const Leads: React.FC<LeadsProps> = ({
 	const [showDetails, setShowDetails] = useState(false);
 
 	// destructure necessary items
-	const {
-		_id: userId,
-		role,
-		dateCreated,
-		likedLeads,
-		archivedLeads,
-		comments,
-	} = user;
+	const { _id: userId, likedLeads, archivedLeads, comments } = user;
 	const {
 		count: filterCount,
 		dateLimits: { selected: dateSelected },
@@ -149,8 +141,20 @@ const Leads: React.FC<LeadsProps> = ({
 	// handler for exporting leads
 	const handleExport = async () => {
 		try {
-			dispatch(getAllLeads({ userId, filters, type }));
-			setExportLeads(true);
+			if (leads.length > 0) {
+				dispatch(
+					getAllLeads({ userId, filters, type, query: currentSearchValue })
+				);
+				setExportLeads(true);
+			} else {
+				dispatch(
+					setAlert({
+						title: 'There are no leads to export',
+						message: 'Please adjust your export settings and try again',
+						alertType: 'danger',
+					})
+				);
+			}
 		} catch (error) {
 			console.log(error);
 			dispatch(
@@ -163,17 +167,24 @@ const Leads: React.FC<LeadsProps> = ({
 		}
 	};
 
+	// set a timeout to get all leads
+	useEffect(() => {
+		if (exportLeads) {
+			const resultTimeout = setTimeout(() => {
+				if (allLeads.length === 0) {
+					setExportLeads(false);
+				}
+			}, 18000);
+
+			return () => clearTimeout(resultTimeout);
+		}
+	}, [allLeads, exportLeads, setExportLeads]);
+
 	return authStatus === 'idle' && user ? (
 		<Fragment>
 			<section className={classes.leadsWrapper}>
-				<Header
-					title={headerTitle}
-					role={role}
-					dateCreated={dateCreated}
-					searchActive={true}
-				/>
-				{/* show primary links & tools if not a search */}
-				{!search && (
+				<div className='bg-white'>
+					<Header userId={user._id} title={headerTitle} searchActive={true} />
 					<nav className={classes.navWrapper}>
 						<div className={classes.nav}>
 							<div>
@@ -182,7 +193,9 @@ const Leads: React.FC<LeadsProps> = ({
 										key={i}
 										exact
 										to={`/leads${link.link}`}
-										onClick={() => dispatch(setLeadLoading())}
+										onClick={() => {
+											dispatch(setLeadLoading());
+										}}
 										className={classes.navLink}
 										activeClassName={classes.navLinkActive}
 									>
@@ -276,7 +289,8 @@ const Leads: React.FC<LeadsProps> = ({
 							</div>
 						</div>
 					</nav>
-				)}
+				</div>
+
 				{leadStatus === 'failed' ? (
 					<div className='mt-6 container'>
 						There was an error making that request. If this issue persists,
@@ -301,10 +315,10 @@ const Leads: React.FC<LeadsProps> = ({
 						showDetails={showDetails}
 						setShowDetails={setShowDetails}
 						type={type}
-						currentSearchParam={currentSearchParam}
+						currentSearchValue={currentSearchValue}
 					/>
 				)}
-				{pagination && (
+				{leads.length > 0 && pagination && (
 					<PaginationComponent
 						status={leadStatus}
 						pagination={pagination}
@@ -387,7 +401,7 @@ const svgList = {
 // classes for component
 const classes = {
 	leadsWrapper: 'relative pb-6',
-	navWrapper: 'pt-4 pb-2 border-b border-gray-400 bg-white',
+	navWrapper: 'pt-4 pb-2 border-b border-gray-400 shadow-md',
 	nav: 'relative flex items-end justify-between container',
 	navLink:
 		'relative first:ml-0 ml-8 pb-2 font-semibold text-gray-600 hover:text-purple-500 hover:border-b-2 hover:border-purple-600 group transition-colors-main',

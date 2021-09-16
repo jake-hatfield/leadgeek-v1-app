@@ -167,9 +167,9 @@ const Navbar = () => {
 										<button
 											key={'logout'}
 											onClick={() => logoutUser()}
-											className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
+											className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 group transition-colors duration-100 ease-in-out focus:outline-none'
 										>
-											<span className='font-semibold text-sm text-gray-800'>
+											<span className='font-semibold text-sm text-gray-800 '>
 												Logout
 											</span>
 										</button>

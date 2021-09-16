@@ -15,8 +15,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
 		<div className='flex items-center justify-end text-gray-300'>
 			<div className='w-72 relative z-0 text-gray-600'>
 				<form
-					action='/search'
-					method='GET'
+					action='/search/'
+					method='POST'
 					onSubmit={(e) => handleSearchSubmit(e)}
 				>
 					<input

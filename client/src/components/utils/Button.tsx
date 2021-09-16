@@ -33,7 +33,7 @@ const Button: React.FC<ButtonProps> = ({
 			} font-semibold ${
 				cta
 					? 'bg-purple-500 hover:bg-purple-600 text-white'
-					: 'text-gray-600 hover:text-gray-700'
+					: 'text-gray-600 group hover:text-purple-500'
 			} transition-main ring-purple`}
 		>
 			{path && (
@@ -48,7 +48,7 @@ const Button: React.FC<ButtonProps> = ({
 			)}
 			<span
 				className={`${path ? 'ml-2' : ''} ${
-					cta ? '' : 'text-gray-600'
+					cta ? '' : 'text-gray-600 group-hover:text-purple-500'
 				} mx-auto`}
 			>
 				{text}

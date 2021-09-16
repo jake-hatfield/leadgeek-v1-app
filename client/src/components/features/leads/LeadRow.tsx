@@ -126,7 +126,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		monthlySalesCellWrapper: 'p-2 w-24',
 		dateCellWrapper: 'p-2 w-24',
 		rowWrapper:
-			'relative px-1 border-b border-gray-200 hover:bg-gray-100 cursor-pointer',
+			'relative px-1 border-b border-gray-100 hover:bg-gray-100 cursor-pointer',
 		likeCellWrapper: 'p-2 w-10 text-center text-gray-400',
 		likeCellButton: 'p-1 rounded-md ring-purple align-middle',
 		likeCellActive: 'svg-base hover:text-purple-400 transition-colors-main',
@@ -138,7 +138,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		detailsCellButton:
 			'p-1 rounded-md hover:text-gray-600 transition-main ring-gray',
 		detailsCellImageWrapper:
-			'absolute z-10 p-2 transform lg:-translate-y-1/2 translate-x-16 bg-white shadow-xl rounded-lg border border-gray-200',
+			'absolute z-10 p-2 transform lg:-translate-y-1/2 translate-x-16 bg-white shadow-xl rounded-lg border border-gray-400',
 		detailsCellImage: 'max-h-56 max-w-xs',
 		competitionWrapper:
 			'w-36 absolute bottom-0 z-10 p-2 transform -translate-y-12 translate-x-8 rounded-md shadow-md bg-gray-900 text-white text-sm',

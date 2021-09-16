@@ -1,5 +1,5 @@
 // packages
-import { Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { DateTime } from 'luxon';
 import mongoose, { ObjectId } from 'mongoose';
@@ -8,7 +8,7 @@ import mongoose, { ObjectId } from 'mongoose';
 import auth from '@middleware/auth';
 
 // models
-import Lead from '../../models/Lead';
+import Lead, { ILeadDocument } from '../../models/Lead';
 import User from '../../models/User';
 
 // types
@@ -270,6 +270,7 @@ router.post('/all', auth, async (req, res) => {
 				dateLimits: { min: minDate, max: maxDate },
 			},
 			type,
+			query,
 		}: {
 			userId: string;
 			filters: {
@@ -280,6 +281,7 @@ router.post('/all', auth, async (req, res) => {
 				};
 			};
 			type: 'feed' | 'liked' | 'archived' | 'search';
+			query?: string;
 		} = req.body;
 
 		// lookup user by id
@@ -293,7 +295,7 @@ router.post('/all', auth, async (req, res) => {
 		}
 
 		// declare global variables
-		let leads: { _id: ObjectId }[];
+		let leads: { _id: ObjectId }[], allLeads;
 
 		// switch on type to export the right leads
 		switch (type) {
@@ -343,9 +345,20 @@ router.post('/all', auth, async (req, res) => {
 		const allLeadsQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
 
 		// query leads
-		const allLeads = await Lead.find(allLeadsQuery)
-			.lean()
-			.sort({ 'data.date': -1 });
+		if (type === 'search' && query) {
+			allLeads = await Lead.fuzzySearch(
+				{
+					query,
+					prefixOnly: true,
+					exact: true,
+				},
+				baselineQueryParams
+			).lean();
+		} else {
+			allLeads = await Lead.find(allLeadsQuery)
+				.lean()
+				.sort({ 'data.date': -1 });
+		}
 
 		// if the query is an empty array, return
 		if (allLeads.length === 0) {
@@ -620,7 +633,10 @@ router.post('/handle-archive-lead', auth, async (req, res) => {
 // @access      Private
 router.post('/add-comment', auth, async (req, res) => {
 	try {
+		// destructure necessary items from request body
 		const { comment, userId, leadId } = req.body;
+
+		// if required information is missing, return
 		if (!comment || !userId || !leadId) {
 			return res
 				.status(400)
@@ -679,6 +695,135 @@ router.post('/add-comment', auth, async (req, res) => {
 				return res.status(400).json({ message });
 			}
 		}
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).send('Server error');
+	}
+});
+
+// @route       POST api/leads/search
+// @description Seach all leads a user has access to
+// @access      Private
+router.post('/search', auth, async (req: Request, res: Response) => {
+	try {
+		// destructure necessary items from request body
+		const {
+			userId,
+			query,
+			page,
+			filters: {
+				filters: itemFilters,
+				dateLimits: { min: minDate, max: maxDate },
+				itemLimit,
+			},
+		}: {
+			userId: string;
+			query: string;
+			role: Roles;
+			page: number;
+			filters: {
+				filters: Filter[];
+				dateLimits: {
+					min: string;
+					max: string;
+				};
+				itemLimit: number;
+			};
+		} = req.body;
+
+		// lookup user by id
+		const user = await User.findById(userId);
+
+		// no user was found (though shouldn't ever happen)
+		if (!user) {
+			let message = 'There was an error finding a user with that id.';
+			console.log(message);
+			return res.status(400).send({ status: 'failure', message });
+		}
+
+		// we can proceed getting leads
+		console.log('Searching for query matches...');
+
+		// set role filter
+		const roleFilter = [user.role.toString()];
+		// declare admin roles and set admin to true if one exists
+		const administrativeRoles = ['master', 'admin'];
+		if (administrativeRoles.indexOf(user.role) >= 0) {
+			roleFilter.push('bundle');
+		}
+
+		// set date filter
+		const fromJSDate = DateTime.fromJSDate(user.dateCreated);
+		const userDayCreated = fromJSDate.startOf('day').toISO();
+		const minDateFilter = minDate ? minDate : userDayCreated;
+		const maxDateFilter = maxDate ? maxDate : DateTime.now().toISO();
+
+		// convert iso to unix timestamp
+		const isoToTimestamp = (date: string) => {
+			return new Date(date).getTime();
+		};
+
+		// set baseline params
+		const baselineQueryParams = [
+			{ plan: { $in: roleFilter } },
+			{ 'data.date': { $gte: isoToTimestamp(minDateFilter) } },
+			{ 'data.date': { $lte: isoToTimestamp(maxDateFilter) } },
+		];
+
+		const searchQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
+
+		const searchMatches: ILeadDocument[] = await Lead.fuzzySearch(
+			{
+				query,
+				prefixOnly: true,
+				exact: true,
+			},
+			searchQuery
+		)
+			.lean()
+			.select('-plan')
+			.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
+			.limit(itemLimit || ITEMS_PER_PAGE);
+
+		// declare global variables
+		let message, totalItems;
+
+		// set total items + message relevant to whether or not there are search matches
+		if (searchMatches.length === 0) {
+			totalItems = 0;
+			message = 'No matches were found';
+		} else {
+			// get the number of total items
+			totalItems = await Lead.fuzzySearch(
+				{
+					query,
+					prefixOnly: true,
+					exact: true,
+				},
+				searchQuery
+			)
+				.lean()
+				.countDocuments(baselineQueryParams);
+
+			message = `${totalItems} ${
+				totalItems === 1 ? 'match was' : 'matches were'
+			} found`;
+		}
+
+		console.log(message);
+
+		// TODO: Display total number of leads in search + apply filtersdd
+		return res.status(200).send({
+			message,
+			leads: searchMatches,
+			page,
+			hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
+			hasPreviousPage: page > 1,
+			nextPage: page + 1,
+			previousPage: page - 1,
+			lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
+			totalItems,
+		});
 	} catch (error) {
 		console.error(error.message);
 		return res.status(500).send('Server error');

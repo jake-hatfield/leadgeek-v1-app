@@ -1,7 +1,11 @@
 import React from 'react';
 
 // packages
+import { DateTime } from 'luxon';
 import ContentLoader from 'react-content-loader';
+
+// redux
+import { useAppSelector } from '@utils/hooks';
 
 // components
 import LeadRow from './LeadRow';
@@ -21,7 +25,7 @@ interface LeadTableProps {
 	showDetails: boolean;
 	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
 	type: string;
-	currentSearchParam: string | null;
+	currentSearchValue: string | null;
 }
 
 const LeadTable: React.FC<LeadTableProps> = ({
@@ -33,8 +37,20 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	showDetails,
 	setShowDetails,
 	type,
-	currentSearchParam,
+	currentSearchValue,
 }) => {
+	// filter state
+	const filters = useAppSelector((state) => state.filters);
+
+	const minDateFormatted =
+		filters.dateLimits.min &&
+		DateTime.fromISO(filters.dateLimits.min)
+			.endOf('day')
+			.toFormat('LLL dd yyyy');
+	const maxDateFormatted =
+		filters.dateLimits.max &&
+		DateTime.fromISO(filters.dateLimits.max).endOf('day').toFormat('LLL dd');
+
 	return (
 		<section className={classes.sectionWrapper}>
 			{status === 'failed' ? (
@@ -63,7 +79,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 					<table className={classes.table} id='leads'>
 						<thead className={classes.tableHeadWrapper}>
 							<tr className={classes.tableHead}>
-								<th className={classes.tableHeadCell} />
+								<th className='p-2 rounded-tl-lg' />
 								<th className={classes.tableHeadCell}>Title</th>
 								<th className={classes.tableHeadCell}>Category</th>
 								<th className={classes.tableHeadCell}>Details</th>
@@ -72,7 +88,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 								<th className={classes.tableHeadCell}>BSR</th>
 								<th className={classes.tableHeadCell}>Sales</th>
 								<th className={classes.tableHeadCell}>Date</th>
-								<th className={classes.tableHeadCell} />
+								<th className='p-2 rounded-tr-lg' />
 							</tr>
 						</thead>
 						<tbody className={classes.tableBody}>
@@ -93,7 +109,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 								// 	<LeadRowLoader />
 								// );
 								return status === 'loading' ? (
-									<LeadRowLoader />
+									<LeadRowLoader key={i} />
 								) : (
 									<LeadRow
 										key={lead._id}
@@ -113,35 +129,53 @@ const LeadTable: React.FC<LeadTableProps> = ({
 				</div>
 			) : type === 'feed' ? (
 				<NullState
-					header={'Your Feed is empty'}
-					text={
-						"No leads were found. Please check that your filters aren't too strict or try refreshing the page."
-					}
+					header={`${
+						filters.filters.length > 0
+							? 'Your filters are too strict'
+							: 'Your Feed is empty'
+					}`}
+					text={`${
+						filters.filters.length > 0
+							? 'No leads match your applied filters. Maybe try loosening your criteria.'
+							: 'No leads were found, try refreshing the page.'
+					}`}
 					path={svgList.feed}
 					link={''}
 					linkText={''}
 				/>
 			) : type === 'liked' ? (
 				<NullState
-					header={'No liked leads were found'}
-					text={
-						"You haven't liked any leads yet, but you can go to the Feed to check some products out."
-					}
+					header={`${
+						filters.filters.length > 0
+							? 'Your filters are too strict'
+							: 'No liked leads were found'
+					}`}
+					text={`${
+						filters.filters.length > 0
+							? 'No leads match your applied filters. Maybe try loosening your criteria.'
+							: "You haven't liked any leads yet, but you can go to the Feed to check some products out."
+					}`}
 					path={svgList.liked}
 					link={'/leads'}
 					linkText={'Go to the Feed'}
 				/>
 			) : type === 'archived' ? (
 				<NullState
-					header={'No archived leads were found'}
-					text={
-						"You haven't archived any leads yet, but you can go to the Feed to check some products out."
-					}
+					header={`${
+						filters.filters.length > 0
+							? 'Your filters are too strict'
+							: 'No archived leads were found'
+					}`}
+					text={`${
+						filters.filters.length > 0
+							? 'No leads match your applied filters. Maybe try loosening your criteria.'
+							: "You haven't archived any leads yet, but you can go to the Feed to check some products out."
+					}`}
 					path={svgList.archived}
 					link={'/leads'}
 					linkText={'Go to the Feed'}
 				/>
-			) : type === 'search' && !currentSearchParam ? (
+			) : type === 'search' && !currentSearchValue ? (
 				<NullState
 					header={'No search results found'}
 					text={'Please try a different search query'}
@@ -152,9 +186,13 @@ const LeadTable: React.FC<LeadTableProps> = ({
 			) : (
 				<NullState
 					header={'No results were found'}
-					text={
-						"No results could be found. Please check that your filters aren't too strict or try refreshing the page."
-					}
+					text={`There were no results that match these criteria${
+						minDateFormatted || maxDateFormatted
+							? minDateFormatted === maxDateFormatted
+								? ` on ${minDateFormatted}`
+								: ` between the dates of ${minDateFormatted}-${maxDateFormatted}`
+							: ''
+					}`}
 					path={svgList.search}
 					link={''}
 					linkText={''}
@@ -168,7 +206,7 @@ const LeadRowLoader = (props: any) => {
 	return (
 		<tr className='w-full py-16 border-b border-gray-100'>
 			{/* like */}
-			<td className='w-10 py-1 px-2' />
+			<td className='w-10 py-2 px-2' />
 			{/* title */}
 			<td className='w-32 md:w-64 lg:w-64 xl:w-96 pl-2 pr-12'>
 				<ContentLoader
@@ -305,14 +343,13 @@ const svgList = {
 // classes for component
 const classes = {
 	sectionWrapper: 'relative mt-6 container',
-	tableWrapper:
-		'pt-3 px-4 bg-white shadow-xl rounded-lg border border-gray-400',
+	tableWrapper: 'pb-3 bg-white shadow-xl rounded-lg border border-gray-400',
 	table: 'w-full',
-	tableHeadWrapper: 'border-b border-gray-200',
+	tableHeadWrapper: 'border-b border-gray-100',
 	tableHead:
-		'text-left font-semibold text-xs bg-gray-100 text-gray-700 uppercase tracking-widest whitespace-no-wrap',
+		'text-left font-semibold text-xs bg-gray-100 text-gray-700 uppercase tracking-widest',
 	tableHeadCell: 'p-2',
-	tableBody: 'text-sm text-gray-800',
+	tableBody: 'mx-4 text-sm text-gray-800',
 };
 
 export default LeadTable;

@@ -65,7 +65,6 @@ const Admin = () => {
 		e.stopPropagation();
 		try {
 			const { data } = await axios.get('/api/leads/export');
-			console.log(data);
 			if (data === 'Leads were added to the database.') {
 				// redeploy Netlify site webhook
 				await axios.post(
@@ -249,9 +248,8 @@ const Admin = () => {
 			{status === 'idle' && user ? (
 				<section className='mb-6'>
 					<Header
+						userId={user._id}
 						title={'Admin panel'}
-						role={user.role}
-						dateCreated={user.dateCreated}
 						searchActive={false}
 					/>
 					<div className='mt-6 container'>

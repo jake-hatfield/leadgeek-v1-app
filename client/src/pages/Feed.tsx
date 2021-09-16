@@ -17,6 +17,7 @@ const Feed = () => {
 	const user = useAppSelector((state) => state.auth.user);
 	// lead state
 	const feed = useAppSelector((state) => state.leads.feed);
+	// filter state
 	const filters = useAppSelector((state) => state.filters);
 	// destructure necessary items
 	const { page } = feed.pagination;
@@ -44,7 +45,7 @@ const Feed = () => {
 				user={user}
 				status={status}
 				search={false}
-				currentSearchParam={null}
+				currentSearchValue={null}
 			/>
 		</AuthLayout>
 	) : (
