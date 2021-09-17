@@ -122,7 +122,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		monthlySalesCellWrapper: 'p-2 w-24',
 		dateCellWrapper: 'p-2 w-24',
 		rowWrapper:
-			'relative px-1 border-b border-gray-100 hover:bg-gray-100 cursor-pointer',
+			'relative px-1 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-darkGray-100 cursor-pointer',
 		likeCellWrapper: 'p-2 w-10 text-center text-gray-400',
 		likeCellButton: 'p-1 rounded-md ring-purple align-middle',
 		likeCellActive: 'svg-base hover:text-purple-400 transition-colors-main',

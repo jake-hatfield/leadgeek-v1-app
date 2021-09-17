@@ -95,7 +95,7 @@ body {
 }
 
 .ring-purple {
-	@apply focus:outline-none focus:ring focus:ring-purple-300;
+	@apply focus:outline-none focus:ring focus:ring-purple-300 focus:ring-opacity-50;
 }
 
 .ring-red {

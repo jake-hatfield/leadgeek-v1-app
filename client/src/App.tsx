@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect } from 'react';
 
 // packages
 import { BrowserRouter as Router, Switch } from 'react-router-dom';
@@ -18,7 +18,7 @@ import Routes from './routes/Routes';
 
 // utils
 import setAuthToken from '@utils/authTokens';
-import useDarkMode from './hooks/useDarkMode';
+// import useDarkMode from './hooks/useDarkMode';
 
 const App: React.FC = () => {
 	useEffect(() => {
@@ -33,9 +33,9 @@ const App: React.FC = () => {
 		});
 	}, []);
 
-	const [colorTheme, setColorTheme] = useDarkMode();
+	// const [colorTheme, setColorTheme] = useDarkMode();
 
-	console.log(colorTheme);
+	// console.log(colorTheme);
 
 	const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY!);
 
