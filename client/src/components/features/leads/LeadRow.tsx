@@ -29,8 +29,6 @@ interface LeadRowProps {
 	archived: Lead[];
 	showDetails: boolean;
 	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
-	unitFee: number;
-	lbFee: number;
 }
 
 const LeadRow: React.FC<LeadRowProps> = ({
@@ -40,8 +38,6 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	archived,
 	showDetails,
 	setShowDetails,
-	unitFee,
-	lbFee,
 }) => {
 	const dispatch = useAppDispatch();
 
@@ -293,15 +289,13 @@ const LeadRow: React.FC<LeadRowProps> = ({
 			{/* profit */}
 			<td className={classes.profitCellWrapper}>
 				<span>$</span>
-				{(data.netProfit - (unitFee || lbFee * data.weight || 0)).toFixed(2)}
+				{data.netProfit.toFixed(2)}
 				<span className={classes.valueIndicator}>USD</span>
 			</td>
 			{/* roi */}
 			<td className={classes.roiCellWrapper}>
 				{(
-					((+data.netProfit?.toFixed(2) -
-						(unitFee || lbFee * data.weight || 0)) /
-						+data.buyPrice?.toFixed(2)) *
+					(+data.netProfit?.toFixed(2) / +data.buyPrice?.toFixed(2)) *
 					100
 				).toFixed(0)}
 				<span className={classes.valueIndicator}>%</span>

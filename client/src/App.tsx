@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 
 // packages
 import { BrowserRouter as Router, Switch } from 'react-router-dom';
@@ -18,6 +18,7 @@ import Routes from './routes/Routes';
 
 // utils
 import setAuthToken from '@utils/authTokens';
+import useDarkMode from './hooks/useDarkMode';
 
 const App: React.FC = () => {
 	useEffect(() => {
@@ -31,6 +32,10 @@ const App: React.FC = () => {
 			if (!localStorage.token) store.dispatch(removeUserData());
 		});
 	}, []);
+
+	const [colorTheme, setColorTheme] = useDarkMode();
+
+	console.log(colorTheme);
 
 	const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY!);
 

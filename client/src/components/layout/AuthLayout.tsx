@@ -22,7 +22,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 		<Fragment>
 			<Alert />
 			{status === 'idle' && isAuthenticated && user ? (
-				<div className='min-h-screen relative flex bg-gray-100'>
+				<div className='min-h-screen relative flex bg-gray-100 dark:bg-red-500'>
 					<Navbar />
 					<main className='h-full w-full content'>{children}</main>
 				</div>

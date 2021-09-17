@@ -60,7 +60,6 @@ export const filtersSlice = createSlice({
 				}
 			}
 		},
-
 		clearFilters: (state) => {
 			// state
 			state.count = 0;
@@ -68,9 +67,6 @@ export const filtersSlice = createSlice({
 
 			// local storage
 			localStorage.removeItem('filters');
-		},
-		clearPrepFilter: (state) => {
-			console.log(state);
 		},
 		createFilter: {
 			reducer: (
@@ -194,20 +190,15 @@ export const filtersSlice = createSlice({
 			localStorage.setItem('itemLimit', action.payload.itemLimit.toString());
 			state.itemLimit = +action.payload.itemLimit;
 		},
-		setPrepFilter: (state, action: PayloadAction<string>) => {
-			console.log(action.payload);
-		},
 	},
 });
 
 export const {
 	clearFilter,
 	clearFilters,
-	clearPrepFilter,
 	createFilter,
 	setDateLimit,
 	setItemLimit,
-	setPrepFilter,
 } = filtersSlice.actions;
 
 export default filtersSlice.reducer;

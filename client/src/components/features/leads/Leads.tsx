@@ -23,7 +23,6 @@ import Filter from '../filters/Filter';
 import Header from '@components/layout/navigation/Header';
 import LeadTable from './LeadTable';
 import PaginationComponent from '@components/layout/navigation/Pagination';
-import Prep from '../filters/Prep';
 import Spinner from '@components/utils/Spinner';
 
 // utils
@@ -67,7 +66,7 @@ const Leads: React.FC<LeadsProps> = ({
 	const [date, setDate] = useState(false);
 	const [exportLeads, setExportLeads] = useState(false);
 	const [filter, setFilter] = useState(false);
-	const [prep, setPrep] = useState(false);
+	const [prepActive, setPrepActive] = useState(false);
 	const [showDetails, setShowDetails] = useState(false);
 
 	// destructure necessary items
@@ -110,29 +109,6 @@ const Leads: React.FC<LeadsProps> = ({
 			conditionalDisplay: (
 				<span className='h-4 w-4 absolute top-0 right-0 flex items-center justify-center py-2.5 px-3 rounded-full bg-purple-500 text-white transform -translate-y-2 translate-x-3'>
 					{filterCount}
-				</span>
-			),
-		},
-		{
-			text: 'Prep',
-			path: svgList.prep,
-			onClick: () => setPrep((prev) => !prev),
-			conditional: filters.prep.unit || filters.prep.lb,
-			conditionalDisplay: (
-				// checkmark
-				<span className='h-5 w-5 absolute top-0 right-0 flex items-center justify-center rounded-full bg-white text-purple-500 transform -translate-y-1 translate-x-3'>
-					<svg
-						xmlns='http://www.w3.org/2000/svg'
-						className='h-5 w-5'
-						viewBox='0 0 20 20'
-						fill='currentColor'
-					>
-						<path
-							fillRule='evenodd'
-							d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-							clipRule='evenodd'
-						/>
-					</svg>
 				</span>
 			),
 		},
@@ -269,7 +245,6 @@ const Leads: React.FC<LeadsProps> = ({
 								{filter && (
 									<Filter filterActive={filter} setFilterActive={setFilter} />
 								)}
-								{prep && <Prep prep={prep} setPrep={setPrep} />}
 								{exportLeads &&
 									(allLeads.length > 0 ? (
 										<ExportButton

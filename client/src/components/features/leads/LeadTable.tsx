@@ -42,14 +42,13 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	// filter state
 	const filters = useAppSelector((state) => state.filters);
 
-	const minDateFormatted =
+	const minDate =
 		filters.dateLimits.min &&
-		DateTime.fromISO(filters.dateLimits.min)
-			.endOf('day')
-			.toFormat('LLL dd yyyy');
-	const maxDateFormatted =
+		DateTime.fromISO(filters.dateLimits.min).endOf('day');
+
+	const maxDate =
 		filters.dateLimits.max &&
-		DateTime.fromISO(filters.dateLimits.max).endOf('day').toFormat('LLL dd');
+		DateTime.fromISO(filters.dateLimits.max).endOf('day');
 
 	return (
 		<section className={classes.sectionWrapper}>
@@ -119,8 +118,6 @@ const LeadTable: React.FC<LeadTableProps> = ({
 										archived={archived}
 										showDetails={showDetails}
 										setShowDetails={setShowDetails}
-										lbFee={1}
-										unitFee={1}
 									/>
 								);
 							})}
@@ -187,10 +184,14 @@ const LeadTable: React.FC<LeadTableProps> = ({
 				<NullState
 					header={'No results were found'}
 					text={`There were no results that match these criteria${
-						minDateFormatted || maxDateFormatted
-							? minDateFormatted === maxDateFormatted
-								? ` on ${minDateFormatted}`
-								: ` between the dates of ${minDateFormatted}-${maxDateFormatted}`
+						minDate && maxDate
+							? minDate !== maxDate
+								? ` between ${minDate.toFormat('LLL dd')} - ${maxDate.toFormat(
+										'LLL dd'
+								  )}`
+								: `today`
+							: minDate
+							? ` on ${minDate.toFormat('LLL dd')}`
 							: ''
 					}`}
 					path={svgList.search}

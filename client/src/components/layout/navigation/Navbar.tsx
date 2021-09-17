@@ -54,6 +54,8 @@ const Navbar = () => {
 	const name = useAppSelector((state) => state.auth.user?.name);
 	// local state & local storage
 	const [hover, setHover] = useState(false);
+	const [notificationDropdown, setNotificationDropdown] = useState(false);
+	const [notificationHover, setNotificationHover] = useState(false);
 	const [userDropdown, setUserDropdown] = useState(false);
 	const [firstInitial, setFirstInitial] = useState<string>('');
 
@@ -107,17 +109,74 @@ const Navbar = () => {
 							))}
 						</nav>
 					))}
-				<nav className='mt-4 flex flex-col'>
+				<nav className='mt-4 flex flex-col pt-4 border-t border-gray-700'>
 					{navLinks.secondaryLinks.map((link, i) => (
 						<div key={i} className='first:mt-0 mt-6'>
 							<NavbarLink link={link} />
 						</div>
 					))}
 				</nav>
-				<aside className='relative mt-16 text-gray-400'>
+				<aside className='relative mt-4 text-gray-400'>
+					<button
+						className='mt-4 p-2 flex items-center justify-between rounded-lg group text-gray-300 hover:text-gray-200 hover:bg-gray-800 hover:shadow-md transition-main ring-purple'
+						onMouseEnter={() => setNotificationHover(true)}
+						onMouseLeave={() => setNotificationHover(false)}
+						onClick={() => {
+							setNotificationHover(false);
+							setUserDropdown(false);
+							setNotificationDropdown(!notificationDropdown ? true : false);
+						}}
+					>
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							viewBox='0 0 20 20'
+							fill='currentColor'
+							className='h-6 w-6'
+						>
+							<path d='M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z' />
+						</svg>
+						{notificationHover && (
+							<div className='mt-2 p-2 absolute left-0 z-40 transform -translate-y-1 translate-x-14 rounded-lg bg-gray-900 shadow-md text-white text-sm whitespace-nowrap'>
+								Notifications
+							</div>
+						)}
+					</button>
+					{notificationDropdown && (
+						<div className='relative'>
+							<article
+								ref={wrapperRef}
+								className='absolute bottom-0 left-0 z-30 w-64 transform translate-x-16 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-400 text-gray-900'
+							>
+								<div className='relative'>
+									<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>
+										<div>
+											<h5 className='inline-block font-bold text-lg'>
+												Notifications
+											</h5>
+										</div>
+									</header>
+									<div>
+										{notifications.map((item, i) => (
+											<div
+												key={i}
+												className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
+											>
+												<span className='font-semibold text-sm text-gray-800'>
+													{item.title}
+												</span>
+											</div>
+										))}
+									</div>
+								</div>
+							</article>
+						</div>
+					)}
+				</aside>
+				<aside className='relative mt-4 text-gray-400 pt-4 border-t border-gray-700'>
 					<button
 						onClick={() => {
 							setHover(false);
+							setNotificationDropdown(false);
 							setUserDropdown(!userDropdown ? true : false);
 						}}
 						onMouseEnter={() => setHover(!userDropdown && true)}
@@ -135,7 +194,7 @@ const Navbar = () => {
 						<div className='relative'>
 							<article
 								ref={wrapperRef}
-								className='absolute bottom-0 left-0 z-30 w-64 transform translate-x-16 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-200 text-gray-900'
+								className='absolute bottom-0 left-0 z-30 w-64 transform translate-x-16 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-400 text-gray-900'
 							>
 								<div className='relative'>
 									<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>
@@ -183,6 +242,8 @@ const Navbar = () => {
 		</nav>
 	);
 };
+
+const notifications = [{ title: 'hello' }];
 
 // primary links
 const navLinks = {

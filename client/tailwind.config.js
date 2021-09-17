@@ -1,9 +1,7 @@
 const plugin = require('tailwindcss/plugin');
 
 module.exports = {
-	future: {
-		removeDeprecatedGapUtilities: true,
-	},
+	darkMode: 'class',
 	purge: ['./src/**/*.html', './src/**/*.{js,jsx,ts,tsx}'],
 	theme: {
 		extend: {
