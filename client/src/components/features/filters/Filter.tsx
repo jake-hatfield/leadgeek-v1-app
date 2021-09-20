@@ -257,10 +257,10 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	return user ? (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-30 w-80 transform translate-y-12 -translate-x-32 pt-4 pb-1 rounded-lg bg-white dark:bg-gray-900 shadow-lg border border-gray-400 text-gray-900'
+			className='absolute top-0 right-0 z-30 w-80 transform translate-y-12 -translate-x-32 pt-4 pb-1 rounded-lg bg-white dark:bg-darkGray-200 shadow-lg border border-gray-400 dark:border-darkGray-100 text-gray-900 dark:text-gray-100'
 		>
 			<div className='relative'>
-				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>
+				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-900'>
 					<div className='flex items-center'>
 						<h5 className='inline-block font-bold text-lg'>Filters</h5>
 						{filters.count > 0 && (
@@ -467,7 +467,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 									onClick={() => {
 										handleClearFilters();
 									}}
-									className='py-1 px-2 font-semibold text-sm hover:bg-red-100 text-red-500 hover:text-red-600 rounded-lg transition-main duration-100 ease-in-out ring-red'
+									className='py-1 px-2 font-semibold text-sm hover:bg-red-100 dark:hover:bg-red-400 text-red-500 dark:text-red-300 hover:text-red-600 dark:hover:text-white rounded-lg transition-main duration-100 ease-in-out ring-red'
 								>
 									Clear all
 								</button>
@@ -475,7 +475,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 						</div>
 					</div>
 				) : (
-					<div className='py-6 px-4 font-semibold text-sm text-gray-700'>
+					<div className='py-6 px-4 font-semibold text-sm text-gray-700 dark:text-gray-400'>
 						You haven't added any filters. Click the "+" in the top right corner
 						to get started.
 					</div>

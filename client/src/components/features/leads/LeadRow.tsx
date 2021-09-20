@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DateTime } from 'luxon';
 
 // redux
-import { useAppDispatch } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@utils/hooks';
 import {
 	handleArchiveLead,
 	handleLikeLead,
@@ -40,6 +40,9 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	setShowDetails,
 }) => {
 	const dispatch = useAppDispatch();
+
+	// lead state
+	const currentLead = useAppSelector((state) => state.leads.currentLead);
 
 	// local state
 	const [expandedView, setExpandedView] = useState(false);
@@ -95,8 +98,12 @@ const LeadRow: React.FC<LeadRowProps> = ({
 
 	// handle details on view
 	const viewDetailsHandler = () => {
-		setShowDetails(!showDetails);
-		dispatch(setCurrentLead(lead));
+		if (currentLead) {
+			dispatch(setCurrentLead(lead));
+		} else {
+			setShowDetails(!showDetails);
+			dispatch(setCurrentLead(lead));
+		}
 		setQuickView(false);
 		setExpandedView(false);
 	};
@@ -122,7 +129,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		monthlySalesCellWrapper: 'p-2 w-24',
 		dateCellWrapper: 'p-2 w-24',
 		rowWrapper:
-			'relative px-1 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-darkGray-100 cursor-pointer',
+			'relative px-1 border-b border-gray-100 dark:border-darkGray-200 hover:bg-gray-100 dark:hover:bg-darkGray-300 cursor-pointer',
 		likeCellWrapper: 'p-2 w-10 text-center text-gray-400',
 		likeCellButton: 'p-1 rounded-md ring-purple align-middle',
 		likeCellActive: 'svg-base hover:text-purple-400 transition-colors-main',

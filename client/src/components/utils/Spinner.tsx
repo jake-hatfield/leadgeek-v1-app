@@ -33,7 +33,7 @@ const Spinner: React.FC<SpinnerProps> = ({
 				duration={500}
 			/>
 			{text && (
-				<div className='mt-8 font-semibold text-gray-600'>
+				<div className='mt-8 font-semibold text-gray-600 dark:text-white'>
 					{text || 'Loading results...'}
 				</div>
 			)}

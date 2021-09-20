@@ -10,6 +10,7 @@ import { Lead, LeadTypes } from '@utils/interfaces/Lead';
 import { Pagination } from '@utils/interfaces/Pagination';
 
 // utils
+import { Role } from '@utils/interfaces/User';
 import { config, truncate } from '@utils/utils';
 
 export const addComment = createAsyncThunk(
@@ -105,7 +106,7 @@ export const getFeedLeads = createAsyncThunk(
 		options: {
 			user: {
 				id: string;
-				role: string;
+				role: Role;
 			};
 			page: number;
 			filters: FilterState;

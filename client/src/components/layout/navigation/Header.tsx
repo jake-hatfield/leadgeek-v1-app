@@ -71,7 +71,7 @@ const Header: React.FC<HeaderProps> = ({ title, searchActive }) => {
 		<header className='pt-4'>
 			<div className='flex items-end justify-between container'>
 				<div className='flex items-center'>
-					<h1 className='text-3xl text-gray-900 font-bold'>
+					<h1 className='text-3xl text-gray-900 dark:text-white font-bold'>
 						{title || 'Leads'}
 					</h1>
 				</div>

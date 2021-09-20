@@ -24,7 +24,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 						name='q'
 						placeholder={placeholder || 'Enter a search...'}
 						onChange={onSearchChange}
-						className='py-2 pl-8 w-full rounded-lg border border-gray-200 bg-gray-100 hover:bg-gray-200 text-sm placeholder-gray-600 transition duration-100 ease-in-out ring-purple'
+						className='py-2 pl-8 w-full rounded-lg border border-gray-200 dark:border-darkGray-100 bg-gray-100 dark:bg-darkGray-500 hover:bg-gray-200 dark:hover:bg-darkGray-400 text-sm placeholder-gray-600 transition duration-100 ease-in-out ring-purple'
 					/>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'

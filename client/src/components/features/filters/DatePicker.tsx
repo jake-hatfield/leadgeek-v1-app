@@ -28,6 +28,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 	lastUpdated,
 }) => {
 	const dispatch = useAppDispatch();
+
 	// modal close handlers
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setDate, null);
@@ -76,8 +77,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			title:
 				previousDay.startOf('day') >=
 				DateTime.now().minusBusiness({ days: 1 }).startOf('day')
-					? 'Yesterday'
-					: 'Previous day',
+					? 'Previous day'
+					: 'Yesterday',
 			dateString: previousDay.toFormat('LLL dd'),
 			min: previousDay,
 			onClick: () => {
@@ -183,7 +184,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 		let validDate = validateDateRange(dateCreated, minDate);
 		if (validDate) {
 			cb();
-			setPage({ page: 1, type });
+			dispatch(setPage({ page: 1, type }));
 			return setDate(false);
 		} else {
 			dispatch(

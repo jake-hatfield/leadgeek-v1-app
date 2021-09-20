@@ -49,7 +49,7 @@ const Feed = () => {
 			/>
 		</AuthLayout>
 	) : (
-		<div className='h-screen'>
+		<div className='h-screen dark:bg-darkGray-400'>
 			<Spinner
 				divWidth={null}
 				center={true}

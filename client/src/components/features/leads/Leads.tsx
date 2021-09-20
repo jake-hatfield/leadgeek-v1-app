@@ -3,6 +3,7 @@ import React, { Fragment, useState, useEffect } from 'react';
 // packages
 import { DateTime } from 'luxon';
 import { NavLink } from 'react-router-dom';
+import { useSpring } from 'react-spring';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
@@ -156,10 +157,17 @@ const Leads: React.FC<LeadsProps> = ({
 		}
 	}, [allLeads, exportLeads, setExportLeads]);
 
+	// animation style for details
+
+	const animationStyle = useSpring({
+		transform: showDetails ? 'translateX(0px)' : 'translateX(105%)',
+		opacity: 1,
+	});
+
 	return authStatus === 'idle' && user ? (
 		<Fragment>
 			<section className={classes.leadsWrapper}>
-				<div className='bg-white'>
+				<div className='bg-white dark:bg-darkGray-400'>
 					<Header userId={user._id} title={headerTitle} searchActive={true} />
 					<nav className={classes.navWrapper}>
 						<div className={classes.nav}>
@@ -305,15 +313,14 @@ const Leads: React.FC<LeadsProps> = ({
 					/>
 				)}
 			</section>
-			{showDetails && currentLead && (
+			{currentLead && (
 				<Details
 					currentLead={currentLead}
-					userId={userId}
-					liked={likedLeads}
-					archived={archivedLeads}
-					comments={comments || []}
+					type={type}
+					user={user}
 					showDetails={showDetails}
 					setShowDetails={setShowDetails}
+					animationStyle={animationStyle}
 				/>
 			)}
 		</Fragment>
@@ -376,14 +383,15 @@ const svgList = {
 // classes for component
 const classes = {
 	leadsWrapper: 'relative pb-6',
-	navWrapper: 'pt-4 pb-2 border-b border-gray-400 shadow-md',
+	navWrapper:
+		'pt-4 pb-2 border-b border-gray-400 dark:border-darkGray-300 shadow-md',
 	nav: 'relative flex items-end justify-between container',
 	navLink:
-		'relative first:ml-0 ml-8 pb-2 font-semibold text-gray-600 hover:text-purple-500 hover:border-b-2 hover:border-purple-600 group transition-colors-main',
+		'relative first:ml-0 ml-8 pb-2 font-semibold text-gray-600 dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-300 hover:border-b-2 hover:border-purple-500 dark:border-purple-200 group transition-colors-main',
 	navLinkActive:
-		'text-purple-500 hover:text-purple-500 border-b-2 border-purple-600',
+		'text-purple-500 dark:text-purple-300 border-b-2 border-purple-500 dark:border-purple-200',
 	navLinkCounter:
-		'h-4 w-4 absolute top-0 right-0 flex items-center justify-center py-2.5 px-3 rounded-full bg-purple-500 group-hover:bg-purple-600 text-xs text-white transform -translate-y-4 translate-x-7',
+		'h-4 w-4 absolute top-0 right-0 flex items-center justify-center py-2.5 px-3 rounded-full bg-purple-500 dark:bg-purple-400 group-hover:bg-purple-600 dark:group-hover:bg-purple-500 text-xs text-white transform -translate-y-4 translate-x-7',
 	navToolsWrapper: 'flex items-center',
 };
 

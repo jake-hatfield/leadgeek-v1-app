@@ -61,7 +61,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 
 	return status === 'idle' ? (
 		<article className={`mt-8 ${!padding && 'container'} `}>
-			<div className='flex items-center justify-between bg-white rounded-lg py-2 px-4 shadow-md text-gray-600 border border-gray-400'>
+			<div className='flex items-center justify-between bg-white dark:bg-darkGray-400 rounded-lg py-2 px-4 shadow-md text-gray-600 dark:text-gray-400 border border-gray-400 dark:border-darkGray-200'>
 				{totalItems && totalItems > 0 ? (
 					<div className='flex items-center text-sm'>
 						<select
@@ -168,7 +168,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 // component classes
 const classes = {
 	button:
-		'py-2 px-3 rounded-lg shadow-sm text-sm font-semibold border border-gray-200 text-gray-600 hover:text-gray-700 transition duration-100 ease-in-out ring-purple',
+		'py-2 px-3 rounded-lg dark:bg-darkGray-200 dark:hover:bg-darkGray-100 shadow-sm text-sm font-semibold border border-gray-200 dark:border-darkGray-100 text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-400 transition duration-100 ease-in-out ring-purple',
 };
 
 export default PaginationComponent;

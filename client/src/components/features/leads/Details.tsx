@@ -9,6 +9,7 @@ import React, {
 // packages
 import { DateTime } from 'luxon';
 import ReactImageMagnify from 'react-image-magnify';
+import { animated } from 'react-spring';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
@@ -17,6 +18,9 @@ import {
 	handleLikeLead,
 	handleArchiveLead,
 	addComment,
+	setCurrentLead,
+	getFeedLeads,
+	setPage,
 } from '@features/leads/leadsSlice';
 
 // components
@@ -31,58 +35,57 @@ import {
 	truncate,
 } from '@utils/utils';
 import { Lead } from '@utils/interfaces/Lead';
+import { User } from '@utils/interfaces/User';
+import { setTimeout } from 'timers';
 
 interface DetailsProps {
 	currentLead: Lead;
-	userId: string;
-	liked: Lead[];
-	archived: Lead[];
-	comments: {
-		date: string;
-		leadId: string;
-		comment: string;
-	}[];
+	user: User;
+	type: 'feed' | 'liked' | 'archived' | 'search';
 	showDetails: boolean;
 	setShowDetails: React.Dispatch<boolean>;
+	animationStyle: any;
 }
 
 const Details: React.FC<DetailsProps> = ({
 	currentLead,
-	userId,
-	liked,
-	archived,
-	comments,
+	user,
+	type,
 	showDetails,
 	setShowDetails,
+	animationStyle,
 }) => {
 	const dispatch = useAppDispatch();
-	// redux selectors
+
+	// lead state
+	const leads = useAppSelector((state) => state.leads[type].pageByIds);
+	// filter state
+	const itemLimit = useAppSelector((state) => state.filters.itemLimit);
 	const unitFee = useAppSelector((state) => state.filters.prep.unit);
 	const lbFee = useAppSelector((state) => state.filters.prep.lb);
+	const page = useAppSelector((state) => state.leads[type].pagination.page);
 
 	// local state
+	const [newLead, setNewLead] = useState(false);
 	const [comment, setComment] = useState('');
-	const [copiedText, setCopiedText] = useState(false);
-	const [copyText, setCopyText] = useState(false);
 	const [fullTitle, toggleFullTitle] = useState(false);
 	const [identifyingText, setIdentifyingText] = useState('');
 	const [noteCount, setNoteCount] = useState(0);
-	const [overviewActive, setOverviewActive] = useState(true);
 
 	// descructure necessary items
 	const { data } = currentLead;
 
 	// prevent scroll while active
-	useEffect(() => {
-		document.body.style.overflow = 'hidden';
-		return () => {
-			document.body.style.overflow = 'unset';
-		};
-	}, []);
+	// useEffect(() => {
+	// 	document.body.style.overflow = 'hidden';
+	// 	return () => {
+	// 		document.body.style.overflow = 'unset';
+	// 	};
+	// }, []);
 
 	// close modal on click outside
 	const modalRef = useRef();
-	const closeModal = (e: React.MouseEvent<HTMLDivElement>) => {
+	const closeModal = (e: React.MouseEvent<HTMLElement>) => {
 		if (modalRef.current === e.target) {
 			setShowDetails(false);
 		}
@@ -103,27 +106,29 @@ const Details: React.FC<DetailsProps> = ({
 
 	// like/archive/comment handlers
 	const [like, setLike] = useState(
-		liked.some((lead) => lead._id === currentLead._id) ? true : false
+		user.likedLeads.some((lead) => lead._id === currentLead._id) ? true : false
 	);
 	useEffect(() => {
-		if (liked.some((lead) => lead._id === currentLead._id)) {
+		if (user.likedLeads.some((lead) => lead._id === currentLead._id)) {
 			setLike(true);
 		} else {
 			setLike(false);
 		}
-	}, [liked, currentLead._id]);
+	}, [user.likedLeads, currentLead._id]);
 	const [archive, setArchive] = useState(
-		archived.some((lead) => lead._id === currentLead._id) ? true : false
+		user.archivedLeads.some((lead) => lead._id === currentLead._id)
+			? true
+			: false
 	);
 	useEffect(() => {
-		if (archived.some((lead) => lead._id === currentLead._id)) {
+		if (user.archivedLeads.some((lead) => lead._id === currentLead._id)) {
 			setArchive(true);
 		} else {
 			setArchive(false);
 		}
-	}, [archived, currentLead._id]);
+	}, [user.archivedLeads, currentLead._id]);
 	useEffect(() => {
-		const hasComment = comments.filter(
+		const hasComment = user.comments.filter(
 			(comment) => comment.leadId === currentLead._id
 		);
 		if (hasComment.length > 0) {
@@ -131,15 +136,70 @@ const Details: React.FC<DetailsProps> = ({
 		} else {
 			setComment('');
 		}
-	}, [liked]);
+	}, [user.likedLeads]);
 
-	// primary links in details header
-	const primaryLinks = [
-		{ title: 'Overview', onClick: () => setOverviewActive(true) },
+	// prev/next navigation
+	const getLead = (val: number) => {
+		const currentIndex = leads.indexOf(currentLead);
+		const nextIndex = currentIndex + val;
+		// beginning of the array
+		if (nextIndex === -1) {
+			return setShowDetails(false);
+		}
+		if (nextIndex === itemLimit) {
+			console.log(page);
+			dispatch(setPage({ page: page + 1, type }));
+			return setTimeout(() => {
+				setNewLead(true);
+			}, 2500);
+		}
+		return dispatch(setCurrentLead(leads[nextIndex]));
+	};
+
+	useEffect(() => {
+		if (newLead) {
+			console.log(leads[0]);
+			dispatch(setCurrentLead(leads[0]));
+			return setNewLead(false);
+		}
+	}, [newLead]);
+
+	const navigationButtons = [
+		{
+			activePath: (
+				<path
+					fillRule='evenodd'
+					d='M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z'
+					clipRule='evenodd'
+				/>
+			),
+			disabledPath: null,
+			onClick: () => getLead(-1),
+			state: false,
+			description: <span>View previous lead</span>,
+			last: false,
+		},
+		{
+			activePath: (
+				<path
+					fillRule='evenodd'
+					d='M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z'
+					clipRule='evenodd'
+				/>
+			),
+			disabledPath: null,
+			onClick: () => getLead(1),
+			state: false,
+			description: <span>View next lead</span>,
+			last: false,
+		},
 	];
 
+	// set date
+	const date = DateTime.fromISO(data.date).toFormat('LLL dd @ H:mm');
+
 	// buttons in details header
-	const primaryButtons = [
+	const utilityButtons = [
 		{
 			activePath: (
 				<path
@@ -159,7 +219,7 @@ const Details: React.FC<DetailsProps> = ({
 				/>
 			),
 			onClick: () =>
-				dispatch(handleLikeLead({ userId, leadId: currentLead._id })),
+				dispatch(handleLikeLead({ userId: user._id, leadId: currentLead._id })),
 			state: like,
 			description: <span>{like ? 'Unlike this lead' : 'Like this lead'}</span>,
 			last: false,
@@ -182,7 +242,9 @@ const Details: React.FC<DetailsProps> = ({
 				/>
 			),
 			onClick: () =>
-				dispatch(handleArchiveLead({ userId, leadId: currentLead._id })),
+				dispatch(
+					handleArchiveLead({ userId: user._id, leadId: currentLead._id })
+				),
 			state: archive,
 			description: (
 				<span>{archive ? 'Unarchive this lead' : 'Archive this lead'}</span>
@@ -207,14 +269,14 @@ const Details: React.FC<DetailsProps> = ({
 			activePath: (
 				<path
 					fillRule='evenodd'
-					d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+					d='M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z'
 					clipRule='evenodd'
 				/>
 			),
 			disabledPath: null,
 			onClick: () => {
-				dispatch(clearCurrentLead());
 				setShowDetails(false);
+				dispatch(clearCurrentLead());
 			},
 			state: null,
 			description: (
@@ -247,19 +309,59 @@ const Details: React.FC<DetailsProps> = ({
 			).toFixed(0)}%`,
 		},
 		{
-			title: 'Estimated sales',
-			value: `${numberWithCommas(data.monthlySales)} /mo.`,
+			title: 'Estimated sales / mo.',
+			value: `${numberWithCommas(data.monthlySales)}`,
 		},
 	];
 
-	// set date
-	const date = DateTime.fromISO(data.date).toFormat('LLL dd, H:mm');
+	// asin utilities
+	const ASINUtilities = [
+		{
+			text: 'Copy text',
+			path: (
+				<g>
+					<path d='M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z' />
+					<path d='M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z' />
+				</g>
+			),
+			link: null,
+			handleClick: () => {
+				navigator.clipboard.writeText(data.asin);
+			},
+			visible: true,
+		},
+		{
+			text: 'Get cashback',
+			path: (
+				<path
+					fillRule='evenodd'
+					d='M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z'
+					clipRule='evenodd'
+				/>
+			),
+			link: `https://www.rakuten.com/${returnDomainFromUrl(data.retailerLink)}`,
+			handleClick: null,
+			visible: data.cashback ? true : false,
+		},
+		{
+			text: 'Open Seller Central',
+			path: (
+				<g>
+					<path d='M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z' />
+					<path d='M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z' />
+				</g>
+			),
+			link: `https://sellercentral.amazon.com/product-search/search?q=${data.asin}`,
+			handleClick: null,
+			visible: true,
+		},
+	];
 
 	// set notes & handlers
 	const notes: (string | null)[] = [
 		data.promo,
-		data.cashback,
 		data.variations,
+		data.notes,
 		data.shipping,
 	];
 	const checkNotes = () => {
@@ -290,35 +392,31 @@ const Details: React.FC<DetailsProps> = ({
 
 	return (
 		<Fragment>
-			<div
+			<animated.section
+				style={animationStyle}
 				// ref={modalRef}
-				onClick={(e) => {
-					closeModal(e);
-					dispatch(clearCurrentLead());
-					setShowDetails(false);
-				}}
-				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
-			/>
-			<div className='fixed top-0 right-0 z-20 w-full max-w-2xl transform translate-y-16 -translate-x-32'>
-				<div className='relative z-40 p-6 rounded-lg shadow-xl bg-white opacity-100 border border-gray-400'>
-					<header className='flex items-center justify-between border-b border-gray-200'>
-						<div>
-							{primaryLinks.map((link, i) => (
-								<button
-									key={i}
-									onClick={link.onClick}
-									className={`${
-										overviewActive &&
-										'text-purple-500 hover:text-purple-500 border-b-2 border-purple-600'
-									} pb-2 first:ml-0 ml-10 font-semibold text-lg text-gray-600 hover:text-gray-700 transition-colors duration-100 ease-in-out`}
-								>
-									{link.title}
-								</button>
-							))}
-						</div>
-						<div className='flex items-center justify-between'>
-							<div className='flex items-center text-gray-400'>
-								{primaryButtons.map((button, i) => (
+				className='fixed top-0 right-0 z-20 w-full max-w-3xl'
+			>
+				<div className='relative z-40 min-h-screen shadow-2xl bg-gray-100 dark:bg-darkGray-100 border-l border-gray-400 dark:border-darkGray-200'>
+					<header className='bg-white border-b border-gray-400 shadow-sm'>
+						<div className='flex items-center justify-between py-3 px-6 text-gray-500'>
+							{/* navigation buttons */}
+							<div className='flex items-center '>
+								{navigationButtons.map((button, i) => (
+									<HeaderButton
+										key={i}
+										activePath={button.activePath}
+										disabledPath={button.disabledPath}
+										onClick={button.onClick}
+										state={button.state}
+										description={button.description}
+										last={button.last}
+									/>
+								))}
+							</div>
+							{/* utility buttons */}
+							<div className='flex items-center'>
+								{utilityButtons.map((button, i) => (
 									<HeaderButton
 										key={i}
 										activePath={button.activePath}
@@ -332,290 +430,231 @@ const Details: React.FC<DetailsProps> = ({
 							</div>
 						</div>
 					</header>
-					{/* overview page */}
-					{overviewActive && (
-						<div className='mt-4'>
-							<div>
-								<div className='flex justify-between'>
-									<div className='w-1/3 h-56 z-40 bg-white'>
-										<ReactImageMagnify
-											{...{
-												smallImage: {
-													alt: data.title,
-													isFluidWidth: false,
-													src: data.img,
-													width: 200,
-													height: 200,
-												},
-												largeImage: {
-													alt: data.title,
-													src: data.img,
-													width: 600,
-													height: 600,
-												},
-												enlargedImageContainerDimensions: {
-													width: '200%',
-													height: '200%',
-												},
-												className: 'bg-white',
-												enlargedImageContainerClassName:
-													'bg-white rounded-lg shadow-xl border border-gray-200',
-											}}
-										/>
+					<section className='mt-4 px-6'>
+						<article className='flex justify-between p-4 bg-white rounded-lg shadow-md border border-gray-400'>
+							<div className='w-2/5 h-56 z-10'>
+								<ReactImageMagnify
+									{...{
+										smallImage: {
+											alt: data.title,
+											isFluidWidth: false,
+											src: data.img,
+											width: 225,
+											height: 225,
+										},
+										largeImage: {
+											alt: data.title,
+											src: data.img,
+											width: 600,
+											height: 600,
+										},
+										enlargedImageContainerDimensions: {
+											width: '200%',
+											height: '200%',
+										},
+										className: 'bg-white',
+										enlargedImageContainerClassName:
+											'bg-white rounded-lg shadow-xl border border-gray-200',
+									}}
+								/>
+							</div>
+							<header className='relative w-3/5 ml-8'>
+								<h3
+									onMouseEnter={() => toggleFullTitle(true)}
+									onMouseLeave={() => toggleFullTitle(false)}
+									className='inline-block font-bold text-lg text-gray-900'
+								>
+									{truncate(data.title, 40)}
+								</h3>
+								{fullTitle && (
+									<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-white text-xs'>
+										{data.title}
 									</div>
-									<header className='relative w-2/3 ml-8'>
-										<h3
-											onMouseEnter={() => toggleFullTitle(true)}
-											onMouseLeave={() => toggleFullTitle(false)}
-											className='inline-block font-bold text-lg text-gray-900'
-										>
-											{truncate(data.title, 40)}
-										</h3>
-										{fullTitle && (
-											<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-white text-xs'>
-												{data.title}
-											</div>
-										)}
-										<div className='flex items-center mt-2 text-sm text-gray-800'>
-											<div>{date}</div>
-											<span className='h-1 w-1 ml-2 rounded-full bg-gray-400' />
-											<div className='ml-2'>{data.brand}</div>
-											<span className='h-1 w-1 ml-2 rounded-full bg-gray-400' />
-											<div className='ml-2'>{truncate(data.category, 21)}</div>
-										</div>
-										<div className='mt-4'>
-											<header className='mt-4 pb-2 border-b border-gray-200'>
-												<h4 className='font-semibold text-gray-900'>
-													Primary metrics
-												</h4>
-											</header>
-											{primaryMetrics.map((metric, i) => (
-												<PrimaryMetric
-													key={i}
-													title={metric.title}
-													value={metric.value}
-												/>
-											))}
-										</div>
-									</header>
-								</div>
-								<article className='mt-4'>
+								)}
+								<aside className='flex items-center mt-2 text-sm text-gray-800'>
+									<div>{date}</div>
+									<span className='h-1 w-1 ml-2 rounded-full bg-gray-400' />
+									<div className='ml-2'>{data.category}</div>
+								</aside>
+								<article className='mt-6'>
 									<header className='mt-4 pb-2 border-b border-gray-200'>
 										<h4 className='font-semibold text-gray-900'>
-											Detailed metrics
+											Primary metrics
 										</h4>
 									</header>
-									<div className='grid grid-cols-2 grid-rows-4 gap-y-2 gap-x-6 mt-4 text-sm text-gray-800'>
-										<div className={descriptorClasses}>
-											<div>Source</div>
-											<div>
-												<a
-													href={data.retailerLink}
-													target='_blank'
-													rel='noopener noreferrer'
-													className={linkClasses}
-												>
-													{data.source || '-'}
-												</a>
-											</div>
-										</div>
-										<div className={descriptorClasses}>
-											<div>Buy price</div>
-											<div>{`$${data.buyPrice.toFixed(2) || '-'}`}</div>
-										</div>
-										<div className={`${descriptorClasses} relative`}>
-											<div>{identifyingText}</div>
-											<div className='flex items-center'>
-												{data.asin ? (
-													<a
-														href={`https://sellercentral.amazon.com/product-search/search?q=${data.asin}`}
-														target='_blank'
-														rel='noopener noreferrer'
-														className={`${data.asin && linkClasses}`}
-													>
-														{data.asin}
-													</a>
-												) : (
-													<span>-</span>
-												)}
-												{data.asin && (
-													<div className='relative'>
-														<div className='flex items-center justify-center'>
-															<button
-																onMouseEnter={() => setCopyText(true)}
-																onMouseLeave={() => setCopyText(false)}
-																onClick={() => {
-																	navigator.clipboard.writeText(data.asin);
-																	setCopiedText(true);
-																	setTimeout(function () {
-																		setCopiedText(false);
-																	}, 2000);
-																}}
-																className='ml-2 text-gray-400 hover:text-gray-600 rounded-sm transition duration-100 ease-in-out ring-gray'
-															>
-																<svg
-																	xmlns='http://www.w3.org/2000/svg'
-																	viewBox='0 0 20 20'
-																	fill='currentColor'
-																	className='h-4 w-4'
-																>
-																	<path d='M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z' />
-																	<path d='M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z' />
-																</svg>
-															</button>
-														</div>
-													</div>
-												)}
-											</div>
-											{(copyText || copiedText) && (
-												<div className='absolute right-0 flex items-center p-2 transform -translate-y-10 translate-x-5 rounded-lg shadow-md bg-gray-900 text-white text-xs'>
-													{copiedText && (
-														<svg
-															xmlns='http://www.w3.org/2000/svg'
-															viewBox='0 0 20 20'
-															fill='currentColor'
-															className='h-4 w-4 text-teal-300'
-														>
-															<path
-																fillRule='evenodd'
-																d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-																clipRule='evenodd'
-															/>
-														</svg>
-													)}
-													<span className={copiedText ? 'ml-1' : ''}>
-														{copiedText
-															? `${identifyingText} copied`
-															: `Copy ${identifyingText}`}
-													</span>
-												</div>
-											)}
-										</div>
-										<div className={descriptorClasses}>
-											<div>Sell price</div>
-											<div>{`$${data.sellPrice.toFixed(2) || '-'}`}</div>
-										</div>
-										<div className={descriptorClasses}>
-											<div>Competiton</div>
-											<div>
-												<span className='text-gray-500'>
-													{data.competitorCount > 0 &&
-														`(${data.competitorCount})`}
-												</span>
-												<span className='ml-1'>
-													{data.competitorType || '-'}
-												</span>
-											</div>
-										</div>
-										<div className={descriptorClasses}>
-											<div>Current BSR</div>
-											<div>{numberWithCommas(data.bsrCurrent) || '-'}</div>
-										</div>
-										<div className={descriptorClasses}>
-											<div>Weight</div>
-											<div>
-												{data.weight ? (
-													<span>
-														{data.weight.toFixed(2)}
-														<span className='ml-1 text-gray-500'>lb</span>
-													</span>
-												) : (
-													<span>-</span>
-												)}
-											</div>
-										</div>
-										<div className={descriptorClasses}>
-											<div>BSR %</div>
-											<div className='flex items-center'>
-												{data.bsrCurrent && data.category && (
-													<span>
-														{calculateBSR(data.bsrCurrent, data.category)}%
-													</span>
-												)}
-											</div>
-										</div>
-									</div>
+									{primaryMetrics.map((metric, i) => (
+										<PrimaryMetric
+											key={i}
+											title={metric.title}
+											value={metric.value}
+										/>
+									))}
 								</article>
-								<section className='flex justify-between mt-4'>
-									{/* Notes section */}
-									<article className='w-1/3 text-gray-900'>
-										<header className='flex items-center pb-2 border-b border-gray-200'>
-											<h4 className='font-semibold'>Notes</h4>
-											<span
-												className={`${'bg-gray-100 border border-gray-200 text-gray-600  ml-2 py-1 px-2 rounded-lg shadow-sm text-xs'}`}
-											>
-												{noteCount}
-											</span>
-										</header>
-										<div className='grid grid-flow-row gap-x-4 mt-3 text-sm'>
-											<Note
-												description={data.cashback}
-												link={returnDomainFromUrl(data.retailerLink)}
-												nullState={'No applicable cashback'}
-											/>
-											<Note
-												description={data.promo}
-												nullState={'No applicable promos'}
-											/>
-											<Note
-												description={data.shipping}
-												nullState={'No shipping notes'}
-											/>
-											<Note
-												description={data.notes}
-												nullState={'No seller notes'}
-											/>
-											<Note
-												description={data.variations}
-												nullState={'No variation notes'}
-											/>
-										</div>
-									</article>
-									{/* comment section */}
-									<article className='ml-8 w-2/3 text-gray-900'>
-										<header className='flex items-center pb-2 border-b border-gray-200'>
-											<h4 className='font-semibold border border-transparent'>
-												Comments
-											</h4>
-										</header>
-										<form className='mt-3 text-sm'>
-											<textarea
-												name='comment'
-												placeholder='Add a comment to this lead...'
-												onChange={onChange}
-												value={comment}
-												className='h-20 w-full rounded-lg border border-gray-200 text-sm ring-purple'
-											/>
-											<div className='flex items-center justify-end'>
-												<Button
-													text={'Comment'}
-													onClick={(e) => {
-														e.preventDefault();
-														dispatch(
-															addComment({
-																comment,
-																userId,
-																leadId: currentLead._id,
-															})
-														);
-													}}
-													width={null}
-													margin={false}
-													size={null}
-													cta={comment ? true : false}
-													path={null}
-													conditional={null}
-													conditionalDisplay={null}
+							</header>
+						</article>
+						<article className='mt-4 p-4 bg-white rounded-lg shadow-lg border border-gray-400'>
+							<header className='pb-2 border-b border-gray-200'>
+								<h4 className='font-semibold text-gray-900'>
+									Detailed information
+								</h4>
+							</header>
+							<div className='grid grid-cols-2 grid-rows-4 gap-y-2 gap-x-6 mt-4 text-sm text-gray-800'>
+								<div className={descriptorClasses}>
+									<div>Source</div>
+									<div>
+										<a
+											href={data.retailerLink}
+											target='_blank'
+											rel='noopener noreferrer'
+											className={linkClasses}
+										>
+											{data.source || '-'}
+										</a>
+									</div>
+								</div>
+								<div className={descriptorClasses}>
+									<div>Buy price</div>
+									<div>{`$${data.buyPrice.toFixed(2) || '-'}`}</div>
+								</div>
+								<div className={`${descriptorClasses} relative`}>
+									<div>{identifyingText}</div>
+									{data.asin ? (
+										<div className='flex items-center'>
+											{ASINUtilities.map((utility, i) => (
+												<ASINUtility
+													key={i}
+													text={utility.text}
+													path={utility.path}
+													link={utility.link}
+													handleClick={utility.handleClick}
+													visible={utility.visible}
 												/>
-											</div>
-										</form>
-									</article>
-								</section>
+											))}
+											<a
+												href={data.retailerLink}
+												target='_blank'
+												rel='noopener noreferrer'
+												className={`${data.asin && linkClasses} ml-2`}
+											>
+												{data.asin}
+											</a>
+										</div>
+									) : (
+										<span>-</span>
+									)}
+								</div>
+								<div className={descriptorClasses}>
+									<div>Sell price</div>
+									<div>{`$${data.sellPrice.toFixed(2) || '-'}`}</div>
+								</div>
+								<div className={descriptorClasses}>
+									<div>Competiton</div>
+									<div>
+										<span className='text-gray-500'>
+											{data.competitorCount > 0 && `(${data.competitorCount})`}
+										</span>
+										<span className='ml-1'>{data.competitorType || '-'}</span>
+									</div>
+								</div>
+								<div className={descriptorClasses}>
+									<div>Current BSR</div>
+									<div>{numberWithCommas(data.bsrCurrent) || '-'}</div>
+								</div>
+								<div className={descriptorClasses}>
+									<div>Weight</div>
+									<div>
+										{data.weight ? (
+											<span>
+												{data.weight.toFixed(2)}
+												<span className='ml-1 text-gray-500'>lb</span>
+											</span>
+										) : (
+											<span>-</span>
+										)}
+									</div>
+								</div>
+								<div className={descriptorClasses}>
+									<div>BSR %</div>
+									<div className='flex items-center'>
+										{data.bsrCurrent && data.category && (
+											<span>
+												{calculateBSR(data.bsrCurrent, data.category)}%
+											</span>
+										)}
+									</div>
+								</div>
 							</div>
+						</article>
+						<article className='mt-4 p-4 bg-white border border-gray-400 rounded-lg shadow-lg'>
+							{/* Notes section */}
+							<article className='text-gray-900'>
+								<header className='flex items-center pb-2 border-b border-gray-200'>
+									<h4 className='font-semibold'>Notes</h4>
+									<span
+										className={`${'bg-gray-100 border border-gray-200 text-gray-600  ml-2 py-1 px-2 rounded-lg shadow-sm text-xs'}`}
+									>
+										{noteCount}
+									</span>
+								</header>
+								<div className='grid grid-flow-row gap-x-4 mt-3 text-sm'>
+									<Note
+										description={data.promo}
+										nullState={'No applicable promos'}
+									/>
+									<Note
+										description={data.shipping}
+										nullState={'No shipping notes'}
+									/>
+									<Note
+										description={data.notes}
+										nullState={'No seller notes'}
+									/>
+									<Note
+										description={data.variations}
+										nullState={'No variation notes'}
+									/>
+								</div>
+							</article>
+						</article>
+					</section>
+					{/* comment section */}
+					<article className='fixed bottom-0 w-full max-w-3xl text-gray-900 bg-white border-t border-gray-400'>
+						<div className='pt-1 pb-4 px-4'>
+							<form className='mt-3 text-sm'>
+								<textarea
+									name='comment'
+									placeholder='Add a comment to this lead...'
+									onChange={onChange}
+									value={comment}
+									className='h-12 xl:h-16 w-full rounded-lg border border-gray-400 text-sm ring-purple resize-none'
+								/>
+								{/* <div className='flex items-center justify-end'>
+									<Button
+										text={'Comment'}
+										onClick={(e) => {
+											e.preventDefault();
+											dispatch(
+												addComment({
+													comment,
+													userId,
+													leadId: currentLead._id,
+												})
+											);
+										}}
+										width={null}
+										margin={false}
+										size={null}
+										cta={comment ? true : false}
+										path={null}
+										conditional={null}
+										conditionalDisplay={null}
+									/>
+								</div> */}
+							</form>
 						</div>
-					)}
+					</article>
 				</div>
-			</div>
+			</animated.section>
 		</Fragment>
 	);
 };
@@ -645,7 +684,9 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 			onMouseEnter={() => setHover(true)}
 			onMouseLeave={() => setHover(false)}
 			onClick={() => onClick()}
-			className={`relative ml-2 p-1 hover:bg-gray-100 rounded-md ${
+			className={`relative ${
+				last ? 'mr-0' : 'mr-2'
+			} p-1 hover:bg-gray-100 rounded-md ${
 				state && 'text-purple-600'
 			} hover:text-gray-700 ring-gray transition duration-100 ease-in-out`}
 		>
@@ -656,7 +697,7 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 						viewBox='0 0 20 20'
 						fill='currentColor'
 						stroke={state ? 'currentColor' : ''}
-						className='h-5 w-5'
+						className='svg-base'
 					>
 						{activePath}
 					</svg>
@@ -668,7 +709,7 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 						fill='none'
 						viewBox='0 0 20 20'
 						stroke='currentColor'
-						className='h-5 w-5'
+						className='svg-base'
 					>
 						{disabledPath}
 					</svg>
@@ -678,7 +719,7 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 				<div
 					className={`absolute top-0 ${
 						last ? 'right-0 translate-x-6' : 'left-1/2 -translate-x-1/2'
-					}  z-10 min-w-max mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-left text-white text-xs`}
+					}  z-40 min-w-max mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-left text-white text-xs`}
 				>
 					{description}
 				</div>
@@ -694,11 +735,80 @@ interface PrimaryMetricProps {
 
 const PrimaryMetric: React.FC<PrimaryMetricProps> = ({ title, value }) => {
 	return (
-		<div className='first:mt-0 mt-1 flex items-end justify-between'>
+		<div className='first:mt-0 mt-2 flex items-end justify-between'>
 			<div className='text-sm text-gray-800'>{title}</div>
 			<div className='py-1 px-2 rounded-lg bg-gray-900 font-semibold text-xs text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out'>
 				{value}
 			</div>
+		</div>
+	);
+};
+
+interface ASINUtilityProps {
+	text: string;
+	path: JSX.Element;
+	link: any;
+	handleClick: null | (() => void);
+	visible: boolean;
+}
+
+const ASINUtility: React.FC<ASINUtilityProps> = ({
+	text,
+	path,
+	link,
+	handleClick,
+	visible,
+}) => {
+	// local state
+	const [popupText, setPopupText] = useState(false);
+
+	// if (!visible) return;
+
+	return (
+		<div className='relative ml-0.5'>
+			{link ? (
+				<a
+					href={link}
+					target='_blank'
+					rel='noopener noreferrer'
+					onMouseEnter={() => setPopupText(true)}
+					onMouseLeave={() => setPopupText(false)}
+					className='inline-block ml-2 text-gray-400 hover:text-gray-500 rounded-sm transition-main ring-gray'
+				>
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						className='h-5 w-5'
+						viewBox='0 0 20 20'
+						fill='currentColor'
+					>
+						{path}
+					</svg>
+				</a>
+			) : (
+				<button
+					onMouseEnter={() => setPopupText(true)}
+					onMouseLeave={() => setPopupText(false)}
+					onClick={() => {
+						handleClick && handleClick();
+						setPopupText(false);
+					}}
+					className='ml-2 text-gray-400 hover:text-gray-500 rounded-sm transition-main ring-gray'
+				>
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						className='h-5 w-5'
+						viewBox='0 0 20 20'
+						fill='currentColor'
+					>
+						{path}
+					</svg>
+				</button>
+			)}
+			{popupText && (
+				<div className='absolute z-40 left-1/2 flex items-center p-2 transform -translate-y-16 -translate-x-1/2 rounded-lg shadow-md bg-gray-900 text-white text-xs whitespace-nowrap'>
+					{text}
+				</div>
+			)}
 		</div>
 	);
 };
