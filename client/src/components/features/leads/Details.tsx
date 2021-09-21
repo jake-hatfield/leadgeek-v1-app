@@ -72,6 +72,10 @@ const Details: React.FC<DetailsProps> = ({
 	const [identifyingText, setIdentifyingText] = useState('');
 	const [noteCount, setNoteCount] = useState(0);
 
+	// global classes
+	const descriptorClasses = 'flex justify-between';
+	const linkClasses = 'font-semibold text-purple-600 hover:text-gray-700';
+
 	// descructure necessary items
 	const { data } = currentLead;
 
@@ -173,7 +177,8 @@ const Details: React.FC<DetailsProps> = ({
 					clipRule='evenodd'
 				/>
 			),
-			disabledPath: null,
+			inactivePath: null,
+			disabled: leads.indexOf(currentLead) === 0 ? true : false,
 			onClick: () => getLead(-1),
 			state: false,
 			description: <span>View previous lead</span>,
@@ -187,7 +192,8 @@ const Details: React.FC<DetailsProps> = ({
 					clipRule='evenodd'
 				/>
 			),
-			disabledPath: null,
+			inactivePath: null,
+			disabled: false,
 			onClick: () => getLead(1),
 			state: false,
 			description: <span>View next lead</span>,
@@ -208,7 +214,7 @@ const Details: React.FC<DetailsProps> = ({
 					clipRule='evenodd'
 				/>
 			),
-			disabledPath: (
+			inactivePath: (
 				<path
 					strokeLinecap='round'
 					strokeLinejoin='round'
@@ -218,6 +224,7 @@ const Details: React.FC<DetailsProps> = ({
 					clipRule='evenodd'
 				/>
 			),
+			disabled: false,
 			onClick: () =>
 				dispatch(handleLikeLead({ userId: user._id, leadId: currentLead._id })),
 			state: like,
@@ -233,7 +240,7 @@ const Details: React.FC<DetailsProps> = ({
 					d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
 				/>
 			),
-			disabledPath: (
+			inactivePath: (
 				<path
 					strokeLinecap='round'
 					strokeLinejoin='round'
@@ -241,6 +248,7 @@ const Details: React.FC<DetailsProps> = ({
 					d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
 				/>
 			),
+			disabled: false,
 			onClick: () =>
 				dispatch(
 					handleArchiveLead({ userId: user._id, leadId: currentLead._id })
@@ -259,7 +267,8 @@ const Details: React.FC<DetailsProps> = ({
 					clipRule='evenodd'
 				/>
 			),
-			disabledPath: null,
+			disabled: false,
+			inactivePath: null,
 			onClick: () => openLinkHandler(data.retailerLink, data.amzLink),
 			state: null,
 			description: <span>Open both links</span>,
@@ -273,11 +282,12 @@ const Details: React.FC<DetailsProps> = ({
 					clipRule='evenodd'
 				/>
 			),
-			disabledPath: null,
+			inactivePath: null,
 			onClick: () => {
 				setShowDetails(false);
 				dispatch(clearCurrentLead());
 			},
+			disabled: false,
 			state: null,
 			description: (
 				<div>
@@ -314,6 +324,23 @@ const Details: React.FC<DetailsProps> = ({
 		},
 	];
 
+	// source utilities
+	const sourceUtilities = [
+		{
+			text: data.cashback,
+			path: (
+				<path
+					fillRule='evenodd'
+					d='M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z'
+					clipRule='evenodd'
+				/>
+			),
+			link: `https://www.rakuten.com/${returnDomainFromUrl(data.retailerLink)}`,
+			handleClick: null,
+			disabled: data.cashback ? false : true,
+		},
+	];
+
 	// asin utilities
 	const ASINUtilities = [
 		{
@@ -328,20 +355,7 @@ const Details: React.FC<DetailsProps> = ({
 			handleClick: () => {
 				navigator.clipboard.writeText(data.asin);
 			},
-			visible: true,
-		},
-		{
-			text: 'Get cashback',
-			path: (
-				<path
-					fillRule='evenodd'
-					d='M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z'
-					clipRule='evenodd'
-				/>
-			),
-			link: `https://www.rakuten.com/${returnDomainFromUrl(data.retailerLink)}`,
-			handleClick: null,
-			visible: data.cashback ? true : false,
+			disabled: false,
 		},
 		{
 			text: 'Open Seller Central',
@@ -353,7 +367,136 @@ const Details: React.FC<DetailsProps> = ({
 			),
 			link: `https://sellercentral.amazon.com/product-search/search?q=${data.asin}`,
 			handleClick: null,
-			visible: true,
+			disabled: false,
+		},
+	];
+
+	const detailedInformation = [
+		{
+			title: 'Source',
+			value: (
+				<a
+					href={data.retailerLink}
+					target='_blank'
+					rel='noopener noreferrer'
+					className={linkClasses}
+				>
+					{data.source || '-'}
+				</a>
+			),
+			utility: (
+				<div>
+					{sourceUtilities.map((utility, i) => (
+						<UtilityButton
+							key={i}
+							text={utility.text}
+							path={utility.path}
+							link={utility.link}
+							handleClick={utility.handleClick}
+							disabled={utility.disabled}
+						/>
+					))}
+				</div>
+			),
+		},
+		{
+			title: identifyingText,
+			value: (
+				<a
+					href={`https://amazon.com/gp/product/${data.asin}`}
+					target='_blank'
+					rel='noopener noreferrer'
+					className={linkClasses}
+				>
+					{data.asin}
+				</a>
+			),
+			utility: (
+				<div className='flex items-center'>
+					{ASINUtilities.map((utility, i) => (
+						<UtilityButton
+							key={i}
+							text={utility.text}
+							path={utility.path}
+							link={utility.link}
+							handleClick={utility.handleClick}
+							disabled={utility.disabled}
+						/>
+					))}
+				</div>
+			),
+		},
+		{
+			title: 'Buy price',
+			value: <div>{`$${data.buyPrice.toFixed(2) || '-'}`}</div>,
+			utility: null,
+		},
+		{
+			title: 'Sell price',
+			value: <div>{`$${data.sellPrice.toFixed(2) || '-'}`}</div>,
+			utility: (
+				<Trends
+					currentValue={data.sellPrice}
+					compareData={[
+						{ value: data.price30, scale: '30' },
+						{ value: data.price90, scale: '90' },
+					]}
+					lowerIsBetter={false}
+				/>
+			),
+		},
+		{
+			title: 'Competition',
+			value: (
+				<div>
+					<span className='text-gray-500'>
+						{data.competitorCount > 0 && `(${data.competitorCount})`}
+					</span>
+					<span className='ml-1'>{data.competitorType || '-'}</span>
+				</div>
+			),
+			utility: null,
+		},
+		{
+			title: 'Current BSR',
+			value: <div>{numberWithCommas(data.bsrCurrent) || '-'}</div>,
+			utility: (
+				<Trends
+					currentValue={data.bsrCurrent}
+					compareData={[
+						{ value: data.bsr30, scale: '30' },
+						{ value: data.bsr90, scale: '90' },
+					]}
+					lowerIsBetter={true}
+				/>
+			),
+		},
+		{
+			title: 'BSR %',
+			value: (
+				<div>
+					{data.bsrCurrent && data.category && (
+						<span>{calculateBSR(data.bsrCurrent, data.category)}%</span>
+					)}
+				</div>
+			),
+			utility: null,
+		},
+		{
+			title: 'Weight',
+			value: (
+				<div>
+					{data.weight ? (
+						<span>
+							{data.weight.toFixed(2)}
+							<span className='ml-1 text-gray-500'>lb</span>
+						</span>
+					) : (
+						<span>-</span>
+					)}
+				</div>
+			),
+			utility: null,
 		},
 	];
 
@@ -387,9 +530,6 @@ const Details: React.FC<DetailsProps> = ({
 		setComment(e.target.value);
 	};
 
-	const descriptorClasses = 'flex justify-between';
-	const linkClasses = 'font-semibold text-purple-600 hover:text-gray-700';
-
 	return (
 		<Fragment>
 			<animated.section
@@ -397,8 +537,8 @@ const Details: React.FC<DetailsProps> = ({
 				// ref={modalRef}
 				className='fixed top-0 right-0 z-20 w-full max-w-3xl'
 			>
-				<div className='relative z-40 min-h-screen shadow-2xl bg-gray-100 dark:bg-darkGray-100 border-l border-gray-400 dark:border-darkGray-200'>
-					<header className='bg-white border-b border-gray-400 shadow-sm'>
+				<div className='relative z-40 min-h-screen shadow-2xl bg-gray-100 dark:bg-darkGray-400 border-l border-gray-400 dark:border-darkGray-200'>
+					<header className='bg-white dark:bg-darkGray-300 border-b border-gray-400 dark:border-gray-900 shadow-sm'>
 						<div className='flex items-center justify-between py-3 px-6 text-gray-500'>
 							{/* navigation buttons */}
 							<div className='flex items-center '>
@@ -406,7 +546,8 @@ const Details: React.FC<DetailsProps> = ({
 									<HeaderButton
 										key={i}
 										activePath={button.activePath}
-										disabledPath={button.disabledPath}
+										inactivePath={button.inactivePath}
+										disabled={button.disabled}
 										onClick={button.onClick}
 										state={button.state}
 										description={button.description}
@@ -420,7 +561,8 @@ const Details: React.FC<DetailsProps> = ({
 									<HeaderButton
 										key={i}
 										activePath={button.activePath}
-										disabledPath={button.disabledPath}
+										inactivePath={button.inactivePath}
+										disabled={button.disabled}
 										onClick={button.onClick}
 										state={button.state}
 										description={button.description}
@@ -431,7 +573,7 @@ const Details: React.FC<DetailsProps> = ({
 						</div>
 					</header>
 					<section className='mt-4 px-6'>
-						<article className='flex justify-between p-4 bg-white rounded-lg shadow-md border border-gray-400'>
+						<article className='flex justify-between p-4 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-400 dark:border-gray-900'>
 							<div className='w-2/5 h-56 z-10'>
 								<ReactImageMagnify
 									{...{
@@ -462,7 +604,7 @@ const Details: React.FC<DetailsProps> = ({
 								<h3
 									onMouseEnter={() => toggleFullTitle(true)}
 									onMouseLeave={() => toggleFullTitle(false)}
-									className='inline-block font-bold text-lg text-gray-900'
+									className='inline-block font-bold text-lg text-gray-900 dark:text-white'
 								>
 									{truncate(data.title, 40)}
 								</h3>
@@ -471,14 +613,14 @@ const Details: React.FC<DetailsProps> = ({
 										{data.title}
 									</div>
 								)}
-								<aside className='flex items-center mt-2 text-sm text-gray-800'>
+								<aside className='flex items-center mt-2 text-sm text-gray-800 dark:text-gray-200'>
 									<div>{date}</div>
 									<span className='h-1 w-1 ml-2 rounded-full bg-gray-400' />
 									<div className='ml-2'>{data.category}</div>
 								</aside>
 								<article className='mt-6'>
 									<header className='mt-4 pb-2 border-b border-gray-200'>
-										<h4 className='font-semibold text-gray-900'>
+										<h4 className='font-semibold text-gray-900 dark:text-white'>
 											Primary metrics
 										</h4>
 									</header>
@@ -492,100 +634,24 @@ const Details: React.FC<DetailsProps> = ({
 								</article>
 							</header>
 						</article>
-						<article className='mt-4 p-4 bg-white rounded-lg shadow-lg border border-gray-400'>
+						<article className='mt-4 py-4 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-400 dark:border-gray-900'>
 							<header className='pb-2 border-b border-gray-200'>
-								<h4 className='font-semibold text-gray-900'>
+								<h4 className='px-4 font-semibold text-gray-900'>
 									Detailed information
 								</h4>
 							</header>
-							<div className='grid grid-cols-2 grid-rows-4 gap-y-2 gap-x-6 mt-4 text-sm text-gray-800'>
-								<div className={descriptorClasses}>
-									<div>Source</div>
-									<div>
-										<a
-											href={data.retailerLink}
-											target='_blank'
-											rel='noopener noreferrer'
-											className={linkClasses}
-										>
-											{data.source || '-'}
-										</a>
-									</div>
-								</div>
-								<div className={descriptorClasses}>
-									<div>Buy price</div>
-									<div>{`$${data.buyPrice.toFixed(2) || '-'}`}</div>
-								</div>
-								<div className={`${descriptorClasses} relative`}>
-									<div>{identifyingText}</div>
-									{data.asin ? (
-										<div className='flex items-center'>
-											{ASINUtilities.map((utility, i) => (
-												<ASINUtility
-													key={i}
-													text={utility.text}
-													path={utility.path}
-													link={utility.link}
-													handleClick={utility.handleClick}
-													visible={utility.visible}
-												/>
-											))}
-											<a
-												href={data.retailerLink}
-												target='_blank'
-												rel='noopener noreferrer'
-												className={`${data.asin && linkClasses} ml-2`}
-											>
-												{data.asin}
-											</a>
-										</div>
-									) : (
-										<span>-</span>
-									)}
-								</div>
-								<div className={descriptorClasses}>
-									<div>Sell price</div>
-									<div>{`$${data.sellPrice.toFixed(2) || '-'}`}</div>
-								</div>
-								<div className={descriptorClasses}>
-									<div>Competiton</div>
-									<div>
-										<span className='text-gray-500'>
-											{data.competitorCount > 0 && `(${data.competitorCount})`}
-										</span>
-										<span className='ml-1'>{data.competitorType || '-'}</span>
-									</div>
-								</div>
-								<div className={descriptorClasses}>
-									<div>Current BSR</div>
-									<div>{numberWithCommas(data.bsrCurrent) || '-'}</div>
-								</div>
-								<div className={descriptorClasses}>
-									<div>Weight</div>
-									<div>
-										{data.weight ? (
-											<span>
-												{data.weight.toFixed(2)}
-												<span className='ml-1 text-gray-500'>lb</span>
-											</span>
-										) : (
-											<span>-</span>
-										)}
-									</div>
-								</div>
-								<div className={descriptorClasses}>
-									<div>BSR %</div>
-									<div className='flex items-center'>
-										{data.bsrCurrent && data.category && (
-											<span>
-												{calculateBSR(data.bsrCurrent, data.category)}%
-											</span>
-										)}
-									</div>
-								</div>
-							</div>
+							<dl className='grid grid-cols-1 grid-rows-4 gap-y-2 gap-x-6 mt-4 text-sm text-gray-800'>
+								{detailedInformation.map((item, i) => (
+									<DetailedItem
+										key={i}
+										title={item.title}
+										value={item.value}
+										utility={item.utility}
+									/>
+								))}
+							</dl>
 						</article>
-						<article className='mt-4 p-4 bg-white border border-gray-400 rounded-lg shadow-lg'>
+						<article className='mt-4 p-4 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-400 dark:border-gray-900'>
 							{/* Notes section */}
 							<article className='text-gray-900'>
 								<header className='flex items-center pb-2 border-b border-gray-200'>
@@ -618,7 +684,7 @@ const Details: React.FC<DetailsProps> = ({
 						</article>
 					</section>
 					{/* comment section */}
-					<article className='fixed bottom-0 w-full max-w-3xl text-gray-900 bg-white border-t border-gray-400'>
+					<article className='fixed bottom-0 w-full max-w-3xl text-gray-900 bg-white dark:bg-darkGray-300 border-t border-gray-400 dark:border-gray-900'>
 						<div className='pt-1 pb-4 px-4'>
 							<form className='mt-3 text-sm'>
 								<textarea
@@ -626,7 +692,7 @@ const Details: React.FC<DetailsProps> = ({
 									placeholder='Add a comment to this lead...'
 									onChange={onChange}
 									value={comment}
-									className='h-12 xl:h-16 w-full rounded-lg border border-gray-400 text-sm ring-purple resize-none'
+									className='h-12 xl:h-16 w-full dark:bg-darkGray-200 rounded-lg border border-gray-400 dark:border-gray-900 text-sm ring-purple resize-none'
 								/>
 								{/* <div className='flex items-center justify-end'>
 									<Button
@@ -661,7 +727,8 @@ const Details: React.FC<DetailsProps> = ({
 
 interface HeaderButtonProps {
 	activePath: JSX.Element;
-	disabledPath: JSX.Element | null;
+	inactivePath: JSX.Element | null;
+	disabled: boolean;
 	onClick: () => void;
 	state: boolean | null;
 	description: JSX.Element;
@@ -670,7 +737,8 @@ interface HeaderButtonProps {
 
 const HeaderButton: React.FC<HeaderButtonProps> = ({
 	activePath,
-	disabledPath,
+	inactivePath,
+	disabled,
 	onClick,
 	state,
 	description,
@@ -683,14 +751,14 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 		<button
 			onMouseEnter={() => setHover(true)}
 			onMouseLeave={() => setHover(false)}
-			onClick={() => onClick()}
+			onClick={() => !disabled && onClick()}
 			className={`relative ${
 				last ? 'mr-0' : 'mr-2'
-			} p-1 hover:bg-gray-100 rounded-md ${
-				state && 'text-purple-600'
-			} hover:text-gray-700 ring-gray transition duration-100 ease-in-out`}
+			} p-1 hover:bg-gray-100 rounded-md ${state && 'text-purple-600'} ${
+				disabled ? 'text-red-200' : ''
+			} hover:text-gray-700 ring-gray transition-main`}
 		>
-			{state || !disabledPath ? (
+			{state || !inactivePath ? (
 				<div className='flex items-center justify-center'>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
@@ -711,7 +779,7 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 						stroke='currentColor'
 						className='svg-base'
 					>
-						{disabledPath}
+						{inactivePath}
 					</svg>
 				</div>
 			)}
@@ -719,7 +787,7 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 				<div
 					className={`absolute top-0 ${
 						last ? 'right-0 translate-x-6' : 'left-1/2 -translate-x-1/2'
-					}  z-40 min-w-max mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-left text-white text-xs`}
+					}  z-40 min-w-max mt-2 mr-6 p-2 transform translate-y-8 rounded-md shadow-md bg-gray-900 text-left text-white text-xs`}
 				>
 					{description}
 				</div>
@@ -736,33 +804,55 @@ interface PrimaryMetricProps {
 const PrimaryMetric: React.FC<PrimaryMetricProps> = ({ title, value }) => {
 	return (
 		<div className='first:mt-0 mt-2 flex items-end justify-between'>
-			<div className='text-sm text-gray-800'>{title}</div>
-			<div className='py-1 px-2 rounded-lg bg-gray-900 font-semibold text-xs text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out'>
+			<dt className='text-sm text-gray-600'>{title}</dt>
+			<dd className='py-1 px-2 rounded-lg bg-gray-900 font-semibold text-xs text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out'>
 				{value}
+			</dd>
+		</div>
+	);
+};
+
+interface DetailedItemProps {
+	title: string;
+	value: JSX.Element;
+	utility: JSX.Element | null;
+}
+
+const DetailedItem: React.FC<DetailedItemProps> = ({
+	title,
+	value,
+	utility,
+}) => {
+	return (
+		<div className='relative flex items-center pb-2 last:pb-0 border-b border-gray-100 last:border-none'>
+			<dt className='w-2/5 text-gray-600 pl-4'>{title}</dt>
+			<div className='flex items-center w-3/5 pr-4 text-gray-800'>
+				<dd>{value}</dd>
+				{utility && utility}
 			</div>
 		</div>
 	);
 };
 
-interface ASINUtilityProps {
+interface UtilityButtonProps {
 	text: string;
 	path: JSX.Element;
 	link: any;
 	handleClick: null | (() => void);
-	visible: boolean;
+	disabled: boolean;
 }
 
-const ASINUtility: React.FC<ASINUtilityProps> = ({
+const UtilityButton: React.FC<UtilityButtonProps> = ({
 	text,
 	path,
 	link,
 	handleClick,
-	visible,
+	disabled,
 }) => {
 	// local state
 	const [popupText, setPopupText] = useState(false);
 
-	// if (!visible) return;
+	if (disabled) return null;
 
 	return (
 		<div className='relative ml-0.5'>
@@ -813,6 +903,132 @@ const ASINUtility: React.FC<ASINUtilityProps> = ({
 	);
 };
 
+interface TrendProps {
+	currentValue: number;
+	compareValue: number | undefined;
+	scale: string;
+	lowerIsBetter: boolean;
+}
+
+const Trend: React.FC<TrendProps> = ({
+	currentValue,
+	compareValue,
+	scale,
+	lowerIsBetter,
+}) => {
+	// local state
+	const [popupText, setPopupText] = useState('');
+	const [showPopup, setShowPopup] = useState(false);
+	const [isGood, setIsGood] = useState(false);
+	const [value, setValue] = useState<'up' | 'down' | 'same' | null>(null);
+
+	const currentValueGreater =
+		compareValue && currentValue > compareValue ? true : false;
+
+	useEffect(() => {
+		if (currentValue === compareValue) {
+			setValue('same');
+		} else if (currentValueGreater) {
+			setValue('up');
+			if (lowerIsBetter) {
+				setIsGood(false);
+			} else {
+				setIsGood(true);
+			}
+		} else {
+			setValue('down');
+			if (lowerIsBetter) {
+				setIsGood(true);
+			} else {
+				setIsGood(false);
+			}
+		}
+	});
+
+	const svgList = {
+		up: (
+			<path
+				fillRule='evenodd'
+				d='M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z'
+				clipRule='evenodd'
+			/>
+		),
+		down: (
+			<path
+				fillRule='evenodd'
+				d='M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z'
+				clipRule='evenodd'
+			/>
+		),
+		same: (
+			<path
+				fillRule='evenodd'
+				d='M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+				clipRule='evenodd'
+			/>
+		),
+	};
+
+	if (!compareValue) return null;
+
+	const percentDifference = (
+		100 * +Math.abs(1 - currentValue / compareValue)
+	).toFixed(0);
+
+	return (
+		<div
+			onMouseEnter={() => setShowPopup(true)}
+			onMouseLeave={() => setShowPopup(false)}
+			className={`relative flex items-center ml-2 py-0.5 pl-2 pr-1 ${
+				isGood ? 'bg-teal-200 text-teal-600' : 'bg-gray-100 text-gray-600'
+			} text-xs font-semibold rounded-lg`}
+		>
+			<span>{scale} day</span>
+			<svg
+				xmlns='http://www.w3.org/2000/svg'
+				className='h-4 w-4 ml-0.5'
+				viewBox='0 0 20 20'
+				fill='currentColor'
+			>
+				{value !== null && svgList[value]}
+			</svg>
+			<span>{percentDifference}%</span>
+			{showPopup && (
+				<div className='absolute z-40 left-1/2 flex items-center p-2 transform -translate-y-8  -translate-x-1/2 rounded-lg shadow-md bg-gray-900 text-white text-xs whitespace-nowrap'>
+					{`The current value is ${percentDifference}% ${
+						currentValueGreater ? 'higher' : 'lower'
+					} than the ${scale} day average`}
+				</div>
+			)}
+		</div>
+	);
+};
+
+interface TrendsProps {
+	currentValue: number;
+	compareData: { value: number | undefined; scale: string }[];
+	lowerIsBetter: boolean;
+}
+
+const Trends: React.FC<TrendsProps> = ({
+	currentValue,
+	compareData,
+	lowerIsBetter,
+}) => {
+	return (
+		<div className='ml-2 flex items-center'>
+			{compareData.map((c, i) => (
+				<Trend
+					key={i}
+					currentValue={currentValue}
+					compareValue={c.value}
+					scale={c.scale}
+					lowerIsBetter={lowerIsBetter}
+				/>
+			))}
+		</div>
+	);
+};
 interface NoteProps {
 	description: string;
 	nullState: string;
