@@ -2,21 +2,29 @@ import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
 
 import { Alert } from '@utils/interfaces/Alert';
 
-const initialState: Alert[] = [];
+const initialState: Alert = {
+	id: '',
+	title: '',
+	message: '',
+	alertType: null,
+	visible: false,
+};
 
 export const leadsSlice = createSlice({
 	name: 'alert',
 	initialState,
 	reducers: {
-		removeAlert: (state, action: PayloadAction<string>) => {
-			return state.filter((alert) => alert.id !== action.payload);
-		},
-		removeAllAlerts: () => {
+		removeAlert: () => {
 			return initialState;
 		},
 		setAlert: {
 			reducer: (state, action: PayloadAction<Alert>) => {
-				state.push(action.payload);
+				const { id, title, message, alertType, visible } = action.payload;
+				state.id = id;
+				state.title = title;
+				state.message = message;
+				state.alertType = alertType;
+				state.visible = visible;
 			},
 			prepare: (alert: {
 				title: string;
@@ -25,17 +33,12 @@ export const leadsSlice = createSlice({
 			}) => {
 				const { title, message, alertType } = alert;
 				const id = nanoid();
-				return { payload: { id, title, message, alertType } };
+				return { payload: { id, title, message, alertType, visible: true } };
 			},
 		},
 	},
-	// extraReducers: (builder) => {
-	// 	builder.addCase(authenticateUser.fulfilled, (state) => {
-	// 		state = initialState;
-	// 	});
-	// },
 });
 
-export const { removeAlert, removeAllAlerts, setAlert } = leadsSlice.actions;
+export const { removeAlert, setAlert } = leadsSlice.actions;
 
 export default leadsSlice.reducer;

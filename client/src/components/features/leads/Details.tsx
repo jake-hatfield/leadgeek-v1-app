@@ -339,6 +339,21 @@ const Details: React.FC<DetailsProps> = ({
 			handleClick: null,
 			disabled: data.cashback ? false : true,
 		},
+		{
+			text: `Copy promo code: ${data.promo}`,
+			path: (
+				<path
+					fillRule='evenodd'
+					d='M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z'
+					clipRule='evenodd'
+				/>
+			),
+			link: null,
+			handleClick: () => {
+				navigator.clipboard.writeText(data.promo);
+			},
+			disabled: data.promo ? false : true,
+		},
 	];
 
 	// asin utilities
@@ -385,7 +400,7 @@ const Details: React.FC<DetailsProps> = ({
 				</a>
 			),
 			utility: (
-				<div>
+				<div className='flex items-center'>
 					{sourceUtilities.map((utility, i) => (
 						<UtilityButton
 							key={i}
@@ -442,20 +457,10 @@ const Details: React.FC<DetailsProps> = ({
 						{ value: data.price90, scale: '90' },
 					]}
 					lowerIsBetter={false}
+					type={'recommended'}
+					value={'sell price'}
 				/>
 			),
-		},
-		{
-			title: 'Competition',
-			value: (
-				<div>
-					<span className='text-gray-500'>
-						{data.competitorCount > 0 && `(${data.competitorCount})`}
-					</span>
-					<span className='ml-1'>{data.competitorType || '-'}</span>
-				</div>
-			),
-			utility: null,
 		},
 		{
 			title: 'Current BSR',
@@ -468,6 +473,8 @@ const Details: React.FC<DetailsProps> = ({
 						{ value: data.bsr90, scale: '90' },
 					]}
 					lowerIsBetter={true}
+					type={'current'}
+					value={'BSR'}
 				/>
 			),
 		},
@@ -478,6 +485,18 @@ const Details: React.FC<DetailsProps> = ({
 					{data.bsrCurrent && data.category && (
 						<span>{calculateBSR(data.bsrCurrent, data.category)}%</span>
 					)}
+				</div>
+			),
+			utility: null,
+		},
+		{
+			title: 'Competition',
+			value: (
+				<div>
+					<span className='text-gray-500'>
+						{data.competitorCount > 0 && `(${data.competitorCount})`}
+					</span>
+					<span className='ml-1'>{data.competitorType || '-'}</span>
 				</div>
 			),
 			utility: null,
@@ -500,13 +519,26 @@ const Details: React.FC<DetailsProps> = ({
 		},
 	];
 
-	// set notes & handlers
-	const notes: (string | null)[] = [
-		data.promo,
-		data.variations,
-		data.notes,
-		data.shipping,
+	const notesInformation = [
+		{
+			title: 'Shipping notes',
+			value: <div>{data.shipping ? data.shipping : 'None'}</div>,
+			utility: null,
+		},
+		{
+			title: 'Seller notes',
+			value: <div>{data.notes ? data.notes : 'None'}</div>,
+			utility: null,
+		},
+		{
+			title: 'Variation notes',
+			value: <div>{data.variations ? data.variations : 'None'}</div>,
+			utility: null,
+		},
 	];
+
+	// set notes & handlers
+	const notes: (string | null)[] = [data.variations, data.notes, data.shipping];
 	const checkNotes = () => {
 		setNoteCount(notes.filter((note) => note !== '').length);
 	};
@@ -634,7 +666,7 @@ const Details: React.FC<DetailsProps> = ({
 								</article>
 							</header>
 						</article>
-						<article className='mt-4 py-4 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-400 dark:border-gray-900'>
+						<article className='mt-4 pt-4 pb-3 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-400 dark:border-gray-900'>
 							<header className='pb-2 border-b border-gray-200'>
 								<h4 className='px-4 font-semibold text-gray-900'>
 									Detailed information
@@ -651,36 +683,25 @@ const Details: React.FC<DetailsProps> = ({
 								))}
 							</dl>
 						</article>
-						<article className='mt-4 p-4 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-400 dark:border-gray-900'>
-							{/* Notes section */}
-							<article className='text-gray-900'>
-								<header className='flex items-center pb-2 border-b border-gray-200'>
-									<h4 className='font-semibold'>Notes</h4>
-									<span
-										className={`${'bg-gray-100 border border-gray-200 text-gray-600  ml-2 py-1 px-2 rounded-lg shadow-sm text-xs'}`}
-									>
-										{noteCount}
-									</span>
-								</header>
-								<div className='grid grid-flow-row gap-x-4 mt-3 text-sm'>
-									<Note
-										description={data.promo}
-										nullState={'No applicable promos'}
+						<article className='mt-4 pt-4 pb-3 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-400 dark:border-gray-900'>
+							<header className='flex items-center pb-2 border-b border-gray-200'>
+								<h4 className='pl-4 font-semibold text-gray-900'>Notes</h4>{' '}
+								<span
+									className={`${'ml-2 py-1 px-2 bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm text-xs'}`}
+								>
+									{noteCount}
+								</span>
+							</header>
+							<dl className='grid grid-cols-1 grid-rows-3 gap-y-2 gap-x-6 mt-4 text-sm text-gray-800'>
+								{notesInformation.map((note, i) => (
+									<DetailedItem
+										key={i}
+										title={note.title}
+										value={note.value}
+										utility={note.utility}
 									/>
-									<Note
-										description={data.shipping}
-										nullState={'No shipping notes'}
-									/>
-									<Note
-										description={data.notes}
-										nullState={'No seller notes'}
-									/>
-									<Note
-										description={data.variations}
-										nullState={'No variation notes'}
-									/>
-								</div>
-							</article>
+								))}
+							</dl>
 						</article>
 					</section>
 					{/* comment section */}
@@ -908,6 +929,8 @@ interface TrendProps {
 	compareValue: number | undefined;
 	scale: string;
 	lowerIsBetter: boolean;
+	type: string;
+	value: string;
 }
 
 const Trend: React.FC<TrendProps> = ({
@@ -915,28 +938,29 @@ const Trend: React.FC<TrendProps> = ({
 	compareValue,
 	scale,
 	lowerIsBetter,
+	type,
+	value,
 }) => {
 	// local state
-	const [popupText, setPopupText] = useState('');
 	const [showPopup, setShowPopup] = useState(false);
 	const [isGood, setIsGood] = useState(false);
-	const [value, setValue] = useState<'up' | 'down' | 'same' | null>(null);
+	const [trend, setTrend] = useState<'up' | 'down' | 'same' | null>(null);
 
 	const currentValueGreater =
 		compareValue && currentValue > compareValue ? true : false;
 
 	useEffect(() => {
 		if (currentValue === compareValue) {
-			setValue('same');
+			setTrend('same');
 		} else if (currentValueGreater) {
-			setValue('up');
+			setTrend('up');
 			if (lowerIsBetter) {
 				setIsGood(false);
 			} else {
 				setIsGood(true);
 			}
 		} else {
-			setValue('down');
+			setTrend('down');
 			if (lowerIsBetter) {
 				setIsGood(true);
 			} else {
@@ -990,12 +1014,12 @@ const Trend: React.FC<TrendProps> = ({
 				viewBox='0 0 20 20'
 				fill='currentColor'
 			>
-				{value !== null && svgList[value]}
+				{trend !== null && svgList[trend]}
 			</svg>
 			<span>{percentDifference}%</span>
 			{showPopup && (
 				<div className='absolute z-40 left-1/2 flex items-center p-2 transform -translate-y-8  -translate-x-1/2 rounded-lg shadow-md bg-gray-900 text-white text-xs whitespace-nowrap'>
-					{`The current value is ${percentDifference}% ${
+					{`The ${type} ${value} is ${percentDifference}% ${
 						currentValueGreater ? 'higher' : 'lower'
 					} than the ${scale} day average`}
 				</div>
@@ -1008,12 +1032,16 @@ interface TrendsProps {
 	currentValue: number;
 	compareData: { value: number | undefined; scale: string }[];
 	lowerIsBetter: boolean;
+	type: string;
+	value: string;
 }
 
 const Trends: React.FC<TrendsProps> = ({
 	currentValue,
 	compareData,
 	lowerIsBetter,
+	type,
+	value,
 }) => {
 	return (
 		<div className='ml-2 flex items-center'>
@@ -1024,6 +1052,8 @@ const Trends: React.FC<TrendsProps> = ({
 					compareValue={c.value}
 					scale={c.scale}
 					lowerIsBetter={lowerIsBetter}
+					type={type}
+					value={value}
 				/>
 			))}
 		</div>

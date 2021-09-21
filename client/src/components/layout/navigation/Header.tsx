@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 
+// packages
 import { Redirect, useLocation } from 'react-router-dom';
 
+// redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
-import { setLeadLoading, setSearchValue } from '@features/leads/leadsSlice';
-import { removeAllAlerts, setAlert } from '@features/alert/alertSlice';
+import { removeAlert, setAlert } from '@features/alert/alertSlice';
+import {
+	setLeadLoading,
+	setSearchValue,
+} from '@components/features/leads/leadsSlice';
 
 import SearchBar from '@components/layout/navigation/SearchBar';
 
@@ -49,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ title, searchActive }) => {
 					})
 				);
 			}
-			dispatch(removeAllAlerts());
+			dispatch(removeAlert());
 			dispatch(setLeadLoading());
 			return dispatch(setSearchValue(query));
 		} else {

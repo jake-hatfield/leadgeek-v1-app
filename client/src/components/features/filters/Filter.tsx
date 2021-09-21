@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 // redux
 import { useAppSelector, useAppDispatch } from '@utils/hooks';
-import { removeAllAlerts, setAlert } from '@features/alert/alertSlice';
+import { removeAlert, setAlert } from '@features/alert/alertSlice';
 import {
 	clearFilter,
 	clearFilters,
@@ -204,9 +204,9 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 		}
 
 		// check if there's an alert
-		if (alert.length > 0) {
+		if (alert) {
 			// clear all alerts if we've made it past the checks
-			dispatch(removeAllAlerts());
+			dispatch(removeAlert());
 		}
 
 		// create the filter

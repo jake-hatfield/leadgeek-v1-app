@@ -1,16 +1,30 @@
 import React, { useEffect } from 'react';
 
+// packages
+import { animated } from 'react-spring';
+
+// redux
 import { useAppDispatch } from '@utils/hooks';
 import { removeAlert } from '@features/alert/alertSlice';
+
+// utils
+import { truncate } from '@utils/utils';
 
 interface AlertProps {
 	id: string;
 	title: string;
 	message: string;
-	alertType: 'success' | 'warning' | 'danger';
+	alertType: 'success' | 'warning' | 'danger' | null;
+	animationStyle: any;
 }
 
-const Alert: React.FC<AlertProps> = ({ id, title, message, alertType }) => {
+const Alert: React.FC<AlertProps> = ({
+	id,
+	title,
+	message,
+	alertType,
+	animationStyle,
+}) => {
 	const dispatch = useAppDispatch();
 
 	const setIcon = (alertType: string) => {
@@ -30,61 +44,61 @@ const Alert: React.FC<AlertProps> = ({ id, title, message, alertType }) => {
 		}
 	};
 
+	const handleRemoveAlert = () => {
+		setTimeout(() => {
+			dispatch(removeAlert());
+		}, 2000);
+	};
+
 	// remove alert after specified times
 	useEffect(() => {
 		setTimeout(() => {
-			dispatch(removeAlert(id));
+			dispatch(removeAlert());
 		}, 6000);
 	}, []);
 
 	return (
-		<div
+		<animated.div
 			key={id}
-			className={`h-full w-full max-h-32 max-w-xs fixed bottom-0 left-0 z-40 p-4 rounded-lg shadow-md bg-white border border-t-4 ${
-				alertType === 'success'
-					? 'border-teal-500'
-					: alertType === 'warning'
-					? 'border-purple-500'
-					: alertType === 'danger'
-					? 'border-red-300'
-					: 'border-gray-700'
-			} transform -translate-y-12 translate-x-24`}
+			style={animationStyle}
+			className={`fixed bottom-0 left-1/2 z-40 w-full max-w-xl py-4 px-6 rounded-lg shadow-lg bg-gray-900 transform -translate-y-12 -translate-x-1/2 border border-gray-700`}
 		>
-			<div className='w-full flex items-start justify-between'>
-				<div className='flex'>
+			<div className='w-full flex items-center justify-between'>
+				<div className='flex item-center'>
 					<div
-						className={
+						className={`${
 							alertType === 'success'
-								? 'text-teal-500'
+								? 'text-teal-300'
 								: alertType === 'warning'
-								? 'text-purple-500'
+								? 'text-purple-300'
 								: alertType === 'danger'
 								? 'text-red-300'
 								: 'text-gray-700'
-						}
+						} flex items-center`}
 					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
-							className='mt-1 h-5 w-5'
+							className='h-5 w-5 mt-0.5'
 							viewBox='0 0 20 20'
 							fill='currentColor'
 						>
-							{setIcon(alertType)}
+							{alertType && setIcon(alertType)}
 						</svg>
 					</div>
-
-					<div className='ml-2'>
-						<h4 className='font-semibold text-gray-900'>{title}</h4>
-						<p className='mt-2 text-sm text-gray-600'>{message}</p>
+					<div className='ml-2 flex items-center text-white'>
+						<p className='font-semibold flex-none'>{title}</p>
+						<p className='ml-2 text-gray-200 overflow-ellipsis pl-4'>
+							{truncate(message, 32)}
+						</p>
 					</div>
 				</div>
 				<button
-					onClick={() => dispatch(removeAlert(id))}
-					className={`text-gray-400 rounded-md ring-gray`}
+					onClick={() => handleRemoveAlert()}
+					className={`ml-6 p-1 hover:bg-gray-800 rounded-md text-gray-300 ring-gray`}
 				>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
-						className='svg-sm'
+						className='svg-base'
 						viewBox='0 0 20 20'
 						fill='currentColor'
 					>
@@ -96,7 +110,7 @@ const Alert: React.FC<AlertProps> = ({ id, title, message, alertType }) => {
 					</svg>
 				</button>
 			</div>
-		</div>
+		</animated.div>
 	);
 };
 

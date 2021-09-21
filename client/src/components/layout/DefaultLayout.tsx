@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 
 // redux
-import Alert from '@components/features/alert/Alerts';
+import Alert from '@components/features/alert/Alert';
 
 interface DefaultLayoutProps {
 	children: React.ReactNode;
@@ -10,7 +10,7 @@ interface DefaultLayoutProps {
 const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
 	return (
 		<Fragment>
-			<Alert />
+			{/* <Alert /> */}
 			<main className='relative flex flex-col h-screen'>{children}</main>
 		</Fragment>
 	);

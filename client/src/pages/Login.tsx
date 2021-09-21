@@ -5,7 +5,7 @@ import { Redirect, Link } from 'react-router-dom';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
-import { removeAllAlerts } from '@components/features/alert/alertSlice';
+import { removeAlert } from '@components/features/alert/alertSlice';
 import {
 	authenticateUser,
 	getUserData,
@@ -43,7 +43,7 @@ const Login: React.FC = () => {
 		const res = await dispatch(authenticateUser({ email, password }));
 		if (res.meta.requestStatus !== 'rejected' && status === 'idle') {
 			setAuthToken(res.payload);
-			dispatch(removeAllAlerts);
+			dispatch(removeAlert());
 			return dispatch(getUserData());
 		}
 	};

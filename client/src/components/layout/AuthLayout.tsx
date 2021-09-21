@@ -1,8 +1,11 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
+
+// packages
+import { useSpring } from 'react-spring';
 
 // redux
 import { useAppSelector } from '@utils/hooks';
-import Alert from '@components/features/alert/Alerts';
+import Alert from '@components/features/alert/Alert';
 
 // components
 import Navbar from '@components/layout/navigation/Navbar';
@@ -18,9 +21,32 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 	const user = useAppSelector((state) => state.auth.user);
 
+	// alert state
+	const alert = useAppSelector((state) => state.alert);
+
+	// local state
+	const [alertVisible, setAlertVisible] = useState(alert.visible);
+
+	const animationStyle = useSpring({
+		// transform: visible ? 'translateY(0)' : 'translateY(-200%)',
+		opacity: alertVisible ? 1 : 0,
+	});
+
+	useEffect(() => {
+		setAlertVisible(alert.visible);
+	}, [alert.visible]);
+
 	return (
 		<Fragment>
-			<Alert />
+			{alertVisible && (
+				<Alert
+					id={alert.id}
+					title={alert.title}
+					message={alert.message}
+					alertType={alert.alertType}
+					animationStyle={animationStyle}
+				/>
+			)}
 			{status === 'idle' && isAuthenticated && user ? (
 				<div className='min-h-screen relative flex bg-gray-100 dark:bg-darkGray-500'>
 					<Navbar />
