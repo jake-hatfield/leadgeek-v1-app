@@ -211,7 +211,10 @@ const DatePicker: React.FC<DatePickerProps> = ({
 				</header>
 				<ul>
 					{dateOptions.map((dateOption, i) => (
-						<li key={i} className='list-none'>
+						<li
+							key={i}
+							className='list-none border-b border-gray-100 last:border-none'
+						>
 							<button
 								onClick={() => {
 									handleSetDate(

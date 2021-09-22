@@ -67,7 +67,6 @@ const Leads: React.FC<LeadsProps> = ({
 	const [date, setDate] = useState(false);
 	const [exportLeads, setExportLeads] = useState(false);
 	const [filter, setFilter] = useState(false);
-	const [prepActive, setPrepActive] = useState(false);
 	const [showDetails, setShowDetails] = useState(false);
 
 	// destructure necessary items
@@ -159,6 +158,7 @@ const Leads: React.FC<LeadsProps> = ({
 
 	// animation style for details
 
+	console.log(showDetails);
 	const animationStyle = useSpring({
 		transform: showDetails ? 'translateX(0px)' : 'translateX(105%)',
 		opacity: 1,

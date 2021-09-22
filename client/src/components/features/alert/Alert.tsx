@@ -101,7 +101,7 @@ const Alert: React.FC = () => {
 					<div className='ml-2 flex items-center text-white'>
 						<p className='font-semibold flex-none'>{title}</p>
 						<p className='ml-2 text-gray-200 overflow-ellipsis pl-4'>
-							{truncate(message, 50)}
+							{truncate(message, 45)}
 						</p>
 					</div>
 				</div>

@@ -22,28 +22,26 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({ link }) => {
 	const [hover, setHover] = useState(false);
 
 	return (
-		<div v-for='item in items'>
-			<NavLink
-				className='p-2 relative flex items-center justify-between rounded-lg group text-gray-300 hover:text-gray-200 hover:bg-gray-800 hover:shadow-md transition duration-100 ease-in-out ring-purple'
-				onMouseEnter={() => setHover(!hover)}
-				onMouseLeave={() => setHover(false)}
-				to={link.link}
+		<NavLink
+			className='first:mt-0 mt-8 p-2 relative flex items-center justify-between rounded-lg group text-gray-300 hover:text-gray-200 hover:bg-gray-800 hover:shadow-md transition-main ring-purple'
+			onMouseEnter={() => setHover(!hover)}
+			onMouseLeave={() => setHover(false)}
+			to={link.link}
+		>
+			<svg
+				xmlns='http://www.w3.org/2000/svg'
+				viewBox='0 0 20 20'
+				fill='currentColor'
+				className='h-6 w-6'
 			>
-				<svg
-					xmlns='http://www.w3.org/2000/svg'
-					viewBox='0 0 20 20'
-					fill='currentColor'
-					className='h-6 w-6'
-				>
-					{link.path}
-				</svg>
-				{hover && (
-					<div className='mt-2 p-2 absolute left-0 z-40 transform -translate-y-1 translate-x-14 rounded-lg bg-gray-900 shadow-md text-white text-sm whitespace-nowrap'>
-						{link.title}
-					</div>
-				)}
-			</NavLink>
-		</div>
+				{link.path}
+			</svg>
+			{hover && (
+				<div className='mt-2 p-2 absolute left-0 z-40 transform -translate-y-1 translate-x-14 rounded-lg bg-gray-900 shadow-md text-white text-sm whitespace-nowrap'>
+					{link.title}
+				</div>
+			)}
+		</NavLink>
 	);
 };
 
@@ -97,33 +95,27 @@ const Navbar = () => {
 	};
 
 	return (
-		<nav className='fixed top-0 left-0 z-20 h-full min-h-screen w-16 py-6 px-3 flex flex-col justify-between bg-gray-900 dark:bg-darkGray-300 text-gray-400'>
-			<aside>
+		<section className='fixed top-0 left-0 z-20 h-full min-h-screen w-16 pt-6 pb-8 px-3 flex flex-col justify-between bg-gray-900 dark:bg-darkGray-300 text-gray-400'>
+			<nav>
 				{navLinks.primaryLinks.map((link, i) => (
-					<div key={i} className='first:mt-0 mt-6'>
-						<NavbarLink link={link} />
-					</div>
+					<NavbarLink key={i} link={link} />
 				))}
-			</aside>
+			</nav>
 			<article>
 				{role === 'admin' ||
 					(role === 'master' && (
 						<nav className='mt-4 flex flex-col'>
 							{navLinks.adminLinks.map((link, i) => (
-								<div key={i} className='first:mt-0 mt-6'>
-									<NavbarLink link={link} />
-								</div>
+								<NavbarLink key={i} link={link} />
 							))}
 						</nav>
 					))}
-				<nav className='mt-4 flex flex-col pt-4 border-t border-gray-700'>
+				<nav className='mt-8 pt-8 flex flex-col border-t border-gray-700'>
 					{navLinks.secondaryLinks.map((link, i) => (
-						<div key={i} className='first:mt-0 mt-6'>
-							<NavbarLink link={link} />
-						</div>
+						<NavbarLink key={i} link={link} />
 					))}
 				</nav>
-				<aside className='relative mt-4 text-gray-400'>
+				<aside className='relative mt-8 text-gray-400'>
 					<button
 						className='relative flex items-center justify-between mt-4 p-2 rounded-lg group text-gray-300 hover:text-gray-200 hover:bg-gray-800 hover:shadow-md transition-main ring-purple'
 						onMouseEnter={() => setNotificationHover(true)}
@@ -166,12 +158,28 @@ const Navbar = () => {
 								{notifications.map((item, i) => (
 									<li
 										key={i}
-										className='py-2 px-4 hover:bg-gray-100 transition-main focus:outline-none'
+										className='py-2 px-4 hover:bg-gray-100 transition-main focus:outline-none border-b border-gray-100 last:border-none'
 									>
-										<div className='flex items-center justify-between'>
-											<h5 className='font-semibold text-base mr-4'>
-												v1.2 Release
-											</h5>
+										<div className='flex items-center justify-between mb-1'>
+											<header className='flex items-center'>
+												<span className='text-gray-500'>
+													<svg
+														xmlns='http://www.w3.org/2000/svg'
+														className='h-5 w-5'
+														viewBox='0 0 20 20'
+														fill='currentColor'
+													>
+														<path
+															fillRule='evenodd'
+															d='M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z'
+															clipRule='evenodd'
+														/>
+													</svg>
+												</span>
+												<h5 className='ml-2 mr-4 font-semibold text-base'>
+													v1.2 Release
+												</h5>
+											</header>
 											<a
 												href='https://leadgeek.io/changelog/'
 												target='_blank'
@@ -201,7 +209,7 @@ const Navbar = () => {
 						</article>
 					)}
 				</aside>
-				<aside className='relative mt-4 text-gray-400 pt-4 border-t border-gray-700'>
+				<aside className='relative mt-8 text-gray-400 pt-4 border-t border-gray-700'>
 					<button
 						onClick={() => {
 							setHover(false);
@@ -210,7 +218,7 @@ const Navbar = () => {
 						}}
 						onMouseEnter={() => setHover(!userDropdown && true)}
 						onMouseLeave={() => setHover(false)}
-						className='p-2 h-10 w-10 flex items-center justify-center rounded-full bg-purple-500 text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
+						className='p-2 h-10 w-10 flex items-center justify-center rounded-full mt-4 bg-purple-500 text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
 					>
 						<span className='text-lg font-bold'>{firstInitial}</span>
 						{hover && (
@@ -245,7 +253,7 @@ const Navbar = () => {
 											<NavLink
 												key={i}
 												to={`/${item.link}`}
-												className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
+												className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 transition-main focus:outline-none'
 											>
 												<span className='font-semibold text-sm text-gray-800'>
 													{item.title}
@@ -268,7 +276,7 @@ const Navbar = () => {
 					)}
 				</aside>
 			</article>
-		</nav>
+		</section>
 	);
 };
 

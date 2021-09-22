@@ -10,6 +10,7 @@ import React, {
 import { DateTime } from 'luxon';
 import ReactImageMagnify from 'react-image-magnify';
 import { animated } from 'react-spring';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
@@ -19,7 +20,6 @@ import {
 	handleArchiveLead,
 	addComment,
 	setCurrentLead,
-	getFeedLeads,
 	setPage,
 } from '@features/leads/leadsSlice';
 
@@ -73,19 +73,10 @@ const Details: React.FC<DetailsProps> = ({
 	const [noteCount, setNoteCount] = useState(0);
 
 	// global classes
-	const descriptorClasses = 'flex justify-between';
 	const linkClasses = 'font-semibold text-purple-600 hover:text-gray-700';
 
 	// descructure necessary items
 	const { data } = currentLead;
-
-	// prevent scroll while active
-	// useEffect(() => {
-	// 	document.body.style.overflow = 'hidden';
-	// 	return () => {
-	// 		document.body.style.overflow = 'unset';
-	// 	};
-	// }, []);
 
 	// close modal on click outside
 	const modalRef = useRef();
@@ -94,19 +85,6 @@ const Details: React.FC<DetailsProps> = ({
 			setShowDetails(false);
 		}
 	};
-	// close modal on esc key
-	const keyPress = useCallback(
-		(e) => {
-			if (e.key === 'Escape' && showDetails) {
-				setShowDetails(false);
-			}
-		},
-		[setShowDetails, showDetails]
-	);
-	useEffect(() => {
-		document.addEventListener('keydown', keyPress);
-		return () => document.removeEventListener('keydown', keyPress);
-	}, [keyPress]);
 
 	// like/archive/comment handlers
 	const [like, setLike] = useState(
@@ -151,7 +129,6 @@ const Details: React.FC<DetailsProps> = ({
 			return setShowDetails(false);
 		}
 		if (nextIndex === itemLimit) {
-			console.log(page);
 			dispatch(setPage({ page: page + 1, type }));
 			return setTimeout(() => {
 				setNewLead(true);
@@ -162,11 +139,68 @@ const Details: React.FC<DetailsProps> = ({
 
 	useEffect(() => {
 		if (newLead) {
-			console.log(leads[0]);
 			dispatch(setCurrentLead(leads[0]));
 			return setNewLead(false);
 		}
 	}, [newLead]);
+
+	// hotkeys
+	// close details on escape key
+	useHotkeys('Escape', () => {
+		showDetails && removeDetails();
+	});
+	// like on l key
+	useHotkeys(
+		'l',
+		() => {
+			dispatch(handleLikeLead({ userId: user._id, leadId: currentLead._id }));
+		},
+		{},
+		[currentLead]
+	);
+	// archive on a key
+	useHotkeys(
+		'a',
+		() => {
+			dispatch(
+				handleArchiveLead({ userId: user._id, leadId: currentLead._id })
+			);
+		},
+		{},
+		[currentLead]
+	);
+	// open both links on o key
+	useHotkeys(
+		'o',
+		() => {
+			openLinkHandler(data.retailerLink, data.amzLink);
+		},
+		{},
+		[currentLead]
+	);
+	// get prev lead on d key
+	useHotkeys(
+		'd',
+		() => {
+			getLead(-1);
+		},
+		{},
+		[currentLead]
+	);
+	// get next lead on f key
+	useHotkeys(
+		'f',
+		() => {
+			getLead(1);
+		},
+		{},
+		[currentLead]
+	);
+
+	const removeDetails = () => {
+		setShowDetails(false);
+		dispatch(clearCurrentLead());
+	};
 
 	const navigationButtons = [
 		{
@@ -181,7 +215,14 @@ const Details: React.FC<DetailsProps> = ({
 			disabled: leads.indexOf(currentLead) === 0 ? true : false,
 			onClick: () => getLead(-1),
 			state: false,
-			description: <span>View previous lead</span>,
+			description: (
+				<div>
+					<span>View previous lead</span>
+					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
+						D
+					</span>
+				</div>
+			),
 			last: false,
 		},
 		{
@@ -196,7 +237,14 @@ const Details: React.FC<DetailsProps> = ({
 			disabled: false,
 			onClick: () => getLead(1),
 			state: false,
-			description: <span>View next lead</span>,
+			description: (
+				<div>
+					<span>View next lead</span>
+					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
+						F
+					</span>
+				</div>
+			),
 			last: false,
 		},
 	];
@@ -228,7 +276,14 @@ const Details: React.FC<DetailsProps> = ({
 			onClick: () =>
 				dispatch(handleLikeLead({ userId: user._id, leadId: currentLead._id })),
 			state: like,
-			description: <span>{like ? 'Unlike this lead' : 'Like this lead'}</span>,
+			description: (
+				<div>
+					<span>{like ? 'Unlike lead' : 'Like lead'}</span>
+					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
+						L
+					</span>
+				</div>
+			),
 			last: false,
 		},
 		{
@@ -255,7 +310,12 @@ const Details: React.FC<DetailsProps> = ({
 				),
 			state: archive,
 			description: (
-				<span>{archive ? 'Unarchive this lead' : 'Archive this lead'}</span>
+				<div>
+					<span>{archive ? 'Unarchive lead' : 'Archive lead'}</span>
+					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
+						A
+					</span>
+				</div>
 			),
 			last: false,
 		},
@@ -271,7 +331,14 @@ const Details: React.FC<DetailsProps> = ({
 			inactivePath: null,
 			onClick: () => openLinkHandler(data.retailerLink, data.amzLink),
 			state: null,
-			description: <span>Open both links</span>,
+			description: (
+				<div>
+					<span>Open links</span>
+					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
+						O
+					</span>
+				</div>
+			),
 			last: false,
 		},
 		{
@@ -284,8 +351,7 @@ const Details: React.FC<DetailsProps> = ({
 			),
 			inactivePath: null,
 			onClick: () => {
-				setShowDetails(false);
-				dispatch(clearCurrentLead());
+				removeDetails();
 			},
 			disabled: false,
 			state: null,
