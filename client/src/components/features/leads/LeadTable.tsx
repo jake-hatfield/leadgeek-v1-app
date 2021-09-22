@@ -205,7 +205,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 
 const LeadRowLoader = (props: any) => {
 	return (
-		<tr className='w-full py-16 border-b border-gray-100 dark:border-gray-900'>
+		<tr className='w-full py-16 border-b last:border-none border-gray-100 dark:border-gray-900'>
 			{/* like */}
 			<td className='w-10 py-2 px-2' />
 			{/* title */}
@@ -345,7 +345,7 @@ const svgList = {
 const classes = {
 	sectionWrapper: 'relative mt-6 container',
 	tableWrapper:
-		'pb-3 bg-white dark:bg-darkGray-400 shadow-xl rounded-lg border border-gray-400 dark:border-darkGray-100',
+		'pb-1 bg-white dark:bg-darkGray-400 shadow-xl rounded-lg border border-gray-300 dark:border-darkGray-100',
 	table: 'w-full',
 	tableHeadWrapper: 'border-b border-gray-100 dark:border-darkGray-100',
 	tableHead:

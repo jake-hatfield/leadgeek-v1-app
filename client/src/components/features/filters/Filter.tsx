@@ -257,7 +257,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	return user ? (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-30 w-80 transform translate-y-12 -translate-x-32 pt-4 pb-1 rounded-lg bg-white dark:bg-darkGray-200 shadow-lg border border-gray-400 dark:border-darkGray-100 text-gray-900 dark:text-gray-100'
+			className='absolute top-0 right-0 z-30 w-80 transform translate-y-12 -translate-x-32 pt-4 pb-1 rounded-lg bg-white dark:bg-darkGray-200 shadow-lg border border-gray-300 dark:border-darkGray-100 text-gray-900 dark:text-gray-100'
 		>
 			<div className='relative'>
 				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-900'>

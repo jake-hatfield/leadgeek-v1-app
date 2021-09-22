@@ -62,7 +62,7 @@ const SettingsNavbar = () => {
 	];
 
 	return (
-		<nav className='fixed top-0 left-15 z-10 h-full min-h-screen w-56 pt-8 pb-16 flex flex-col justify-between bg-gray-100 text-gray-600 border-r border-gray-400'>
+		<nav className='fixed top-0 left-15 z-10 h-full min-h-screen w-56 pt-8 pb-16 flex flex-col justify-between bg-gray-100 text-gray-600 border-r border-gray-300'>
 			<aside>
 				<h1 className='px-6 text-xl text-gray-900 font-bold'>Settings</h1>
 				<ol className='pt-4'>

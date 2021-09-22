@@ -1,32 +1,58 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // packages
-import { animated } from 'react-spring';
+import { animated, useSpring } from 'react-spring';
 
 // redux
-import { useAppDispatch } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@utils/hooks';
 import { removeAlert } from '@features/alert/alertSlice';
 
 // utils
 import { truncate } from '@utils/utils';
 
-interface AlertProps {
-	id: string;
-	title: string;
-	message: string;
-	alertType: 'success' | 'warning' | 'danger' | null;
-	animationStyle: any;
-}
-
-const Alert: React.FC<AlertProps> = ({
-	id,
-	title,
-	message,
-	alertType,
-	animationStyle,
-}) => {
+const Alert: React.FC = () => {
 	const dispatch = useAppDispatch();
 
+	// alert state
+	const alert = useAppSelector((state) => state.alert);
+	// destructure necessary items
+	const { id, title, message, alertType, visible } = alert;
+	// local state
+	const [alertVisible, setAlertVisible] = useState(visible);
+
+	// set visible conditionally
+	useEffect(() => {
+		setAlertVisible(visible);
+	}, [visible]);
+
+	// fn to set visiblity and remove from redux state
+	const handleRemoveAlert = () => {
+		setAlertVisible(false);
+		dispatch(removeAlert());
+	};
+
+	const delay = 6000;
+
+	// remove alert after specified times
+	useEffect(() => {
+		if (!alertVisible) return;
+
+		const timeoutId = window.setTimeout(() => {
+			handleRemoveAlert();
+		}, delay);
+
+		return () => {
+			window.clearTimeout(timeoutId);
+		};
+	});
+
+	// alert animation
+	const animationStyle = useSpring({
+		// transform: visible ? 'translateY(0)' : 'translateY(-200%)',
+		opacity: alertVisible ? 1 : 0,
+	});
+
+	// set the alert icon conditionally
 	const setIcon = (alertType: string) => {
 		const foundIcon = alertIcons.find(
 			(alertIcon) => alertIcon.title === alertType
@@ -44,24 +70,11 @@ const Alert: React.FC<AlertProps> = ({
 		}
 	};
 
-	const handleRemoveAlert = () => {
-		setTimeout(() => {
-			dispatch(removeAlert());
-		}, 2000);
-	};
-
-	// remove alert after specified times
-	useEffect(() => {
-		setTimeout(() => {
-			dispatch(removeAlert());
-		}, 6000);
-	}, []);
-
 	return (
 		<animated.div
 			key={id}
 			style={animationStyle}
-			className={`fixed bottom-0 left-1/2 z-40 w-full max-w-xl py-4 px-6 rounded-lg shadow-lg bg-gray-900 transform -translate-y-12 -translate-x-1/2 border border-gray-700`}
+			className={`fixed bottom-0 left-1/2 z-40 w-full max-w-2xl py-4 px-6 rounded-lg shadow-lg bg-gray-900 transform -translate-y-12 -translate-x-1/2 border border-gray-700`}
 		>
 			<div className='w-full flex items-center justify-between'>
 				<div className='flex item-center'>
@@ -88,7 +101,7 @@ const Alert: React.FC<AlertProps> = ({
 					<div className='ml-2 flex items-center text-white'>
 						<p className='font-semibold flex-none'>{title}</p>
 						<p className='ml-2 text-gray-200 overflow-ellipsis pl-4'>
-							{truncate(message, 32)}
+							{truncate(message, 50)}
 						</p>
 					</div>
 				</div>

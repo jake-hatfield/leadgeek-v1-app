@@ -59,14 +59,20 @@ const Navbar = () => {
 	const [userDropdown, setUserDropdown] = useState(false);
 	const [firstInitial, setFirstInitial] = useState<string>('');
 
-	// modal handlers
-	const wrapperRef = useRef(null);
-	useOutsideMouseup(wrapperRef, setUserDropdown, null);
-	// close modal on esc key
+	// notifications modal handlers
+	const notificationsModalRef = useRef(null);
+	useOutsideMouseup(notificationsModalRef, setNotificationDropdown, null);
+
+	// settings modal handlers
+	const settingsModalRef = useRef(null);
+	useOutsideMouseup(settingsModalRef, setUserDropdown, null);
+
+	// close modals on esc key
 	const keyPress = useCallback(
 		(e) => {
 			if (e.key === 'Escape') {
 				setUserDropdown(false);
+				setNotificationDropdown(false);
 			}
 		},
 		[setUserDropdown]
@@ -76,6 +82,7 @@ const Navbar = () => {
 		return () => document.removeEventListener('keydown', keyPress);
 	}, [keyPress]);
 
+	// set user initials
 	useEffect(() => {
 		if (name) {
 			let userInitials = name.split(' ').map((n) => n[0]);
@@ -118,7 +125,7 @@ const Navbar = () => {
 				</nav>
 				<aside className='relative mt-4 text-gray-400'>
 					<button
-						className='mt-4 p-2 flex items-center justify-between rounded-lg group text-gray-300 hover:text-gray-200 hover:bg-gray-800 hover:shadow-md transition-main ring-purple'
+						className='relative flex items-center justify-between mt-4 p-2 rounded-lg group text-gray-300 hover:text-gray-200 hover:bg-gray-800 hover:shadow-md transition-main ring-purple'
 						onMouseEnter={() => setNotificationHover(true)}
 						onMouseLeave={() => setNotificationHover(false)}
 						onClick={() => {
@@ -140,36 +147,58 @@ const Navbar = () => {
 								Notifications
 							</div>
 						)}
+						{notifications.length > 0 && (
+							<div className='absolute top-0 right-0 h-2 w-2 bg-pink-600 rounded-full transform translate-y-1 -translate-x-1 shadow-sm' />
+						)}
 					</button>
 					{notificationDropdown && (
-						<div className='relative'>
-							<article
-								ref={wrapperRef}
-								className='absolute bottom-0 left-0 z-30 w-64 transform translate-x-16 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-400 text-gray-900'
-							>
-								<div className='relative'>
-									<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>
-										<div>
-											<h5 className='inline-block font-bold text-lg'>
-												Notifications
+						<article
+							ref={notificationsModalRef}
+							className='absolute bottom-0 left-0 z-30 w-64 transform translate-x-16 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-300 text-gray-900 break-words'
+						>
+							<header className='pb-2 px-4 border-b border-gray-200 flex items-center justify-between'>
+								<h4 className='font-bold text-lg'>Notifications</h4>
+								<span className='py-1 px-2 bg-pink-600 border border-pink-500 text-white rounded-lg shadow-sm text-xs'>
+									{notifications.length > 5 ? '5+' : notifications.length}
+								</span>
+							</header>
+							<ul className='w-full text-sm text-gray-800'>
+								{notifications.map((item, i) => (
+									<li
+										key={i}
+										className='py-2 px-4 hover:bg-gray-100 transition-main focus:outline-none'
+									>
+										<div className='flex items-center justify-between'>
+											<h5 className='font-semibold text-base mr-4'>
+												v1.2 Release
 											</h5>
-										</div>
-									</header>
-									<div>
-										{notifications.map((item, i) => (
-											<div
-												key={i}
-												className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 transition-colors duration-100 ease-in-out focus:outline-none'
+											<a
+												href='https://leadgeek.io/changelog/'
+												target='_blank'
+												rel='noopener noreferrer'
+												className='text-purple-500 hover:text-purple-600 transition-main'
 											>
-												<span className='font-semibold text-sm text-gray-800'>
-													{item.title}
-												</span>
-											</div>
-										))}
-									</div>
-								</div>
-							</article>
-						</div>
+												<svg
+													xmlns='http://www.w3.org/2000/svg'
+													className='h-5 w-5'
+													viewBox='0 0 20 20'
+													fill='currentColor'
+												>
+													<path d='M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z' />
+													<path d='M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z' />
+												</svg>
+											</a>
+										</div>
+										<time dateTime={'2021-09-22'}>Sep 22</time>
+										<p className='pt-2 text-gray-700'>
+											Big update! This was a complete overhaul of the interface
+											with new features, aesthetic changes, and additional error
+											handling.
+										</p>
+									</li>
+								))}
+							</ul>
+						</article>
 					)}
 				</aside>
 				<aside className='relative mt-4 text-gray-400 pt-4 border-t border-gray-700'>
@@ -193,8 +222,8 @@ const Navbar = () => {
 					{userDropdown && (
 						<div className='relative'>
 							<article
-								ref={wrapperRef}
-								className='absolute bottom-0 left-0 z-30 w-64 transform translate-x-16 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-400 text-gray-900'
+								ref={settingsModalRef}
+								className='absolute bottom-0 left-0 z-30 w-64 transform translate-x-16 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-300 text-gray-900'
 							>
 								<div className='relative'>
 									<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>
@@ -243,7 +272,16 @@ const Navbar = () => {
 	);
 };
 
-const notifications = [{ title: 'hello' }];
+const notifications = [
+	{
+		title:
+			'hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello',
+	},
+	{
+		title:
+			'hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello',
+	},
+];
 
 // primary links
 const navLinks = {

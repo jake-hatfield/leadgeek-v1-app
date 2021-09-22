@@ -384,7 +384,7 @@ const svgList = {
 const classes = {
 	leadsWrapper: 'relative pb-6',
 	navWrapper:
-		'pt-4 pb-2 border-b border-gray-400 dark:border-darkGray-300 shadow-md',
+		'pt-4 pb-2 border-b border-gray-300 dark:border-darkGray-300 shadow-md',
 	nav: 'relative flex items-end justify-between container',
 	navLink:
 		'relative first:ml-0 ml-8 pb-2 font-semibold text-gray-600 dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-300 hover:border-b-2 hover:border-purple-500 dark:border-purple-200 group transition-colors-main',

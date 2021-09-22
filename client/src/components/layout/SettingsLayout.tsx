@@ -55,7 +55,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 										className={`ml-2 py-1 px-2 ${
 											pill.active
 												? 'bg-teal-200 text-teal-600 border border-teal-400'
-												: 'bg-gray-100 text-gray-800 border border-gray-400'
+												: 'bg-gray-100 text-gray-800 border border-gray-300'
 										} rounded-lg text-xs`}
 									>
 										{pill.text}

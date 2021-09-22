@@ -69,7 +69,7 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
 			</button>
 			{openState && (
 				<ul
-					className='absolute top-0 right-0 z-10 max-h-56 w-full mt-1 py-1 bg-white border border-gray-200 shadow-md rounded-lg text-sm overflow-auto focus:outline-none transform translate-y-10 minimal-scrollbar'
+					className='absolute top-0 right-0 z-10 max-h-56 w-full mt-1 py-1 bg-white border border-gray-300 shadow-md rounded-lg text-sm overflow-auto focus:outline-none transform translate-y-10 minimal-scrollbar'
 					tabIndex={-1}
 					role='listbox'
 					aria-labelledby='listbox-label'

@@ -569,8 +569,8 @@ const Details: React.FC<DetailsProps> = ({
 				// ref={modalRef}
 				className='fixed top-0 right-0 z-20 w-full max-w-3xl'
 			>
-				<div className='relative z-40 min-h-screen shadow-2xl bg-gray-100 dark:bg-darkGray-400 border-l border-gray-400 dark:border-darkGray-200'>
-					<header className='bg-white dark:bg-darkGray-300 border-b border-gray-400 dark:border-gray-900 shadow-sm'>
+				<div className='relative z-40 min-h-screen shadow-2xl bg-gray-100 dark:bg-darkGray-400 border-l border-gray-300 dark:border-darkGray-200'>
+					<header className='bg-white dark:bg-darkGray-300 border-b border-gray-300 dark:border-gray-900 shadow-sm'>
 						<div className='flex items-center justify-between py-3 px-6 text-gray-500'>
 							{/* navigation buttons */}
 							<div className='flex items-center '>
@@ -605,7 +605,7 @@ const Details: React.FC<DetailsProps> = ({
 						</div>
 					</header>
 					<section className='mt-4 px-6'>
-						<article className='flex justify-between p-4 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-400 dark:border-gray-900'>
+						<article className='flex justify-between p-4 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-300 dark:border-gray-900'>
 							<div className='w-2/5 h-56 z-10'>
 								<ReactImageMagnify
 									{...{
@@ -666,7 +666,7 @@ const Details: React.FC<DetailsProps> = ({
 								</article>
 							</header>
 						</article>
-						<article className='mt-4 pt-4 pb-3 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-400 dark:border-gray-900'>
+						<article className='mt-4 pt-4 pb-3 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-300 dark:border-gray-900'>
 							<header className='pb-2 border-b border-gray-200'>
 								<h4 className='px-4 font-semibold text-gray-900'>
 									Detailed information
@@ -683,12 +683,10 @@ const Details: React.FC<DetailsProps> = ({
 								))}
 							</dl>
 						</article>
-						<article className='mt-4 pt-4 pb-3 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-400 dark:border-gray-900'>
+						<article className='mt-4 pt-4 pb-3 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-300 dark:border-gray-900'>
 							<header className='flex items-center pb-2 border-b border-gray-200'>
 								<h4 className='pl-4 font-semibold text-gray-900'>Notes</h4>{' '}
-								<span
-									className={`${'ml-2 py-1 px-2 bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm text-xs'}`}
-								>
+								<span className='ml-2 py-1 px-2 bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm text-xs'>
 									{noteCount}
 								</span>
 							</header>
@@ -705,7 +703,7 @@ const Details: React.FC<DetailsProps> = ({
 						</article>
 					</section>
 					{/* comment section */}
-					<article className='fixed bottom-0 w-full max-w-3xl text-gray-900 bg-white dark:bg-darkGray-300 border-t border-gray-400 dark:border-gray-900'>
+					<article className='fixed bottom-0 w-full max-w-3xl text-gray-900 bg-white dark:bg-darkGray-300 border-t border-gray-300 dark:border-gray-900'>
 						<div className='pt-1 pb-4 px-4'>
 							<form className='mt-3 text-sm'>
 								<textarea
@@ -713,7 +711,7 @@ const Details: React.FC<DetailsProps> = ({
 									placeholder='Add a comment to this lead...'
 									onChange={onChange}
 									value={comment}
-									className='h-12 xl:h-16 w-full dark:bg-darkGray-200 rounded-lg border border-gray-400 dark:border-gray-900 text-sm ring-purple resize-none'
+									className='h-12 xl:h-16 w-full dark:bg-darkGray-200 rounded-lg border border-gray-300 dark:border-gray-900 text-sm ring-purple resize-none'
 								/>
 								{/* <div className='flex items-center justify-end'>
 									<Button

@@ -22,7 +22,7 @@ const initialState: FilterState = {
 		unit: +localStorage.getItem('unitFee')! || null,
 		lb: +localStorage.getItem('lbFee')! || null,
 	},
-	itemLimit: +localStorage.getItem('itemLimit')! || 15,
+	itemLimit: +localStorage.getItem('itemLimit')! || 20,
 	dateLimits: { min: null, max: null, selected: null },
 };
 

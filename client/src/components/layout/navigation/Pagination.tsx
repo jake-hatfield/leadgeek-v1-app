@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
-
-// packages
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // redux
 import { useAppDispatch } from '@utils/hooks';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 
 // utils
-import { numberWithCommas } from '@utils/utils';
+import { numberWithCommas, useOutsideMousedown } from '@utils/utils';
 import { Pagination } from '@utils/interfaces/Pagination';
 
 interface PaginationProps {
@@ -35,11 +32,12 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 }) => {
 	const dispatch = useAppDispatch();
 	// local state
+	const [selectOpen, setSelectOpen] = useState(false);
 	const [selectValue, setSelectValue] = useState(itemLimit || 15);
 	const pageLimits = [10, 15, 25, 50, 100];
 	const [filteredMessage, setFilteredMessage] = useState(false);
 
-	// desctructure necessary items
+	// destructure necessary items
 	const {
 		page,
 		hasNextPage,
@@ -49,6 +47,23 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 		totalItems,
 		filteredItems,
 	} = pagination;
+
+	// close modal handlers
+	const ref = useRef(null);
+	useOutsideMousedown(ref, setSelectOpen, null);
+	// close modal on esc key
+	const keyPress = useCallback(
+		(e) => {
+			if (e.key === 'Escape' && selectOpen) {
+				setSelectOpen(false);
+			}
+		},
+		[setSelectOpen, selectOpen]
+	);
+	useEffect(() => {
+		document.addEventListener('keydown', keyPress);
+		return () => document.removeEventListener('keydown', keyPress);
+	}, [keyPress]);
 
 	const itemsFrom =
 		previousPage !== null
@@ -61,30 +76,73 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 
 	return status === 'idle' ? (
 		<article className={`mt-8 ${!padding && 'container'} `}>
-			<div className='flex items-center justify-between bg-white dark:bg-darkGray-400 rounded-lg py-2 px-4 shadow-md text-gray-600 dark:text-gray-400 border border-gray-400 dark:border-darkGray-200'>
+			<div className='flex items-center justify-between bg-white dark:bg-darkGray-400 rounded-lg py-2 px-4 shadow-md text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-darkGray-200'>
 				{totalItems && totalItems > 0 ? (
-					<div className='flex items-center text-sm'>
-						<select
-							value={selectValue}
-							onChange={(e) => {
-								dispatch(
-									setItemLimit({ type, itemLimit: +e.currentTarget.value })
-								);
-								setSelectValue(+e.currentTarget.value);
-							}}
-							className='w-16 mr-2 p-2 bg-white rounded-lg text-sm border border-gray-200 shadow-sm cursor-pointer ring-purple minimal-scrollbar'
+					<div className='relative flex items-center text-sm' ref={ref}>
+						<button
+							type='button'
+							className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 bg-white border border-gray-300 rounded-lg text-left cursor-default ring-purple ring-inset'
+							aria-haspopup='listbox'
+							aria-expanded='true'
+							aria-labelledby='listbox-label'
+							onClick={() =>
+								selectOpen ? setSelectOpen(false) : setSelectOpen(true)
+							}
 						>
-							{pageLimits.map((category, i) => (
-								<option
-									key={i}
-									value={category}
-									className='hover:bg-purple-500'
+							<span className='flex items-center'>
+								<span className='ml-2 block truncate'>{selectValue}</span>
+							</span>
+							<span className='ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none'>
+								<svg
+									className='h-4 w-4 text-gray-400'
+									xmlns='http://www.w3.org/2000/svg'
+									viewBox='0 0 20 20'
+									fill='currentColor'
+									aria-hidden='true'
 								>
-									{category}
-								</option>
-							))}
-						</select>
-						<span>results per page</span>
+									<path
+										fillRule='evenodd'
+										d='M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
+										clipRule='evenodd'
+									/>
+								</svg>
+							</span>
+						</button>
+						{selectOpen && (
+							<ul
+								className='absolute top-0 right-0 z-10 max-h-56 w-full mt-1 py-1 bg-white border border-gray-300 shadow-md rounded-lg text-sm overflow-auto focus:outline-none transform -translate-y-40'
+								tabIndex={-1}
+								role='listbox'
+								aria-labelledby='listbox-label'
+								aria-activedescendant='listbox-option-3'
+							>
+								{selectOptions.map((option, i) => (
+									<li
+										key={i}
+										className={`py-2 pl-3 pr-9 cursor-default select-none relative ${
+											selectValue === option
+												? 'bg-purple-500 hover:bg-purple-600 text-white'
+												: 'bg-white hover:bg-gray-100 text-gray-900'
+										}`}
+										id={`listbox-option-${i}`}
+										role='option'
+										aria-selected='true'
+										onClick={() => {
+											dispatch(
+												setItemLimit({
+													type,
+													itemLimit: option,
+												})
+											);
+											setSelectValue(option);
+											setSelectOpen(false);
+										}}
+									>
+										{option}
+									</li>
+								))}
+							</ul>
+						)}
 					</div>
 				) : (
 					<div />
@@ -132,7 +190,6 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 					) : (
 						<div />
 					)}
-
 					{(hasPreviousPage || hasNextPage) && (
 						<nav>
 							<button
@@ -164,6 +221,8 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 		<div />
 	);
 };
+
+const selectOptions = [10, 20, 50, 100];
 
 // component classes
 const classes = {

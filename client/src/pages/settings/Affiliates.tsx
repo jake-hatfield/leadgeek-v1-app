@@ -365,7 +365,7 @@ const AffiliatesPage = () => {
 												}}
 												onMouseEnter={() => setCopiedText(true)}
 												onMouseLeave={() => setCopiedText(false)}
-												className='p-1 rounded-lg bg-gray-100 text-gray-900 text-xs border border-gray-400 ring-gray transition-main ring-gray'
+												className='p-1 rounded-lg bg-gray-100 text-gray-900 text-xs border border-gray-300 ring-gray transition-main ring-gray'
 											>
 												Leadgeek ID: {lgid}
 											</button>
