@@ -1,10 +1,4 @@
-import React, {
-	Fragment,
-	useRef,
-	useEffect,
-	useCallback,
-	useState,
-} from 'react';
+import React, { Fragment, useRef, useEffect, useState } from 'react';
 
 // packages
 import { DateTime } from 'luxon';
@@ -18,13 +12,9 @@ import {
 	clearCurrentLead,
 	handleLikeLead,
 	handleArchiveLead,
-	addComment,
 	setCurrentLead,
 	setPage,
 } from '@features/leads/leadsSlice';
-
-// components
-import Button from '@components/utils/Button';
 
 // utils
 import {
@@ -33,10 +23,10 @@ import {
 	openLinkHandler,
 	returnDomainFromUrl,
 	truncate,
+	useOutsideMousedown,
 } from '@utils/utils';
 import { Lead } from '@utils/interfaces/Lead';
 import { User } from '@utils/interfaces/User';
-import { setTimeout } from 'timers';
 
 interface DetailsProps {
 	currentLead: Lead;
@@ -59,32 +49,38 @@ const Details: React.FC<DetailsProps> = ({
 
 	// lead state
 	const leads = useAppSelector((state) => state.leads[type].pageByIds);
+	const currentLeadStatus = useAppSelector(
+		(state) => state.leads.currentLeadStatus
+	);
 	// filter state
 	const itemLimit = useAppSelector((state) => state.filters.itemLimit);
 	const unitFee = useAppSelector((state) => state.filters.prep.unit);
 	const lbFee = useAppSelector((state) => state.filters.prep.lb);
 	const page = useAppSelector((state) => state.leads[type].pagination.page);
+	const lastPage = useAppSelector(
+		(state) => state.leads[type].pagination.lastPage
+	);
 
 	// local state
-	const [newLead, setNewLead] = useState(false);
 	const [comment, setComment] = useState('');
+	const [firstItemFirstPage, setFirstItemFirstPage] = useState(false);
 	const [fullTitle, toggleFullTitle] = useState(false);
 	const [identifyingText, setIdentifyingText] = useState('');
+	const [lastItemLastPage, setLastItemLastPage] = useState(false);
 	const [noteCount, setNoteCount] = useState(0);
 
 	// global classes
 	const linkClasses = 'font-semibold text-purple-600 hover:text-gray-700';
 
-	// descructure necessary items
+	// destructure necessary items
 	const { data } = currentLead;
 
+	// set date
+	const date = DateTime.fromISO(data.date).toFormat('LLL dd @ H:mm');
+
 	// close modal on click outside
-	const modalRef = useRef();
-	const closeModal = (e: React.MouseEvent<HTMLElement>) => {
-		if (modalRef.current === e.target) {
-			setShowDetails(false);
-		}
-	};
+	const modalRef = useRef(null);
+	useOutsideMousedown(modalRef, setShowDetails, null);
 
 	// like/archive/comment handlers
 	const [like, setLike] = useState(
@@ -124,38 +120,44 @@ const Details: React.FC<DetailsProps> = ({
 	const getLead = (val: number) => {
 		const currentIndex = leads.indexOf(currentLead);
 		const nextIndex = currentIndex + val;
-		// beginning of the array
-		if (nextIndex === -1) {
-			return setShowDetails(false);
+
+		if (nextIndex === itemLimit || nextIndex === -1) {
+			return dispatch(setPage({ page: page + val, type }));
 		}
-		if (nextIndex === itemLimit) {
-			dispatch(setPage({ page: page + 1, type }));
-			return setTimeout(() => {
-				setNewLead(true);
-			}, 2500);
-		}
+
 		return dispatch(setCurrentLead(leads[nextIndex]));
 	};
 
+	// disable previous when the first item of the first page is in view
 	useEffect(() => {
-		if (newLead) {
-			dispatch(setCurrentLead(leads[0]));
-			return setNewLead(false);
+		if (leads.indexOf(currentLead) === 0 && page === 1) {
+			return setFirstItemFirstPage(true);
+		} else if (
+			leads.indexOf(currentLead) === leads.length - 1 &&
+			page === lastPage
+		) {
+			return setLastItemLastPage(true);
 		}
-	}, [newLead]);
+		setFirstItemFirstPage(false);
+		return setLastItemLastPage(false);
+	}, [leads, currentLead, page, lastPage]);
 
 	// hotkeys
 	// close details on escape key
-	useHotkeys('Escape', () => {
-		showDetails && removeDetails();
-	});
+	useHotkeys(
+		'Escape',
+		() => {
+			showDetails && removeDetails();
+		},
+		{ keyup: true }
+	);
 	// like on l key
 	useHotkeys(
-		'l',
+		's',
 		() => {
 			dispatch(handleLikeLead({ userId: user._id, leadId: currentLead._id }));
 		},
-		{},
+		{ keyup: true },
 		[currentLead]
 	);
 	// archive on a key
@@ -166,35 +168,35 @@ const Details: React.FC<DetailsProps> = ({
 				handleArchiveLead({ userId: user._id, leadId: currentLead._id })
 			);
 		},
-		{},
+		{ keyup: true },
 		[currentLead]
 	);
 	// open both links on o key
 	useHotkeys(
-		'o',
+		't',
 		() => {
 			openLinkHandler(data.retailerLink, data.amzLink);
 		},
-		{},
+		{ keyup: true },
 		[currentLead]
 	);
 	// get prev lead on d key
 	useHotkeys(
 		'd',
 		() => {
-			getLead(-1);
+			currentLeadStatus === 'idle' && !firstItemFirstPage && getLead(-1);
 		},
-		{},
-		[currentLead]
+		{ keyup: true },
+		[currentLead, currentLeadStatus, firstItemFirstPage]
 	);
 	// get next lead on f key
 	useHotkeys(
 		'f',
 		() => {
-			getLead(1);
+			currentLeadStatus === 'idle' && !lastItemLastPage && getLead(1);
 		},
-		{},
-		[currentLead]
+		{ keyup: true },
+		[currentLead, currentLeadStatus, lastItemLastPage]
 	);
 
 	const removeDetails = () => {
@@ -212,7 +214,11 @@ const Details: React.FC<DetailsProps> = ({
 				/>
 			),
 			inactivePath: null,
-			disabled: leads.indexOf(currentLead) === 0 ? true : false,
+			disabled:
+				(page === 1 && leads.indexOf(currentLead) === 0) ||
+				currentLeadStatus === 'loading'
+					? true
+					: false,
 			onClick: () => getLead(-1),
 			state: false,
 			description: (
@@ -234,7 +240,12 @@ const Details: React.FC<DetailsProps> = ({
 				/>
 			),
 			inactivePath: null,
-			disabled: false,
+			disabled:
+				(page === lastPage &&
+					leads.indexOf(currentLead) === leads.length - 1) ||
+				currentLeadStatus === 'loading'
+					? true
+					: false,
 			onClick: () => getLead(1),
 			state: false,
 			description: (
@@ -248,9 +259,6 @@ const Details: React.FC<DetailsProps> = ({
 			last: false,
 		},
 	];
-
-	// set date
-	const date = DateTime.fromISO(data.date).toFormat('LLL dd @ H:mm');
 
 	// buttons in details header
 	const utilityButtons = [
@@ -280,7 +288,7 @@ const Details: React.FC<DetailsProps> = ({
 				<div>
 					<span>{like ? 'Unlike lead' : 'Like lead'}</span>
 					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
-						L
+						S
 					</span>
 				</div>
 			),
@@ -335,7 +343,7 @@ const Details: React.FC<DetailsProps> = ({
 				<div>
 					<span>Open links</span>
 					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
-						O
+						T
 					</span>
 				</div>
 			),
@@ -837,10 +845,11 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 			onMouseEnter={() => setHover(true)}
 			onMouseLeave={() => setHover(false)}
 			onClick={() => !disabled && onClick()}
+			disabled={disabled ? true : false}
 			className={`relative ${
 				last ? 'mr-0' : 'mr-2'
 			} p-1 hover:bg-gray-100 rounded-md ${state && 'text-purple-600'} ${
-				disabled ? 'text-red-200' : ''
+				disabled ? 'pointer-events-none bg-gray-200 opacity-50' : ''
 			} hover:text-gray-700 ring-gray transition-main`}
 		>
 			{state || !inactivePath ? (
@@ -1120,36 +1129,6 @@ const Trends: React.FC<TrendsProps> = ({
 					value={value}
 				/>
 			))}
-		</div>
-	);
-};
-interface NoteProps {
-	description: string;
-	nullState: string;
-	link?: string;
-}
-
-const Note: React.FC<NoteProps> = ({ description, nullState, link }) => {
-	return (
-		<div className='py-1'>
-			{description && link ? (
-				<a
-					href={`https://www.rakuten.com/${link}`}
-					target='__blank'
-					rel='noopener noreferrer'
-					className='py-1 px-2 rounded-lg bg-purple-500 border border-purple-500 text-xs text-white shadow-sm hover:bg-purple-600 hover:shadow-md transition duration-100 ease-in-out'
-				>
-					{description}
-				</a>
-			) : description ? (
-				<div className='inline-block py-1 px-2 rounded-lg bg-gray-900 border border-gray-900 text-xs text-white shadow-sm'>
-					{description}
-				</div>
-			) : (
-				<div className='inline-block py-1 px-2 rounded-lg bg-gray-100 border border-gray-200 text-xs text-gray-600'>
-					{nullState}
-				</div>
-			)}
 		</div>
 	);
 };

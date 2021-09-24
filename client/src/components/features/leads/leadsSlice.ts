@@ -331,6 +331,7 @@ interface LeadsState {
 		newSearch: boolean;
 	};
 	currentLead: Lead | null;
+	currentLeadStatus: 'idle' | 'loading' | 'failed';
 	lastUpdated: string | null;
 }
 
@@ -399,6 +400,7 @@ const initialState: LeadsState = {
 		newSearch: false,
 	},
 	currentLead: null,
+	currentLeadStatus: 'loading',
 	lastUpdated: null,
 };
 
@@ -479,6 +481,7 @@ export const leadsSlice = createSlice({
 			})
 			.addCase(getFeedLeads.pending, (state) => {
 				state.status = 'loading';
+				state.currentLeadStatus = 'loading';
 			})
 			.addCase(getFeedLeads.fulfilled, (state, action) => {
 				const {
@@ -488,18 +491,21 @@ export const leadsSlice = createSlice({
 					hasPreviousPage,
 					nextPage,
 					previousPage,
+					lastPage,
 					totalItems,
 					filteredItems,
 					lastUpdated,
 				} = action.payload;
 
 				state.status = 'idle';
+				state.currentLeadStatus = 'idle';
 				state.feed.pageByIds = feed;
 				state.feed.pagination.page = page;
 				state.feed.pagination.hasNextPage = hasNextPage;
 				state.feed.pagination.hasPreviousPage = hasPreviousPage;
 				state.feed.pagination.nextPage = nextPage;
 				state.feed.pagination.previousPage = previousPage;
+				state.feed.pagination.lastPage = lastPage;
 				state.feed.pagination.totalItems = totalItems;
 				state.feed.pagination.filteredItems = filteredItems;
 				state.lastUpdated = lastUpdated;

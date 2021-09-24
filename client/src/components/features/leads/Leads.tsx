@@ -158,10 +158,9 @@ const Leads: React.FC<LeadsProps> = ({
 
 	// animation style for details
 
-	console.log(showDetails);
 	const animationStyle = useSpring({
-		transform: showDetails ? 'translateX(0px)' : 'translateX(105%)',
-		opacity: 1,
+		transform: showDetails ? 'translateX(0px)' : 'translateX(100%)',
+		// opacity: showDetails ? 1 : 0,
 	});
 
 	return authStatus === 'idle' && user ? (

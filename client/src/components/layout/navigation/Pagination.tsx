@@ -1,4 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
+
+// packages
+import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
 import { useAppDispatch } from '@utils/hooks';
@@ -34,7 +37,6 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 	// local state
 	const [selectOpen, setSelectOpen] = useState(false);
 	const [selectValue, setSelectValue] = useState(itemLimit || 15);
-	const pageLimits = [10, 15, 25, 50, 100];
 	const [filteredMessage, setFilteredMessage] = useState(false);
 
 	// destructure necessary items
@@ -51,19 +53,15 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 	// close modal handlers
 	const ref = useRef(null);
 	useOutsideMousedown(ref, setSelectOpen, null);
-	// close modal on esc key
-	const keyPress = useCallback(
-		(e) => {
-			if (e.key === 'Escape' && selectOpen) {
-				setSelectOpen(false);
-			}
+	// hotkeys
+	// close details on escape key
+	useHotkeys(
+		'Escape',
+		() => {
+			selectOpen && setSelectOpen(false);
 		},
-		[setSelectOpen, selectOpen]
+		{ keyup: true }
 	);
-	useEffect(() => {
-		document.addEventListener('keydown', keyPress);
-		return () => document.removeEventListener('keydown', keyPress);
-	}, [keyPress]);
 
 	const itemsFrom =
 		previousPage !== null

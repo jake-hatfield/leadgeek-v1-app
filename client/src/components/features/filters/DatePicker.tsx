@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 
 // packages
 import { DateTime } from 'luxon-business-days';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
 import { useAppDispatch } from '@utils/hooks';
@@ -32,19 +33,15 @@ const DatePicker: React.FC<DatePickerProps> = ({
 	// modal close handlers
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setDate, null);
-	// close modal on esc key
-	const keyPress = useCallback(
-		(e) => {
-			if (e.key === 'Escape' && date) {
-				setDate(false);
-			}
+	// hotkeys
+	// close details on escape key
+	useHotkeys(
+		'Escape',
+		() => {
+			date && setDate(false);
 		},
-		[setDate, date]
+		{ keyup: true }
 	);
-	useEffect(() => {
-		document.addEventListener('keydown', keyPress);
-		return () => document.removeEventListener('keydown', keyPress);
-	}, [keyPress]);
 
 	// set dates
 	const mostRecentDay = DateTime.fromISO(lastUpdated || DateTime.now());

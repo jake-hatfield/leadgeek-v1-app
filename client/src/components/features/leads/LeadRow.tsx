@@ -99,9 +99,11 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	// handle details on view
 	const viewDetailsHandler = () => {
 		if (currentLead) {
+			setShowDetails(true);
 			dispatch(setCurrentLead(lead));
 		} else {
-			setShowDetails(!showDetails);
+			console.log('there is not a current lead');
+			setShowDetails((prev) => !prev);
 			dispatch(setCurrentLead(lead));
 		}
 		setQuickView(false);
@@ -186,7 +188,8 @@ const LeadRow: React.FC<LeadRowProps> = ({
 			className={classes.rowWrapper}
 			onMouseEnter={() => setRowHover(true)}
 			onMouseLeave={() => setRowHover(false)}
-			onClick={() => {
+			onClick={(e) => {
+				e.stopPropagation();
 				viewDetailsHandler();
 			}}
 		>
@@ -444,7 +447,10 @@ const LeadRow: React.FC<LeadRowProps> = ({
 									</svg>
 								</button>
 								<button
-									onClick={() => viewDetailsHandler()}
+									onClick={(e) => {
+										e.stopPropagation();
+										viewDetailsHandler();
+									}}
 									className={classes.expandedViewMenuButtonSvg()}
 								>
 									<span>View details</span>

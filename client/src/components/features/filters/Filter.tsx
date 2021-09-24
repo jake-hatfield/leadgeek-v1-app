@@ -1,4 +1,7 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
+
+// packages
+import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
 import { useAppSelector, useAppDispatch } from '@utils/hooks';
@@ -84,19 +87,16 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	// close modal handlers
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setFilterActive, null);
-	// close modal on esc key
-	const keyPress = useCallback(
-		(e) => {
-			if (e.key === 'Escape' && filterActive) {
-				setFilterActive(false);
-			}
+
+	// hotkeys
+	// close details on escape key
+	useHotkeys(
+		'Escape',
+		() => {
+			filterActive && setFilterActive(false);
 		},
-		[setFilterActive, filterActive]
+		{ keyup: true }
 	);
-	useEffect(() => {
-		document.addEventListener('keydown', keyPress);
-		return () => document.removeEventListener('keydown', keyPress);
-	}, [keyPress]);
 
 	const handleClearFilters = () => {
 		let keysToRemove = [
