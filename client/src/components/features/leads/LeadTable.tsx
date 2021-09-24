@@ -91,36 +91,21 @@ const LeadTable: React.FC<LeadTableProps> = ({
 							</tr>
 						</thead>
 						<tbody className={classes.tableBody}>
-							{leads.map((lead, i) => {
-								// return status === 'loading' ? (
-								// 	<LeadRow
-								// 		key={lead._id}
-								// 		lead={lead}
-								// 		user={user}
-								// 		liked={liked}
-								// 		archived={archived}
-								// 		showDetails={showDetails}
-								// 		setShowDetails={setShowDetails}
-								// 		lbFee={1}
-								// 		unitFee={1}
-								// 	/>
-								// ) : (
-								// 	<LeadRowLoader />
-								// );
-								return status === 'loading' ? (
-									<LeadRowLoader key={i} />
-								) : (
-									<LeadRow
-										key={lead._id}
-										lead={lead}
-										user={user}
-										liked={liked}
-										archived={archived}
-										showDetails={showDetails}
-										setShowDetails={setShowDetails}
-									/>
-								);
-							})}
+							{status === 'loading'
+								? [...Array(filters.itemLimit)].map((lead, i) => (
+										<LeadRowLoader key={i} />
+								  ))
+								: leads.map((lead, i) => (
+										<LeadRow
+											key={lead._id}
+											lead={lead}
+											user={user}
+											liked={liked}
+											archived={archived}
+											showDetails={showDetails}
+											setShowDetails={setShowDetails}
+										/>
+								  ))}
 						</tbody>
 					</table>
 				</div>

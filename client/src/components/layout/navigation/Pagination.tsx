@@ -5,23 +5,24 @@ import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
 import { useAppDispatch } from '@utils/hooks';
-import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
+import { setItemLimit } from '@components/features/filters/filtersSlice';
 
 // utils
 import { numberWithCommas, useOutsideMousedown } from '@utils/utils';
 import { Pagination } from '@utils/interfaces/Pagination';
+import { LeadTypes } from '@utils/interfaces/Lead';
 
 interface PaginationProps {
 	pagination: Pagination;
-	type: string;
+	type: LeadTypes;
 	itemLimit: number;
 	status: string;
 	padding: boolean;
 	setPage: any;
-	setItemLimit: ActionCreatorWithPayload<
-		{ type: string; itemLimit: number },
-		string
-	>;
+	// setItemLimit: ActionCreatorWithPayload<
+	// { type: string; itemLimit: number },
+	// string
+	// >;
 }
 
 const PaginationComponent: React.FC<PaginationProps> = ({
@@ -31,7 +32,6 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 	status,
 	padding,
 	setPage,
-	setItemLimit,
 }) => {
 	const dispatch = useAppDispatch();
 	// local state

@@ -3,5 +3,4 @@ export interface Alert {
 	title: string;
 	message: string;
 	alertType: 'success' | 'warning' | 'danger' | null;
-	visible: boolean;
 }

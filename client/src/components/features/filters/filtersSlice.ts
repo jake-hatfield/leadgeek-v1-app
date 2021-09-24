@@ -1,4 +1,9 @@
-import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
+import {
+	createAsyncThunk,
+	createSlice,
+	nanoid,
+	PayloadAction,
+} from '@reduxjs/toolkit';
 
 import {
 	Filter,
@@ -7,6 +12,7 @@ import {
 	FilterTitles,
 	FilterTypes,
 } from '@utils/interfaces/Filter';
+import { LeadTypes } from '@utils/interfaces/Lead';
 
 const getLSFilters = () => {
 	const lsFilters = localStorage.getItem('filters');
@@ -14,6 +20,13 @@ const getLSFilters = () => {
 };
 
 const lsFilters = getLSFilters();
+
+export const setItemLimit = createAsyncThunk(
+	'filters/setItemLimit',
+	async (options: { type: LeadTypes; itemLimit: number }) => {
+		return options;
+	}
+);
 
 const initialState: FilterState = {
 	count: lsFilters.length || 0,
@@ -191,14 +204,16 @@ export const filtersSlice = createSlice({
 			state.itemLimit = +action.payload.itemLimit;
 		},
 	},
+
+	extraReducers: (builder) => {
+		builder.addCase(setItemLimit.fulfilled, (state, action) => {
+			localStorage.setItem('itemLimit', action.payload.itemLimit.toString());
+			state.itemLimit = +action.payload.itemLimit;
+		});
+	},
 });
 
-export const {
-	clearFilter,
-	clearFilters,
-	createFilter,
-	setDateLimit,
-	setItemLimit,
-} = filtersSlice.actions;
+export const { clearFilter, clearFilters, createFilter, setDateLimit } =
+	filtersSlice.actions;
 
 export default filtersSlice.reducer;

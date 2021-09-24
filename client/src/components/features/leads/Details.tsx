@@ -3,18 +3,22 @@ import React, { Fragment, useRef, useEffect, useState } from 'react';
 // packages
 import { DateTime } from 'luxon';
 import ReactImageMagnify from 'react-image-magnify';
-import { animated } from 'react-spring';
+import { animated, useSpring } from 'react-spring';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
 import {
+	addComment,
 	clearCurrentLead,
 	handleLikeLead,
 	handleArchiveLead,
 	setCurrentLead,
 	setPage,
 } from '@features/leads/leadsSlice';
+
+// components
+import Button from '@components/utils/Button';
 
 // utils
 import {
@@ -29,22 +33,12 @@ import { Lead } from '@utils/interfaces/Lead';
 import { User } from '@utils/interfaces/User';
 
 interface DetailsProps {
-	currentLead: Lead;
 	user: User;
 	type: 'feed' | 'liked' | 'archived' | 'search';
-	showDetails: boolean;
-	setShowDetails: React.Dispatch<boolean>;
-	animationStyle: any;
+	currentLead: Lead;
 }
 
-const Details: React.FC<DetailsProps> = ({
-	currentLead,
-	user,
-	type,
-	showDetails,
-	setShowDetails,
-	animationStyle,
-}) => {
+const Details: React.FC<DetailsProps> = ({ user, type, currentLead }) => {
 	const dispatch = useAppDispatch();
 
 	// lead state
@@ -68,6 +62,16 @@ const Details: React.FC<DetailsProps> = ({
 	const [identifyingText, setIdentifyingText] = useState('');
 	const [lastItemLastPage, setLastItemLastPage] = useState(false);
 	const [noteCount, setNoteCount] = useState(0);
+	const [showComment, setShowComment] = useState(false);
+	const [showDetails, setShowDetails] = useState(currentLead ? true : false);
+
+	useEffect(() => {
+		if (currentLead) {
+			setShowDetails(true);
+		} else {
+			setShowDetails(false);
+		}
+	}, [currentLead]);
 
 	// global classes
 	const linkClasses = 'font-semibold text-purple-600 hover:text-gray-700';
@@ -80,7 +84,13 @@ const Details: React.FC<DetailsProps> = ({
 
 	// close modal on click outside
 	const modalRef = useRef(null);
-	useOutsideMousedown(modalRef, setShowDetails, null);
+	// useOutsideMousedown(modalRef, setShowDetails, null);
+
+	console.log(showDetails);
+
+	// close comment box on click outside
+	const commentRef = useRef(null);
+	useOutsideMousedown(commentRef, setShowComment, null);
 
 	// like/archive/comment handlers
 	const [like, setLike] = useState(
@@ -114,7 +124,7 @@ const Details: React.FC<DetailsProps> = ({
 		} else {
 			setComment('');
 		}
-	}, [user.likedLeads]);
+	}, [currentLead, user.comments]);
 
 	// prev/next navigation
 	const getLead = (val: number) => {
@@ -199,11 +209,18 @@ const Details: React.FC<DetailsProps> = ({
 		[currentLead, currentLeadStatus, lastItemLastPage]
 	);
 
+	const animationTimeout = 250;
+
+	// close details handler
 	const removeDetails = () => {
-		setShowDetails(false);
-		dispatch(clearCurrentLead());
+		showDetails && setShowDetails(false);
+		return setTimeout(() => {
+			dispatch(clearCurrentLead());
+		}, animationTimeout + 1);
 	};
 
+	// header buttons
+	// navigation
 	const navigationButtons = [
 		{
 			activePath: (
@@ -260,7 +277,7 @@ const Details: React.FC<DetailsProps> = ({
 		},
 	];
 
-	// buttons in details header
+	// utility
 	const utilityButtons = [
 		{
 			activePath: (
@@ -460,6 +477,7 @@ const Details: React.FC<DetailsProps> = ({
 		},
 	];
 
+	// detailed information items
 	const detailedInformation = [
 		{
 			title: 'Source',
@@ -593,6 +611,7 @@ const Details: React.FC<DetailsProps> = ({
 		},
 	];
 
+	// notes items
 	const notesInformation = [
 		{
 			title: 'Shipping notes',
@@ -629,18 +648,32 @@ const Details: React.FC<DetailsProps> = ({
 		} else {
 			setIdentifyingText('ISBN');
 		}
-	}, [identifyingText, data.asin]);
+	}, [data.asin]);
 
 	// change handler for comments
 	const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setComment(e.target.value);
 	};
 
+	// animation style for details
+	const animationStyle = useSpring({
+		transform: showDetails ? 'translateX(0%)' : 'translateX(100%)',
+		config: { duration: 250 },
+	});
+
+	const commentAnimationStyle = useSpring({
+		height: showComment ? '8rem' : '4rem',
+	});
+
+	const buttonAnimationStyle = useSpring({
+		opacity: showComment ? 1 : 0,
+	});
+
 	return (
 		<Fragment>
 			<animated.section
 				style={animationStyle}
-				// ref={modalRef}
+				ref={modalRef}
 				className='fixed top-0 right-0 z-20 w-full max-w-3xl'
 			>
 				<div className='relative z-40 min-h-screen shadow-2xl bg-gray-100 dark:bg-darkGray-400 border-l border-gray-300 dark:border-darkGray-200'>
@@ -779,36 +812,46 @@ const Details: React.FC<DetailsProps> = ({
 					{/* comment section */}
 					<article className='fixed bottom-0 w-full max-w-3xl text-gray-900 bg-white dark:bg-darkGray-300 border-t border-gray-300 dark:border-gray-900'>
 						<div className='pt-1 pb-4 px-4'>
-							<form className='mt-3 text-sm'>
-								<textarea
+							<form ref={commentRef} className='relative mt-3 text-sm'>
+								<animated.textarea
 									name='comment'
-									placeholder='Add a comment to this lead...'
+									placeholder='Add a comment...'
 									onChange={onChange}
+									onClick={() =>
+										!showComment && setShowComment((prev) => !prev)
+									}
 									value={comment}
-									className='h-12 xl:h-16 w-full dark:bg-darkGray-200 rounded-lg border border-gray-300 dark:border-gray-900 text-sm ring-purple resize-none'
+									className='w-full dark:bg-darkGray-200 rounded-lg border border-gray-300 hover:border-gray-400 dark:border-gray-900 text-sm ring-purple resize-none'
+									style={commentAnimationStyle}
 								/>
-								{/* <div className='flex items-center justify-end'>
-									<Button
-										text={'Comment'}
-										onClick={(e) => {
-											e.preventDefault();
-											dispatch(
-												addComment({
-													comment,
-													userId,
-													leadId: currentLead._id,
-												})
-											);
-										}}
-										width={null}
-										margin={false}
-										size={null}
-										cta={comment ? true : false}
-										path={null}
-										conditional={null}
-										conditionalDisplay={null}
-									/>
-								</div> */}
+								{showComment && (
+									<animated.div
+										className='absolute bottom-0 right-0 transform -translate-y-4 -translate-x-4'
+										style={buttonAnimationStyle}
+									>
+										<Button
+											text={comment ? 'Save comment' : 'Add comment'}
+											onClick={(e) => {
+												e.preventDefault();
+												dispatch(
+													addComment({
+														comment,
+														userId: user._id,
+														leadId: currentLead._id,
+													})
+												);
+												setShowComment(false);
+											}}
+											width={null}
+											margin={false}
+											size={null}
+											cta={true}
+											path={null}
+											conditional={null}
+											conditionalDisplay={null}
+										/>
+									</animated.div>
+								)}
 							</form>
 						</div>
 					</article>

@@ -3,7 +3,6 @@ import React, { Fragment, useState, useEffect } from 'react';
 // packages
 import { DateTime } from 'luxon';
 import { NavLink } from 'react-router-dom';
-import { useSpring } from 'react-spring';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
@@ -156,13 +155,6 @@ const Leads: React.FC<LeadsProps> = ({
 		}
 	}, [allLeads, exportLeads, setExportLeads]);
 
-	// animation style for details
-
-	const animationStyle = useSpring({
-		transform: showDetails ? 'translateX(0px)' : 'translateX(100%)',
-		// opacity: showDetails ? 1 : 0,
-	});
-
 	return authStatus === 'idle' && user ? (
 		<Fragment>
 			<section className={classes.leadsWrapper}>
@@ -308,19 +300,11 @@ const Leads: React.FC<LeadsProps> = ({
 						itemLimit={itemLimit}
 						padding={false}
 						setPage={setPage}
-						setItemLimit={setItemLimit}
 					/>
 				)}
 			</section>
 			{currentLead && (
-				<Details
-					currentLead={currentLead}
-					type={type}
-					user={user}
-					showDetails={showDetails}
-					setShowDetails={setShowDetails}
-					animationStyle={animationStyle}
-				/>
+				<Details type={type} user={user} currentLead={currentLead} />
 			)}
 		</Fragment>
 	) : authStatus === 'loading' ? (

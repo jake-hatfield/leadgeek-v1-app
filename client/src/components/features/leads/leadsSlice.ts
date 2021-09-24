@@ -12,6 +12,7 @@ import { Pagination } from '@utils/interfaces/Pagination';
 // utils
 import { Role } from '@utils/interfaces/User';
 import { config, truncate } from '@utils/utils';
+import { setItemLimit } from '../filters/filtersSlice';
 
 export const addComment = createAsyncThunk(
 	'leads/addComment',
@@ -577,7 +578,18 @@ export const leadsSlice = createSlice({
 					(lead) => lead._id !== action.payload?.leadId
 				);
 				state.liked.pageByIds = newLiked;
-			});
+			})
+			.addCase(
+				setItemLimit.fulfilled,
+				(
+					state,
+					action: PayloadAction<{ type: LeadTypes; itemLimit: number }>
+				) => {
+					console.log(action.payload);
+					const { type } = action.payload;
+					state[type].pagination.page = 1;
+				}
+			);
 	},
 });
 

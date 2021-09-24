@@ -16,22 +16,25 @@ const Alert: React.FC = () => {
 	// alert state
 	const alert = useAppSelector((state) => state.alert);
 	// destructure necessary items
-	const { id, title, message, alertType, visible } = alert;
+	const { id, title, message, alertType } = alert;
 	// local state
-	const [alertVisible, setAlertVisible] = useState(visible);
+	const [alertVisible, setAlertVisible] = useState(false);
 
 	// set visible conditionally
 	useEffect(() => {
-		setAlertVisible(visible);
-	}, [visible]);
+		if (alert.id) {
+			setAlertVisible(true);
+		}
+	}, [alert.id]);
 
 	// fn to set visiblity and remove from redux state
 	const handleRemoveAlert = () => {
-		setAlertVisible(false);
-		dispatch(removeAlert());
+		if (!alertVisible) return;
+		alertVisible && setAlertVisible(false);
+		return dispatch(removeAlert());
 	};
 
-	const delay = 6000;
+	const delay = 4000;
 
 	// remove alert after specified times
 	useEffect(() => {
@@ -48,8 +51,8 @@ const Alert: React.FC = () => {
 
 	// alert animation
 	const animationStyle = useSpring({
-		// transform: visible ? 'translateY(0)' : 'translateY(-200%)',
-		opacity: alertVisible ? 1 : 0,
+		transform: alertVisible ? 'translateY(-40%)' : 'translateY(200%)',
+		config: { duration: 200 },
 	});
 
 	// set the alert icon conditionally
@@ -74,7 +77,7 @@ const Alert: React.FC = () => {
 		<animated.div
 			key={id}
 			style={animationStyle}
-			className={`fixed bottom-0 left-1/2 z-40 w-full max-w-2xl py-4 px-6 rounded-lg shadow-lg bg-gray-900 transform -translate-y-12 -translate-x-1/2 border border-gray-700`}
+			className={`fixed bottom-0 left-1/3 z-40 w-full max-w-2xl py-4 px-6 rounded-lg shadow-lg bg-gray-900 transform  -translate-y-12 -translate-x-1/2 border border-gray-700`}
 		>
 			<div className='w-full flex items-center justify-between'>
 				<div className='flex item-center'>

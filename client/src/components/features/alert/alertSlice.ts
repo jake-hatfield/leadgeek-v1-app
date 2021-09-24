@@ -7,7 +7,6 @@ const initialState: Alert = {
 	title: '',
 	message: '',
 	alertType: null,
-	visible: false,
 };
 
 export const leadsSlice = createSlice({
@@ -19,12 +18,11 @@ export const leadsSlice = createSlice({
 		},
 		setAlert: {
 			reducer: (state, action: PayloadAction<Alert>) => {
-				const { id, title, message, alertType, visible } = action.payload;
+				const { id, title, message, alertType } = action.payload;
 				state.id = id;
 				state.title = title;
 				state.message = message;
 				state.alertType = alertType;
-				state.visible = visible;
 			},
 			prepare: (alert: {
 				title: string;

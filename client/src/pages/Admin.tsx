@@ -529,7 +529,7 @@ const UserTable: React.FC<UserTableProps> = ({
 							))}
 						</tbody>
 					</table>
-					{usersState.allUsers && (
+					{/* {usersState.allUsers && (
 						<PaginationComponent
 							pagination={usersState.pagination}
 							type={type}
@@ -539,7 +539,7 @@ const UserTable: React.FC<UserTableProps> = ({
 							setPage={setPage}
 							setItemLimit={setItemLimit}
 						/>
-					)}
+					)} */}
 				</div>
 			) : (
 				<Spinner

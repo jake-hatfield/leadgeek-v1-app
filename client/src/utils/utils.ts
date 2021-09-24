@@ -120,11 +120,12 @@ export const openLinkHandler = (retailerLink: string, amzLink: string) => {
 export const useOutsideMousedown = (
 	ref: RefObject<HTMLElement>,
 	setState_1: React.Dispatch<boolean>,
-	setState_2: React.Dispatch<boolean> | null
+	setState_2: React.Dispatch<boolean> | null,
+	conditional?: any
 ) => {
 	useEffect(() => {
 		const handleClickOutside = (e: any) => {
-			if (ref.current && !ref.current.contains(e.target as Node)) {
+			if (!ref.current?.contains(e.target as Node) || conditional) {
 				setState_1(false);
 				if (setState_2) {
 					setState_2(false);
@@ -145,7 +146,7 @@ export const useOutsideMouseup = (
 ) => {
 	useEffect(() => {
 		function handleClickOutside(e: any) {
-			if (ref.current && !ref.current.contains(e.target)) {
+			if (!ref.current?.contains(e.target)) {
 				setState_1(false);
 				if (setState_2) {
 					setState_2(false);

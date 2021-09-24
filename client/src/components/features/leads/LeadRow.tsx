@@ -102,7 +102,6 @@ const LeadRow: React.FC<LeadRowProps> = ({
 			setShowDetails(true);
 			dispatch(setCurrentLead(lead));
 		} else {
-			console.log('there is not a current lead');
 			setShowDetails((prev) => !prev);
 			dispatch(setCurrentLead(lead));
 		}
@@ -192,6 +191,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 				e.stopPropagation();
 				viewDetailsHandler();
 			}}
+			id='lead-row'
 		>
 			{/* like/unlike */}
 			<td className={classes.likeCellWrapper}>
