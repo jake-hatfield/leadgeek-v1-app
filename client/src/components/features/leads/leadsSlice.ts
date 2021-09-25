@@ -585,7 +585,6 @@ export const leadsSlice = createSlice({
 					state,
 					action: PayloadAction<{ type: LeadTypes; itemLimit: number }>
 				) => {
-					console.log(action.payload);
 					const { type } = action.payload;
 					state[type].pagination.page = 1;
 				}

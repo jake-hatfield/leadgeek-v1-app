@@ -3,11 +3,11 @@ import React, { Fragment, useState, useEffect } from 'react';
 // packages
 import { DateTime } from 'luxon';
 import { NavLink } from 'react-router-dom';
+import { useSpring } from 'react-spring';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
 import { setAlert } from '@features/alert/alertSlice';
-import { setItemLimit } from '@features/filters/filtersSlice';
 import {
 	getAllLeads,
 	setLeadLoading,
@@ -118,6 +118,13 @@ const Leads: React.FC<LeadsProps> = ({
 		try {
 			if (leads.length > 0) {
 				dispatch(
+					setAlert({
+						title: 'Exporting leads',
+						message: 'Hold tight while the data is accumulated.',
+						alertType: 'warning',
+					})
+				);
+				dispatch(
 					getAllLeads({ userId, filters, type, query: currentSearchValue })
 				);
 				setExportLeads(true);
@@ -154,6 +161,12 @@ const Leads: React.FC<LeadsProps> = ({
 			return () => clearTimeout(resultTimeout);
 		}
 	}, [allLeads, exportLeads, setExportLeads]);
+
+	// details animation style
+	const animationStyle = useSpring({
+		transform: showDetails ? 'translateX(0%)' : 'translateX(100%)',
+		config: { duration: 250 },
+	});
 
 	return authStatus === 'idle' && user ? (
 		<Fragment>
@@ -264,7 +277,6 @@ const Leads: React.FC<LeadsProps> = ({
 						</div>
 					</nav>
 				</div>
-
 				{leadStatus === 'failed' ? (
 					<div className='mt-6 container'>
 						There was an error making that request. If this issue persists,
@@ -304,7 +316,14 @@ const Leads: React.FC<LeadsProps> = ({
 				)}
 			</section>
 			{currentLead && (
-				<Details type={type} user={user} currentLead={currentLead} />
+				<Details
+					type={type}
+					user={user}
+					currentLead={currentLead}
+					showDetails={showDetails}
+					setShowDetails={setShowDetails}
+					animationStyle={animationStyle}
+				/>
 			)}
 		</Fragment>
 	) : authStatus === 'loading' ? (

@@ -136,7 +136,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		likeCellActive: 'svg-base hover:text-purple-400 transition-colors-main',
 		likeCellNull: 'p-2 px-4 svg-base',
 		titleCellWrapper:
-			'p-2 pr-12 w-32 md:w-48 lg:w-64 xl:w-96 font-semibold truncate',
+			'p-2 pr-12 w-32 md:w-48 lg:w-64 xl:w-112 font-semibold truncate',
 		detailsCellWrapper: 'relative w-20 p-2 text-gray-400',
 		detailsCellSvg: 'svg-base',
 		detailsCellButton:

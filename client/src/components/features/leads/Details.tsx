@@ -36,9 +36,19 @@ interface DetailsProps {
 	user: User;
 	type: 'feed' | 'liked' | 'archived' | 'search';
 	currentLead: Lead;
+	showDetails: boolean;
+	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
+	animationStyle: any;
 }
 
-const Details: React.FC<DetailsProps> = ({ user, type, currentLead }) => {
+const Details: React.FC<DetailsProps> = ({
+	user,
+	type,
+	currentLead,
+	showDetails,
+	setShowDetails,
+	animationStyle,
+}) => {
 	const dispatch = useAppDispatch();
 
 	// lead state
@@ -63,7 +73,6 @@ const Details: React.FC<DetailsProps> = ({ user, type, currentLead }) => {
 	const [lastItemLastPage, setLastItemLastPage] = useState(false);
 	const [noteCount, setNoteCount] = useState(0);
 	const [showComment, setShowComment] = useState(false);
-	const [showDetails, setShowDetails] = useState(currentLead ? true : false);
 
 	useEffect(() => {
 		if (currentLead) {
@@ -81,12 +90,6 @@ const Details: React.FC<DetailsProps> = ({ user, type, currentLead }) => {
 
 	// set date
 	const date = DateTime.fromISO(data.date).toFormat('LLL dd @ H:mm');
-
-	// close modal on click outside
-	const modalRef = useRef(null);
-	// useOutsideMousedown(modalRef, setShowDetails, null);
-
-	console.log(showDetails);
 
 	// close comment box on click outside
 	const commentRef = useRef(null);
@@ -655,12 +658,6 @@ const Details: React.FC<DetailsProps> = ({ user, type, currentLead }) => {
 		setComment(e.target.value);
 	};
 
-	// animation style for details
-	const animationStyle = useSpring({
-		transform: showDetails ? 'translateX(0%)' : 'translateX(100%)',
-		config: { duration: 250 },
-	});
-
 	const commentAnimationStyle = useSpring({
 		height: showComment ? '8rem' : '4rem',
 	});
@@ -673,7 +670,6 @@ const Details: React.FC<DetailsProps> = ({ user, type, currentLead }) => {
 		<Fragment>
 			<animated.section
 				style={animationStyle}
-				ref={modalRef}
 				className='fixed top-0 right-0 z-20 w-full max-w-3xl'
 			>
 				<div className='relative z-40 min-h-screen shadow-2xl bg-gray-100 dark:bg-darkGray-400 border-l border-gray-300 dark:border-darkGray-200'>

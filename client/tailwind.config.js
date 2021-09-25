@@ -60,6 +60,7 @@ module.exports = {
 			},
 			width: {
 				72: '18rem',
+				112: '30rem',
 			},
 			borderWidth: {
 				DEFAULT: '1px',

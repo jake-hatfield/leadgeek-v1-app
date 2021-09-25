@@ -189,21 +189,22 @@ const LeadTable: React.FC<LeadTableProps> = ({
 };
 
 const LeadRowLoader = (props: any) => {
+	const height = 25;
 	return (
 		<tr className='w-full py-16 border-b last:border-none border-gray-100 dark:border-gray-900'>
 			{/* like */}
-			<td className='w-10 py-2 px-2' />
+			<td className='w-12 pt-6 pb-5 px-2' />
 			{/* title */}
-			<td className='w-32 md:w-64 lg:w-64 xl:w-96 pl-2 pr-12'>
+			<td className='w-32 md:w-64 xl:w-112 pl-2'>
 				<ContentLoader
 					speed={2}
 					height={35}
-					width={'100%'}
+					width={'80%'}
 					backgroundColor='#F0F4F8'
 					foregroundColor='#E6EBF0'
 					{...props}
 				>
-					<rect x='0' y='7.5' rx='8' ry='8' width='100%' height='20' />
+					<rect x='0' y='7.5' rx='8' ry='8' width='100%' height={height} />
 				</ContentLoader>
 			</td>
 			{/* category */}
@@ -216,7 +217,7 @@ const LeadRowLoader = (props: any) => {
 					foregroundColor='#E6EBF0'
 					{...props}
 				>
-					<rect x='0' y='7.5' rx='8' ry='8' width='70%' height='20' />
+					<rect x='0' y='7.5' rx='8' ry='8' width='70%' height={height} />
 				</ContentLoader>
 			</td>
 			{/* details */}
@@ -229,8 +230,8 @@ const LeadRowLoader = (props: any) => {
 					foregroundColor='#E6EBF0'
 					{...props}
 				>
-					<rect x='4' y='7.5' rx='8' ry='8' width='24' height='20' />
-					<rect x='36' y='7.5' rx='8' ry='8' width='24' height='20' />
+					<rect x='4' y='7.5' rx='8' ry='8' width='22' height={height} />
+					<rect x='36' y='7.5' rx='8' ry='8' width='22' height={height} />
 				</ContentLoader>
 			</td>
 			{/* profit */}
@@ -243,11 +244,11 @@ const LeadRowLoader = (props: any) => {
 					foregroundColor='#E6EBF0'
 					{...props}
 				>
-					<rect x='0' y='7.5' rx='8' ry='8' width='90' height='20' />
+					<rect x='0' y='7.5' rx='8' ry='8' width='80' height={height} />
 				</ContentLoader>
 			</td>
 			{/* roi */}
-			<td className='px-2'>
+			<td className='px-2 w-24'>
 				<ContentLoader
 					speed={2}
 					height={35}
@@ -256,11 +257,11 @@ const LeadRowLoader = (props: any) => {
 					foregroundColor='#E6EBF0'
 					{...props}
 				>
-					<rect x='0' y='7.5' rx='8' ry='8' width='90' height='20' />
+					<rect x='0' y='7.5' rx='8' ry='8' width='40px' height={height} />
 				</ContentLoader>
 			</td>
 			{/* bsr */}
-			<td className='px-2'>
+			<td className='px-2 w-32'>
 				<ContentLoader
 					speed={2}
 					height={35}
@@ -269,11 +270,11 @@ const LeadRowLoader = (props: any) => {
 					foregroundColor='#E6EBF0'
 					{...props}
 				>
-					<rect x='0' y='7.5' rx='8' ry='8' width='90' height='20' />
+					<rect x='0' y='7.5' rx='8' ry='8' width='90' height={height} />
 				</ContentLoader>
 			</td>
 			{/* sales */}
-			<td className='px-2'>
+			<td className='px-2 w-24'>
 				<ContentLoader
 					speed={2}
 					height={35}
@@ -282,7 +283,7 @@ const LeadRowLoader = (props: any) => {
 					foregroundColor='#E6EBF0'
 					{...props}
 				>
-					<rect x='0' y='7.5' rx='8' ry='8' width='60' height='20' />
+					<rect x='0' y='7.5' rx='8' ry='8' width='40' height={height} />
 				</ContentLoader>
 			</td>
 			{/* date */}
@@ -295,7 +296,7 @@ const LeadRowLoader = (props: any) => {
 					foregroundColor='#E6EBF0'
 					{...props}
 				>
-					<rect x='0' y='7.5' rx='8' ry='8' width='60' height='20' />
+					<rect x='0' y='7.5' rx='8' ry='8' width='60' height={height} />
 				</ContentLoader>
 			</td>
 			{/* hover menu */}
