@@ -33,7 +33,7 @@ const App: React.FC = () => {
 		});
 	}, []);
 
-	// const [colorTheme, setColorTheme] = useDarkMode();
+	// const [colorTheme] = useDarkMode();
 
 	const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY!);
 

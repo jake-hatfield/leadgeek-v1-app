@@ -7,9 +7,6 @@ import { animated, useSpring } from 'react-spring';
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
 import { removeAlert } from '@features/alert/alertSlice';
 
-// utils
-import { truncate } from '@utils/utils';
-
 const Alert: React.FC = () => {
 	const dispatch = useAppDispatch();
 
@@ -79,7 +76,7 @@ const Alert: React.FC = () => {
 		<animated.div
 			key={id}
 			style={animationStyle}
-			className={`fixed bottom-0 left-1/2 z-40 w-full max-w-2xl py-4 px-6 rounded-lg shadow-lg bg-gray-900 border border-gray-700`}
+			className={`fixed bottom-0 left-1/2 z-40 w-full max-w-2xl py-4 px-6 rounded-lg shadow-lg bg-gray-900 dark:bg-darkGray-200 border border-gray-700 dark:border-darkGray-100`}
 		>
 			<div className='w-full flex items-center justify-between'>
 				<div className='flex item-center'>

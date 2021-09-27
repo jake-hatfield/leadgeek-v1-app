@@ -9,6 +9,7 @@ import { useSpring } from 'react-spring';
 import { useAppDispatch, useAppSelector } from '@utils/hooks';
 import { setAlert } from '@features/alert/alertSlice';
 import {
+	clearCurrentLead,
 	getAllLeads,
 	setLeadLoading,
 	setPage,
@@ -183,6 +184,7 @@ const Leads: React.FC<LeadsProps> = ({
 										to={`/leads${link.link}`}
 										onClick={() => {
 											dispatch(setLeadLoading());
+											dispatch(clearCurrentLead());
 										}}
 										className={classes.navLink}
 										activeClassName={classes.navLinkActive}
@@ -393,7 +395,7 @@ const classes = {
 	navLinkActive:
 		'text-purple-500 dark:text-purple-300 border-b-2 border-purple-500 dark:border-purple-200',
 	navLinkCounter:
-		'h-4 w-4 absolute top-0 right-0 flex items-center justify-center py-2.5 px-3 rounded-full bg-purple-500 dark:bg-purple-400 group-hover:bg-purple-600 dark:group-hover:bg-purple-500 text-xs text-white transform -translate-y-4 translate-x-7',
+		'h-4 w-4 absolute top-0 right-0 all-center py-2.5 px-3 rounded-full cs-purple group-hover:bg-purple-600 text-xs transform -translate-y-4 translate-x-7',
 	navToolsWrapper: 'flex items-center',
 };
 

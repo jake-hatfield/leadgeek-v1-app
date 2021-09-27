@@ -1,6 +1,7 @@
 import React, { Fragment, useRef, useEffect, useState } from 'react';
 
 // packages
+import { BeakerIcon } from '@heroicons/react/solid';
 import { DateTime } from 'luxon';
 import ReactImageMagnify from 'react-image-magnify';
 import { animated, useSpring } from 'react-spring';
@@ -18,6 +19,7 @@ import {
 } from '@features/leads/leadsSlice';
 
 // components
+import Badge from '@components/utils/Badge';
 import Button from '@components/utils/Button';
 
 // utils
@@ -82,9 +84,6 @@ const Details: React.FC<DetailsProps> = ({
 		}
 	}, [currentLead]);
 
-	// global classes
-	const linkClasses = 'font-semibold text-purple-600 hover:text-gray-700';
-
 	// destructure necessary items
 	const { data } = currentLead;
 
@@ -127,7 +126,7 @@ const Details: React.FC<DetailsProps> = ({
 		} else {
 			setComment('');
 		}
-	}, [currentLead, user.comments]);
+	}, [currentLead]);
 
 	// prev/next navigation
 	const getLead = (val: number) => {
@@ -241,15 +240,9 @@ const Details: React.FC<DetailsProps> = ({
 					: false,
 			onClick: () => getLead(-1),
 			state: false,
-			description: (
-				<div>
-					<span>View previous lead</span>
-					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
-						D
-					</span>
-				</div>
-			),
-			last: false,
+			title: 'Previous lead',
+			description: 'D',
+			edge: 'left',
 		},
 		{
 			activePath: (
@@ -268,15 +261,9 @@ const Details: React.FC<DetailsProps> = ({
 					: false,
 			onClick: () => getLead(1),
 			state: false,
-			description: (
-				<div>
-					<span>View next lead</span>
-					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
-						F
-					</span>
-				</div>
-			),
-			last: false,
+			title: 'Next lead',
+			description: 'F',
+			edge: 'left',
 		},
 	];
 
@@ -304,15 +291,9 @@ const Details: React.FC<DetailsProps> = ({
 			onClick: () =>
 				dispatch(handleLikeLead({ userId: user._id, leadId: currentLead._id })),
 			state: like,
-			description: (
-				<div>
-					<span>{like ? 'Unlike lead' : 'Like lead'}</span>
-					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
-						S
-					</span>
-				</div>
-			),
-			last: false,
+			title: like ? 'Unlike lead' : 'Like lead',
+			description: 'S',
+			edge: null,
 		},
 		{
 			activePath: (
@@ -337,15 +318,9 @@ const Details: React.FC<DetailsProps> = ({
 					handleArchiveLead({ userId: user._id, leadId: currentLead._id })
 				),
 			state: archive,
-			description: (
-				<div>
-					<span>{archive ? 'Unarchive lead' : 'Archive lead'}</span>
-					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
-						A
-					</span>
-				</div>
-			),
-			last: false,
+			title: archive ? 'Unarchive lead' : 'Archive lead',
+			description: 'A',
+			edge: null,
 		},
 		{
 			activePath: (
@@ -359,15 +334,9 @@ const Details: React.FC<DetailsProps> = ({
 			inactivePath: null,
 			onClick: () => openLinkHandler(data.retailerLink, data.amzLink),
 			state: null,
-			description: (
-				<div>
-					<span>Open links</span>
-					<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
-						T
-					</span>
-				</div>
-			),
-			last: false,
+			title: 'Open links',
+			description: 'T',
+			edge: null,
 		},
 		{
 			activePath: (
@@ -383,15 +352,9 @@ const Details: React.FC<DetailsProps> = ({
 			},
 			disabled: false,
 			state: null,
-			description: (
-				<div>
-					<span>Close details</span>
-					<span className='ml-2 p-0.5 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
-						Esc
-					</span>
-				</div>
-			),
-			last: true,
+			title: 'Close details',
+			description: 'Esc',
+			edge: 'right',
 		},
 	];
 
@@ -489,7 +452,7 @@ const Details: React.FC<DetailsProps> = ({
 					href={data.retailerLink}
 					target='_blank'
 					rel='noopener noreferrer'
-					className={linkClasses}
+					className='link'
 				>
 					{data.source || '-'}
 				</a>
@@ -516,7 +479,7 @@ const Details: React.FC<DetailsProps> = ({
 					href={`https://amazon.com/gp/product/${data.asin}`}
 					target='_blank'
 					rel='noopener noreferrer'
-					className={linkClasses}
+					className='link'
 				>
 					{data.asin}
 				</a>
@@ -670,13 +633,13 @@ const Details: React.FC<DetailsProps> = ({
 		<Fragment>
 			<animated.section
 				style={animationStyle}
-				className='fixed top-0 right-0 z-20 w-full max-w-3xl'
+				className='fixed top-0 bottom-0 right-0 z-20 w-full max-w-3xl'
 			>
-				<div className='relative z-40 min-h-screen shadow-2xl bg-gray-100 dark:bg-darkGray-400 border-l border-gray-300 dark:border-darkGray-200'>
-					<header className='bg-white dark:bg-darkGray-300 border-b border-gray-300 dark:border-gray-900 shadow-sm'>
-						<div className='flex items-center justify-between py-3 px-6 text-gray-500'>
+				<div className='relative cs-bg border-l border-300 shadow-2xl'>
+					<header className='pr-2 cs-light-400 border-b border-300 shadow-sm'>
+						<div className='center-between py-3 px-6 text-100'>
 							{/* navigation buttons */}
-							<div className='flex items-center '>
+							<div className='flex items-center'>
 								{navigationButtons.map((button, i) => (
 									<HeaderButton
 										key={i}
@@ -685,8 +648,9 @@ const Details: React.FC<DetailsProps> = ({
 										disabled={button.disabled}
 										onClick={button.onClick}
 										state={button.state}
+										title={button.title}
 										description={button.description}
-										last={button.last}
+										edge={button.edge}
 									/>
 								))}
 							</div>
@@ -700,157 +664,161 @@ const Details: React.FC<DetailsProps> = ({
 										disabled={button.disabled}
 										onClick={button.onClick}
 										state={button.state}
+										title={button.title}
 										description={button.description}
-										last={button.last}
+										edge={button.edge}
 									/>
 								))}
 							</div>
 						</div>
 					</header>
-					<section className='mt-4 px-6'>
-						<article className='flex justify-between p-4 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-300 dark:border-gray-900'>
-							<div className='w-2/5 h-56 z-10'>
-								<ReactImageMagnify
-									{...{
-										smallImage: {
-											alt: data.title,
-											isFluidWidth: false,
-											src: data.img,
-											width: 225,
-											height: 225,
-										},
-										largeImage: {
-											alt: data.title,
-											src: data.img,
-											width: 600,
-											height: 600,
-										},
-										enlargedImageContainerDimensions: {
-											width: '200%',
-											height: '200%',
-										},
-										className: 'bg-white',
-										enlargedImageContainerClassName:
-											'bg-white rounded-lg shadow-xl border border-gray-200',
-									}}
-								/>
-							</div>
-							<header className='relative w-3/5 ml-8'>
-								<h3
-									onMouseEnter={() => toggleFullTitle(true)}
-									onMouseLeave={() => toggleFullTitle(false)}
-									className='inline-block font-bold text-lg text-gray-900 dark:text-white'
-								>
-									{truncate(data.title, 40)}
-								</h3>
-								{fullTitle && (
-									<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-white text-xs'>
-										{data.title}
-									</div>
-								)}
-								<aside className='flex items-center mt-2 text-sm text-gray-800 dark:text-gray-200'>
-									<div>{date}</div>
-									<span className='h-1 w-1 ml-2 rounded-full bg-gray-400' />
-									<div className='ml-2'>{data.category}</div>
-								</aside>
-								<article className='mt-6'>
-									<header className='mt-4 pb-2 border-b border-gray-200'>
-										<h4 className='font-semibold text-gray-900 dark:text-white'>
-											Primary metrics
-										</h4>
-									</header>
-									{primaryMetrics.map((metric, i) => (
-										<PrimaryMetric
+					<div className='h-screen overflow-x-hidden overflow-y-scroll minimal-scrollbar'>
+						<section className='mb-48 pl-6 pr-8'>
+							<article className='flex justify-between mt-4 p-4 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-300 dark:border-gray-900'>
+								<div className='w-2/5 h-56 z-10'>
+									<ReactImageMagnify
+										{...{
+											smallImage: {
+												alt: data.title,
+												isFluidWidth: false,
+												src: data.img,
+												width: 225,
+												height: 225,
+											},
+											largeImage: {
+												alt: data.title,
+												src: data.img,
+												width: 600,
+												height: 600,
+											},
+											enlargedImageContainerDimensions: {
+												width: '200%',
+												height: '200%',
+											},
+											className: 'bg-white',
+											enlargedImageContainerClassName:
+												'bg-white rounded-lg shadow-xl border border-gray-200',
+										}}
+									/>
+								</div>
+								<header className='relative w-3/5 ml-8'>
+									<h3
+										onMouseEnter={() => toggleFullTitle(true)}
+										onMouseLeave={() => toggleFullTitle(false)}
+										className='inline-block font-bold text-lg text-gray-900 dark:text-white'
+									>
+										{truncate(data.title, 40)}
+									</h3>
+									{fullTitle && (
+										<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-white text-xs'>
+											{data.title}
+										</div>
+									)}
+									<aside className='flex items-center mt-2 text-sm text-gray-800 dark:text-gray-200'>
+										<div>{date}</div>
+										<span className='h-1 w-1 ml-2 rounded-full bg-gray-400' />
+										<div className='ml-2'>{data.category}</div>
+									</aside>
+									<article className='mt-6'>
+										<header className='mt-4 pb-2 border-b border-gray-200 dark:border-gray-900'>
+											<h4 className='font-semibold text-gray-900 dark:text-white'>
+												Primary metrics
+											</h4>
+										</header>
+										{primaryMetrics.map((metric, i) => (
+											<PrimaryMetric
+												key={i}
+												title={metric.title}
+												value={metric.value}
+											/>
+										))}
+									</article>
+								</header>
+							</article>
+							<article className='mt-4 pt-4 pb-3 cs-light-100 card-200'>
+								<header className='pb-2 border-b border-200'>
+									<h4 className='px-4 font-semibold text-gray-900 dark:text-white'>
+										Detailed information
+									</h4>
+								</header>
+								<dl className='grid grid-cols-1 grid-rows-4 gap-y-2 gap-x-6 mt-4 text-sm text-gray-800'>
+									{detailedInformation.map((item, i) => (
+										<DetailedItem
 											key={i}
-											title={metric.title}
-											value={metric.value}
+											title={item.title}
+											value={item.value}
+											utility={item.utility}
 										/>
 									))}
-								</article>
-							</header>
-						</article>
-						<article className='mt-4 pt-4 pb-3 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-300 dark:border-gray-900'>
-							<header className='pb-2 border-b border-gray-200'>
-								<h4 className='px-4 font-semibold text-gray-900'>
-									Detailed information
-								</h4>
-							</header>
-							<dl className='grid grid-cols-1 grid-rows-4 gap-y-2 gap-x-6 mt-4 text-sm text-gray-800'>
-								{detailedInformation.map((item, i) => (
-									<DetailedItem
-										key={i}
-										title={item.title}
-										value={item.value}
-										utility={item.utility}
-									/>
-								))}
-							</dl>
-						</article>
-						<article className='mt-4 pt-4 pb-3 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-300 dark:border-gray-900'>
-							<header className='flex items-center pb-2 border-b border-gray-200'>
-								<h4 className='pl-4 font-semibold text-gray-900'>Notes</h4>{' '}
-								<span className='ml-2 py-1 px-2 bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm text-xs'>
-									{noteCount}
-								</span>
-							</header>
-							<dl className='grid grid-cols-1 grid-rows-3 gap-y-2 gap-x-6 mt-4 text-sm text-gray-800'>
-								{notesInformation.map((note, i) => (
-									<DetailedItem
-										key={i}
-										title={note.title}
-										value={note.value}
-										utility={note.utility}
-									/>
-								))}
-							</dl>
-						</article>
-					</section>
-					{/* comment section */}
-					<article className='fixed bottom-0 w-full max-w-3xl text-gray-900 bg-white dark:bg-darkGray-300 border-t border-gray-300 dark:border-gray-900'>
-						<div className='pt-1 pb-4 px-4'>
-							<form ref={commentRef} className='relative mt-3 text-sm'>
-								<animated.textarea
-									name='comment'
-									placeholder='Add a comment...'
-									onChange={onChange}
-									onClick={() =>
-										!showComment && setShowComment((prev) => !prev)
-									}
-									value={comment}
-									className='w-full dark:bg-darkGray-200 rounded-lg border border-gray-300 hover:border-gray-400 dark:border-gray-900 text-sm ring-purple resize-none'
-									style={commentAnimationStyle}
-								/>
-								{showComment && (
-									<animated.div
-										className='absolute bottom-0 right-0 transform -translate-y-4 -translate-x-4'
-										style={buttonAnimationStyle}
-									>
-										<Button
-											text={comment ? 'Save comment' : 'Add comment'}
-											onClick={(e) => {
-												e.preventDefault();
-												dispatch(
-													addComment({
-														comment,
-														userId: user._id,
-														leadId: currentLead._id,
-													})
-												);
-												setShowComment(false);
-											}}
-											width={null}
-											margin={false}
-											size={null}
-											cta={true}
-											path={null}
-											conditional={null}
-											conditionalDisplay={null}
+								</dl>
+							</article>
+							<article className='my-4 pt-4 pb-3 cs-light-100 card-200'>
+								<header className='flex items-center pb-2 border-b border-200'>
+									<h4 className='pl-4 font-semibold text-300'>Notes</h4>{' '}
+									<span className='ml-2 py-1 px-2 cs-bg rounded-main border border-300 shadow-sm text-xs'>
+										{noteCount}
+									</span>
+								</header>
+								<dl className='grid grid-cols-1 grid-rows-3 gap-y-2 gap-x-6 mt-4 text-sm text-200'>
+									{notesInformation.map((note, i) => (
+										<DetailedItem
+											key={i}
+											title={note.title}
+											value={note.value}
+											utility={note.utility}
 										/>
-									</animated.div>
-								)}
-							</form>
-						</div>
-					</article>
+									))}
+								</dl>
+							</article>
+						</section>
+						{/* comment section */}
+						<article className='fixed bottom-0 w-full max-w-3xl text-300 cs-light-300 border-t border-300'>
+							<div className='pt-1 pb-4 pl-4 pr-12'>
+								<form ref={commentRef} className='relative mt-3 text-sm'>
+									<animated.textarea
+										name='comment'
+										placeholder='Add a comment to this lead...'
+										onChange={onChange}
+										onClick={() =>
+											!showComment && setShowComment((prev) => !prev)
+										}
+										value={comment}
+										className='w-full cs-light-200 rounded-main border border-300 text-sm ring-purple resize-none'
+										style={commentAnimationStyle}
+									/>
+									{showComment && (
+										<animated.div
+											className='absolute bottom-0 right-0 transform -translate-y-4 -translate-x-4'
+											style={buttonAnimationStyle}
+										>
+											<Button
+												text={comment ? 'Save comment' : 'Add comment'}
+												onClick={(e) => {
+													e.preventDefault();
+													comment &&
+														dispatch(
+															addComment({
+																comment,
+																userId: user._id,
+																leadId: currentLead._id,
+															})
+														);
+													setShowComment(false);
+												}}
+												width={null}
+												margin={false}
+												size={null}
+												cta={true}
+												path={null}
+												conditional={null}
+												conditionalDisplay={null}
+											/>
+										</animated.div>
+									)}
+								</form>
+							</div>
+						</article>
+					</div>
 				</div>
 			</animated.section>
 		</Fragment>
@@ -863,8 +831,9 @@ interface HeaderButtonProps {
 	disabled: boolean;
 	onClick: () => void;
 	state: boolean | null;
-	description: JSX.Element;
-	last: boolean;
+	title: string;
+	description: string;
+	edge: any;
 }
 
 const HeaderButton: React.FC<HeaderButtonProps> = ({
@@ -873,8 +842,9 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 	disabled,
 	onClick,
 	state,
+	title,
 	description,
-	last,
+	edge,
 }) => {
 	// local state
 	const [hover, setHover] = useState(false);
@@ -885,11 +855,11 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 			onMouseLeave={() => setHover(false)}
 			onClick={() => !disabled && onClick()}
 			disabled={disabled ? true : false}
-			className={`relative ${
-				last ? 'mr-0' : 'mr-2'
-			} p-1 hover:bg-gray-100 rounded-md ${state && 'text-purple-600'} ${
+			className={`relative ml-2 first:ml-0 p-1 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-main ${
+				state && 'text-purple-500'
+			} ${
 				disabled ? 'pointer-events-none bg-gray-200 opacity-50' : ''
-			} hover:text-gray-700 ring-gray transition-main`}
+			} hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-400 ring-gray transition-main`}
 		>
 			{state || !inactivePath ? (
 				<div className='flex items-center justify-center'>
@@ -917,13 +887,12 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 				</div>
 			)}
 			{hover && (
-				<div
-					className={`absolute top-0 ${
-						last ? 'right-0 translate-x-6' : 'left-1/2 -translate-x-1/2'
-					}  z-40 min-w-max mt-2 mr-6 p-2 transform translate-y-8 rounded-md shadow-md bg-gray-900 text-left text-white text-xs`}
-				>
-					{description}
-				</div>
+				<Badge
+					title={title}
+					description={description}
+					alignment={'bottom'}
+					edge={edge}
+				/>
 			)}
 		</button>
 	);
@@ -937,8 +906,8 @@ interface PrimaryMetricProps {
 const PrimaryMetric: React.FC<PrimaryMetricProps> = ({ title, value }) => {
 	return (
 		<div className='first:mt-0 mt-2 flex items-end justify-between'>
-			<dt className='text-sm text-gray-600'>{title}</dt>
-			<dd className='py-1 px-2 rounded-lg bg-gray-900 font-semibold text-xs text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out'>
+			<dt className='text-sm text-100'>{title}</dt>
+			<dd className='py-1 px-2 cs-darkGray rounded-main font-semibold text-xs transition-main'>
 				{value}
 			</dd>
 		</div>
@@ -957,9 +926,9 @@ const DetailedItem: React.FC<DetailedItemProps> = ({
 	utility,
 }) => {
 	return (
-		<div className='relative flex items-center pb-2 last:pb-0 border-b border-gray-100 last:border-none'>
-			<dt className='w-2/5 text-gray-600 pl-4'>{title}</dt>
-			<div className='flex items-center w-3/5 pr-4 text-gray-800'>
+		<div className='relative flex items-center pb-2 last:pb-0 border-b border-100 last:border-none'>
+			<dt className='w-2/5 text-100 pl-4'>{title}</dt>
+			<div className='flex items-center w-3/5 pr-4 text-300'>
 				<dd>{value}</dd>
 				{utility && utility}
 			</div>
@@ -996,7 +965,7 @@ const UtilityButton: React.FC<UtilityButtonProps> = ({
 					rel='noopener noreferrer'
 					onMouseEnter={() => setPopupText(true)}
 					onMouseLeave={() => setPopupText(false)}
-					className='inline-block ml-2 text-gray-400 hover:text-gray-500 rounded-sm transition-main ring-gray'
+					className='inline-block ml-2 button-gray-100 rounded-sm transition-main ring-gray'
 				>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
@@ -1015,7 +984,7 @@ const UtilityButton: React.FC<UtilityButtonProps> = ({
 						handleClick && handleClick();
 						setPopupText(false);
 					}}
-					className='ml-2 text-gray-400 hover:text-gray-500 rounded-sm transition-main ring-gray'
+					className='ml-2 button-gray-100 rounded-sm transition-main ring-gray'
 				>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
@@ -1027,11 +996,7 @@ const UtilityButton: React.FC<UtilityButtonProps> = ({
 					</svg>
 				</button>
 			)}
-			{popupText && (
-				<div className='absolute z-40 left-1/2 flex items-center p-2 transform -translate-y-16 -translate-x-1/2 rounded-lg shadow-md bg-gray-900 text-white text-xs whitespace-nowrap'>
-					{text}
-				</div>
-			)}
+			{popupText && <Badge title={text} alignment={'bottom'} edge={null} />}
 		</div>
 	);
 };
@@ -1115,9 +1080,9 @@ const Trend: React.FC<TrendProps> = ({
 		<div
 			onMouseEnter={() => setShowPopup(true)}
 			onMouseLeave={() => setShowPopup(false)}
-			className={`relative flex items-center ml-2 py-0.5 pl-2 pr-1 ${
-				isGood ? 'bg-teal-200 text-teal-600' : 'bg-gray-100 text-gray-600'
-			} text-xs font-semibold rounded-lg`}
+			className={`relative flex items-center ml-2 py-0.5 pl-2 pr-1 border ${
+				isGood ? 'cs-teal' : 'cs-gray'
+			} text-xs font-semibold rounded-main`}
 		>
 			<span>{scale} day</span>
 			<svg
@@ -1130,7 +1095,7 @@ const Trend: React.FC<TrendProps> = ({
 			</svg>
 			<span>{percentDifference}%</span>
 			{showPopup && (
-				<div className='absolute z-40 left-1/2 flex items-center p-2 transform -translate-y-8  -translate-x-1/2 rounded-lg shadow-md bg-gray-900 text-white text-xs whitespace-nowrap'>
+				<div className='absolute z-40 left-1/2 flex items-center p-2 shadow-md cs-darkGray rounded-main text-xs whitespace-nowrap transform -translate-y-8 -translate-x-1/2'>
 					{`The ${type} ${value} is ${percentDifference}% ${
 						currentValueGreater ? 'higher' : 'lower'
 					} than the ${scale} day average`}
