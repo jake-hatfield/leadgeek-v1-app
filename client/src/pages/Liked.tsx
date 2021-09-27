@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { useAppSelector, useAppDispatch } from '@utils/hooks';
+import { useAppSelector, useAppDispatch } from '@hooks/hooks';
 import { getLikedLeads } from '@features/leads/leadsSlice';
 
 import AuthLayout from '@components/layout/AuthLayout';
@@ -27,7 +27,7 @@ const LikedPage = () => {
 	}, [status, isAuthenticated, user, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
-		<AuthLayout>
+		<AuthLayout colorTheme={'dark'}>
 			<Leads
 				leads={liked.pageByIds}
 				allLeads={liked.totalByIds}

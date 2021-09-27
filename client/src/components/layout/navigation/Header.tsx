@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Redirect, useLocation } from 'react-router-dom';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import { removeAlert, setAlert } from '@features/alert/alertSlice';
 import {
 	setLeadLoading,
@@ -76,13 +76,11 @@ const Header: React.FC<HeaderProps> = ({ title, searchActive }) => {
 		<header className='pt-4'>
 			<div className='flex items-end justify-between container'>
 				<div className='flex items-center'>
-					<h1 className='text-3xl text-gray-900 dark:text-white font-bold'>
-						{title || 'Leads'}
-					</h1>
+					<h1 className='text-3xl text-300 font-bold'>{title || 'Leads'}</h1>
 				</div>
 				{searchActive && (
 					<SearchBar
-						placeholder={'Search by title, source, brand, or ASIN'}
+						placeholder={'Search'}
 						onSearchChange={onSearchChange}
 						handleSearchSubmit={handleSearchSubmit}
 					/>

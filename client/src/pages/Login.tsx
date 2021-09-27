@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Redirect, Link } from 'react-router-dom';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import { removeAlert } from '@components/features/alert/alertSlice';
 import {
 	authenticateUser,

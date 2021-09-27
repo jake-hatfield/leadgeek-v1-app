@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
-import { useAppSelector, useAppDispatch } from '@utils/hooks';
+import { useAppSelector, useAppDispatch } from '@hooks/hooks';
 import { removeAlert, setAlert } from '@features/alert/alertSlice';
 import {
 	clearFilter,
@@ -257,14 +257,14 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	return user ? (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-30 w-80 transform translate-y-12 -translate-x-32 pt-4 pb-1 rounded-lg bg-white dark:bg-darkGray-200 shadow-lg border border-gray-300 dark:border-darkGray-100 text-gray-900 dark:text-gray-100'
+			className='absolute top-0 right-0 z-30 w-80 pt-4 pb-1 cs-light-400 card-200 text-300 transform translate-y-12 -translate-x-32'
 		>
 			<div className='relative'>
-				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-900'>
+				<header className='pb-2 px-4 center-between border-b border-200'>
 					<div className='flex items-center'>
 						<h5 className='inline-block font-bold text-lg'>Filters</h5>
 						{filters.count > 0 && (
-							<div className='ml-2 py-1 px-2 bg-teal-200 text-xs font-semibold text-teal-600 rounded-lg'>
+							<div className='ml-4 py-1 px-2 cs-teal rounded-main text-xs font-semibold'>
 								<span>{filters.count}</span>
 								<span className='ml-1'>active</span>
 							</div>
@@ -277,7 +277,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 						}}
 						onMouseEnter={() => setFilterDescription(true)}
 						onMouseLeave={() => setFilterDescription(false)}
-						className='relative p-1 rounded-md hover:bg-purple-500 text-gray-500 hover:text-white transition duration-100 ease-in-out ring-gray'
+						className='relative icon-button'
 					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
@@ -406,7 +406,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 								) : (
 									<input
 										type='text'
-										className='mt-2 form-field'
+										className='mt-2 form-field input'
 										onChange={(e) =>
 											setFilter({
 												...filter,
@@ -461,13 +461,13 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 								</ul>
 							</div>
 						)}
-						<div className='border-t border-gray-200'>
+						<div className='border-t border-200'>
 							<div className='flex justify-end py-2 px-4'>
 								<button
 									onClick={() => {
 										handleClearFilters();
 									}}
-									className='py-1 px-2 font-semibold text-sm hover:bg-red-100 dark:hover:bg-red-400 text-red-500 dark:text-red-300 hover:text-red-600 dark:hover:text-white rounded-lg transition-main duration-100 ease-in-out ring-red'
+									className='py-1 px-2 font-semibold text-sm hover:bg-red-100 dark:hover:bg-red-400 text-red-500 dark:text-red-300 hover:text-red-600 dark:hover:text-white rounded-main transition-main ring-red'
 								>
 									Clear all
 								</button>
@@ -534,7 +534,7 @@ const ActiveFilter: React.FC<ActiveFilterProps> = ({ filter }) => {
 	};
 
 	return (
-		<li className='first:mt-0 mt-2 w-full py-2 pl-4 pr-3 flex items-center justify-between bg-gray-100 border border-gray-200 shadow-sm rounded-lg transition-colors-main focus:outline-none'>
+		<li className='first:mt-0 mt-2 w-full py-2 pl-4 pr-3 center-between cs-bg-light border border-200 shadow-sm rounded-main text-200 transition-colors-main focus:outline-none'>
 			<div className='flex items-center truncate mr-2'>
 				<span className='flex-none'>{filter.title}</span>
 				<span className='ml-1'>
@@ -557,13 +557,13 @@ const ActiveFilter: React.FC<ActiveFilterProps> = ({ filter }) => {
 				onClick={() => dispatch(clearFilter({ id: filter.id }))}
 				onMouseEnter={() => setFilterDescription(true)}
 				onMouseLeave={() => setFilterDescription(false)}
-				className='relative p-1 rounded-md hover:bg-purple-500 text-gray-500 hover:text-white transition duration-100 ease-in-out ring-gray'
+				className='relative icon-button'
 			>
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
 					viewBox='0 0 20 20'
 					fill='currentColor'
-					className='h-4 w-4'
+					className='svg-sm'
 				>
 					<path
 						fillRule='evenodd'
@@ -572,7 +572,7 @@ const ActiveFilter: React.FC<ActiveFilterProps> = ({ filter }) => {
 					/>
 				</svg>
 				{filterDescription && (
-					<div className='absolute top-0 right-0 z-10 min-w-max p-2 transform -translate-y-1 -translate-x-8 rounded-md shadow-md bg-gray-900 text-left text-white text-xs'>
+					<div className='absolute top-0 right-0 z-10 min-w-max p-2 rounded-md shadow-md bg-gray-900 text-left text-white text-xs transform -translate-y-1 -translate-x-8'>
 						Clear filter
 					</div>
 				)}

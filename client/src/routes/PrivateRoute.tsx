@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import { useAppSelector } from '@utils/hooks';
+import { useAppSelector } from '@hooks/hooks';
 
 interface PrivateRouteProps {
 	component: React.FunctionComponent<any>;

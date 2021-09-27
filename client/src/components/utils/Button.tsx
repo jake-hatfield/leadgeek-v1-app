@@ -28,12 +28,12 @@ const Button: React.FC<ButtonProps> = ({
 			onClick={onClick}
 			className={`${width || 'w-auto'} ${
 				margin ? 'ml-4' : ''
-			} flex items-center relative py-2 px-3 rounded-lg shadow-sm hover:shadow-md border border-gray-200 dark:border-darkGray-100 ${
+			} flex items-center relative py-2 px-3 rounded-main shadow-sm hover:shadow-md border border-300 ${
 				size === 'sm' ? 'text-sm' : 'text-xs'
 			} font-semibold ${
 				cta
 					? 'cs-purple'
-					: 'text-gray-600 group hover:text-purple-500 dark:hover:text-purple-300 dark:bg-darkGray-100 dark:hover:bg-gray-900'
+					: 'text-100 group hover:text-purple-500 dark:hover:text-purple-300 dark:bg-darkGray-300 dark:hover:bg-darkGray-200'
 			} transition-main ring-purple`}
 		>
 			{path && (
@@ -50,7 +50,7 @@ const Button: React.FC<ButtonProps> = ({
 				className={`${path ? 'ml-2' : ''} ${
 					cta
 						? ''
-						: 'text-gray-600 dark:text-gray-300 group-hover:text-purple-500 dark:group-hover:text-purple-300'
+						: 'text-100 group-hover:text-purple-500 dark:group-hover:text-purple-300'
 				} mx-auto`}
 			>
 				{text}

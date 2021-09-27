@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DateTime } from 'luxon';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import {
 	handleArchiveLead,
 	handleLikeLead,
@@ -124,62 +124,61 @@ const LeadRow: React.FC<LeadRowProps> = ({
 
 	// classes for component
 	const classes = {
-		categoryCellWrapper: 'p-2 w-56 truncate',
-		roiCellWrapper: 'p-2 w-24',
 		bsrCellWrapper: 'hidden xl:table-cell p-2 w-24',
-		monthlySalesCellWrapper: 'p-2 w-24',
-		dateCellWrapper: 'p-2 w-24',
-		rowWrapper:
-			'relative px-1 border-b last:border-none border-gray-100 dark:border-darkGray-200 hover:bg-gray-100 dark:hover:bg-darkGray-300 cursor-pointer',
-		likeCellWrapper: 'p-2 w-10 text-center text-gray-400',
-		likeCellButton: 'p-1 rounded-md ring-purple align-middle',
-		likeCellActive: 'svg-base hover:text-purple-400 transition-colors-main',
-		likeCellNull: 'p-2 px-4 svg-base',
-		titleCellWrapper:
-			'p-2 pr-12 w-32 md:w-48 lg:w-64 xl:w-112 font-semibold truncate',
-		detailsCellWrapper: 'relative w-20 p-2 text-gray-400',
-		detailsCellSvg: 'svg-base',
-		detailsCellButton:
-			'p-1 rounded-md hover:text-gray-600 transition-main ring-gray',
-		detailsCellImageWrapper:
-			'absolute z-10 p-2 transform lg:-translate-y-1/2 translate-x-16 bg-white shadow-xl rounded-lg border border-gray-300',
-		detailsCellImage: 'max-h-56 max-w-xs',
-		competitionWrapper:
-			'w-36 absolute bottom-0 z-10 p-2 transform -translate-y-12 translate-x-8 rounded-md shadow-md bg-gray-900 text-white text-sm',
+		categoryCellWrapper: 'p-2 w-56 truncate',
+		competitorCount: 'font-semibold',
 		competitionRow: 'center-between',
 		competitorType: 'font-semibold text-purple-300',
-		competitorCount: 'font-semibold',
-		profitCellWrapper: 'w-36 p-2 uppercase',
-		titleHover:
-			'absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-12 rounded-md shadow-md bg-gray-900 text-white text-sm',
-		quickViewCellWrapper: quickView ? 'p-4' : 'p-2',
-		quickViewWrapper:
-			'all-center rounded-r-lg text-gray-500 hover:text-gray-700',
-		quickViewMenu: quickView
-			? 'absolute z-10 p-2 bg-white shadow-sm rounded-r-lg ring-gray'
-			: 'rounded-lg ring-gray',
-		quickViewExpandedWrapper:
-			'absolute transform -translate-x-14 bg-white rounded-l-lg shadow-sm text-gray-500',
-		eyeIconWrapper:
-			'relative p-2 rounded-l-lg border-r border-gray-200 hover:text-gray-700 transition-main ring-gray',
-		linkIconWrapper:
-			'relative p-2 border-r border-gray-200 hover:text-gray-700 transition-main ring-gray',
-		quickViewMenuHover:
-			'w-24 mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-900 shadow-md text-white text-sm',
-		quickViewNull: 'p-2 svg-base',
-		expandedViewWrapper:
-			'absolute right-0 z-20 w-40 transform translate-y-6 bg-white rounded-lg shadow-md border border-gray-200',
-		expandedViewMenuTop: 'py-2 border-b border-gray-200',
+		competitionWrapper:
+			'w-36 absolute bottom-0 z-10 p-2 rounded-md shadow-md bg-gray-900 dark:bg-darkGray-100 text-white text-sm transform -translate-y-12 translate-x-8',
+		dateCellWrapper: 'p-2 w-24',
+		defaultCellWrapper: 'p-2',
+		defaultSvg: 'svg-base',
+		detailsCellButton:
+			'p-1 rounded-md hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-400 transition-main ring-gray',
+		detailsCellSvg: 'svg-base',
+		detailsCellImage: 'max-h-56 max-w-xs',
+		detailsCellImageWrapper:
+			'absolute z-10 p-2 bg-white shadow-xl rounded-main border border-300 transform lg:-translate-y-1/2 translate-x-16',
+		detailsCellWrapper: 'relative w-20 p-2',
 		expandedViewMenuBottom: 'py-2',
-		expandedViewMenuSvg: 'ml-2 svg-sm',
 		expandedViewMenuButton:
-			'py-1 px-3 w-full text-left font-semibold text-purple-500 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-100 ease-in-out ring-gray',
+			'py-2 px-3 w-full text-left font-semibold text-purple-500 dark:text-purple-300 hover:bg-gray-100 dark:hover:bg-darkGray-100 hover:text-gray-800 transition-colors-main ring-gray ring-inset',
 		expandedViewMenuButtonSvg: function () {
 			return this.expandedViewMenuButton + ' flex items-center';
 		},
-		defaultCellWrapper: 'p-2',
-		defaultSvg: 'svg-base',
-		valueIndicator: 'ml-1 text-gray-400 font-semibold',
+		expandedViewMenuSvg: 'ml-2 svg-sm',
+		expandedViewMenuTop: 'py-2 border-b border-300',
+		expandedViewWrapper:
+			'absolute right-0 z-20 w-40 cs-light-400 card-200 transform translate-y-6 -translate-x-2',
+		eyeIconWrapper:
+			'relative p-2 rounded-l-lg border-r border-200 hover:text-gray-700 transition-main ring-gray',
+		likeCellActive: 'svg-base hover:text-purple-400 transition-colors-main',
+		likeCellButton: 'p-1 rounded-md ring-purple align-middle',
+		likeCellNull: 'p-2 px-4 svg-base',
+		likeCellWrapper: 'p-2 w-10 text-center text-gray-400',
+		linkIconWrapper:
+			'relative p-2 border-r border-200 hover:text-gray-700 transition-main ring-gray',
+		monthlySalesCellWrapper: 'p-2 w-24',
+		profitCellWrapper: 'w-36 p-2 uppercase',
+		quickViewCellWrapper: quickView ? 'p-4' : 'p-2',
+		quickViewExpandedWrapper:
+			'absolute transform -translate-x-14 card-100 cs-light-400 text-100',
+		quickViewMenu: quickView
+			? 'absolute z-10 p-2 cs-light-400 shadow-sm rounded-r-lg ring-gray ring-inset'
+			: 'rounded-main ring-gray',
+		quickViewMenuHover:
+			'w-24 mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-900 shadow-md text-white text-sm',
+		quickViewNull: 'p-2 svg-base',
+		quickViewWrapper: 'all-center rounded-r-lg text-100 hover:text-gray-700',
+		roiCellWrapper: 'p-2 w-24',
+		rowWrapper:
+			'relative px-1 border-b last:border-none border-100 dark:border-darkGray-200 hover:bg-gray-100 dark:hover:bg-darkGray-300 cursor-pointer',
+		titleCellWrapper:
+			'p-2 pr-12 w-32 md:w-48 lg:w-64 xl:w-112 font-semibold truncate',
+		titleHover:
+			'absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-12 rounded-md shadow-md bg-gray-900 text-white text-sm',
+		valueIndicator: 'ml-1 text-100',
 	};
 
 	return (

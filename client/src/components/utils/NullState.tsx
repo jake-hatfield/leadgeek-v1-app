@@ -31,12 +31,12 @@ const NullState: React.FC<NullStateProps> = ({
 					{path}
 				</svg>
 			</div>
-			<h3 className='mt-2 font-bold text-lg text-gray-900'>{header}</h3>
-			<p>{text}</p>
+			<h3 className='mt-2 font-bold text-lg text-200'>{header}</h3>
+			<p className='text-100'>{text}</p>
 			{link ? (
 				<Link
 					to={link}
-					className='mt-4 inline-block py-2 px-3 rounded-lg shadow-sm hover:shadow-md text-sm font-semibold bg-purple-500 hover:bg-purple-600 text-white transition duration-100 ease-in-out ring-purple'
+					className='mt-4 inline-block py-2 px-3 rounded-main shadow-sm hover:shadow-md text-sm font-semibold bg-purple-500 hover:bg-purple-600 text-white transition-main ring-purple'
 				>
 					{linkText}
 				</Link>
@@ -60,8 +60,7 @@ const NullState: React.FC<NullStateProps> = ({
 };
 
 const nullStateClasses = {
-	nullStateWrapper:
-		'w-96 py-4 px-8 text-gray-600 bg-white border border-gray-300 shadow-md rounded-lg',
+	nullStateWrapper: 'w-96 card-padding card-200 cs-light-400',
 	svgWrapper: 'h-10 w-10',
 	svg: 'p-2 bg-gray-900 rounded-lg text-teal-300 shadow-sm',
 };

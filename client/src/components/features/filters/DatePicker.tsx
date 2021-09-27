@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useRef } from 'react';
 
 // packages
 import { DateTime } from 'luxon-business-days';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
-import { useAppDispatch } from '@utils/hooks';
+import { useAppDispatch } from '@hooks/hooks';
 import { setAlert } from '@features/alert/alertSlice';
 import { setDateLimit } from '@features/filters/filtersSlice';
 import { setPage } from '@features/leads/leadsSlice';
@@ -198,10 +198,10 @@ const DatePicker: React.FC<DatePickerProps> = ({
 	return (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-10 w-64 transform translate-y-12 -translate-x-56 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-300 text-gray-900'
+			className='absolute top-0 right-0 z-10 w-64 pt-4 pb-2 cs-light-400 card-200 text-300 transform translate-y-12 -translate-x-56'
 		>
 			<div className='relative'>
-				<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>
+				<header className='pb-2 px-4 center-between border-b border-200'>
 					<div>
 						<h5 className='inline-block font-bold text-lg'>Date picker</h5>
 					</div>
@@ -210,7 +210,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 					{dateOptions.map((dateOption, i) => (
 						<li
 							key={i}
-							className='list-none border-b border-gray-100 last:border-none'
+							className='list-none border-b border-100 last:border-none'
 						>
 							<button
 								onClick={() => {
@@ -222,14 +222,14 @@ const DatePicker: React.FC<DatePickerProps> = ({
 								}}
 								className={`${
 									validateDateRange(dateCreated, dateOption.min)
-										? 'hover:bg-gray-100'
+										? 'hover:bg-gray-100 dark:hover:bg-darkGray-100'
 										: 'opacity-25 cursor-default'
-								} w-full py-2 px-4 flex items-center justify-between transition-colors duration-100 ease-in-out focus:outline-none`}
+								} w-full py-2 px-4 center-between transition-colors-main focus:outline-none`}
 							>
-								<span className='font-semibold text-sm text-gray-700'>
+								<span className='font-semibold text-sm text-200'>
 									{dateOption.title}
 								</span>
-								<span className='text-sm text-gray-600'>
+								<span className='text-sm text-100'>
 									{dateOption.dateString}
 								</span>
 							</button>

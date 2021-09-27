@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import ContentLoader from 'react-content-loader';
 
 // redux
-import { useAppSelector } from '@utils/hooks';
+import { useAppSelector } from '@hooks/hooks';
 
 // components
 import LeadRow from './LeadRow';
@@ -15,6 +15,7 @@ import Spinner from '@components/utils/Spinner';
 // utils
 import { Lead } from '@utils/interfaces/Lead';
 import { User } from '@utils/interfaces/User';
+import { useDarkMode } from '@hooks/hooks';
 
 interface LeadTableProps {
 	leads: Lead[];
@@ -39,6 +40,9 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	type,
 	currentSearchValue,
 }) => {
+	const [colorTheme] = useDarkMode();
+
+	console.log(colorTheme);
 	// filter state
 	const filters = useAppSelector((state) => state.filters);
 
@@ -93,7 +97,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 						<tbody className={classes.tableBody}>
 							{status === 'loading'
 								? [...Array(filters.itemLimit)].map((lead, i) => (
-										<LeadRowLoader key={i} />
+										<LeadRowLoader key={i} colorTheme={colorTheme} />
 								  ))
 								: leads.map((lead, i) => (
 										<LeadRow
@@ -188,8 +192,18 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	);
 };
 
-const LeadRowLoader = (props: any) => {
+interface LeadRowLoaderProps {
+	colorTheme: any;
+}
+
+const LeadRowLoader: React.FC<LeadRowLoaderProps> = ({
+	colorTheme,
+	...props
+}) => {
 	const height = 25;
+	const bgColor = colorTheme === 'dark' ? '#1C2936' : '#F0F4F8';
+	const fgColor = colorTheme === 'dark' ? '#1E2C3C' : '#E6EBF0';
+
 	return (
 		<tr className='w-full py-16 border-b last:border-none border-gray-100 dark:border-gray-900'>
 			{/* like */}
@@ -200,8 +214,8 @@ const LeadRowLoader = (props: any) => {
 					speed={2}
 					height={35}
 					width={'80%'}
-					backgroundColor='#F0F4F8'
-					foregroundColor='#E6EBF0'
+					backgroundColor={bgColor}
+					foregroundColor={fgColor}
 					{...props}
 				>
 					<rect x='0' y='7.5' rx='8' ry='8' width='100%' height={height} />
@@ -213,8 +227,8 @@ const LeadRowLoader = (props: any) => {
 					speed={2}
 					height={35}
 					width={'100%'}
-					backgroundColor='#F0F4F8'
-					foregroundColor='#E6EBF0'
+					backgroundColor={bgColor}
+					foregroundColor={fgColor}
 					{...props}
 				>
 					<rect x='0' y='7.5' rx='8' ry='8' width='70%' height={height} />
@@ -226,8 +240,8 @@ const LeadRowLoader = (props: any) => {
 					speed={2}
 					height={35}
 					width={'100%'}
-					backgroundColor='#F0F4F8'
-					foregroundColor='#E6EBF0'
+					backgroundColor={bgColor}
+					foregroundColor={fgColor}
 					{...props}
 				>
 					<rect x='4' y='7.5' rx='8' ry='8' width='22' height={height} />
@@ -240,8 +254,8 @@ const LeadRowLoader = (props: any) => {
 					speed={2}
 					height={35}
 					width={'100%'}
-					backgroundColor='#F0F4F8'
-					foregroundColor='#E6EBF0'
+					backgroundColor={bgColor}
+					foregroundColor={fgColor}
 					{...props}
 				>
 					<rect x='0' y='7.5' rx='8' ry='8' width='80' height={height} />
@@ -253,8 +267,8 @@ const LeadRowLoader = (props: any) => {
 					speed={2}
 					height={35}
 					width={'100%'}
-					backgroundColor='#F0F4F8'
-					foregroundColor='#E6EBF0'
+					backgroundColor={bgColor}
+					foregroundColor={fgColor}
 					{...props}
 				>
 					<rect x='0' y='7.5' rx='8' ry='8' width='40px' height={height} />
@@ -266,8 +280,8 @@ const LeadRowLoader = (props: any) => {
 					speed={2}
 					height={35}
 					width={'100%'}
-					backgroundColor='#F0F4F8'
-					foregroundColor='#E6EBF0'
+					backgroundColor={bgColor}
+					foregroundColor={fgColor}
 					{...props}
 				>
 					<rect x='0' y='7.5' rx='8' ry='8' width='90' height={height} />
@@ -279,8 +293,8 @@ const LeadRowLoader = (props: any) => {
 					speed={2}
 					height={35}
 					width={'100%'}
-					backgroundColor='#F0F4F8'
-					foregroundColor='#E6EBF0'
+					backgroundColor={bgColor}
+					foregroundColor={fgColor}
 					{...props}
 				>
 					<rect x='0' y='7.5' rx='8' ry='8' width='40' height={height} />
@@ -292,8 +306,8 @@ const LeadRowLoader = (props: any) => {
 					speed={2}
 					height={35}
 					width={'100%'}
-					backgroundColor='#F0F4F8'
-					foregroundColor='#E6EBF0'
+					backgroundColor={bgColor}
+					foregroundColor={fgColor}
 					{...props}
 				>
 					<rect x='0' y='7.5' rx='8' ry='8' width='60' height={height} />
@@ -330,14 +344,13 @@ const svgList = {
 // classes for component
 const classes = {
 	sectionWrapper: 'relative mt-6 container',
-	tableWrapper:
-		'pb-1 bg-white dark:bg-darkGray-400 shadow-xl rounded-lg border border-gray-300 dark:border-darkGray-100',
+	tableWrapper: 'pb-1 cs-light-400 shadow-xl rounded-main border border-300',
 	table: 'w-full',
-	tableHeadWrapper: 'border-b border-gray-100 dark:border-darkGray-100',
+	tableHeadWrapper: 'border-b border-100',
 	tableHead:
-		'text-left font-semibold text-xs bg-gray-100 dark:bg-darkGray-400 text-gray-700 dark:text-gray-400 uppercase tracking-widest',
+		'text-left font-semibold text-xs cs-bg text-100 uppercase tracking-widest',
 	tableHeadCell: 'p-2',
-	tableBody: 'mx-4 text-sm text-gray-800 dark:text-gray-200',
+	tableBody: 'mx-4 text-sm text-200',
 };
 
 export default LeadTable;

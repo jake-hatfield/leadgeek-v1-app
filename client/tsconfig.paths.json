@@ -5,6 +5,7 @@
 			"@assets/*": ["./assets/*"],
 			"@components/*": ["./components/*"],
 			"@features/*": ["./components/features/*"],
+			"@hooks/*": ["./hooks/*"],
 			"@pages/*": ["./pages/*"],
 			"@styles/*": ["./styles/*"],
 			"@redux/*": ["./redux/*"],

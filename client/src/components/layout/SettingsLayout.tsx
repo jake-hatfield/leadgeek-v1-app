@@ -35,14 +35,14 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 		<div className='flex flex-row'>
 			<SettingsNavbar />
 			<section className='mb-6 w-full'>
-				<header className='pt-4 pb-2 border-b border-gray-300'>
+				<header className='py-4 shadow-md cs-light-400'>
 					<h1 className='ml-72 text-3xl font-bold text-gray-900'>
 						{title || 'Settings'}
 					</h1>
 				</header>
-				<div className='ml-72 max-w-screen-2xl'>
-					<div className='md:flex md:items-center mt-6 pb-2 mr-16 border-b border-gray-200'>
-						<div className='p-3 h-10 w-10 flex items-center justify-center rounded-full bg-gray-100 shadow-sm focus:outline-none focus:shadow-outline'>
+				<div className='ml-72 max-w-screen-2xl bg-white'>
+					<div className='md:flex md:items-center mt-6 pb-2 mr-16 border-b border-200'>
+						<div className='p-3 h-10 w-10 all-center rounded-full cs-bg shadow-sm focus:outline-none focus:shadow-outline'>
 							<span className='text-gray-600 text-lg font-bold'>
 								{initials}
 							</span>

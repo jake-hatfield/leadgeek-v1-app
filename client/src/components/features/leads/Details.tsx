@@ -1,14 +1,13 @@
 import React, { Fragment, useRef, useEffect, useState } from 'react';
 
 // packages
-import { BeakerIcon } from '@heroicons/react/solid';
 import { DateTime } from 'luxon';
 import ReactImageMagnify from 'react-image-magnify';
 import { animated, useSpring } from 'react-spring';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import {
 	addComment,
 	clearCurrentLead,
@@ -263,7 +262,7 @@ const Details: React.FC<DetailsProps> = ({
 			state: false,
 			title: 'Next lead',
 			description: 'F',
-			edge: 'left',
+			edge: null,
 		},
 	];
 
@@ -551,10 +550,12 @@ const Details: React.FC<DetailsProps> = ({
 			title: 'Competition',
 			value: (
 				<div>
-					<span className='text-gray-500'>
-						{data.competitorCount > 0 && `(${data.competitorCount})`}
+					{data.competitorCount > 0 && (
+						<span className='text-100'>{`(${data.competitorCount})`}</span>
+					)}
+					<span className={data.competitorCount > 0 ? 'ml-1' : ''}>
+						{data.competitorType || '-'}
 					</span>
-					<span className='ml-1'>{data.competitorType || '-'}</span>
 				</div>
 			),
 			utility: null,
@@ -566,7 +567,7 @@ const Details: React.FC<DetailsProps> = ({
 					{data.weight ? (
 						<span>
 							{data.weight.toFixed(2)}
-							<span className='ml-1 text-gray-500'>lb</span>
+							<span className='ml-1 text-100'>lb</span>
 						</span>
 					) : (
 						<span>-</span>
@@ -674,7 +675,7 @@ const Details: React.FC<DetailsProps> = ({
 					</header>
 					<div className='h-screen overflow-x-hidden overflow-y-scroll minimal-scrollbar'>
 						<section className='mb-48 pl-6 pr-8'>
-							<article className='flex justify-between mt-4 p-4 bg-white dark:bg-darkGray-200 rounded-lg shadow-md border border-gray-300 dark:border-gray-900'>
+							<article className='flex justify-between mt-4 p-4 cs-light-300 card-200'>
 								<div className='w-2/5 h-56 z-10'>
 									<ReactImageMagnify
 										{...{
@@ -710,18 +711,18 @@ const Details: React.FC<DetailsProps> = ({
 										{truncate(data.title, 40)}
 									</h3>
 									{fullTitle && (
-										<div className='absolute top-0 mt-2 mr-6 p-2 transform translate-y-6 rounded-md shadow-md bg-gray-900 text-white text-xs'>
+										<div className='absolute top-0 mt-2 mr-6 p-2 rounded-md shadow-md cs-darkGray text-xs transform translate-y-6'>
 											{data.title}
 										</div>
 									)}
-									<aside className='flex items-center mt-2 text-sm text-gray-800 dark:text-gray-200'>
+									<aside className='flex items-center mt-2 text-sm text-200'>
 										<div>{date}</div>
-										<span className='h-1 w-1 ml-2 rounded-full bg-gray-400' />
+										<span className='h-1 w-1 ml-2 rounded-full bg-gray-400 dark:bg-gray-700' />
 										<div className='ml-2'>{data.category}</div>
 									</aside>
 									<article className='mt-6'>
-										<header className='mt-4 pb-2 border-b border-gray-200 dark:border-gray-900'>
-											<h4 className='font-semibold text-gray-900 dark:text-white'>
+										<header className='mt-4 pb-2 border-b border-200'>
+											<h4 className='font-semibold text-300'>
 												Primary metrics
 											</h4>
 										</header>
@@ -735,7 +736,7 @@ const Details: React.FC<DetailsProps> = ({
 									</article>
 								</header>
 							</article>
-							<article className='mt-4 pt-4 pb-3 cs-light-100 card-200'>
+							<article className='mt-4 pt-4 pb-3 cs-light-300 card-200'>
 								<header className='pb-2 border-b border-200'>
 									<h4 className='px-4 font-semibold text-gray-900 dark:text-white'>
 										Detailed information
@@ -752,10 +753,10 @@ const Details: React.FC<DetailsProps> = ({
 									))}
 								</dl>
 							</article>
-							<article className='my-4 pt-4 pb-3 cs-light-100 card-200'>
+							<article className='my-4 pt-4 pb-3 cs-light-300 card-200'>
 								<header className='flex items-center pb-2 border-b border-200'>
 									<h4 className='pl-4 font-semibold text-300'>Notes</h4>{' '}
-									<span className='ml-2 py-1 px-2 cs-bg rounded-main border border-300 shadow-sm text-xs'>
+									<span className='ml-2 py-1 px-2 bg-gray-100 dark:bg-gray-900 text-300 rounded-main text-xs font-semibold'>
 										{noteCount}
 									</span>
 								</header>
@@ -772,7 +773,7 @@ const Details: React.FC<DetailsProps> = ({
 							</article>
 						</section>
 						{/* comment section */}
-						<article className='fixed bottom-0 w-full max-w-3xl text-300 cs-light-300 border-t border-300'>
+						<article className='fixed bottom-0 w-full max-w-3xl text-300 cs-light-400 border-t border-300'>
 							<div className='pt-1 pb-4 pl-4 pr-12'>
 								<form ref={commentRef} className='relative mt-3 text-sm'>
 									<animated.textarea
@@ -855,11 +856,13 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 			onMouseLeave={() => setHover(false)}
 			onClick={() => !disabled && onClick()}
 			disabled={disabled ? true : false}
-			className={`relative ml-2 first:ml-0 p-1 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-main ${
+			className={`relative ml-2 first:ml-0 p-1 hover:bg-gray-100 dark:hover:bg-darkGray-100 rounded-main ${
 				state && 'text-purple-500'
 			} ${
-				disabled ? 'pointer-events-none bg-gray-200 opacity-50' : ''
-			} hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-400 ring-gray transition-main`}
+				disabled
+					? 'pointer-events-none bg-gray-200 dark:bg-gray-900 opacity-50'
+					: ''
+			} hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-400 ring-gray transition-main`}
 		>
 			{state || !inactivePath ? (
 				<div className='flex items-center justify-center'>
@@ -1080,8 +1083,8 @@ const Trend: React.FC<TrendProps> = ({
 		<div
 			onMouseEnter={() => setShowPopup(true)}
 			onMouseLeave={() => setShowPopup(false)}
-			className={`relative flex items-center ml-2 py-0.5 pl-2 pr-1 border ${
-				isGood ? 'cs-teal' : 'cs-gray'
+			className={`relative flex items-center ml-2 py-0.5 pl-2 pr-1 ${
+				isGood ? 'cs-teal' : 'bg-gray-100 dark:bg-gray-900 text-200'
 			} text-xs font-semibold rounded-main`}
 		>
 			<span>{scale} day</span>

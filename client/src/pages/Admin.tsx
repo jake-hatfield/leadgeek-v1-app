@@ -11,7 +11,7 @@ import { Redirect } from 'react-router';
 import axios from 'axios';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import { setAlert } from '@features/alert/alertSlice';
 import { surrogateUser } from '@features/auth/authSlice';
 import { setItemLimit } from '@features/filters/filtersSlice';
@@ -244,7 +244,7 @@ const Admin = () => {
 	}
 
 	return (
-		<AuthLayout>
+		<AuthLayout colorTheme={'light'}>
 			{status === 'idle' && user ? (
 				<section className='mb-6'>
 					<Header

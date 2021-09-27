@@ -21,14 +21,16 @@ const Badge: React.FC<BadgeProps> = ({
 				alignment === 'top'
 					? ''
 					: alignment === 'bottom'
-					? ' translate-y-4'
+					? ' translate-y-3'
 					: ''
 			} ${edge === null ? '-translate-x-1/2' : ''}`}
 		>
 			<span>{title}</span>
-			<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
-				{description}
-			</span>
+			{description && (
+				<span className='ml-2 py-0.5 px-1 bg-gray-100 rounded-md font-semibold text-gray-600 text-xs'>
+					{description}
+				</span>
+			)}
 		</div>
 	);
 };

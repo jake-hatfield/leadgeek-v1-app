@@ -4,7 +4,7 @@ import React from 'react';
 import { DateTime } from 'luxon';
 
 // redux
-import { useAppSelector } from '@utils/hooks';
+import { useAppSelector } from '@hooks/hooks';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
@@ -18,7 +18,7 @@ const ProfilePage = () => {
 	const user = useAppSelector((state) => state.auth.user);
 	return (
 		user && (
-			<AuthLayout>
+			<AuthLayout colorTheme={'light'}>
 				<SettingsLayout
 					title={'Profile'}
 					description={'Edit your Leadgeek profile'}

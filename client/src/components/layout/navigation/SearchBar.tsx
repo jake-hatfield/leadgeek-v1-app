@@ -12,8 +12,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
 	handleSearchSubmit,
 }) => {
 	return (
-		<div className='flex items-center justify-end text-gray-300'>
-			<div className='w-72 relative z-0 text-gray-600'>
+		<div className='flex items-center justify-end'>
+			<div className='w-72 relative z-0'>
 				<form
 					action='/search/'
 					method='POST'
@@ -24,11 +24,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
 						name='q'
 						placeholder={placeholder || 'Enter a search...'}
 						onChange={onSearchChange}
-						className='py-2 pl-8 w-full rounded-lg border border-gray-200 dark:border-darkGray-100 bg-gray-100 dark:bg-darkGray-500 hover:bg-gray-200 dark:hover:bg-darkGray-400 text-sm placeholder-gray-600 transition duration-100 ease-in-out ring-purple'
+						className='py-2 pl-10 w-full rounded-main border border-300 input text-sm placeholder-gray-700 text-300 transition-main ring-purple'
 					/>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
-						className='mt-2.5 ml-2 absolute top-0 left-0 h-4 w-4'
+						className='mt-2.5 ml-4 absolute top-0 left-0 svg-sm text-gray-700'
 						fill='none'
 						viewBox='0 0 24 24'
 						stroke='currentColor'

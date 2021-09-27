@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
@@ -332,7 +332,7 @@ const AffiliatesPage = () => {
 	];
 
 	return status === 'idle' && user ? (
-		<AuthLayout>
+		<AuthLayout colorTheme={'light'}>
 			<SettingsLayout
 				isAuthenticated={isAuthenticated}
 				user={user}

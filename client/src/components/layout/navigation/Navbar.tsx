@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import { removeUserData } from '@components/features/auth/authSlice';
 
 // utils
@@ -92,7 +92,7 @@ const Navbar = () => {
 	};
 
 	return (
-		<section className='fixed top-0 left-0 z-20 h-full min-h-screen w-16 pt-6 pb-8 px-3 flex flex-col justify-between bg-gray-900 dark:bg-darkGray-300 text-gray-400'>
+		<section className='fixed top-0 left-0 z-20 h-full min-h-screen w-16 pt-6 pb-8 px-3 flex flex-col justify-between bg-gray-900 dark:bg-darkGray-200 text-gray-400'>
 			<nav>
 				{navLinks.primaryLinks.map((link, i) => (
 					<NavbarLink key={i} link={link} />
@@ -137,27 +137,27 @@ const Navbar = () => {
 							</div>
 						)}
 						{notifications.length > 0 && (
-							<div className='absolute top-0 right-0 h-2 w-2 bg-pink-600 rounded-full transform translate-y-1 -translate-x-1 shadow-sm' />
+							<div className='absolute top-0 right-0 h-2 w-2 bg-pink-600 dark:bg-pink-100 rounded-full shadow-sm transform translate-y-1 -translate-x-1' />
 						)}
 					</button>
 					{notificationDropdown && (
 						<article
 							ref={notificationsModalRef}
-							className='absolute bottom-0 left-0 z-30 w-64 transform translate-x-16 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-300 text-gray-900 break-words'
+							className='absolute bottom-0 left-0 z-30 w-64 pt-4 pb-2 cs-light-400 card-200 text-300 break-words transform translate-x-16 '
 						>
-							<header className='pb-2 px-4 border-b border-gray-200 flex items-center justify-between'>
+							<header className='pb-2 px-4 border-b border-200 center-between'>
 								<h4 className='font-bold text-lg'>Notifications</h4>
-								<span className='py-1 px-2 bg-pink-600 border border-pink-500 text-white rounded-lg shadow-sm text-xs'>
+								<span className='py-1 px-2 cs-pink rounded-main text-xs font-semibold'>
 									{notifications.length > 5 ? '5+' : notifications.length}
 								</span>
 							</header>
-							<ul className='w-full text-sm text-gray-800'>
+							<ul className='w-full text-sm text-200'>
 								{notifications.map((item, i) => (
 									<li
 										key={i}
-										className='py-2 px-4 hover:bg-gray-100 transition-main focus:outline-none border-b border-gray-100 last:border-none'
+										className='py-2 px-4 hover:bg-gray-100 dark:hover:bg-darkGray-100 transition-main focus:outline-none border-b border-100 last:border-none'
 									>
-										<div className='flex items-center justify-between mb-1'>
+										<div className='center-between mb-1'>
 											<header className='flex items-center'>
 												<h5 className='mr-4 font-semibold text-base'>
 													v1.2 Release
@@ -167,7 +167,7 @@ const Navbar = () => {
 												href='https://leadgeek.io/changelog/'
 												target='_blank'
 												rel='noopener noreferrer'
-												className='text-purple-500 hover:text-purple-600 transition-main'
+												className='link transition-main'
 											>
 												<svg
 													xmlns='http://www.w3.org/2000/svg'
@@ -181,7 +181,7 @@ const Navbar = () => {
 											</a>
 										</div>
 										<time dateTime={'2021-09-22'}>Sep 22</time>
-										<p className='pt-2 text-gray-700'>
+										<p className='pt-2 text-100'>
 											Big update! This was a complete overhaul of the interface
 											with new features, aesthetic changes, and additional error
 											handling.
@@ -201,7 +201,7 @@ const Navbar = () => {
 						}}
 						onMouseEnter={() => setHover(!userDropdown && true)}
 						onMouseLeave={() => setHover(false)}
-						className='p-2 h-10 w-10 flex items-center justify-center rounded-full mt-4 bg-purple-500 text-white shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
+						className='p-2 h-10 w-10 all-center mt-4 cs-purple rounded-full shadow-sm hover:shadow-md transition duration-100 ease-in-out ring-purple'
 					>
 						<span className='text-lg font-bold'>{firstInitial}</span>
 						{hover && (
@@ -214,10 +214,10 @@ const Navbar = () => {
 						<div className='relative'>
 							<article
 								ref={settingsModalRef}
-								className='absolute bottom-0 left-0 z-30 w-64 transform translate-x-16 pt-4 pb-2 rounded-lg bg-white shadow-lg border border-gray-300 text-gray-900'
+								className='absolute bottom-0 left-0 z-30 w-64 pt-4 pb-2 rounded-lg cs-light-400 shadow-lg border border-300 text-300 transform translate-x-16 '
 							>
 								<div className='relative'>
-									<header className='pb-2 px-4 flex items-center justify-between border-b border-gray-200'>
+									<header className='pb-2 px-4 flex items-center justify-between border-b border-200'>
 										<div>
 											<h5 className='inline-block font-bold text-lg'>
 												<span
@@ -236,9 +236,9 @@ const Navbar = () => {
 											<NavLink
 												key={i}
 												to={`/${item.link}`}
-												className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 transition-main focus:outline-none'
+												className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-darkGray-100 transition-main focus:outline-none'
 											>
-												<span className='font-semibold text-sm text-gray-800'>
+												<span className='font-semibold text-sm text-200'>
 													{item.title}
 												</span>
 											</NavLink>
@@ -246,9 +246,9 @@ const Navbar = () => {
 										<button
 											key={'logout'}
 											onClick={() => logoutUser()}
-											className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 group transition-colors duration-100 ease-in-out focus:outline-none'
+											className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-darkGray-100 group transition-colors-main focus:outline-none'
 										>
-											<span className='font-semibold text-sm text-gray-800 '>
+											<span className='font-semibold text-sm text-200'>
 												Logout
 											</span>
 										</button>

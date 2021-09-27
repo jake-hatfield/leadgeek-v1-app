@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import AuthLayout from '@components/layout/AuthLayout';
 import Header from '@components/layout/navigation/Header';
 import Spinner from '@components/utils/Spinner';
-import { useAppSelector } from '@utils/hooks';
+import { useAppSelector } from '@hooks/hooks';
 
 interface HelpItemProps {
 	title: string;
@@ -124,10 +124,16 @@ const Help: React.FC = () => {
 	];
 
 	return (
-		<AuthLayout>
+		<AuthLayout colorTheme={'light'}>
 			{status === 'idle' && user ? (
 				<section className='mb-6'>
-					<Header userId={user._id} title={'Help panel'} searchActive={false} />
+					<div className='pb-4 shadow-md cs-light-400'>
+						<Header
+							userId={user._id}
+							title={'Help panel'}
+							searchActive={false}
+						/>
+					</div>
 					<div className='mt-6 container'>
 						<div>
 							<h2 className='font-semibold text-xl text-gray-900'>Resources</h2>

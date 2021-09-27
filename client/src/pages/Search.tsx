@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import {
 	getSearchResults,
 	setLeadIdle,
@@ -46,7 +46,7 @@ const Search = () => {
 	}, [status, user?._id, searchValue, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
-		<AuthLayout>
+		<AuthLayout colorTheme={'dark'}>
 			<Leads
 				leads={search.pageByIds}
 				allLeads={search.totalByIds}

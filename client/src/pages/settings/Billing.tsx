@@ -5,7 +5,7 @@ import axios from 'axios';
 import { DateTime } from 'luxon';
 
 // redux
-import { useAppSelector } from '@utils/hooks';
+import { useAppSelector } from '@hooks/hooks';
 // import { cancelStripeSub } from '@redux/actions/auth';
 
 // components
@@ -137,7 +137,7 @@ const BillingPage = () => {
 	return (
 		authStatus === 'idle' &&
 		user && (
-			<AuthLayout>
+			<AuthLayout colorTheme={'light'}>
 				<SettingsLayout
 					isAuthenticated={isAuthenticated}
 					user={user}

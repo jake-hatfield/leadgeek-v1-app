@@ -35,14 +35,14 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
 	return (
 		<div
 			ref={wrapperRef}
-			className='relative flex items-center shadow-sm rounded-lg text-sm'
+			className='relative flex items-center shadow-sm rounded-main text-sm'
 		>
-			<div className='w-16 flex-none py-2 px-2 bg-gray-100 rounded-l-lg text-sm font-semibold text-center text-gray-700 border border-gray-200'>
+			<div className='w-16 flex-none p-2 cs-bg-light rounded-l-lg text-sm font-semibold text-center text-100 border border-200'>
 				{title}
 			</div>
 			<button
 				type='button'
-				className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 bg-white border-t border-b border-r border-gray-200 rounded-r-lg text-left cursor-default ring-purple ring-inset'
+				className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 cs-light-500 border-t border-b border-r border-200 rounded-r-lg text-left cursor-default ring-purple ring-inset'
 				aria-haspopup='listbox'
 				aria-expanded='true'
 				aria-labelledby='listbox-label'
@@ -69,7 +69,7 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
 			</button>
 			{openState && (
 				<ul
-					className='absolute top-0 right-0 z-10 max-h-56 w-full mt-1 py-1 bg-white border border-gray-300 shadow-md rounded-lg text-sm overflow-auto focus:outline-none transform translate-y-10 minimal-scrollbar'
+					className='absolute top-0 right-0 z-10 max-h-56 w-full mt-1 py-1 cs-light-300 card-200 text-sm overflow-auto focus:outline-none transform translate-y-10 minimal-scrollbar'
 					tabIndex={-1}
 					role='listbox'
 					aria-labelledby='listbox-label'
@@ -80,8 +80,8 @@ const SelectComponent: React.FC<SelectComponentProps> = ({
 							key={i}
 							className={`py-2 pl-3 pr-9 cursor-default select-none relative ${
 								selectedOption === option.title
-									? 'bg-purple-500 hover:bg-purple-600 text-white'
-									: 'bg-white hover:bg-gray-100 text-gray-900'
+									? 'cs-purple'
+									: 'hover:bg-gray-100 dark:hover:bg-darkGray-100 text-300'
 							}`}
 							id={`listbox-option-${i}`}
 							role='option'

@@ -9,7 +9,7 @@ import DefaultLayout from '@components/layout/DefaultLayout';
 import Spinner from '@components/utils/Spinner';
 import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 
 const ResetPasswordPage = () => {
 	const dispatch = useAppDispatch();

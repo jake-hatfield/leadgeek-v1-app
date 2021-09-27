@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { animated, useSpring } from 'react-spring';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import { removeAlert } from '@features/alert/alertSlice';
 
 const Alert: React.FC = () => {

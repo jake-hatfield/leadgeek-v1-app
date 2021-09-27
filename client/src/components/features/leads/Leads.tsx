@@ -6,7 +6,7 @@ import { NavLink } from 'react-router-dom';
 import { useSpring } from 'react-spring';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import { setAlert } from '@features/alert/alertSlice';
 import {
 	clearCurrentLead,
@@ -107,7 +107,7 @@ const Leads: React.FC<LeadsProps> = ({
 			onClick: () => setFilter((prev) => !prev),
 			conditional: filterCount! > 0,
 			conditionalDisplay: (
-				<span className='h-4 w-4 absolute top-0 right-0 flex items-center justify-center py-2.5 px-3 rounded-full bg-purple-500 text-white transform -translate-y-2 translate-x-3'>
+				<span className='svg-sm absolute top-0 right-0 all-center py-2.5 px-3 rounded-full cs-purple transform -translate-y-2 translate-x-3'>
 					{filterCount}
 				</span>
 			),
@@ -172,7 +172,7 @@ const Leads: React.FC<LeadsProps> = ({
 	return authStatus === 'idle' && user ? (
 		<Fragment>
 			<section className={classes.leadsWrapper}>
-				<div className='bg-white dark:bg-darkGray-400'>
+				<div className='cs-light-400'>
 					<Header userId={user._id} title={headerTitle} searchActive={true} />
 					<nav className={classes.navWrapper}>
 						<div className={classes.nav}>
@@ -391,11 +391,11 @@ const classes = {
 		'pt-4 pb-2 border-b border-gray-300 dark:border-darkGray-300 shadow-md',
 	nav: 'relative flex items-end justify-between container',
 	navLink:
-		'relative first:ml-0 ml-8 pb-2 font-semibold text-gray-600 dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-300 hover:border-b-2 hover:border-purple-500 dark:border-purple-200 group transition-colors-main',
+		'relative first:ml-0 ml-8 pb-2 font-semibold text-gray-700 dark:text-gray-400 hover:text-purple-500 dark:hover:text-purple-300 hover:border-b-2 hover:border-purple-500 dark:border-purple-200 group transition-colors-main',
 	navLinkActive:
 		'text-purple-500 dark:text-purple-300 border-b-2 border-purple-500 dark:border-purple-200',
 	navLinkCounter:
-		'h-4 w-4 absolute top-0 right-0 all-center py-2.5 px-3 rounded-full cs-purple group-hover:bg-purple-600 text-xs transform -translate-y-4 translate-x-7',
+		'h-4 w-4 absolute top-0 right-0 all-center py-2.5 px-3 rounded-full cs-purple group-hover:bg-purple-600 dark:group-hover:bg-purple-300 text-xs transform -translate-y-4 translate-x-7',
 	navToolsWrapper: 'flex items-center',
 };
 

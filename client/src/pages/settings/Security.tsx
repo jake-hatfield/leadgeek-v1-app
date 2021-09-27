@@ -7,7 +7,7 @@ import AuthLayout from '@components/layout/AuthLayout';
 import SettingsLayout from '@components/layout/SettingsLayout';
 import ResetPassword from '@components/auth/login/password/ResetPassword';
 import Spinner from '@components/utils/Spinner';
-import { useAppSelector } from '@utils/hooks';
+import { useAppSelector } from '@hooks/hooks';
 
 const Dashboard = () => {
 	// auth state
@@ -16,7 +16,7 @@ const Dashboard = () => {
 	const user = useAppSelector((state) => state.auth.user);
 	return (
 		user && (
-			<AuthLayout>
+			<AuthLayout colorTheme={'light'}>
 				<SettingsLayout
 					user={user}
 					title={'Security & password'}

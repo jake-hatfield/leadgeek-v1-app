@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@utils/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import { getFeedLeads } from '@features/leads/leadsSlice';
 
 // components
@@ -34,7 +34,7 @@ const Feed = () => {
 	}, [status, isAuthenticated, user?._id, user?.role, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
-		<AuthLayout>
+		<AuthLayout colorTheme={'dark'}>
 			<Leads
 				leads={feed.pageByIds}
 				allLeads={feed.totalByIds}

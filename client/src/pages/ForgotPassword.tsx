@@ -14,7 +14,7 @@ import Button from '@components/utils/Button';
 
 import { setResetPwToken } from '@utils/authTokens';
 import { config } from '@utils/utils';
-import { useAppDispatch } from '@utils/hooks';
+import { useAppDispatch } from '@hooks/hooks';
 
 const ForgotPassword = () => {
 	const dispatch = useAppDispatch();

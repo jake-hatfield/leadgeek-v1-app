@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
-import { useAppDispatch } from '@utils/hooks';
+import { useAppDispatch } from '@hooks/hooks';
 import { setItemLimit } from '@components/features/filters/filtersSlice';
 
 // utils
@@ -74,12 +74,12 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 
 	return status === 'idle' ? (
 		<article className={`mt-8 ${!padding && 'container'} `}>
-			<div className='flex items-center justify-between bg-white dark:bg-darkGray-400 rounded-lg py-2 px-4 shadow-md text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-darkGray-200'>
+			<div className='center-between py-2 px-4 cs-light-400 rounded-main shadow-md text-100 border border-300'>
 				{totalItems && totalItems > 0 ? (
 					<div className='relative flex items-center text-sm' ref={ref}>
 						<button
 							type='button'
-							className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 bg-white border border-gray-300 rounded-lg text-left cursor-default ring-purple ring-inset'
+							className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 input border border-300 rounded-main text-left cursor-pointer transition-main ring-purple ring-inset'
 							aria-haspopup='listbox'
 							aria-expanded='true'
 							aria-labelledby='listbox-label'
@@ -108,7 +108,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 						</button>
 						{selectOpen && (
 							<ul
-								className='absolute top-0 right-0 z-10 max-h-56 w-full mt-1 py-1 bg-white border border-gray-300 shadow-md rounded-lg text-sm overflow-auto focus:outline-none transform -translate-y-40'
+								className='absolute top-0 right-0 z-10 max-h-56 w-full mt-1 py-1 cs-light-300 card-200 text-sm overflow-auto focus:outline-none transform -translate-y-40'
 								tabIndex={-1}
 								role='listbox'
 								aria-labelledby='listbox-label'
@@ -117,10 +117,10 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 								{selectOptions.map((option, i) => (
 									<li
 										key={i}
-										className={`py-2 pl-3 pr-9 cursor-default select-none relative ${
+										className={`py-2 pl-3 pr-9 cursor-pointer select-none relative ${
 											selectValue === option
-												? 'bg-purple-500 hover:bg-purple-600 text-white'
-												: 'bg-white hover:bg-gray-100 text-gray-900'
+												? 'cs-purple'
+												: 'hover:bg-gray-100 dark:hover:bg-darkGray-100 text-300'
 										}`}
 										id={`listbox-option-${i}`}
 										role='option'
@@ -153,7 +153,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 									onClick={() => setFilteredMessage((prev) => !prev)}
 									onMouseEnter={() => setFilteredMessage(true)}
 									onMouseLeave={() => setFilteredMessage(false)}
-									className='mr-2 rounded-md text-gray-400 hover:text-gray-600 transition duration-100 ease-in-out ring-gray'
+									className='mr-2 rounded-md text-gray-400 hover:text-gray-600 transition-main ring-gray'
 								>
 									<svg
 										xmlns='http://www.w3.org/2000/svg'
@@ -194,7 +194,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 								onClick={() => dispatch(setPage({ page: previousPage, type }))}
 								className={`${
 									hasPreviousPage
-										? 'hover:shadow-md hover:text-gray-700'
+										? 'hover:shadow-md hover:text-gray-700 border border-300'
 										: 'pointer-events-none bg-gray-200 opacity-50'
 								} ${classes.button} ml-8`}
 							>
@@ -204,7 +204,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 								onClick={() => dispatch(setPage({ page: nextPage, type }))}
 								className={`${
 									hasNextPage
-										? 'hover:shadow-md hover:text-gray-700'
+										? 'hover:shadow-md hover:text-gray-700 border border-300'
 										: 'pointer-events-none bg-gray-200 opacity-50'
 								} ${classes.button} ml-4`}
 							>

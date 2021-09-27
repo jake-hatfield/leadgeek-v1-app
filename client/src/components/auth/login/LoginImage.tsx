@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 
 // redux
-import { useAppSelector } from '@utils/hooks';
+import { useAppSelector } from '@hooks/hooks';
 
 const LoginImage = () => {
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
