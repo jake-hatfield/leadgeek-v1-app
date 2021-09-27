@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 // packages
 import { DateTime } from 'luxon';
+import { animated, useSpring } from 'react-spring';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@hooks/hooks';
@@ -122,6 +123,14 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		dispatch(handleArchiveLead({ userId: user._id, leadId: lead._id }));
 	};
 
+	// animations
+	const expandedViewAnimationStyle = useSpring({
+		x: expandedView ? 1 : 0,
+	});
+	const quickViewAnimationStyle = useSpring({
+		opacity: quickView ? 1 : 0,
+	});
+
 	// classes for component
 	const classes = {
 		bsrCellWrapper: 'hidden xl:table-cell p-2 w-24',
@@ -135,7 +144,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		defaultCellWrapper: 'p-2',
 		defaultSvg: 'svg-base',
 		detailsCellButton:
-			'p-1 rounded-md hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-400 transition-main ring-gray',
+			'p-1 rounded-md text-gray-500 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 transition-main ring-gray',
 		detailsCellSvg: 'svg-base',
 		detailsCellImage: 'max-h-56 max-w-xs',
 		detailsCellImageWrapper:
@@ -148,29 +157,28 @@ const LeadRow: React.FC<LeadRowProps> = ({
 			return this.expandedViewMenuButton + ' flex items-center';
 		},
 		expandedViewMenuSvg: 'ml-2 svg-sm',
-		expandedViewMenuTop: 'py-2 border-b border-300',
 		expandedViewWrapper:
-			'absolute right-0 z-20 w-40 cs-light-400 card-200 transform translate-y-6 -translate-x-2',
+			'absolute right-0 z-20 w-48 py-2 cs-light-400 card-200 transform translate-y-6 -translate-x-2',
 		eyeIconWrapper:
-			'relative p-2 rounded-l-lg border-r border-200 hover:text-gray-700 transition-main ring-gray',
+			'relative p-2 rounded-l-lg border-r border-200 ring-gray ring-inset',
 		likeCellActive: 'svg-base hover:text-purple-400 transition-colors-main',
 		likeCellButton: 'p-1 rounded-md ring-purple align-middle',
 		likeCellNull: 'p-2 px-4 svg-base',
 		likeCellWrapper: 'p-2 w-10 text-center text-gray-400',
-		linkIconWrapper:
-			'relative p-2 border-r border-200 hover:text-gray-700 transition-main ring-gray',
+		linkIconWrapper: 'relative p-2 border-r border-200 ring-gray ring-inset',
 		monthlySalesCellWrapper: 'p-2 w-24',
 		profitCellWrapper: 'w-36 p-2 uppercase',
 		quickViewCellWrapper: quickView ? 'p-4' : 'p-2',
 		quickViewExpandedWrapper:
-			'absolute transform -translate-x-14 card-100 cs-light-400 text-100',
+			'absolute transform -translate-x-14 rounded-l-lg border-l border-t border-b border-300 cs-light-400 text-100',
 		quickViewMenu: quickView
-			? 'absolute z-10 p-2 cs-light-400 shadow-sm rounded-r-lg ring-gray ring-inset'
+			? 'absolute z-10 p-2 cs-light-400 shadow-sm rounded-r-lg border-r border-t border-b border-300 ring-gray ring-inset'
 			: 'rounded-main ring-gray',
 		quickViewMenuHover:
-			'w-24 mt-2 p-2 absolute top-0 left-0 z-20 transform -translate-y-12 rounded-lg bg-gray-900 shadow-md text-white text-sm',
+			'w-24 mt-2 p-2 absolute top-0 left-1/2 z-20 bg-gray-900 rounded-main shadow-md text-white text-sm transform -translate-y-12 -translate-x-1/2',
 		quickViewNull: 'p-2 svg-base',
-		quickViewWrapper: 'all-center rounded-r-lg text-100 hover:text-gray-700',
+		quickViewWrapper:
+			'all-center pl-16 rounded-r-lg text-100 hover:text-gray-700 dark:hover-text-gray-200',
 		roiCellWrapper: 'p-2 w-24',
 		rowWrapper:
 			'relative px-1 border-b last:border-none border-100 dark:border-darkGray-200 hover:bg-gray-100 dark:hover:bg-darkGray-300 cursor-pointer',
@@ -332,6 +340,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 							onMouseLeave={() => !expandedView && setQuickView(false)}
 							className={classes.quickViewWrapper}
 						>
+							{/* horiztonal dots */}
 							<button
 								onClick={(e) => {
 									e.stopPropagation();
@@ -349,13 +358,17 @@ const LeadRow: React.FC<LeadRowProps> = ({
 								</svg>
 							</button>
 							{quickView && (
-								<div className={classes.quickViewExpandedWrapper}>
+								<animated.div
+									className={classes.quickViewExpandedWrapper}
+									style={quickViewAnimationStyle}
+								>
 									<div className='all-center'>
 										{/* eye */}
 										<button
 											onClick={(e) => {
 												e.stopPropagation();
 												viewDetailsHandler();
+												setRowHover(false);
 											}}
 											onMouseEnter={() => setEyeDesc(true)}
 											onMouseLeave={() => setEyeDesc(false)}
@@ -401,69 +414,75 @@ const LeadRow: React.FC<LeadRowProps> = ({
 											)}
 										</button>
 									</div>
-								</div>
+								</animated.div>
 							)}
 						</div>
 					) : (
 						<div className={classes.quickViewNull} />
 					)}
-					{/* horiztonal dots */}
 					{expandedView && (
-						<div className={classes.expandedViewWrapper}>
-							<div className={classes.expandedViewMenuTop}>
-								<button
-									onClick={(e) => {
-										favoriteHandler(e);
-									}}
-									className={classes.expandedViewMenuButton}
+						<animated.div
+							className={classes.expandedViewWrapper}
+							style={{
+								transform: expandedViewAnimationStyle.x
+									.to({
+										range: [0, 0.35, 0.75, 1],
+										output: [1, 0.9, 1.03, 1],
+									})
+									.to((x) => `scale(${x})`),
+								translateY: '1.5rem',
+								translateX: '-1.25rem',
+							}}
+						>
+							<button
+								onClick={(e) => {
+									favoriteHandler(e);
+								}}
+								className={classes.expandedViewMenuButton}
+							>
+								{!like ? 'Like lead' : 'Unlike lead'}
+							</button>
+							<button
+								onClick={(e) => {
+									archiveHandler(e);
+								}}
+								className={classes.expandedViewMenuButton}
+							>
+								{!archive ? 'Archive lead' : 'Unarchive lead'}
+							</button>
+							<button
+								onClick={() => openLinkHandler(data.retailerLink, data.amzLink)}
+								className={classes.expandedViewMenuButtonSvg()}
+							>
+								<span>Open links</span>
+								<svg
+									xmlns='http://www.w3.org/2000/svg'
+									viewBox='0 0 20 20'
+									fill='currentColor'
+									className={classes.expandedViewMenuSvg}
 								>
-									{!like ? 'Like lead' : 'Unlike lead'}
-								</button>
-								<button
-									onClick={(e) => {
-										archiveHandler(e);
-									}}
-									className={classes.expandedViewMenuButton}
+									{svgList.link}
+								</svg>
+							</button>
+							<button
+								onClick={(e) => {
+									e.stopPropagation();
+									viewDetailsHandler();
+									setRowHover(false);
+								}}
+								className={classes.expandedViewMenuButtonSvg()}
+							>
+								<span>View details</span>
+								<svg
+									xmlns='http://www.w3.org/2000/svg'
+									viewBox='0 0 20 20'
+									fill='currentColor'
+									className={classes.expandedViewMenuSvg}
 								>
-									{!archive ? 'Archive lead' : 'Unarchive lead'}
-								</button>
-							</div>
-							<div className={classes.expandedViewMenuBottom}>
-								<button
-									onClick={() =>
-										openLinkHandler(data.retailerLink, data.amzLink)
-									}
-									className={classes.expandedViewMenuButtonSvg()}
-								>
-									<span>Open links</span>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										viewBox='0 0 20 20'
-										fill='currentColor'
-										className={classes.expandedViewMenuSvg}
-									>
-										{svgList.link}
-									</svg>
-								</button>
-								<button
-									onClick={(e) => {
-										e.stopPropagation();
-										viewDetailsHandler();
-									}}
-									className={classes.expandedViewMenuButtonSvg()}
-								>
-									<span>View details</span>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										viewBox='0 0 20 20'
-										fill='currentColor'
-										className={classes.expandedViewMenuSvg}
-									>
-										{svgList.eye}
-									</svg>
-								</button>
-							</div>
-						</div>
+									{svgList.eye}
+								</svg>
+							</button>
+						</animated.div>
 					)}
 				</div>
 			</td>
