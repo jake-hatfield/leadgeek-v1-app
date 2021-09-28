@@ -11,8 +11,6 @@ import {
 	setSearchValue,
 } from '@components/features/leads/leadsSlice';
 
-import SearchBar from '@components/layout/navigation/SearchBar';
-
 interface HeaderProps {
 	userId: string;
 	title: string | null;
@@ -73,19 +71,8 @@ const Header: React.FC<HeaderProps> = ({ title, searchActive }) => {
 	}
 
 	return (
-		<header className='pt-4'>
-			<div className='flex items-end justify-between container'>
-				<div className='flex items-center'>
-					<h1 className='text-3xl text-300 font-bold'>{title || 'Leads'}</h1>
-				</div>
-				{searchActive && (
-					<SearchBar
-						placeholder={'Search'}
-						onSearchChange={onSearchChange}
-						handleSearchSubmit={handleSearchSubmit}
-					/>
-				)}
-			</div>
+		<header>
+			<h1 className='text-3xl text-300 font-bold'>{title || 'Leads'}</h1>
 		</header>
 	);
 };

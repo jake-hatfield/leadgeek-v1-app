@@ -105,7 +105,11 @@ body {
 }
 
 .cs-pink {
-	@apply bg-pink-600 hover:bg-pink-700 dark:bg-pink-100 dark:hover:bg-pink-300 text-white dark:text-pink-900;
+	@apply bg-pink-600 dark:bg-pink-100 text-white dark:text-pink-900;
+}
+
+.cs-pink-hover {
+	@apply hover:bg-pink-700 dark:hover:bg-pink-300;
 }
 
 .cs-teal {

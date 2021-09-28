@@ -179,8 +179,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 					return dispatch(
 						setAlert({
 							title: 'Error creating filter',
-							message:
-								"The maximum filter can't be smaller than the current minimum filter",
+							message: 'The max value must be larger than the min value',
 							alertType: 'danger',
 						})
 					);

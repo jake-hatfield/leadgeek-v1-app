@@ -1,6 +1,10 @@
 import React from 'react';
 
+// packages
 import { Preloader, Oval } from 'react-preloader-icon';
+
+// utils
+import { useDarkMode } from '@hooks/hooks';
 
 interface SpinnerProps {
 	divWidth: string | null;
@@ -17,6 +21,8 @@ const Spinner: React.FC<SpinnerProps> = ({
 	margin,
 	text,
 }) => {
+	const [colorTheme] = useDarkMode();
+
 	return (
 		<div
 			className={`${divWidth ? divWidth : ''} ${
@@ -29,11 +35,11 @@ const Spinner: React.FC<SpinnerProps> = ({
 				use={Oval}
 				size={spinnerWidth === 'sm' ? 20 : spinnerWidth === 'md' ? 35 : 45}
 				strokeWidth={6}
-				strokeColor='#5d55fa'
+				strokeColor={colorTheme === 'dark' ? '#5d55fa' : '#A2A5FC'}
 				duration={500}
 			/>
 			{text && (
-				<div className='mt-8 font-semibold text-gray-600 dark:text-white'>
+				<div className='mt-8 font-semibold text-100'>
 					{text || 'Loading results...'}
 				</div>
 			)}

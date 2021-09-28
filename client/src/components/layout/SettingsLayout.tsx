@@ -32,20 +32,13 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 	}, [isAuthenticated, user.name]);
 
 	return (
-		<div className='flex flex-row'>
+		<div className='flex flex-row container mt-12'>
 			<SettingsNavbar />
-			<section className='mb-6 w-full'>
-				<header className='py-4 shadow-md cs-light-400'>
-					<h1 className='ml-72 text-3xl font-bold text-gray-900'>
-						{title || 'Settings'}
-					</h1>
-				</header>
-				<div className='ml-72 max-w-screen-2xl bg-white'>
-					<div className='md:flex md:items-center mt-6 pb-2 mr-16 border-b border-200'>
-						<div className='p-3 h-10 w-10 all-center rounded-full cs-bg shadow-sm focus:outline-none focus:shadow-outline'>
-							<span className='text-gray-600 text-lg font-bold'>
-								{initials}
-							</span>
+			<section className='w-5/6 ml-12 text-300'>
+				<div className='w-full cs-light-300 card-padding card-200'>
+					<div className='md:flex md:items-center pb-4 border-b border-200'>
+						<div className='p-3 h-10 w-10 all-center rounded-full cs-purple shadow-sm focus:outline-none focus:shadow-outline'>
+							<span className='text-lg font-bold'>{initials}</span>
 						</div>
 						<div className='ml-6'>
 							<div className='md:flex md:items-center text-lg font-semibold'>
@@ -54,15 +47,15 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 									<span
 										className={`ml-2 py-1 px-2 ${
 											pill.active
-												? 'bg-teal-200 text-teal-600 border border-teal-400'
-												: 'bg-gray-100 text-gray-800 border border-gray-300'
-										} rounded-lg text-xs`}
+												? 'cs-teal'
+												: 'bg-gray-100 dark:bg-gray-900 text-200'
+										} rounded-main text-xs`}
 									>
 										{pill.text}
 									</span>
 								)}
 							</div>
-							<p className='text-gray-800'>{description}</p>
+							<p className='text-100'>{description}</p>
 						</div>
 					</div>
 					<div>{children}</div>

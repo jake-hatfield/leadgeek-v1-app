@@ -26,13 +26,9 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
 		<Fragment>
 			<Alert />
 			{status === 'idle' && isAuthenticated && user ? (
-				<div
-					className={`min-h-screen relative flex ${
-						colorTheme === 'dark' ? 'cs-bg' : 'cs-light-500'
-					}`}
-				>
+				<div className='min-h-screen w-full relative cs-bg'>
 					<Navbar />
-					<main className='h-full w-full content'>{children}</main>
+					<main className='h-full w-full'>{children}</main>
 				</div>
 			) : (
 				<Spinner

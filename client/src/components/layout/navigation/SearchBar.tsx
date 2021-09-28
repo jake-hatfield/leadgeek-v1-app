@@ -1,16 +1,72 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+// packages
+import { Redirect, useLocation } from 'react-router-dom';
+
+// redux
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
+import { removeAlert, setAlert } from '@features/alert/alertSlice';
+import {
+	setLeadLoading,
+	setSearchValue,
+} from '@components/features/leads/leadsSlice';
 
 interface SearchBarProps {
 	placeholder: string | null;
-	onSearchChange: any;
-	handleSearchSubmit: any;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({
-	placeholder,
-	onSearchChange,
-	handleSearchSubmit,
-}) => {
+const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
+	const dispatch = useAppDispatch();
+	const location = useLocation();
+
+	// leads state
+	const currentSearchValue = useAppSelector(
+		(state) => state.leads.search.searchValue
+	);
+
+	// local state
+	const [redirectToSearch, setRedirectToSearch] = useState(false);
+	const [query, setQuery] = useState('');
+
+	// search helpers
+	const onSearchChange = (e: any) => {
+		setQuery(e.target.value);
+	};
+
+	// handle search submit
+	const handleSearchSubmit = async (e: any) => {
+		e.preventDefault();
+		if (query) {
+			if (location.pathname !== '/search') {
+				setRedirectToSearch(true);
+			}
+
+			if (query === currentSearchValue) {
+				return dispatch(
+					setAlert({
+						title: 'Already showing results',
+						message: 'Results for this query are already showing.',
+						alertType: 'danger',
+					})
+				);
+			}
+			dispatch(removeAlert());
+			dispatch(setLeadLoading());
+			return dispatch(setSearchValue(query));
+		} else {
+			dispatch(
+				setAlert({
+					title: 'No value was entered',
+					message: 'Please enter a search value and try again.',
+					alertType: 'danger',
+				})
+			);
+		}
+	};
+
+	if (redirectToSearch) {
+		return <Redirect to={{ pathname: '/search' }} />;
+	}
 	return (
 		<div className='flex items-center justify-end'>
 			<div className='w-72 relative z-0'>
@@ -23,7 +79,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 						type='text'
 						name='q'
 						placeholder={placeholder || 'Enter a search...'}
-						onChange={onSearchChange}
+						onChange={(e) => onSearchChange(e)}
 						className='py-2 pl-10 w-full rounded-main border border-300 input text-sm placeholder-gray-700 text-300 transition-main ring-purple'
 					/>
 					<svg

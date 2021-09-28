@@ -73,7 +73,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 			: page * (itemLimit || 15);
 
 	return status === 'idle' ? (
-		<article className={`mt-8 ${!padding && 'container'} `}>
+		<article className='mt-8'>
 			<div className='center-between py-2 px-4 cs-light-400 rounded-main shadow-md text-100 border border-300'>
 				{totalItems && totalItems > 0 ? (
 					<div className='relative flex items-center text-sm' ref={ref}>

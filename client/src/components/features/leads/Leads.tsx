@@ -172,150 +172,150 @@ const Leads: React.FC<LeadsProps> = ({
 	return authStatus === 'idle' && user ? (
 		<Fragment>
 			<section className={classes.leadsWrapper}>
-				<div className='cs-light-400'>
-					<Header userId={user._id} title={headerTitle} searchActive={true} />
-					<nav className={classes.navWrapper}>
-						<div className={classes.nav}>
-							<div>
-								{primaryLinks.map((link, i) => (
-									<NavLink
-										key={i}
-										exact
-										to={`/leads${link.link}`}
-										onClick={() => {
-											dispatch(setLeadLoading());
-											dispatch(clearCurrentLead());
-										}}
-										className={classes.navLink}
-										activeClassName={classes.navLinkActive}
-									>
-										<span>{link.title}</span>
-										{link.count && (
-											<span className={classes.navLinkCounter}>
-												{link.count}
-											</span>
-										)}
-									</NavLink>
-								))}
-							</div>
-							<div className={classes.navToolsWrapper}>
+				<nav className={classes.navWrapper}>
+					{/* <header>
+						<h1 className='text-2xl text-300 font-bold'>Leads</h1>
+					</header> */}
+					<div className={classes.nav}>
+						<div>
+							{primaryLinks.map((link, i) => (
+								<NavLink
+									key={i}
+									exact
+									to={`/leads${link.link}`}
+									onClick={() => {
+										dispatch(setLeadLoading());
+										dispatch(clearCurrentLead());
+									}}
+									className={classes.navLink}
+									activeClassName={classes.navLinkActive}
+								>
+									<span>{link.title}</span>
+									{link.count && (
+										<span className={classes.navLinkCounter}>{link.count}</span>
+									)}
+								</NavLink>
+							))}
+						</div>
+						<div className={classes.navToolsWrapper}>
+							<Button
+								text={
+									dateSelected
+										? dateSelected!
+										: `${
+												DateTime.fromISO(user?.dateCreated).toFormat(
+													'LLL dd, yyyy'
+												) || 'Jan 1, 2021'
+										  } - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
+										  'All leads'
+								}
+								onClick={() => setDate((prev) => !prev)}
+								width={null}
+								margin={false}
+								size={null}
+								cta={false}
+								path={svgList.calendar}
+								conditional={null}
+								conditionalDisplay={null}
+							/>
+							{tools.map((tool, i) => (
 								<Button
-									text={
-										dateSelected
-											? dateSelected!
-											: `${
-													DateTime.fromISO(user?.dateCreated).toFormat(
-														'LLL dd, yyyy'
-													) || 'Jan 1, 2021'
-											  } - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
-											  'All leads'
-									}
-									onClick={() => setDate((prev) => !prev)}
+									key={i}
+									text={tool.text}
+									onClick={tool.onClick}
 									width={null}
-									margin={false}
+									margin={true}
 									size={null}
 									cta={false}
-									path={svgList.calendar}
+									path={tool.path}
+									conditional={tool.conditional}
+									conditionalDisplay={tool.conditionalDisplay}
+								/>
+							))}
+							{/* handle active or inactive states for tools */}
+							{!exportLeads && (
+								<Button
+									text='Export'
+									onClick={handleExport}
+									width={null}
+									margin={true}
+									size={null}
+									cta={false}
+									path={svgList.export}
 									conditional={null}
 									conditionalDisplay={null}
 								/>
-								{tools.map((tool, i) => (
-									<Button
-										key={i}
-										text={tool.text}
-										onClick={tool.onClick}
-										width={null}
-										margin={true}
-										size={null}
-										cta={false}
-										path={tool.path}
-										conditional={tool.conditional}
-										conditionalDisplay={tool.conditionalDisplay}
+							)}
+							{date && (
+								<DatePicker
+									type={type}
+									date={date}
+									setDate={setDate}
+									dateCreated={user.dateCreated}
+									lastUpdated={lastUpdated}
+								/>
+							)}
+							{filter && (
+								<Filter filterActive={filter} setFilterActive={setFilter} />
+							)}
+							{exportLeads &&
+								(allLeads.length > 0 ? (
+									<ExportButton
+										user={user}
+										leads={allLeads}
+										setExportLeads={setExportLeads}
+									/>
+								) : (
+									<Spinner
+										divWidth={'w-28'}
+										center={false}
+										spinnerWidth={'sm'}
+										margin={false}
+										text={null}
 									/>
 								))}
-								{/* handle active or inactive states for tools */}
-								{!exportLeads && (
-									<Button
-										text='Export'
-										onClick={handleExport}
-										width={null}
-										margin={true}
-										size={null}
-										cta={false}
-										path={svgList.export}
-										conditional={null}
-										conditionalDisplay={null}
-									/>
-								)}
-								{date && (
-									<DatePicker
-										type={type}
-										date={date}
-										setDate={setDate}
-										dateCreated={user.dateCreated}
-										lastUpdated={lastUpdated}
-									/>
-								)}
-								{filter && (
-									<Filter filterActive={filter} setFilterActive={setFilter} />
-								)}
-								{exportLeads &&
-									(allLeads.length > 0 ? (
-										<ExportButton
-											user={user}
-											leads={allLeads}
-											setExportLeads={setExportLeads}
-										/>
-									) : (
-										<Spinner
-											divWidth={'w-28'}
-											center={false}
-											spinnerWidth={'sm'}
-											margin={false}
-											text={null}
-										/>
-									))}
-							</div>
 						</div>
-					</nav>
-				</div>
-				{leadStatus === 'failed' ? (
-					<div className='mt-6 container'>
-						There was an error making that request. If this issue persists,
-						please{' '}
-						<a
-							href='mailto:support@leadgeek.io'
-							target='_blank'
-							rel='noopener noreferrer'
-							className='link text-purple-500 hover:text-purple-600 rounded-lg transition-main ring-gray'
-						>
-							contact Leadgeek support
-						</a>
-						.
 					</div>
-				) : (
-					<LeadTable
-						leads={leads}
-						user={user}
-						liked={likedLeads}
-						archived={archivedLeads}
-						status={leadStatus}
-						showDetails={showDetails}
-						setShowDetails={setShowDetails}
-						type={type}
-						currentSearchValue={currentSearchValue}
-					/>
-				)}
-				{leads.length > 0 && pagination && (
-					<PaginationComponent
-						status={leadStatus}
-						pagination={pagination}
-						type={type}
-						itemLimit={itemLimit}
-						padding={false}
-						setPage={setPage}
-					/>
-				)}
+				</nav>
+				<div className='container'>
+					{leadStatus === 'failed' ? (
+						<div className='mt-6 container'>
+							There was an error making that request. If this issue persists,
+							please{' '}
+							<a
+								href='mailto:support@leadgeek.io'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='link text-purple-500 hover:text-purple-600 rounded-lg transition-main ring-gray'
+							>
+								contact Leadgeek support
+							</a>
+							.
+						</div>
+					) : (
+						<LeadTable
+							leads={leads}
+							user={user}
+							liked={likedLeads}
+							archived={archivedLeads}
+							status={leadStatus}
+							showDetails={showDetails}
+							setShowDetails={setShowDetails}
+							type={type}
+							currentSearchValue={currentSearchValue}
+						/>
+					)}
+					{leads.length > 0 && pagination && (
+						<PaginationComponent
+							status={leadStatus}
+							pagination={pagination}
+							type={type}
+							itemLimit={itemLimit}
+							padding={false}
+							setPage={setPage}
+						/>
+					)}
+				</div>
 			</section>
 			{currentLead && (
 				<Details
@@ -388,7 +388,7 @@ const svgList = {
 const classes = {
 	leadsWrapper: 'relative pb-6',
 	navWrapper:
-		'pt-4 pb-2 border-b border-gray-300 dark:border-darkGray-300 shadow-md',
+		'pt-3 pb-2 px-4 lg:px-8 cs-light-400 border-b border-300 shadow-sm',
 	nav: 'relative flex items-end justify-between container',
 	navLink:
 		'relative first:ml-0 ml-8 pb-2 font-semibold text-gray-700 dark:text-gray-400 hover:text-purple-500 dark:hover:text-purple-300 hover:border-b-2 hover:border-purple-500 dark:border-purple-200 group transition-colors-main',

@@ -188,7 +188,7 @@ const AffiliatesPage = () => {
 			value: (
 				<button
 					onClick={() => setModal((prev) => !prev)}
-					className='font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'
+					className='link rounded-main ring-gray transition-main'
 				>
 					Generate affiliate link
 				</button>

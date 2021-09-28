@@ -76,7 +76,7 @@ const Alert: React.FC = () => {
 		<animated.div
 			key={id}
 			style={animationStyle}
-			className={`fixed bottom-0 left-1/2 z-40 w-full max-w-2xl py-4 px-6 rounded-lg shadow-lg bg-gray-900 dark:bg-darkGray-200 border border-gray-700 dark:border-darkGray-100`}
+			className={`fixed bottom-0 left-1/2 z-40 w-full max-w-2xl py-4 px-6 rounded-main shadow-lg bg-gray-900 dark:bg-darkGray-200 border border-gray-700 dark:border-darkGray-100`}
 		>
 			<div className='w-full flex items-center justify-between'>
 				<div className='flex item-center'>

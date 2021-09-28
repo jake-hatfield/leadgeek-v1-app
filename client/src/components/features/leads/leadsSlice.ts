@@ -50,12 +50,15 @@ export const addComment = createAsyncThunk(
 
 export const getAllLeads = createAsyncThunk(
 	'leads/getAllLeads',
-	async (options: {
-		userId: string;
-		filters: FilterState;
-		type: LeadTypes;
-		query: string | null;
-	}) => {
+	async (
+		options: {
+			userId: string;
+			filters: FilterState;
+			type: LeadTypes;
+			query: string | null;
+		},
+		{ dispatch }
+	) => {
 		// destructure necessary items
 		const { userId, filters, type, query } = options;
 
@@ -72,6 +75,16 @@ export const getAllLeads = createAsyncThunk(
 			data,
 		}: { data: { totalByIds: Lead[]; type: LeadTypes; message: string } } =
 			await axios.post('/api/leads/all', body, config);
+
+		if (data.totalByIds.length > 0) {
+			dispatch(
+				setAlert({
+					title: 'Data ready for export',
+					message: 'Please click "confirm" to save as a .csv file',
+					alertType: 'success',
+				})
+			);
+		}
 
 		return { totalByIds: data.totalByIds, type: data.type };
 	}

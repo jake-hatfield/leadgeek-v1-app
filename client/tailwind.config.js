@@ -47,7 +47,7 @@ module.exports = {
 					500: '#171E26',
 				},
 				pink: {
-					100: '#FAA2FA',
+					100: '#FBB4FB',
 					200: '#F993F9',
 					300: '#F774F7',
 					400: '#F555F5',
@@ -60,7 +60,7 @@ module.exports = {
 			},
 			width: {
 				72: '18rem',
-				112: '30rem',
+				112: '32rem',
 			},
 			borderWidth: {
 				DEFAULT: '1px',

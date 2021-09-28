@@ -696,9 +696,8 @@ const Details: React.FC<DetailsProps> = ({
 												width: '200%',
 												height: '200%',
 											},
-											className: 'bg-white',
-											enlargedImageContainerClassName:
-												'bg-white rounded-lg shadow-xl border border-gray-200',
+											className: 'bg-white bg-contain',
+											enlargedImageContainerClassName: 'bg-white card-400',
 										}}
 									/>
 								</div>
@@ -784,7 +783,7 @@ const Details: React.FC<DetailsProps> = ({
 											!showComment && setShowComment((prev) => !prev)
 										}
 										value={comment}
-										className='w-full cs-light-200 rounded-main border border-300 text-sm ring-purple resize-none'
+										className='w-full input rounded-main border border-300 text-sm placeholder-gray-700 ring-purple resize-none'
 										style={commentAnimationStyle}
 									/>
 									{showComment && (
@@ -862,7 +861,7 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 				disabled
 					? 'pointer-events-none bg-gray-200 dark:bg-gray-900 opacity-50'
 					: ''
-			} hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-400 ring-gray transition-main`}
+			} text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 ring-gray transition-main`}
 		>
 			{state || !inactivePath ? (
 				<div className='flex items-center justify-center'>

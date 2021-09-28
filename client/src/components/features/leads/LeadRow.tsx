@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import { animated, useSpring } from 'react-spring';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@hooks/hooks';
+import { useAppDispatch, useAppSelector, useDarkMode } from '@hooks/hooks';
 import {
 	handleArchiveLead,
 	handleLikeLead,
@@ -28,7 +28,6 @@ interface LeadRowProps {
 	user: User;
 	liked: Lead[];
 	archived: Lead[];
-	showDetails: boolean;
 	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -37,7 +36,6 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	user,
 	liked,
 	archived,
-	showDetails,
 	setShowDetails,
 }) => {
 	const dispatch = useAppDispatch();
@@ -50,7 +48,6 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	const [eyeDesc, setEyeDesc] = useState(false);
 	const [linkDesc, setLinkDesc] = useState(false);
 	const [rowHover, setRowHover] = useState(false);
-	const [titleHover, setTitleHover] = useState(false);
 	const [quickView, setQuickView] = useState(false);
 	const [viewCompetition, setViewCompetition] = useState(false);
 	const [viewImage, setViewImage] = useState(false);
@@ -133,14 +130,14 @@ const LeadRow: React.FC<LeadRowProps> = ({
 
 	// classes for component
 	const classes = {
-		bsrCellWrapper: 'hidden xl:table-cell p-2 w-24',
+		bsrCellWrapper: 'p-4 lg:p-3 xl:p-2 w-24',
 		categoryCellWrapper: 'p-2 w-56 truncate',
 		competitorCount: 'font-semibold',
 		competitionRow: 'center-between',
 		competitorType: 'font-semibold text-purple-300',
 		competitionWrapper:
 			'w-36 absolute bottom-0 z-10 p-2 rounded-md shadow-md bg-gray-900 dark:bg-darkGray-100 text-white text-sm transform -translate-y-12 translate-x-8',
-		dateCellWrapper: 'p-2 w-24',
+		dateCellWrapper: 'p-2 w-24 whitespace-nowrap',
 		defaultCellWrapper: 'p-2',
 		defaultSvg: 'svg-base',
 		detailsCellButton:
@@ -149,7 +146,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		detailsCellImage: 'max-h-56 max-w-xs',
 		detailsCellImageWrapper:
 			'absolute z-10 p-2 bg-white shadow-xl rounded-main border border-300 transform lg:-translate-y-1/2 translate-x-16',
-		detailsCellWrapper: 'relative w-20 p-2',
+		detailsCellWrapper: 'hidden xl:table-cell relative w-20 p-2',
 		expandedViewMenuBottom: 'py-2',
 		expandedViewMenuButton:
 			'py-2 px-3 w-full text-left font-semibold text-purple-500 dark:text-purple-300 hover:bg-gray-100 dark:hover:bg-darkGray-100 hover:text-gray-800 transition-colors-main ring-gray ring-inset',
@@ -158,17 +155,19 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		},
 		expandedViewMenuSvg: 'ml-2 svg-sm',
 		expandedViewWrapper:
-			'absolute right-0 z-20 w-48 py-2 cs-light-400 card-200 transform translate-y-6 -translate-x-2',
+			'absolute right-0 z-20 w-48 mr-3 mt-1 py-2 cs-light-400 card-200',
 		eyeIconWrapper:
 			'relative p-2 rounded-l-lg border-r border-200 ring-gray ring-inset',
 		likeCellActive: 'svg-base hover:text-purple-400 transition-colors-main',
 		likeCellButton: 'p-1 rounded-md ring-purple align-middle',
 		likeCellNull: 'p-2 px-4 svg-base',
-		likeCellWrapper: 'p-2 w-10 text-center text-gray-400',
+		likeCellWrapper: 'pl-6 pr-2 w-9 text-center text-gray-400',
 		linkIconWrapper: 'relative p-2 border-r border-200 ring-gray ring-inset',
 		monthlySalesCellWrapper: 'p-2 w-24',
 		profitCellWrapper: 'w-36 p-2 uppercase',
-		quickViewCellWrapper: quickView ? 'p-4' : 'p-2',
+		quickViewCellWrapper: quickView
+			? 'py-4 pl-4 pr-12'
+			: 'py-2 pl-2 pr-10 w-12',
 		quickViewExpandedWrapper:
 			'absolute transform -translate-x-14 rounded-l-lg border-l border-t border-b border-300 cs-light-400 text-100',
 		quickViewMenu: quickView
@@ -178,7 +177,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 			'w-24 mt-2 p-2 absolute top-0 left-1/2 z-20 bg-gray-900 rounded-main shadow-md text-white text-sm transform -translate-y-12 -translate-x-1/2',
 		quickViewNull: 'p-2 svg-base',
 		quickViewWrapper:
-			'all-center pl-16 rounded-r-lg text-100 hover:text-gray-700 dark:hover-text-gray-200',
+			'all-center rounded-r-lg text-100 hover:text-gray-700 dark:hover-text-gray-200',
 		roiCellWrapper: 'p-2 w-24',
 		rowWrapper:
 			'relative px-1 border-b last:border-none border-100 dark:border-darkGray-200 hover:bg-gray-100 dark:hover:bg-darkGray-300 cursor-pointer',
@@ -188,6 +187,8 @@ const LeadRow: React.FC<LeadRowProps> = ({
 			'absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-12 rounded-md shadow-md bg-gray-900 text-white text-sm',
 		valueIndicator: 'ml-1 text-100',
 	};
+
+	const [colorTheme] = useDarkMode();
 
 	return (
 		<tr
@@ -211,9 +212,17 @@ const LeadRow: React.FC<LeadRowProps> = ({
 					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
-							fill={`${like ? '#7069FA' : 'none'}`}
+							fill={`${
+								like ? (colorTheme === 'dark' ? '#7069FA' : '#A2A5FC') : 'none'
+							}`}
 							viewBox='0 0 24 24'
-							stroke={`${like ? '#7069FA' : 'currentColor'}`}
+							stroke={`${
+								like
+									? colorTheme === 'dark'
+										? '#7069FA'
+										: '#A2A5FC'
+									: 'currentColor'
+							}`}
 							className={classes.likeCellActive}
 						>
 							{svgList.heart}
@@ -224,11 +233,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 				)}
 			</td>
 			{/* title */}
-			<td
-				onMouseEnter={() => setTitleHover(true)}
-				onMouseLeave={() => setTitleHover(false)}
-				className={classes.titleCellWrapper}
-			>
+			<td className={classes.titleCellWrapper}>
 				<div>{truncate(data.title, 60)}</div>
 			</td>
 			{/* category */}
@@ -427,7 +432,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 								transform: expandedViewAnimationStyle.x
 									.to({
 										range: [0, 0.35, 0.75, 1],
-										output: [1, 0.9, 1.03, 1],
+										output: [1, 0.95, 1.03, 1],
 									})
 									.to((x) => `scale(${x})`),
 								translateY: '1.5rem',
@@ -486,15 +491,6 @@ const LeadRow: React.FC<LeadRowProps> = ({
 					)}
 				</div>
 			</td>
-			{/* title hover */}
-			{titleHover && (
-				<td
-					onMouseEnter={(prev) => setRowHover(!prev)}
-					className={classes.titleHover}
-				>
-					{data.title}
-				</td>
-			)}
 		</tr>
 	);
 };

@@ -34,11 +34,9 @@ const Dashboard = () => {
 								text={null}
 							/>
 						) : (
-							<div className='w-full max-w-3xl'>
+							<div className='w-full max-w-3xl card-padding'>
 								<article>
-									<h3 className='font-bold text-lg text-gray-800'>
-										Reset Password
-									</h3>
+									<h3 className='font-bold text-lg text-300'>Reset Password</h3>
 									<div className='max-w-md'>
 										<ResetPassword email={user && user.email} />
 									</div>

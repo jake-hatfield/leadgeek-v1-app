@@ -42,7 +42,6 @@ const LeadTable: React.FC<LeadTableProps> = ({
 }) => {
 	const [colorTheme] = useDarkMode();
 
-	console.log(colorTheme);
 	// filter state
 	const filters = useAppSelector((state) => state.filters);
 
@@ -57,7 +56,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	return (
 		<section className={classes.sectionWrapper}>
 			{status === 'failed' ? (
-				<div className='mt-6 container'>
+				<div className='mt-6 container cs-light-300'>
 					There was an error making that request. If this issue persists, please{' '}
 					<a
 						href='mailto:support@leadgeek.io'
@@ -85,7 +84,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 								<th className='p-2 rounded-tl-lg' />
 								<th className={classes.tableHeadCell}>Title</th>
 								<th className={classes.tableHeadCell}>Category</th>
-								<th className={classes.tableHeadCell}>Details</th>
+								<th className={'p-2 hidden xl:table-cell'}>Details</th>
 								<th className={classes.tableHeadCell}>Profit</th>
 								<th className={classes.tableHeadCell}>ROI</th>
 								<th className={classes.tableHeadCell}>BSR</th>
@@ -106,7 +105,6 @@ const LeadTable: React.FC<LeadTableProps> = ({
 											user={user}
 											liked={liked}
 											archived={archived}
-											showDetails={showDetails}
 											setShowDetails={setShowDetails}
 										/>
 								  ))}
@@ -201,13 +199,15 @@ const LeadRowLoader: React.FC<LeadRowLoaderProps> = ({
 	...props
 }) => {
 	const height = 25;
-	const bgColor = colorTheme === 'dark' ? '#1C2936' : '#F0F4F8';
-	const fgColor = colorTheme === 'dark' ? '#1E2C3C' : '#E6EBF0';
+	const bgColor = colorTheme === 'dark' ? '#F0F4F8' : '#1C2936';
+	const fgColor = colorTheme === 'dark' ? '#E6EBF0' : '#1E2C3C';
+
+	console.log(colorTheme);
 
 	return (
-		<tr className='w-full py-16 border-b last:border-none border-gray-100 dark:border-gray-900'>
+		<tr className='w-full py-16 border-b last:border-none border-100'>
 			{/* like */}
-			<td className='w-12 pt-6 pb-5 px-2' />
+			<td className='w-16 pt-6 pb-5' />
 			{/* title */}
 			<td className='w-32 md:w-64 xl:w-112 pl-2'>
 				<ContentLoader
@@ -249,7 +249,7 @@ const LeadRowLoader: React.FC<LeadRowLoaderProps> = ({
 				</ContentLoader>
 			</td>
 			{/* profit */}
-			<td className='w-36 px-2'>
+			<td className='w-40 px-2'>
 				<ContentLoader
 					speed={2}
 					height={35}
@@ -343,13 +343,14 @@ const svgList = {
 
 // classes for component
 const classes = {
-	sectionWrapper: 'relative mt-6 container',
-	tableWrapper: 'pb-1 cs-light-400 shadow-xl rounded-main border border-300',
-	table: 'w-full',
+	sectionWrapper: 'relative mt-12 overflow-x-auto xl:overflow-x-visible',
+	tableWrapper:
+		'pb-1 cs-light-400 card-300 overflow-x-auto xl:overflow-x-visible',
+	table: 'w-full ',
 	tableHeadWrapper: 'border-b border-100',
 	tableHead:
 		'text-left font-semibold text-xs cs-bg text-100 uppercase tracking-widest',
-	tableHeadCell: 'p-2',
+	tableHeadCell: 'p-4 lg:p-3 xl:p-2',
 	tableBody: 'mx-4 text-sm text-200',
 };
 
