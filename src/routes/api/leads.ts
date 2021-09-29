@@ -15,7 +15,6 @@ import User from '../../models/User';
 import { Filter } from '../../types/Filter';
 import { ILead } from 'types/Lead';
 import { Roles } from '../../types/User';
-import { IUser } from '../../types/User';
 
 // router
 const router = Router();

@@ -13,18 +13,18 @@ interface NavbarLinkProps {
 
 const NavbarLink: React.FC<NavbarLinkProps> = ({ link }) => {
 	return (
-		<div v-for='item in items'>
-			<NavLink
-				className='pt-3 pb-2 px-6 relative center-between group font-semibold text-200 rounded-main hover:bg-gray-200 dark:hover:bg-darkGray-100 transition-main ring-gray focus:ring-inset'
-				activeClassName='bg-gray-200 dark:bg-darkGray-100'
-				to={link.link}
-			>
-				<span>{link.title}</span>
-				{link.new && (
-					<span className='p-1 rounded-main cs-purple text-xs'>New</span>
-				)}
-			</NavLink>
-		</div>
+		<NavLink
+			className='mb-2 -ml-0.5 pl-4 relative flex items-center group font-semibold text-gray-800 dark:text-gray-200 hover:text-purple-500 dark:hover:text-purple-300 border-l-2 border-gray-200 dark:border-darkGray-100 hover:border-purple-500 dark:hover:border-purple-200 transition-main'
+			activeClassName='border-l-2 border-purple-500 dark:border-purple-300 text-purple-500 dark:text-purple-300'
+			to={link.link}
+		>
+			<span>{link.title}</span>
+			{link.new && (
+				<span className='ml-6 py-0.5 px-1 rounded-main cs-purple text-xs'>
+					New
+				</span>
+			)}
+		</NavLink>
 	);
 };
 
@@ -52,16 +52,15 @@ const SettingsNavbar = () => {
 	];
 
 	return (
-		<nav className='w-1/6 flex flex-col justify-between text-100'>
-			<aside>
-				<ol>
-					{primaryLinks.map((link, i) => (
-						<li key={i} className='first:mt-0'>
-							<NavbarLink link={link} />
-						</li>
-					))}
-				</ol>
-			</aside>
+		<nav className='w-1/6 flex flex-col text-100 text-sm'>
+			<h3 className='text-lg font-bold text-300'>Settings</h3>
+			<ol className='mt-4 pb-1 border-l-2 border-200'>
+				{primaryLinks.map((link, i) => (
+					<li key={i} className='first:mt-0'>
+						<NavbarLink link={link} />
+					</li>
+				))}
+			</ol>
 		</nav>
 	);
 };

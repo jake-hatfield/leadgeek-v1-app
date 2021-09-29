@@ -5,7 +5,12 @@ import { DateTime } from 'luxon';
 import { animated, useSpring } from 'react-spring';
 
 // redux
-import { useAppDispatch, useAppSelector, useDarkMode } from '@hooks/hooks';
+import {
+	useAppDispatch,
+	useAppSelector,
+	useContextMenu,
+	useDarkMode,
+} from '@hooks/hooks';
 import {
 	handleArchiveLead,
 	handleLikeLead,
@@ -121,6 +126,9 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	};
 
 	// animations
+	const imageAnimationStyle = useSpring({
+		opacity: viewImage ? 1 : 0,
+	});
 	const expandedViewAnimationStyle = useSpring({
 		x: expandedView ? 1 : 0,
 	});
@@ -281,13 +289,16 @@ const LeadRow: React.FC<LeadRowProps> = ({
 					</svg>
 				</button>
 				{viewImage && (
-					<div className={classes.detailsCellImageWrapper}>
+					<animated.div
+						className={classes.detailsCellImageWrapper}
+						style={imageAnimationStyle}
+					>
 						<img
 							src={data.img}
 							alt={data.title}
 							className={classes.detailsCellImage}
 						/>
-					</div>
+					</animated.div>
 				)}
 				{viewCompetition && (
 					<div className={classes.competitionWrapper}>

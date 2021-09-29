@@ -24,7 +24,7 @@ app.use(express.json());
 // define routes
 app.use('/api/auth', require('./routes/api/auth'));
 app.use('/api/leads', require('./routes/api/leads'));
-// app.use('/api/users', require('./routes/api/users'));
+app.use('/api/users', require('./routes/api/users'));
 
 function redirectWWWTraffic(req: Request, res: Response, next: NextFunction) {
 	if (req.headers.host.slice(0, 4) === 'www.') {

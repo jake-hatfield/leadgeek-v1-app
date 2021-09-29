@@ -332,11 +332,11 @@ const AffiliatesPage = () => {
 	];
 
 	return status === 'idle' && user ? (
-		<AuthLayout colorTheme={'light'}>
+		<AuthLayout>
 			<SettingsLayout
 				isAuthenticated={isAuthenticated}
 				user={user}
-				title={'Affiliate panel'}
+				title={'Affiliates'}
 				description={'Manage your Leadgeek affiliate account'}
 				pill={{
 					active: isAffiliate,

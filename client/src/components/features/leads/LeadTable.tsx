@@ -73,7 +73,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 					divWidth={null}
 					center={false}
 					spinnerWidth={null}
-					margin={false}
+					margin={true}
 					text={'Loading leads...'}
 				/>
 			) : leads.length > 0 ? (
@@ -198,11 +198,10 @@ const LeadRowLoader: React.FC<LeadRowLoaderProps> = ({
 	colorTheme,
 	...props
 }) => {
+	// global values
 	const height = 25;
 	const bgColor = colorTheme === 'dark' ? '#F0F4F8' : '#1C2936';
 	const fgColor = colorTheme === 'dark' ? '#E6EBF0' : '#1E2C3C';
-
-	console.log(colorTheme);
 
 	return (
 		<tr className='w-full py-16 border-b last:border-none border-100'>
@@ -343,10 +342,10 @@ const svgList = {
 
 // classes for component
 const classes = {
-	sectionWrapper: 'relative mt-12 overflow-x-auto xl:overflow-x-visible',
+	sectionWrapper: 'relative mt-12',
 	tableWrapper:
-		'pb-1 cs-light-400 card-300 overflow-x-auto xl:overflow-x-visible',
-	table: 'w-full ',
+		'pb-1 cs-light-400 card-300 overflow-x-auto overflow-y-visible xl:overflow-visible',
+	table: 'w-full',
 	tableHeadWrapper: 'border-b border-100',
 	tableHead:
 		'text-left font-semibold text-xs cs-bg text-100 uppercase tracking-widest',

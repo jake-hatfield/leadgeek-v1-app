@@ -27,7 +27,7 @@ const Archived = () => {
 	}, [status, isAuthenticated, user, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
-		<AuthLayout colorTheme={'dark'}>
+		<AuthLayout>
 			<Leads
 				leads={archived.pageByIds}
 				allLeads={archived.totalByIds}

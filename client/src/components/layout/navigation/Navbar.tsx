@@ -66,7 +66,7 @@ const Navbar = () => {
 				<div className='center-between py-1.5'>
 					<NavLink to={'/leads/'}>
 						<LeadGeekLogo
-							className={`h-8 ${
+							className={`h-6 ${
 								colorTheme === 'dark' ? 'text-purple-500' : 'text-purple-300'
 							}`}
 						/>
@@ -75,7 +75,7 @@ const Navbar = () => {
 					<div className='flex items-center'>
 						<aside className='relative text-gray-400'>
 							<button
-								className='relative p-2 rounded-lg group text-gray-300 hover:text-gray-400 transition-main ring-purple'
+								className='relative p-1 rounded-lg group text-gray-300 hover:text-gray-400 transition-main ring-gray'
 								onClick={() => {
 									setUserDropdown(false);
 									setNotificationDropdown(!notificationDropdown ? true : false);
@@ -83,20 +83,20 @@ const Navbar = () => {
 							>
 								<svg
 									xmlns='http://www.w3.org/2000/svg'
+									className='h-5 w-5'
 									viewBox='0 0 20 20'
 									fill='currentColor'
-									className='h-6 w-6'
 								>
 									<path d='M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z' />
 								</svg>
 								{notifications.length > 0 && (
-									<div className='absolute top-0 right-0 h-2 w-2 bg-pink-600 dark:bg-pink-100 rounded-full shadow-sm transform translate-y-1 -translate-x-1' />
+									<div className='absolute top-0 right-0 h-2 w-2 bg-pink-600 dark:bg-pink-100 rounded-full shadow-sm border border-white dark:border-darkGray-400 transform translate-y-0.5 -translate-x-1' />
 								)}
 							</button>
 							{notificationDropdown && (
 								<article
 									ref={notificationsModalRef}
-									className='absolute top-0 right-0 z-30 w-64 pt-4 pb-2 cs-light-400 card-200 text-300 break-words transform translate-y-14'
+									className='absolute top-0 right-0 z-30 w-64 pt-4 pb-2 cs-light-400 card-200 text-300 break-words transform translate-y-12'
 								>
 									<header className='center-between pb-2 px-4 border-b border-200'>
 										<h4 className='font-bold text-lg'>Notifications</h4>
@@ -159,7 +159,7 @@ const Navbar = () => {
 								<div className='relative'>
 									<article
 										ref={settingsModalRef}
-										className='absolute top-0 right-0 z-30 w-64 pt-4 pb-2 rounded-main cs-light-400 card-200 text-300 transform translate-y-5'
+										className='absolute top-0 right-0 z-30 w-64 pt-4 pb-2 rounded-main cs-light-400 card-200 text-300 transform translate-y-4'
 									>
 										<div className='relative'>
 											<header className='pb-2 px-4 flex items-center justify-between border-b border-200'>

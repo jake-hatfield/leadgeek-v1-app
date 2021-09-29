@@ -27,7 +27,7 @@ const LikedPage = () => {
 	}, [status, isAuthenticated, user, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
-		<AuthLayout colorTheme={'dark'}>
+		<AuthLayout>
 			<Leads
 				leads={liked.pageByIds}
 				allLeads={liked.totalByIds}

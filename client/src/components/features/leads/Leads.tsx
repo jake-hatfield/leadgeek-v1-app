@@ -311,7 +311,6 @@ const Leads: React.FC<LeadsProps> = ({
 							pagination={pagination}
 							type={type}
 							itemLimit={itemLimit}
-							padding={false}
 							setPage={setPage}
 						/>
 					)}
@@ -386,7 +385,7 @@ const svgList = {
 
 // classes for component
 const classes = {
-	leadsWrapper: 'relative pb-6',
+	leadsWrapper: 'relative pb-28',
 	navWrapper:
 		'pt-3 pb-2 px-4 lg:px-8 cs-light-400 border-b border-300 shadow-sm',
 	nav: 'relative flex items-end justify-between container',

@@ -46,7 +46,7 @@ const Search = () => {
 	}, [status, user?._id, searchValue, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
-		<AuthLayout colorTheme={'dark'}>
+		<AuthLayout>
 			<Leads
 				leads={search.pageByIds}
 				allLeads={search.totalByIds}

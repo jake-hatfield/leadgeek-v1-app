@@ -34,7 +34,7 @@ const Feed = () => {
 	}, [status, isAuthenticated, user?._id, user?.role, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
-		<AuthLayout colorTheme={'dark'}>
+		<AuthLayout>
 			<Leads
 				leads={feed.pageByIds}
 				allLeads={feed.totalByIds}

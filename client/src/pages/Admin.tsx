@@ -244,7 +244,7 @@ const Admin = () => {
 	}
 
 	return (
-		<AuthLayout colorTheme={'light'}>
+		<AuthLayout>
 			{status === 'idle' && user ? (
 				<section className='mb-6'>
 					<Header

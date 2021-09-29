@@ -6,7 +6,6 @@ import { DateTime } from 'luxon';
 
 // redux
 import { useAppSelector } from '@hooks/hooks';
-// import { cancelStripeSub } from '@redux/actions/auth';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
@@ -40,6 +39,10 @@ interface BillingState {
 	paymentHistory: {
 		status: 'loading' | 'idle';
 		payments: any;
+		pagination: {
+			page: number;
+			itemLimit: 10;
+		};
 	};
 }
 
@@ -65,20 +68,35 @@ const BillingPage = () => {
 		paymentHistory: {
 			status: 'loading',
 			payments: [],
+			pagination: {
+				page: 1,
+				itemLimit: 10,
+			},
 		},
 	});
-	const [validBilling] = useState(
-		isAuthenticated && user?.subscription.cusId ? true : false
-	);
+	const [validBilling, setValidBilling] = useState(false);
+
+	useEffect(() => {
+		if (!isAuthenticated) return setValidBilling(false);
+
+		if (authStatus === 'idle' && isAuthenticated && user?.subscription.cusId) {
+			return setValidBilling(true);
+		}
+	}, [authStatus, isAuthenticated, user?.subscription.cusId]);
 
 	const getSuccessfulPayments = async (cusId: string) => {
 		try {
+			// build request body
 			const body = JSON.stringify({ cusId });
+
+			// POST request to route
 			const { data } = await axios.post(
-				'/api/users/get-successful-payments/',
+				'/api/users/successful-payments/',
 				body,
 				config
 			);
+
+			// update state
 			setBillingState({
 				...billingState,
 				paymentHistory: {
@@ -92,41 +110,77 @@ const BillingPage = () => {
 		}
 	};
 
-	const getActivePlanDetails = async (subIds: string) => {
-		try {
-			const body = JSON.stringify({ subIds });
-			const {
-				data: { message, subscription },
-			} = await axios.post('/api/users/get-active-plan-details', body, config);
-			if (message === 'Subscription data found') {
-				console.log(subscription);
-			} else {
-				setBillingState({
-					...billingState,
-					plan: {
-						...billingState.plan,
-						status: 'idle',
-					},
-				});
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	};
-
 	useEffect(() => {
-		isAuthenticated &&
+		billingState.paymentHistory.status !== 'idle' &&
 			validBilling &&
 			user?.subscription.cusId &&
 			getSuccessfulPayments(user.subscription.cusId);
-	}, [isAuthenticated, user?.subscription.cusId, validBilling]);
+	}, [validBilling, user?.subscription.cusId]);
 
-	// useEffect(() => {
-	// 	isAuthenticated &&
-	// 		validBilling &&
-	// 		user?.subscription.subIds &&
-	// 		// getActivePlanDetails(user.subscription.subIds);
-	// }, [isAuthenticated, validBilling, user?.subscription.subIds]);
+	// get active plan details
+	useEffect(() => {
+		const getActivePlanDetails = async (subId: string) => {
+			try {
+				// build request body
+				const body = JSON.stringify({ subId });
+
+				// POST request to route
+				const {
+					data: { message, subscription },
+				} = await axios.post('/api/users/active-plan-details', body, config);
+				if (message === 'Subscription data found') {
+					console.log(subscription);
+					setBillingState({
+						...billingState,
+						plan: {
+							...billingState.plan,
+							status: 'idle',
+							id: subscription.id,
+							created: subscription.created,
+							cancelAt: subscription.cancelAt,
+							cancelAtPeriod: subscription.cancelAtPeriod,
+							currentPeriodEnd: subscription.currentPeriodEnd,
+							plan: {
+								...billingState.plan.plan,
+								id: subscription.plan.id,
+								amount: subscription.plan.amount,
+							},
+						},
+					});
+				} else {
+					// // update state loading status
+					// setBillingState({
+					// 	...billingState,
+					// 	plan: {
+					// 		...billingState.plan,
+					// 		status: 'idle',
+					// 	},
+					// });
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		};
+
+		// get the user's active subscription
+		const activeSub = user?.subscription.subIds.filter(
+			(sub) => sub.active === true
+		)[0];
+
+		isAuthenticated &&
+			authStatus === 'idle' &&
+			billingState.plan.status !== 'idle' &&
+			validBilling &&
+			activeSub?.id &&
+			getActivePlanDetails(activeSub.id);
+	}, [
+		isAuthenticated,
+		authStatus,
+		billingState.plan.status,
+		validBilling,
+		user?.subscription.subIds,
+		billingState,
+	]);
 
 	const paymentMethodBrand =
 		isAuthenticated &&
@@ -137,80 +191,88 @@ const BillingPage = () => {
 	return (
 		authStatus === 'idle' &&
 		user && (
-			<AuthLayout colorTheme={'light'}>
+			<AuthLayout>
 				<SettingsLayout
 					isAuthenticated={isAuthenticated}
 					user={user}
-					title={'Billing & plans'}
-					description={'Manage your Leadgeek plan'}
+					title={'Billing'}
+					description={'Manage your billing settings'}
 					pill={null}
 				>
 					<section className='my-6'>
 						{validBilling ? (
-							<div className='w-full pr-16 text-gray-800'>
-								<section>
-									<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
-										<h2 className='font-bold text-lg text-gray-800'>
-											Subscription information
-										</h2>
-									</header>
+							<>
+								{/* subscription information */}
+								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-300 card-200'>
+									<div className='pb-4 border-b border-200'>
+										<header className='px-4 md:px-6 lg:px-8'>
+											<h2 className='font-bold text-lg text-300'>
+												Subscription information
+											</h2>
+										</header>
+									</div>
 									{billingState.plan.status === 'loading' ? (
 										<Spinner
 											divWidth={null}
 											center={false}
 											spinnerWidth={null}
 											margin={true}
-											text={'Loading your subscription info...'}
+											text={'Loading subscription information...'}
 										/>
 									) : billingState.plan.id ? (
-										// <div className='mt-6 grid grid-flow-col grid-rows-3 grid-cols-2 gap-y-2 gap-x-8'>
-										// 	<div className='flex items-center justify-between'>
-										// 		<div>Member since</div>
-										// 		<div>
-										// 			{isAuthenticated &&
-										// 				DateTime.fromISO(user.dateCreated).toFormat(
-										// 					'LLL dd, yyyy'
-										// 				)}
-										// 		</div>
-										// 	</div>
-										// 	<div className='flex items-center justify-between'>
-										// 		<div>Current subscription active since</div>
-										// 		<div>
-										// 			{isAuthenticated &&
-										// 				formatTimestamp(billingState.plan.created, true)}
-										// 		</div>
-										// 	</div>
-										// 	<div className='flex items-center justify-between'>
-										// 		<div>Current subscription</div>
-										// 		<div className='font-bold'>
-										// 			{planCheckerByPrice(billingState.plan.plan.amount)}{' '}
-										// 			plan
-										// 		</div>
-										// 	</div>
-										// 	<div className='flex items-center justify-between'>
-										// 		<div>
-										// 			Est. charge for{' '}
-										// 			<span className='font-bold'>
-										// 				{isAuthenticated &&
-										// 					!plan.cancelAtPeriodEnd &&
-										// 					formatTimestamp(plan.currentPeriodEnd)}
-										// 			</span>
-										// 		</div>
-										// 		<div className='font-bold'>
-										// 			${plan.plan.amount / 100}
-										// 		</div>
-										// 	</div>
-										{
-											/* <div className='flex items-center justify-between'>
-                                        <div>Default payment method</div>
-                                        <div>
-                                            <button className='ml-2 font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'>
-                                                {paymentMethodBrand} &#8226;&#8226;&#8226;&#8226;{' '}
-                                                {user.billing.last4}
-                                            </button>
-                                        </div>
-                                    </div> */
-										}
+										<ul className='mt-6 px-4 md:px-6 lg:px-8 grid grid-flow-col grid-rows-5 grid-cols-1 gap-y-3 gap-x-8 text-200'>
+											<li className='flex items-center justify-between'>
+												<div>Member since</div>
+												<div>
+													{isAuthenticated &&
+														DateTime.fromISO(user.dateCreated).toFormat(
+															'LLL dd, yyyy'
+														)}
+												</div>
+											</li>
+											<li className='flex items-center justify-between'>
+												<div>Current subscription active since</div>
+												<div>
+													{billingState.plan.created &&
+														formatTimestamp(+billingState.plan.created, true)}
+												</div>
+											</li>
+											<li className='flex items-center justify-between'>
+												<div>Current subscription</div>
+												<div className='font-bold'>
+													{billingState.plan.plan.amount &&
+														planCheckerByPrice(
+															billingState.plan.plan.amount
+														)}{' '}
+													plan
+												</div>
+											</li>
+											<li className='flex items-center justify-between'>
+												<div>
+													Est. charge for{' '}
+													<span className='font-bold'>
+														{!billingState.plan.cancelAtPeriod &&
+															billingState.plan.currentPeriodEnd &&
+															formatTimestamp(
+																+billingState.plan.currentPeriodEnd,
+																false
+															)}
+													</span>
+												</div>
+												{billingState.plan.plan.amount && (
+													<div className='font-bold'>
+														${billingState.plan.plan.amount / 100}
+													</div>
+												)}
+											</li>
+											<li className='flex items-center justify-between'>
+												<div>Default payment method</div>
+												<div>
+													{paymentMethodBrand} &#8226;&#8226;&#8226;&#8226;{' '}
+													{user.billing.last4}
+												</div>
+											</li>
+										</ul>
 									) : (
 										// 	<div className='flex items-center justify-between'>
 										// 		<div>Change subscription preferences</div>
@@ -229,10 +291,11 @@ const BillingPage = () => {
 										<div>There are no active plans</div>
 									)}
 								</section>
-								<article className='mt-6'>
-									<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
-										<h2 className='font-bold text-lg text-gray-800'>
-											Payment history
+								{/* billing history */}
+								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-2 cs-light-300 card-200'>
+									<header className='px-4 md:px-6 lg:px-8'>
+										<h2 className='font-bold text-lg text-300'>
+											Billing history
 										</h2>
 									</header>
 									{billingState.paymentHistory.status === 'loading' ? (
@@ -241,7 +304,7 @@ const BillingPage = () => {
 											center={false}
 											spinnerWidth={null}
 											margin={true}
-											text={'Loading your account payments...'}
+											text={'Loading historical payments...'}
 										/>
 									) : billingState.paymentHistory.payments.length > 0 ? (
 										<div>
@@ -249,13 +312,17 @@ const BillingPage = () => {
 												<table className={classes.table} id='payments'>
 													<thead className={classes.tableHeadWrapper}>
 														<tr className={classes.tableHead}>
-															<th>Invoice ID</th>
+															<th className='pl-4 md:pl-6 lg:pl-8 pr-2'>
+																Invoice ID
+															</th>
 															<th className={classes.tableHeadCell}>Plan</th>
 															<th className={classes.tableHeadCell}>Amount</th>
 															<th className={classes.tableHeadCell}>
 																Payment method
 															</th>
-															<th className='pl-2 text-right'>Date</th>
+															<th className='pl-2 pr-4 md:pr-6 lg:pr-8 text-right'>
+																Date
+															</th>
 														</tr>
 													</thead>
 													<tbody className={classes.tableBody}>
@@ -263,10 +330,10 @@ const BillingPage = () => {
 															(payment: any, i: number) => (
 																<tr key={i} className={classes.rowWrapper}>
 																	{/* invoice id */}
-																	<td>
+																	<td className='pl-4 md:pl-6 lg:pl-8 pr-2'>
 																		<a
 																			href={payment.invoice.pdf}
-																			className='font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'
+																			className='link rounded-sm ring-purple'
 																		>
 																			{truncate(payment.invoice.id, 31)}
 																		</a>
@@ -275,7 +342,6 @@ const BillingPage = () => {
 																	<td className={classes.defaultCellWrapper}>
 																		{planCheckerByPrice(payment.amount)}
 																	</td>
-
 																	{/* amount */}
 																	<td className={classes.defaultCellWrapper}>
 																		<span>$</span>
@@ -293,7 +359,7 @@ const BillingPage = () => {
 																		{payment.paymentMethod.last4}
 																	</td>
 																	{/* date */}
-																	<td className='pl-2 text-right'>
+																	<td className='pl-2 pr-4 md:pr-6 lg:pr-8 text-right'>
 																		{formatTimestamp(payment.created, true)}
 																	</td>
 																</tr>
@@ -302,9 +368,10 @@ const BillingPage = () => {
 													</tbody>
 												</table>
 											</div>
+											<div className='flex items-center'></div>
 										</div>
 									) : (
-										<section className='mt-6'>
+										<section className='mt-4'>
 											<NullState
 												header={'No subscription payments found'}
 												text={'No payments have been found for your account.'}
@@ -314,10 +381,10 @@ const BillingPage = () => {
 											/>
 										</section>
 									)}
-								</article>
-							</div>
+								</section>
+							</>
 						) : (
-							<section className='mt-6'>
+							<section className='mt-4'>
 								<NullState
 									header={'No subscription found'}
 									text={
@@ -355,14 +422,13 @@ const svgList = {
 const classes = {
 	tableWrapper: 'w-full relative mt-4',
 	table: 'w-full table-auto',
-	tableHeadWrapper: 'border-b border-gray-200',
+	tableHeadWrapper: 'border-t border-b border-200',
 	tableHead:
-		'text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap',
-	tableHeadCell: 'p-2',
-	tableBody: 'text-sm text-gray-800',
-	rowWrapper: 'relative px-1 border-b border-gray-200 hover:bg-gray-100',
-
-	defaultCellWrapper: 'p-2',
+		'text-left font-semibold text-xs text-100 uppercase tracking-widest whitespace-no-wrap cs-bg',
+	tableHeadCell: 'p-3',
+	tableBody: 'text-sm text-200',
+	rowWrapper: 'relative px-1 border-b border-100 last:border-none',
+	defaultCellWrapper: 'p-3',
 	defaultSvg: 'svg-base',
 	valueIndicator: 'ml-1 text-gray-400 font-semibold',
 };

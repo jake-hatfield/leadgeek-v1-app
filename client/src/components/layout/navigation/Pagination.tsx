@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 
 // packages
+import ContentLoader from 'react-content-loader';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
@@ -11,18 +12,14 @@ import { setItemLimit } from '@components/features/filters/filtersSlice';
 import { numberWithCommas, useOutsideMousedown } from '@utils/utils';
 import { Pagination } from '@utils/interfaces/Pagination';
 import { LeadTypes } from '@utils/interfaces/Lead';
+import { useDarkMode } from '@hooks/hooks';
 
 interface PaginationProps {
 	pagination: Pagination;
 	type: LeadTypes;
 	itemLimit: number;
 	status: string;
-	padding: boolean;
 	setPage: any;
-	// setItemLimit: ActionCreatorWithPayload<
-	// { type: string; itemLimit: number },
-	// string
-	// >;
 }
 
 const PaginationComponent: React.FC<PaginationProps> = ({
@@ -30,11 +27,11 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 	type,
 	itemLimit,
 	status,
-	padding,
 	setPage,
 }) => {
 	const dispatch = useAppDispatch();
 	// local state
+	const [colorTheme] = useDarkMode();
 	const [selectOpen, setSelectOpen] = useState(false);
 	const [selectValue, setSelectValue] = useState(itemLimit || 15);
 	const [filteredMessage, setFilteredMessage] = useState(false);
@@ -72,7 +69,11 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 			? filteredItems
 			: page * (itemLimit || 15);
 
-	return status === 'idle' ? (
+	// global values
+	const bgColor = colorTheme === 'dark' ? '#F0F4F8' : '#1C2936';
+	const fgColor = colorTheme === 'dark' ? '#E6EBF0' : '#1E2C3C';
+
+	return (
 		<article className='mt-8'>
 			<div className='center-between py-2 px-4 cs-light-400 rounded-main shadow-md text-100 border border-300'>
 				{totalItems && totalItems > 0 ? (
@@ -179,10 +180,31 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 									)}
 								</button>
 							)}
-							{filteredItems && (
-								<span>
-									Showing {itemsFrom} to {itemsTo} of {filteredItems} results
-								</span>
+							{status === 'idle' ? (
+								filteredItems && (
+									<span>
+										Showing {itemsFrom} to {itemsTo} of {filteredItems} results
+									</span>
+								)
+							) : (
+								<div className='flex justify-end'>
+									<ContentLoader
+										speed={2}
+										height={35}
+										width={'70%'}
+										backgroundColor={bgColor}
+										foregroundColor={fgColor}
+									>
+										<rect
+											x='0'
+											y='7.5'
+											rx='8'
+											ry='8'
+											width='100%'
+											height={25}
+										/>
+									</ContentLoader>
+								</div>
 							)}
 						</div>
 					) : (
@@ -215,8 +237,6 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 				</div>
 			</div>
 		</article>
-	) : (
-		<div />
 	);
 };
 
