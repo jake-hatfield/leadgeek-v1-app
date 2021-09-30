@@ -11,8 +11,7 @@ import Liked from '@pages/Liked';
 import Archived from '@pages/Archived';
 import Search from '@pages/Search';
 import Admin from '@pages/Admin';
-import Profile from '@pages/settings/Profile';
-import Security from '@pages/settings/Security';
+import Account from '@pages/settings/Account';
 import Billing from '@pages/settings/Billing';
 import Affiliates from '@pages/settings/Affiliates';
 // utils
@@ -33,8 +32,7 @@ const Routes = () => {
 			<PrivateRoute exact path='/leads/liked' component={Liked} />
 			<PrivateRoute exact path='/leads/archived' component={Archived} />
 			<PrivateRoute exact path='/search' component={Search} />
-			<PrivateRoute exact path='/settings/profile' component={Profile} />
-			<PrivateRoute exact path='/settings/security' component={Security} />
+			<PrivateRoute exact path='/settings/account' component={Account} />
 			<PrivateRoute exact path='/settings/billing' component={Billing} />
 			<PrivateRoute exact path='/settings/affiliates' component={Affiliates} />
 			<PrivateRoute exact path='/admin' component={Admin} />

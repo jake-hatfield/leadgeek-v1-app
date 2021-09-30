@@ -1,21 +1,34 @@
 import React, { useState, useEffect } from 'react';
 
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+// redux
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import { updatePassword } from '@features/auth/authSlice';
 import { setAlert } from '@features/alert/alertSlice';
 
+// components
 import FormField from '@components/utils/FormField';
 import { ReactComponent as Check } from '@assets/images/svgs/check.svg';
 import { ReactComponent as X } from '@assets/images/svgs/x.svg';
 
-const ResetPassword = ({
-	loading,
+// utils
+import { passwordList } from '@utils/utils';
+import PasswordFormField from '@components/utils/PasswordFormField';
+
+interface ResetPasswordProps {
+	email: string;
+	flex: boolean;
+	fullWidthButton: boolean;
+}
+
+const ResetPassword: React.FC<ResetPasswordProps> = ({
 	email,
+	flex,
 	fullWidthButton,
-	updatePassword,
-	setAlert,
 }) => {
+	const dispatch = useAppDispatch();
+
+	// auth state
+	const authStatus = useAppSelector((state) => state.auth.status);
 	const [formData, setFormData] = useState({
 		password_1: '',
 		password_2: '',
@@ -147,117 +160,15 @@ const ResetPassword = ({
 			),
 		},
 	];
-	const onChange = (e) => {
+	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
-	const passwordList = [
-		'123456',
-		'password',
-		'12345678',
-		'qwerty',
-		'123456789',
-		'12345',
-		'1234',
-		'111111',
-		'1234567',
-		'dragon',
-		'123123',
-		'baseball',
-		'abc123',
-		'football',
-		'monkey',
-		'letmein',
-		'696969',
-		'shadow',
-		'master',
-		'666666',
-		'qwertyuiop',
-		'123321',
-		'mustang',
-		'1234567890',
-		'michael',
-		'654321',
-		'pussy',
-		'superman',
-		'1qaz2wsx',
-		'7777777',
-		'fuckyou',
-		'121212',
-		'000000',
-		'qazwsx',
-		'123qwe',
-		'killer',
-		'trustno1',
-		'jordan',
-		'jennifer',
-		'zxcvbnm',
-		'asdfgh',
-		'hunter',
-		'buster',
-		'soccer',
-		'harley',
-		'batman',
-		'andrew',
-		'tigger',
-		'sunshine',
-		'iloveyou',
-		'fuckme',
-		'2000',
-		'charlie',
-		'robert',
-		'thomas',
-		'hockey',
-		'ranger',
-		'daniel',
-		'starwars',
-		'klaster',
-		'112233',
-		'george',
-		'asshole',
-		'computer',
-		'michelle',
-		'jessica',
-		'pepper',
-		'1111',
-		'zxcvbn',
-		'555555',
-		'11111111',
-		'131313',
-		'freedom',
-		'777777',
-		'pass',
-		'fuck',
-		'maggie',
-		'159753',
-		'aaaaaa',
-		'ginger',
-		'princess',
-		'joshua',
-		'cheese',
-		'amanda',
-		'summer',
-		'love',
-		'ashley',
-		'6969',
-		'nicole',
-		'chelsea',
-		'biteme',
-		'matthew',
-		'access',
-		'yankees',
-		'987654321',
-		'dallas',
-		'austin',
-		'thunder',
-		'taylor',
-		'matrix',
-		'minecraft',
-	];
+
 	const [terriblePasswords] = useState(passwordList);
 	useEffect(() => {
 		if (password_1 || password_2) {
 			setCommonPasswordValidated(false);
-			const stringBeforeAt = (string) => {
+			const stringBeforeAt = (string: string) => {
 				let splitString = string.split('@');
 				return splitString[0];
 			};
@@ -269,11 +180,12 @@ const ResetPassword = ({
 					password_2.includes(emailBeforeAt)
 				) {
 					setEmailValidated(false);
-					setAlert(
-						'Something went wrong',
-						'The password is too similar to your email. Please choose another password.',
-						'danger'
-					);
+					setAlert({
+						title: 'Something went wrong',
+						message:
+							'The password is too similar to your email. Please choose another password.',
+						alertType: 'danger',
+					});
 				} else if (
 					!terriblePasswords.includes(password_1) ||
 					!terriblePasswords.includes(password_2)
@@ -281,11 +193,12 @@ const ResetPassword = ({
 					setCommonPasswordValidated(true);
 				} else {
 					setCommonPasswordValidated(false);
-					setAlert(
-						'Something went wrong',
-						'The provided password is too common. Please pick a more unique password.',
-						'danger'
-					);
+					setAlert({
+						title: 'Something went wrong',
+						message:
+							'The provided password is too common. Please pick a more unique password.',
+						alertType: 'danger',
+					});
 				}
 			} else {
 				setEmailValidated(true);
@@ -296,98 +209,72 @@ const ResetPassword = ({
 			}
 		}
 	}, [password_1, password_2, terriblePasswords, setAlert, email]);
-	const handleUpdatePassword = (e) => {
+	const handleUpdatePassword = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!password_1 || !password_2) {
-			setAlert(
-				'Please enter a password',
-				"The password field can't be empty. Please enter a password and try again.",
-				'danger'
-			);
+			setAlert({
+				title: 'Please enter a password',
+				message:
+					"The password field can't be empty. Please enter a password and try again.",
+				alertType: 'danger',
+			});
 			return;
 		}
 		if (password_1 !== password_2) {
-			setAlert(
-				"The passwords don't match",
-				"The passwords don't match up. Please check spelling or case sensitivity and try again.",
-				'danger'
-			);
+			setAlert({
+				title: "The passwords don't match",
+				message:
+					"The passwords don't match up. Please check spelling or case sensitivity and try again.",
+				alertType: 'danger',
+			});
 			return;
 		} else {
 			if (!lengthValidated) {
-				setAlert(
-					'The password is too short',
-					'The password needs to be at least 7 characters.',
-					'danger'
-				);
+				setAlert({
+					title: 'The password is too short',
+					message: 'The password needs to be at least 7 characters.',
+					alertType: 'danger',
+				});
 				return;
 			} else {
 				const password = password_1;
-				updatePassword(email, password);
+				updatePassword({ email, password });
 				return;
 			}
 		}
 	};
-	const onSubmit = (e) => {
+	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		if (setLengthValidated && setEmailValidated && setCommonPasswordValidated) {
+		if (lengthValidated && emailValidated && commonPasswordValidated) {
 			handleUpdatePassword(e);
 		}
 	};
-	return (
-		!loading && (
-			<article className='pt-2'>
-				<header>
-					<div className='inline-block'>
-						In order to protect your account, please make sure your password:
-						<ul className='mt-4'>
-							{securityMeasureBullets.map((bullet, i) => (
-								<li key={i} className='mt-1 flex'>
-									<span>{bullet.svg}</span>
-									<span className='ml-2'>{bullet.content}</span>
-								</li>
-							))}
-						</ul>
-					</div>
-				</header>
-				<form className='my-3' onSubmit={(e) => onSubmit(e)}>
-					<FormField
-						label='New Password'
-						type='password'
-						placeholder='Create a new password'
-						name='password_1'
-						onChange={(e) => onChange(e)}
-						minLength={7}
-					/>
-					<FormField
-						label='Confirm Password'
-						type='password'
-						placeholder='Enter the password again'
-						name='password_2'
-						onChange={(e) => onChange(e)}
-						minLength={7}
-					/>
-					<button
-						type='submit'
-						className={`mt-4 py-2 px-4 ${
-							fullWidthButton && 'w-full'
-						} rounded-md text-white shadow-md bg-purple-500 hover:bg-purple-600 transition-colors duration-200 focus:outline-none focus:shadow-outline`}
-					>
-						Reset password
-					</button>
-				</form>
-			</article>
-		)
+	return authStatus === 'idle' ? (
+		<form onSubmit={(e) => onSubmit(e)}>
+			<div className={flex ? 'flex items-center' : ''}>
+				<PasswordFormField
+					label='New Password'
+					placeholder='Create a new password'
+					name='password_1'
+					value={password_1}
+					onChange={(e) => onChange(e)}
+					required={true}
+					styles={'w-1/2'}
+				/>
+				<PasswordFormField
+					label='Confirm Password'
+					placeholder='Enter the password again'
+					name='password_2'
+					value={password_2}
+					onChange={(e) => onChange(e)}
+					required={true}
+					styles={'w-1/2 ml-16'}
+				/>
+			</div>
+		</form>
+	) : (
+		<div />
 	);
 };
 
-const mapStateToProps = (state, ownProps) => {
-	const { setAlert } = state.alert;
-	const { loading, email, fullWidthButton } = ownProps;
-	return { loading, email, fullWidthButton, setAlert };
-};
-
-export default connect(mapStateToProps, {
-	updatePassword,
-	setAlert,
-})(ResetPassword);
+export default ResetPassword;

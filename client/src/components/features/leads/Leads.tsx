@@ -185,7 +185,7 @@ const Leads: React.FC<LeadsProps> = ({
 									to={`/leads${link.link}`}
 									onClick={() => {
 										dispatch(setLeadLoading());
-										dispatch(clearCurrentLead());
+										currentLead && dispatch(clearCurrentLead());
 									}}
 									className={classes.navLink}
 									activeClassName={classes.navLinkActive}

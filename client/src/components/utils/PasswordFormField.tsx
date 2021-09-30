@@ -6,6 +6,7 @@ import { ReactComponent as EyeClosed } from '@assets/images/svgs/eye-closed.svg'
 interface PasswordFormFieldProps {
 	label: string;
 	placeholder: string;
+	name: string;
 	value: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	required: boolean;
@@ -15,6 +16,7 @@ interface PasswordFormFieldProps {
 const PasswordFormField: React.FC<PasswordFormFieldProps> = ({
 	label,
 	placeholder,
+	name,
 	value,
 	onChange,
 	required,
@@ -26,13 +28,13 @@ const PasswordFormField: React.FC<PasswordFormFieldProps> = ({
 	};
 	return (
 		<div className={`pt-4 ${styles ? styles : ''} flex-col items-center`}>
-			<label htmlFor='password' className='form-field-label'>
+			<label htmlFor={name} className='form-field-label'>
 				{label}
 			</label>
 			<div className='relative'>
 				<input
-					id={'password'}
-					name='password'
+					id={name}
+					name={name}
 					type={passwordShown ? 'text' : 'password'}
 					value={value}
 					placeholder={placeholder}

@@ -9,6 +9,7 @@ import { useAppSelector } from '@hooks/hooks';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
+import DescriptionList from '@components/utils/DescriptionList';
 import NullState from '@components/utils/NullState';
 import SettingsLayout from '@components/layout/SettingsLayout';
 import Spinner from '@components/utils/Spinner';
@@ -190,22 +191,78 @@ const BillingPage = () => {
 		getSuccessfulPayments,
 	]);
 
+	const subscriptionInformation = [
+		{
+			title: 'Leadgeek member since',
+			value: (
+				<div>
+					{isAuthenticated &&
+						user?.dateCreated &&
+						DateTime.fromISO(user.dateCreated).toFormat('LLL dd, yyyy')}
+				</div>
+			),
+		},
+		{
+			title: 'Current subscription active since',
+			value: (
+				<div>
+					{planState.plan.created &&
+						formatTimestamp(+planState.plan.created, true)}
+				</div>
+			),
+		},
+		{
+			title: 'Current subscription',
+			value: (
+				<div>
+					{planState.plan.plan.amount &&
+						planCheckerByPrice(planState.plan.plan.amount)}{' '}
+					plan
+				</div>
+			),
+		},
+		{
+			title: `Est. charge for
+           ${
+							!planState.plan.cancelAtPeriod &&
+							planState.plan.currentPeriodEnd &&
+							formatTimestamp(+planState.plan.currentPeriodEnd, false)
+						}`,
+			value: (
+				<div>
+					{planState.plan.plan.amount && (
+						<div className='font-bold'>${planState.plan.plan.amount / 100}</div>
+					)}
+				</div>
+			),
+		},
+		{
+			title: 'Default payment method',
+			value: (
+				<div>
+					{user?.billing.brand && capitalize(user.billing.brand)}{' '}
+					&#8226;&#8226;&#8226;&#8226; {user?.billing.last4}
+				</div>
+			),
+		},
+	];
+
 	return (
 		authStatus === 'idle' &&
 		user && (
 			<AuthLayout>
 				<SettingsLayout
-					title={'Billing'}
-					description={'Manage your billing settings'}
+					title={'Plan & billing'}
+					description={'Update your plan and view past invoices'}
 					pill={null}
 				>
 					<section className='my-6'>
 						{user?.subscription.cusId ? (
 							<>
 								{/* subscription information */}
-								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-300 card-200'>
+								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-6 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
-										<header className='px-4 md:px-6 lg:px-8'>
+										<header className='card-padding-x'>
 											<h2 className='font-bold text-lg text-300'>
 												Subscription information
 											</h2>
@@ -220,58 +277,15 @@ const BillingPage = () => {
 											text={'Loading subscription information...'}
 										/>
 									) : planState.plan.id ? (
-										<ul className='grid grid-flow-col grid-rows-5 grid-cols-1 gap-y-3 gap-x-8 mt-4 px-4 md:px-6 lg:px-8 text-200'>
-											<li className='flex items-center justify-between'>
-												<div>Member since</div>
-												<div>
-													{isAuthenticated &&
-														DateTime.fromISO(user.dateCreated).toFormat(
-															'LLL dd, yyyy'
-														)}
-												</div>
-											</li>
-											<li className='flex items-center justify-between'>
-												<div>Current subscription active since</div>
-												<div>
-													{planState.plan.created &&
-														formatTimestamp(+planState.plan.created, true)}
-												</div>
-											</li>
-											<li className='flex items-center justify-between'>
-												<div>Current subscription</div>
-												<div className='font-bold'>
-													{planState.plan.plan.amount &&
-														planCheckerByPrice(planState.plan.plan.amount)}{' '}
-													plan
-												</div>
-											</li>
-											<li className='flex items-center justify-between'>
-												<div>
-													Est. charge for{' '}
-													<span className='font-bold'>
-														{!planState.plan.cancelAtPeriod &&
-															planState.plan.currentPeriodEnd &&
-															formatTimestamp(
-																+planState.plan.currentPeriodEnd,
-																false
-															)}
-													</span>
-												</div>
-												{planState.plan.plan.amount && (
-													<div className='font-bold'>
-														${planState.plan.plan.amount / 100}
-													</div>
-												)}
-											</li>
-											<li className='flex items-center justify-between'>
-												<div>Default payment method</div>
-												<div>
-													{user?.billing.brand &&
-														capitalize(user.billing.brand)}{' '}
-													&#8226;&#8226;&#8226;&#8226; {user.billing.last4}
-												</div>
-											</li>
-										</ul>
+										<dl className='grid grid-flow-col grid-rows-5 grid-cols-1 gap-y-3 gap-x-8 mt-4 text-200'>
+											{subscriptionInformation.map((subscriptionItem, i) => (
+												<DescriptionList
+													key={i}
+													title={subscriptionItem.title}
+													value={subscriptionItem.value}
+												/>
+											))}
+										</dl>
 									) : (
 										// 	<div className='flex items-center justify-between'>
 										// 		<div>Change subscription preferences</div>
@@ -291,8 +305,8 @@ const BillingPage = () => {
 									)}
 								</section>
 								{/* billing history */}
-								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-2 cs-light-300 card-200'>
-									<header className='px-4 md:px-6 lg:px-8'>
+								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-300 card-200'>
+									<header className='pb-4 card-padding-x border-b border-200'>
 										<h2 className='font-bold text-lg text-300'>
 											Billing history
 										</h2>
@@ -381,7 +395,7 @@ const BillingPage = () => {
 								</section>
 							</>
 						) : (
-							<section className='mt-4 px-4 md:px-6 lg:px-8'>
+							<section className='mt-4 card-padding-x'>
 								<NullState
 									header={'No subscription found'}
 									text={
@@ -417,7 +431,7 @@ const svgList = {
 };
 
 const classes = {
-	tableWrapper: 'w-full relative mt-4',
+	tableWrapper: 'w-full relative',
 	table: 'w-full table-auto',
 	tableHeadWrapper: 'border-t border-b border-200',
 	tableHead:

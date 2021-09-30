@@ -81,6 +81,7 @@ const Login: React.FC = () => {
 								/>
 								<PasswordFormField
 									label={'Password'}
+									name={'password'}
 									placeholder={'Password'}
 									value={password}
 									onChange={onChange}

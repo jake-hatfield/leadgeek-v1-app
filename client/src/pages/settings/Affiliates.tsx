@@ -238,7 +238,7 @@ const AffiliatesPage = () => {
 					className={`font-semibold ${
 						isAuthenticated &&
 						(user?.referrals.referrer.paypalEmail || paypalEmail)
-							? 'text-purple-500 hover:text-gray-700'
+							? 'link'
 							: 'text-red-400 hover:text-red-500'
 					} hover:text-gray-700 ring-gray rounded-lg transition-main`}
 				>
@@ -353,10 +353,8 @@ const AffiliatesPage = () => {
 	return status === 'idle' && user ? (
 		<AuthLayout>
 			<SettingsLayout
-				title={'Affiliate dashboard'}
-				description={
-					'Generate your referrer link and review historical payments'
-				}
+				title={'Affiliates'}
+				description={'Generate your unique link and review payouts'}
 				pill={{
 					active: isAff,
 					text: isAff ? 'Active affiliate' : 'Inactive affiliate',
@@ -367,7 +365,7 @@ const AffiliatesPage = () => {
 						<div className='w-full'>
 							<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-300 card-200'>
 								<div className='pb-4 border-b border-200'>
-									<header className='flex items-end justify-between px-4 md:px-6 lg:px-8'>
+									<header className='flex items-end justify-between card-padding-x'>
 										<h2 className='font-bold text-lg text-300'>
 											Basic information
 										</h2>
@@ -398,7 +396,7 @@ const AffiliatesPage = () => {
 										)}
 									</header>
 								</div>
-								<ul className='grid grid-flow-col grid-rows-5 grid-cols-1 gap-y-3 gap-x-8 mt-4 px-4 md:px-6 lg:px-8'>
+								<ul className='grid grid-flow-col grid-rows-5 grid-cols-1 gap-y-3 gap-x-8 mt-4 card-padding-x'>
 									{basicInformationItems.map((item, i) => (
 										<BasicInformationItem
 											key={i}
@@ -413,7 +411,7 @@ const AffiliatesPage = () => {
 							</section>
 							<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-300 card-200'>
 								<div className='pb-4 border-b border-200'>
-									<header className='px-4 md:px-6 lg:px-8'>
+									<header className='card-padding-x'>
 										<h2 className='font-bold text-lg text-300'>
 											Commission history
 										</h2>
@@ -473,7 +471,7 @@ const AffiliatesPage = () => {
 										</table>
 									</div>
 								) : (
-									<section className='mt-4 px-4 md:px-6 lg:px-8'>
+									<section className='mt-4 card-padding-x'>
 										<NullState
 											header={'No affiliate payments found'}
 											text={'No payments have been found for your account.'}
@@ -496,7 +494,7 @@ const AffiliatesPage = () => {
 										className={`absolute top-1/2 inset-x-0 z-20 max-h-screen max-w-4xl mx-auto pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-200 card-200 transform -translate-y-1/2`}
 									>
 										<div className='relative pb-1 border-b border-200'>
-											<header className='px-4 md:px-6 lg:px-8'>
+											<header className='card-padding-x'>
 												<h3 className='text-xl font-bold text-300'>
 													Generated affiliate links
 												</h3>
@@ -519,7 +517,7 @@ const AffiliatesPage = () => {
 												</svg>
 											</button>
 										</div>
-										<div className='px-4 md:px-6 lg:px-8'>
+										<div className='card-padding-x'>
 											{codeItems.map((codeItem, i) => (
 												<CodeItem
 													key={i}
@@ -680,7 +678,7 @@ const svgList = {
 };
 
 const classes = {
-	tableWrapper: 'w-full relative mt-4 px-4 md:px-6 lg:px-8',
+	tableWrapper: 'w-full relative mt-4 card-padding-x',
 	table: 'w-full table-auto',
 	tableHeadWrapper: 'border-b border-gray-200',
 	tableHead:

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 
 // redux
-import { useAppSelector, useContextMenu } from '@hooks/hooks';
+import { useAppSelector } from '@hooks/hooks';
 import Alert from '@components/features/alert/Alert';
 
 // components
@@ -23,7 +23,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 			<Alert />
 			{status === 'idle' && isAuthenticated && user ? (
 				<div className='min-h-screen w-full relative cs-bg overflow-hidden'>
-					<Navbar />
+					<Navbar name={user.name} />
 					<main className='h-full w-full '>{children}</main>
 					{/* <ContextMenu menu={[{ title: 'hello' }]} /> */}
 				</div>

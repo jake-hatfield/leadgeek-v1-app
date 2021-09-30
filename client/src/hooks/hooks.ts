@@ -10,20 +10,19 @@ export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 // dark mode
-export const useDarkMode = (): (
-	| string
-	| React.Dispatch<React.SetStateAction<string>>
-)[] => {
+export const useDarkMode = (): [
+	string,
+	React.Dispatch<React.SetStateAction<string>>
+] => {
 	const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 	// return a new theme that's the opposite of the current theme
 	const colorTheme = theme === 'light' ? 'dark' : 'light';
 
 	useEffect(() => {
 		if (
-			localStorage.theme === 'dark'
-			// ||
-			// (!('theme' in localStorage) &&
-			// 	window.matchMedia('(prefers-color-scheme: dark)').matches)
+			localStorage.theme === 'dark' ||
+			(!('theme' in localStorage) &&
+				window.matchMedia('(prefers-color-scheme: dark)').matches)
 		) {
 			document.documentElement.classList.add('dark');
 		} else {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // packages
 import { NavLink, useLocation } from 'react-router-dom';
@@ -9,7 +9,7 @@ import SearchBar from '@components/layout/navigation/SearchBar';
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/logo-app.svg';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@hooks/hooks';
+import { useAppDispatch } from '@hooks/hooks';
 import { removeUserData } from '@components/features/auth/authSlice';
 import {
 	setLeadLoading,
@@ -20,13 +20,15 @@ import {
 import { useOutsideMouseup } from '@utils/utils';
 import { useDarkMode } from '@hooks/hooks';
 
-const Navbar = () => {
+interface NavbarProps {
+	name: string;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ name }) => {
 	const dispatch = useAppDispatch();
 	const location = useLocation();
 
-	// auth state
-	const name = useAppSelector((state) => state.auth.user?.name);
-	// local state & local storage
+	// local state
 	const [notificationDropdown, setNotificationDropdown] = useState(false);
 	const [userDropdown, setUserDropdown] = useState(false);
 	const [firstInitial, setFirstInitial] = useState<string>('');
@@ -50,13 +52,16 @@ const Navbar = () => {
 		{ keyup: true }
 	);
 
+	const setInitials = useCallback((name: string | undefined) => {
+		if (!name) return;
+		const userInitials = name.split(' ').map((n) => n[0]);
+		setFirstInitial(userInitials[0]);
+	}, []);
+
 	// set user initials
 	useEffect(() => {
-		if (name) {
-			let userInitials = name.split(' ').map((n) => n[0]);
-			setFirstInitial(userInitials[0]);
-		}
-	}, [name]);
+		setInitials(name);
+	}, [name, setInitials]);
 
 	// clear user data on logout
 	const logoutUser = () => {
@@ -67,8 +72,8 @@ const Navbar = () => {
 	const [colorTheme] = useDarkMode();
 
 	return (
-		<section className='w-full cs-light-400 text-300 shadow-sm border-b border-300'>
-			<div className='container'>
+		<header className='w-full cs-light-400 text-300 shadow-sm border-b border-300'>
+			<nav className='container'>
 				<div className='center-between py-1.5'>
 					<NavLink
 						to={'/leads/'}
@@ -84,10 +89,10 @@ const Navbar = () => {
 						/>
 					</NavLink>
 					<SearchBar placeholder='Enter a search...' />
-					<div className='flex items-center'>
-						<aside className='relative text-gray-400'>
+					<aside className='flex items-center'>
+						<div className='relative text-gray-400'>
 							<button
-								className='relative p-1 rounded-lg group text-gray-300 hover:text-gray-400 transition-main ring-gray'
+								className='relative p-1 rounded-lg group text-gray-500 hover:text-gray-600 dark:text-gray-700 dark:hover:text-gray-300 transition-main ring-gray'
 								onClick={() => {
 									setUserDropdown(false);
 									setNotificationDropdown(!notificationDropdown ? true : false);
@@ -95,11 +100,17 @@ const Navbar = () => {
 							>
 								<svg
 									xmlns='http://www.w3.org/2000/svg'
-									className='h-5 w-5'
-									viewBox='0 0 20 20'
-									fill='currentColor'
+									className='h-6 w-6'
+									fill='none'
+									viewBox='0 0 24 24'
+									stroke='currentColor'
 								>
-									<path d='M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z' />
+									<path
+										strokeLinecap='round'
+										strokeLinejoin='round'
+										strokeWidth={2}
+										d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
+									/>
 								</svg>
 								{notifications.length > 0 && (
 									<div className='absolute top-0 right-0 h-2 w-2 bg-pink-600 dark:bg-pink-100 rounded-full shadow-sm border border-white dark:border-darkGray-400 transform translate-y-0.5 -translate-x-1' />
@@ -156,12 +167,12 @@ const Navbar = () => {
 									</ul>
 								</article>
 							)}
-						</aside>
-						<aside className='relative ml-4 text-gray-400'>
+						</div>
+						<div className='relative ml-4 text-gray-400'>
 							<button
 								onClick={() => {
 									setNotificationDropdown(false);
-									setUserDropdown(!userDropdown ? true : false);
+									setUserDropdown(userDropdown ? false : true);
 								}}
 								className='p-2 h-8 w-8 all-center cs-purple rounded-full shadow-sm transition-main ring-purple'
 							>
@@ -188,7 +199,7 @@ const Navbar = () => {
 													</h5>
 												</div>
 											</header>
-											<div>
+											<nav>
 												{navLinks.dropdownItems.map((item, i) => (
 													<NavLink
 														key={i}
@@ -209,16 +220,16 @@ const Navbar = () => {
 														Logout
 													</span>
 												</button>
-											</div>
+											</nav>
 										</div>
 									</article>
 								</div>
 							)}
-						</aside>
-					</div>
+						</div>
+					</aside>
 				</div>
-			</div>
-		</section>
+			</nav>
+		</header>
 	);
 };
 
@@ -261,7 +272,7 @@ const navLinks = {
 	dropdownItems: [
 		{
 			title: 'Settings',
-			link: 'settings/security/',
+			link: 'settings/account/',
 			path: null,
 		},
 	],

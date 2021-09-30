@@ -20,6 +20,7 @@ import {
 // components
 import Badge from '@components/utils/Badge';
 import Button from '@components/utils/Button';
+import DescriptionList from '@components/utils/DescriptionList';
 
 // utils
 import {
@@ -501,7 +502,6 @@ const Details: React.FC<DetailsProps> = ({
 		{
 			title: 'Buy price',
 			value: <div>{`$${data.buyPrice.toFixed(2) || '-'}`}</div>,
-			utility: null,
 		},
 		{
 			title: 'Sell price',
@@ -544,7 +544,6 @@ const Details: React.FC<DetailsProps> = ({
 					)}
 				</div>
 			),
-			utility: null,
 		},
 		{
 			title: 'Competition',
@@ -558,7 +557,6 @@ const Details: React.FC<DetailsProps> = ({
 					</span>
 				</div>
 			),
-			utility: null,
 		},
 		{
 			title: 'Weight',
@@ -574,7 +572,6 @@ const Details: React.FC<DetailsProps> = ({
 					)}
 				</div>
 			),
-			utility: null,
 		},
 	];
 
@@ -583,17 +580,14 @@ const Details: React.FC<DetailsProps> = ({
 		{
 			title: 'Shipping notes',
 			value: <div>{data.shipping ? data.shipping : 'None'}</div>,
-			utility: null,
 		},
 		{
 			title: 'Seller notes',
 			value: <div>{data.notes ? data.notes : 'None'}</div>,
-			utility: null,
 		},
 		{
 			title: 'Variation notes',
 			value: <div>{data.variations ? data.variations : 'None'}</div>,
-			utility: null,
 		},
 	];
 
@@ -675,7 +669,7 @@ const Details: React.FC<DetailsProps> = ({
 					</header>
 					<div className='h-screen overflow-x-hidden overflow-y-scroll minimal-scrollbar'>
 						<section className='mb-48 pl-6 pr-8'>
-							<article className='flex justify-between mt-4 p-4 cs-light-300 card-200'>
+							<article className='flex justify-between mt-4 py-4 card-padding-x cs-light-300 card-200'>
 								<div className='w-2/5 h-56 z-10'>
 									<ReactImageMagnify
 										{...{
@@ -707,7 +701,7 @@ const Details: React.FC<DetailsProps> = ({
 										onMouseLeave={() => toggleFullTitle(false)}
 										className='inline-block font-bold text-lg text-gray-900 dark:text-white'
 									>
-										{truncate(data.title, 40)}
+										{truncate(data.title, 35)}
 									</h3>
 									{fullTitle && (
 										<div className='absolute top-0 mt-2 mr-6 p-2 rounded-md shadow-md cs-darkGray text-xs transform translate-y-6'>
@@ -735,37 +729,36 @@ const Details: React.FC<DetailsProps> = ({
 									</article>
 								</header>
 							</article>
-							<article className='mt-4 pt-4 pb-3 cs-light-300 card-200'>
-								<header className='pb-2 border-b border-200'>
-									<h4 className='px-4 font-semibold text-gray-900 dark:text-white'>
+							<article className='mt-4 py-4 cs-light-300 card-200'>
+								<header className='card-padding-x pb-4 border-b border-200'>
+									<h4 className='font-semibold text-gray-900 dark:text-white'>
 										Detailed information
 									</h4>
 								</header>
 								<dl className='grid grid-cols-1 grid-rows-4 gap-y-2 gap-x-6 mt-4 text-sm text-gray-800'>
 									{detailedInformation.map((item, i) => (
-										<DetailedItem
+										<DescriptionList
 											key={i}
 											title={item.title}
 											value={item.value}
-											utility={item.utility}
+											utility={item.utility && item.utility}
 										/>
 									))}
 								</dl>
 							</article>
-							<article className='my-4 pt-4 pb-3 cs-light-300 card-200'>
-								<header className='flex items-center pb-2 border-b border-200'>
-									<h4 className='pl-4 font-semibold text-300'>Notes</h4>{' '}
+							<article className='my-4 py-4 cs-light-300 card-200'>
+								<header className='flex items-center pb-4 card-padding-x border-b border-200'>
+									<h4 className='font-semibold text-300'>Notes</h4>{' '}
 									<span className='ml-2 py-1 px-2 bg-gray-100 dark:bg-gray-900 text-300 rounded-main text-xs font-semibold'>
 										{noteCount}
 									</span>
 								</header>
 								<dl className='grid grid-cols-1 grid-rows-3 gap-y-2 gap-x-6 mt-4 text-sm text-200'>
 									{notesInformation.map((note, i) => (
-										<DetailedItem
+										<DescriptionList
 											key={i}
 											title={note.title}
 											value={note.value}
-											utility={note.utility}
 										/>
 									))}
 								</dl>
@@ -912,28 +905,6 @@ const PrimaryMetric: React.FC<PrimaryMetricProps> = ({ title, value }) => {
 			<dd className='py-1 px-2 cs-darkGray rounded-main font-semibold text-xs transition-main'>
 				{value}
 			</dd>
-		</div>
-	);
-};
-
-interface DetailedItemProps {
-	title: string;
-	value: JSX.Element;
-	utility: JSX.Element | null;
-}
-
-const DetailedItem: React.FC<DetailedItemProps> = ({
-	title,
-	value,
-	utility,
-}) => {
-	return (
-		<div className='relative flex items-center pb-2 last:pb-0 border-b border-100 last:border-none'>
-			<dt className='w-2/5 text-100 pl-4'>{title}</dt>
-			<div className='flex items-center w-3/5 pr-4 text-300'>
-				<dd>{value}</dd>
-				{utility && utility}
-			</div>
 		</div>
 	);
 };
