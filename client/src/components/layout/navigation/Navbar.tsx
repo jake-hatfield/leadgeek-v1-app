@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // packages
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // components
@@ -11,6 +11,10 @@ import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/logo-app.svg
 // redux
 import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 import { removeUserData } from '@components/features/auth/authSlice';
+import {
+	setLeadLoading,
+	clearCurrentLead,
+} from '@components/features/leads/leadsSlice';
 
 // utils
 import { useOutsideMouseup } from '@utils/utils';
@@ -18,6 +22,8 @@ import { useDarkMode } from '@hooks/hooks';
 
 const Navbar = () => {
 	const dispatch = useAppDispatch();
+	const location = useLocation();
+
 	// auth state
 	const name = useAppSelector((state) => state.auth.user?.name);
 	// local state & local storage
@@ -64,7 +70,13 @@ const Navbar = () => {
 		<section className='w-full cs-light-400 text-300 shadow-sm border-b border-300'>
 			<div className='container'>
 				<div className='center-between py-1.5'>
-					<NavLink to={'/leads/'}>
+					<NavLink
+						to={'/leads/'}
+						onClick={() => {
+							location.pathname !== '/leads/' && dispatch(setLeadLoading());
+							dispatch(clearCurrentLead());
+						}}
+					>
 						<LeadGeekLogo
 							className={`h-6 ${
 								colorTheme === 'dark' ? 'text-purple-500' : 'text-purple-300'

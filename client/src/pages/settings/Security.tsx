@@ -18,10 +18,8 @@ const Dashboard = () => {
 		user && (
 			<AuthLayout>
 				<SettingsLayout
-					user={user}
 					title={'Security & password'}
 					description={'Change your password & other security settings'}
-					isAuthenticated={isAuthenticated}
 					pill={null}
 				>
 					<section className='my-6'>

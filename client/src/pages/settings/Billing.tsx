@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 // packages
 import axios from 'axios';
@@ -22,7 +22,7 @@ import {
 	truncate,
 } from '@utils/utils';
 
-interface BillingState {
+interface PlanState {
 	plan: {
 		status: 'loading' | 'idle';
 		id: string | null;
@@ -35,7 +35,9 @@ interface BillingState {
 			amount: number | null;
 		};
 	};
+}
 
+interface PaymentState {
 	paymentHistory: {
 		status: 'loading' | 'idle';
 		payments: any;
@@ -52,7 +54,7 @@ const BillingPage = () => {
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 	const user = useAppSelector((state) => state.auth.user);
 	// local state
-	const [billingState, setBillingState] = useState<BillingState>({
+	const [planState, setPlanState] = useState<PlanState>({
 		plan: {
 			status: 'loading',
 			id: null,
@@ -65,6 +67,9 @@ const BillingPage = () => {
 				amount: null,
 			},
 		},
+	});
+
+	const [paymentState, setPaymentState] = useState<PaymentState>({
 		paymentHistory: {
 			status: 'loading',
 			payments: [],
@@ -74,66 +79,24 @@ const BillingPage = () => {
 			},
 		},
 	});
-	const [validBilling, setValidBilling] = useState(false);
 
-	useEffect(() => {
-		if (!isAuthenticated) return setValidBilling(false);
-
-		if (authStatus === 'idle' && isAuthenticated && user?.subscription.cusId) {
-			return setValidBilling(true);
-		}
-	}, [authStatus, isAuthenticated, user?.subscription.cusId]);
-
-	const getSuccessfulPayments = async (cusId: string) => {
-		try {
-			// build request body
-			const body = JSON.stringify({ cusId });
-
-			// POST request to route
-			const { data } = await axios.post(
-				'/api/users/successful-payments/',
-				body,
-				config
-			);
-
-			// update state
-			setBillingState({
-				...billingState,
-				paymentHistory: {
-					...billingState.paymentHistory,
-					status: 'idle',
-					payments: data.payments,
-				},
-			});
-		} catch (error) {
-			console.log(error);
-		}
-	};
-
-	useEffect(() => {
-		billingState.paymentHistory.status !== 'idle' &&
-			validBilling &&
-			user?.subscription.cusId &&
-			getSuccessfulPayments(user.subscription.cusId);
-	}, [validBilling, user?.subscription.cusId]);
-
-	// get active plan details
-	useEffect(() => {
-		const getActivePlanDetails = async (subId: string) => {
+	const getActivePlanDetails = useCallback(
+		async (activeSubId: string) => {
 			try {
 				// build request body
-				const body = JSON.stringify({ subId });
+				const body = JSON.stringify({ subId: activeSubId });
 
 				// POST request to route
 				const {
 					data: { message, subscription },
 				} = await axios.post('/api/users/active-plan-details', body, config);
+
+				// if subscription data is found, update state
 				if (message === 'Subscription data found') {
-					console.log(subscription);
-					setBillingState({
-						...billingState,
+					return setPlanState({
+						...planState,
 						plan: {
-							...billingState.plan,
+							...planState.plan,
 							status: 'idle',
 							id: subscription.id,
 							created: subscription.created,
@@ -141,27 +104,31 @@ const BillingPage = () => {
 							cancelAtPeriod: subscription.cancelAtPeriod,
 							currentPeriodEnd: subscription.currentPeriodEnd,
 							plan: {
-								...billingState.plan.plan,
+								...planState.plan.plan,
 								id: subscription.plan.id,
 								amount: subscription.plan.amount,
 							},
 						},
 					});
 				} else {
-					// // update state loading status
-					// setBillingState({
-					// 	...billingState,
-					// 	plan: {
-					// 		...billingState.plan,
-					// 		status: 'idle',
-					// 	},
-					// });
+					// update state loading status
+					return setPlanState({
+						...planState,
+						plan: {
+							...planState.plan,
+							status: 'idle',
+						},
+					});
 				}
 			} catch (error) {
 				console.log(error);
 			}
-		};
+		},
+		[planState]
+	);
 
+	// get active plan details
+	useEffect(() => {
 		// get the user's active subscription
 		const activeSub = user?.subscription.subIds.filter(
 			(sub) => sub.active === true
@@ -169,38 +136,71 @@ const BillingPage = () => {
 
 		isAuthenticated &&
 			authStatus === 'idle' &&
-			billingState.plan.status !== 'idle' &&
-			validBilling &&
+			planState.plan.status === 'loading' &&
 			activeSub?.id &&
 			getActivePlanDetails(activeSub.id);
 	}, [
 		isAuthenticated,
 		authStatus,
-		billingState.plan.status,
-		validBilling,
+		planState.plan.status,
 		user?.subscription.subIds,
-		billingState,
+		getActivePlanDetails,
 	]);
 
-	const paymentMethodBrand =
+	const getSuccessfulPayments = useCallback(
+		async (cusId: string) => {
+			try {
+				// build request body
+				const body = JSON.stringify({ cusId });
+
+				// POST request to route
+				const { data } = await axios.post(
+					'/api/users/successful-payments/',
+					body,
+					config
+				);
+
+				// update state
+				return setPaymentState({
+					...paymentState,
+					paymentHistory: {
+						...paymentState.paymentHistory,
+						status: 'idle',
+						payments: data.payments,
+					},
+				});
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		[paymentState]
+	);
+
+	useEffect(() => {
 		isAuthenticated &&
-		validBilling &&
-		user?.billing.brand &&
-		capitalize(user.billing.brand);
+			authStatus === 'idle' &&
+			paymentState.paymentHistory.status === 'loading' &&
+			user?.subscription.cusId &&
+			getSuccessfulPayments(user.subscription.cusId);
+	}, [
+		isAuthenticated,
+		authStatus,
+		paymentState.paymentHistory.status,
+		user?.subscription.cusId,
+		getSuccessfulPayments,
+	]);
 
 	return (
 		authStatus === 'idle' &&
 		user && (
 			<AuthLayout>
 				<SettingsLayout
-					isAuthenticated={isAuthenticated}
-					user={user}
 					title={'Billing'}
 					description={'Manage your billing settings'}
 					pill={null}
 				>
 					<section className='my-6'>
-						{validBilling ? (
+						{user?.subscription.cusId ? (
 							<>
 								{/* subscription information */}
 								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-300 card-200'>
@@ -211,7 +211,7 @@ const BillingPage = () => {
 											</h2>
 										</header>
 									</div>
-									{billingState.plan.status === 'loading' ? (
+									{planState.plan.status === 'loading' ? (
 										<Spinner
 											divWidth={null}
 											center={false}
@@ -219,8 +219,8 @@ const BillingPage = () => {
 											margin={true}
 											text={'Loading subscription information...'}
 										/>
-									) : billingState.plan.id ? (
-										<ul className='mt-6 px-4 md:px-6 lg:px-8 grid grid-flow-col grid-rows-5 grid-cols-1 gap-y-3 gap-x-8 text-200'>
+									) : planState.plan.id ? (
+										<ul className='grid grid-flow-col grid-rows-5 grid-cols-1 gap-y-3 gap-x-8 mt-4 px-4 md:px-6 lg:px-8 text-200'>
 											<li className='flex items-center justify-between'>
 												<div>Member since</div>
 												<div>
@@ -233,17 +233,15 @@ const BillingPage = () => {
 											<li className='flex items-center justify-between'>
 												<div>Current subscription active since</div>
 												<div>
-													{billingState.plan.created &&
-														formatTimestamp(+billingState.plan.created, true)}
+													{planState.plan.created &&
+														formatTimestamp(+planState.plan.created, true)}
 												</div>
 											</li>
 											<li className='flex items-center justify-between'>
 												<div>Current subscription</div>
 												<div className='font-bold'>
-													{billingState.plan.plan.amount &&
-														planCheckerByPrice(
-															billingState.plan.plan.amount
-														)}{' '}
+													{planState.plan.plan.amount &&
+														planCheckerByPrice(planState.plan.plan.amount)}{' '}
 													plan
 												</div>
 											</li>
@@ -251,25 +249,26 @@ const BillingPage = () => {
 												<div>
 													Est. charge for{' '}
 													<span className='font-bold'>
-														{!billingState.plan.cancelAtPeriod &&
-															billingState.plan.currentPeriodEnd &&
+														{!planState.plan.cancelAtPeriod &&
+															planState.plan.currentPeriodEnd &&
 															formatTimestamp(
-																+billingState.plan.currentPeriodEnd,
+																+planState.plan.currentPeriodEnd,
 																false
 															)}
 													</span>
 												</div>
-												{billingState.plan.plan.amount && (
+												{planState.plan.plan.amount && (
 													<div className='font-bold'>
-														${billingState.plan.plan.amount / 100}
+														${planState.plan.plan.amount / 100}
 													</div>
 												)}
 											</li>
 											<li className='flex items-center justify-between'>
 												<div>Default payment method</div>
 												<div>
-													{paymentMethodBrand} &#8226;&#8226;&#8226;&#8226;{' '}
-													{user.billing.last4}
+													{user?.billing.brand &&
+														capitalize(user.billing.brand)}{' '}
+													&#8226;&#8226;&#8226;&#8226; {user.billing.last4}
 												</div>
 											</li>
 										</ul>
@@ -298,7 +297,7 @@ const BillingPage = () => {
 											Billing history
 										</h2>
 									</header>
-									{billingState.paymentHistory.status === 'loading' ? (
+									{paymentState.paymentHistory.status === 'loading' ? (
 										<Spinner
 											divWidth={null}
 											center={false}
@@ -306,69 +305,67 @@ const BillingPage = () => {
 											margin={true}
 											text={'Loading historical payments...'}
 										/>
-									) : billingState.paymentHistory.payments.length > 0 ? (
-										<div>
-											<div className={classes.tableWrapper}>
-												<table className={classes.table} id='payments'>
-													<thead className={classes.tableHeadWrapper}>
-														<tr className={classes.tableHead}>
-															<th className='pl-4 md:pl-6 lg:pl-8 pr-2'>
-																Invoice ID
-															</th>
-															<th className={classes.tableHeadCell}>Plan</th>
-															<th className={classes.tableHeadCell}>Amount</th>
-															<th className={classes.tableHeadCell}>
-																Payment method
-															</th>
-															<th className='pl-2 pr-4 md:pr-6 lg:pr-8 text-right'>
-																Date
-															</th>
-														</tr>
-													</thead>
-													<tbody className={classes.tableBody}>
-														{billingState.paymentHistory.payments.map(
-															(payment: any, i: number) => (
-																<tr key={i} className={classes.rowWrapper}>
-																	{/* invoice id */}
-																	<td className='pl-4 md:pl-6 lg:pl-8 pr-2'>
-																		<a
-																			href={payment.invoice.pdf}
-																			className='link rounded-sm ring-purple'
-																		>
-																			{truncate(payment.invoice.id, 31)}
-																		</a>
-																	</td>
-																	{/* plan */}
-																	<td className={classes.defaultCellWrapper}>
-																		{planCheckerByPrice(payment.amount)}
-																	</td>
-																	{/* amount */}
-																	<td className={classes.defaultCellWrapper}>
-																		<span>$</span>
-																		{payment.amount / 100}
-																		<span className={classes.valueIndicator}>
-																			{payment.currency.toUpperCase()}
-																		</span>
-																	</td>
-																	{/* payment method */}
-																	<td className={classes.defaultCellWrapper}>
-																		{paymentMethodBrand}{' '}
-																		&#8226;&#8226;&#8226;&#8226;{' '}
-																		&#8226;&#8226;&#8226;&#8226;{' '}
-																		&#8226;&#8226;&#8226;&#8226;{' '}
-																		{payment.paymentMethod.last4}
-																	</td>
-																	{/* date */}
-																	<td className='pl-2 pr-4 md:pr-6 lg:pr-8 text-right'>
-																		{formatTimestamp(payment.created, true)}
-																	</td>
-																</tr>
-															)
-														)}
-													</tbody>
-												</table>
-											</div>
-											<div className='flex items-center'></div>
+									) : paymentState.paymentHistory.payments.length > 0 ? (
+										<div className={classes.tableWrapper}>
+											<table className={classes.table} id='payments'>
+												<thead className={classes.tableHeadWrapper}>
+													<tr className={classes.tableHead}>
+														<th className='pl-4 md:pl-6 lg:pl-8 pr-2'>
+															Invoice ID
+														</th>
+														<th className={classes.tableHeadCell}>Plan</th>
+														<th className={classes.tableHeadCell}>Amount</th>
+														<th className={classes.tableHeadCell}>
+															Payment method
+														</th>
+														<th className='pl-2 pr-4 md:pr-6 lg:pr-8 text-right'>
+															Date
+														</th>
+													</tr>
+												</thead>
+												<tbody className={classes.tableBody}>
+													{paymentState.paymentHistory.payments.map(
+														(payment: any, i: number) => (
+															<tr key={i} className={classes.rowWrapper}>
+																{/* invoice id */}
+																<td className='pl-4 md:pl-6 lg:pl-8 pr-2'>
+																	<a
+																		href={payment.invoice.pdf}
+																		className='link rounded-sm ring-purple'
+																	>
+																		{truncate(payment.invoice.id, 31)}
+																	</a>
+																</td>
+																{/* plan */}
+																<td className={classes.defaultCellWrapper}>
+																	{planCheckerByPrice(payment.amount)}
+																</td>
+																{/* amount */}
+																<td className={classes.defaultCellWrapper}>
+																	<span>$</span>
+																	{payment.amount / 100}
+																	<span className={classes.valueIndicator}>
+																		{payment.currency.toUpperCase()}
+																	</span>
+																</td>
+																{/* payment method */}
+																<td className={classes.defaultCellWrapper}>
+																	{user?.billing.brand &&
+																		capitalize(user.billing.brand)}{' '}
+																	&#8226;&#8226;&#8226;&#8226;{' '}
+																	&#8226;&#8226;&#8226;&#8226;{' '}
+																	&#8226;&#8226;&#8226;&#8226;{' '}
+																	{payment.paymentMethod.last4}
+																</td>
+																{/* date */}
+																<td className='pl-2 pr-4 md:pr-6 lg:pr-8 text-right'>
+																	{formatTimestamp(payment.created, true)}
+																</td>
+															</tr>
+														)
+													)}
+												</tbody>
+											</table>
 										</div>
 									) : (
 										<section className='mt-4'>
@@ -384,7 +381,7 @@ const BillingPage = () => {
 								</section>
 							</>
 						) : (
-							<section className='mt-4'>
+							<section className='mt-4 px-4 md:px-6 lg:px-8'>
 								<NullState
 									header={'No subscription found'}
 									text={

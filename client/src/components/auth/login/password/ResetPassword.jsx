@@ -381,14 +381,6 @@ const ResetPassword = ({
 	);
 };
 
-ResetPassword.propTypes = {
-	loading: PropTypes.bool.isRequired,
-	email: PropTypes.string.isRequired,
-	fullWidthButton: PropTypes.bool,
-	updatePassword: PropTypes.func.isRequired,
-	setAlert: PropTypes.func.isRequired,
-};
-
 const mapStateToProps = (state, ownProps) => {
 	const { setAlert } = state.alert;
 	const { loading, email, fullWidthButton } = ownProps;

@@ -1,4 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+
+// packages
+import axios from 'axios';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@hooks/hooks';
@@ -14,6 +18,7 @@ import {
 	calcAffCommission,
 	calcNextPayoutDate,
 	calcNextPossiblePayoutDate,
+	config,
 	formatTimestamp,
 	planCheckerByPrice,
 	truncateAndObfuscate,
@@ -33,7 +38,7 @@ const AffiliatesPage = () => {
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 	const user = useAppSelector((state) => state.auth.user);
 	// local state
-	const [affiliateState, setAffiliateState] = useState<{
+	const [affState, setAffState] = useState<{
 		paypalEmail: string;
 		paymentHistory: {
 			status: string;
@@ -49,7 +54,7 @@ const AffiliatesPage = () => {
 	const [changePaypal, setChangePaypal] = useState(false);
 	const [copiedText, setCopiedText] = useState(false);
 	const [copyText, setCopyText] = useState('Copy LGID');
-	const [isAffiliate] = useState(
+	const [isAff] = useState(
 		isAuthenticated && user?.referrals.referrer.isReferrer
 	);
 	const [lastPayout] = useState(calcNextPossiblePayoutDate(-1));
@@ -61,67 +66,81 @@ const AffiliatesPage = () => {
 	const {
 		paypalEmail,
 		paymentHistory: { status: paymentStatus, payments },
-	} = affiliateState;
+	} = affState;
 
+	const handleAffPayments = (
+		clients: { userId: string; cusId: string }[] | undefined,
+		affCreated: string | undefined
+	) => {
+		if (!clients || !affCreated) {
+			return setAffState({
+				...affState,
+				paymentHistory: {
+					...affState.paymentHistory,
+					status: 'idle',
+					payments: [],
+				},
+			});
+		} else {
+			return getAffPayments(clients, affCreated);
+		}
+	};
 	// get affiliate payments if user is authenticated & affiliate
 	useEffect(() => {
-		// status === 'idle' &&
-		// 	isAffiliate &&
-		// 	payments.length === 0 &&
-		// 	getAffiliatePayments(
-		// 		user?.referrals.referrer.clients,
-		// 		user?.referrals.referrer.dateCreated
-		// 	);
+		isAuthenticated &&
+			status === 'idle' &&
+			isAff &&
+			handleAffPayments(
+				user?.referrals.referrer.clients,
+				user?.referrals.referrer.dateCreated
+			);
 	}, [
+		isAuthenticated,
 		status,
-		isAffiliate,
-		payments,
+		isAff,
 		user?.referrals.referrer.clients,
 		user?.referrals.referrer.dateCreated,
 	]);
 
-	// close modal on click outside
-	const modalRef = useRef();
-	// close modal on esc key
-	const keyPress = useCallback(
-		(e) => {
-			if (e.key === 'Escape' && modal) {
-				setModal(false);
-			}
+	// hotkeys
+	// close modal on escape key
+	useHotkeys(
+		'Escape',
+		() => {
+			setModal(false);
 		},
-		[setModal, modal]
+		{ keyup: true }
 	);
-	useEffect(() => {
-		document.addEventListener('keydown', keyPress);
-		return () => document.removeEventListener('keydown', keyPress);
-	}, [keyPress]);
 
 	// handle input change for PayPal email
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setAffiliateState({ ...affiliateState, [e.target.name]: e.target.value });
+		setAffState({ ...affState, [e.target.name]: e.target.value });
 	};
 
-	// export const getAffiliatePayments =
-	// (clients, affCreated) => async (dispatch) => {
-	// 	try {
-	// 		const body = JSON.stringify({ clients, affCreated });
-	// 		const {
-	// 			data: { msg: message, affPayments },
-	// 		} = await axios.post('/api/users/get-affiliate-payments', body, config);
-	// 		if (message === 'Referred clients with valid payments were found.') {
-	// 			dispatch({
-	// 				type: SET_AFFILIATE_PAYMENTS,
-	// 				payload: affPayments,
-	// 			});
-	// 		} else {
-	// 			dispatch({
-	// 				type: FINISHED_AFFILIATE_PAYMENTS_LOADING,
-	// 			});
-	// 		}
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 	}
-	// };
+	const getAffPayments = async (
+		clients: { userId: string; cusId: string }[],
+		affCreated: string
+	) => {
+		try {
+			const body = JSON.stringify({ clients, affCreated });
+			const {
+				data: { msg: message, affPayments },
+			} = await axios.post('/api/users/affiliate-payments', body, config);
+			if (message === 'Referred clients with valid payments were found.') {
+				console.log(affPayments);
+				// dispatch({
+				// 	type: SET_AFFILIATE_PAYMENTS,
+				// 	payload: affPayments,
+				// });
+			} else {
+				// dispatch({
+				// type: FINISHED_AFFILIATE_PAYMENTS_LOADING,
+				// });
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
 	// export const updatePaypalEmail =
 	// (id, oldEmail, newEmail) => async (dispatch) => {
@@ -159,7 +178,7 @@ const AffiliatesPage = () => {
 		// updatePaypalEmail(
 		// 	user?._id,
 		// 	user?.referrals.referrer.paypalEmail,
-		// 	affiliateState.paypalEmail
+		// 	affState.paypalEmail
 		// );
 		setChangePaypal(false);
 	};
@@ -207,9 +226,9 @@ const AffiliatesPage = () => {
 						placeholder='Your new PayPal email'
 						required={true}
 						onChange={onChange}
-						className='w-full py-1 px-2 rounded-l-md border border-gray-200 hover:border-purple-300 placeholder-gray-300 ring-purple focus:ring-inset'
+						className='w-full py-1 px-2 rounded-l-md input ring-purple focus:ring-inset'
 					/>
-					<button className='py-1 px-2 rounded-r-md text-white border border-purple-500 bg-purple-500 hover:bg-purple-600 transition-main ring-purple'>
+					<button className='py-1 px-2 rounded-r-md cs-purple border-t border-r border-b border-purple-500 dark:border-purple-300 transition-main ring-purple'>
 						Update
 					</button>
 				</form>
@@ -231,7 +250,7 @@ const AffiliatesPage = () => {
 			),
 			isInteractable: true,
 			t: 'This is the PayPal email where your commission payments will be sent',
-			size: 'row-span-2',
+			size: '',
 		},
 		{
 			title: (
@@ -334,50 +353,52 @@ const AffiliatesPage = () => {
 	return status === 'idle' && user ? (
 		<AuthLayout>
 			<SettingsLayout
-				isAuthenticated={isAuthenticated}
-				user={user}
-				title={'Affiliates'}
-				description={'Manage your Leadgeek affiliate account'}
+				title={'Affiliate dashboard'}
+				description={
+					'Generate your referrer link and review historical payments'
+				}
 				pill={{
-					active: isAffiliate,
-					text: isAffiliate ? 'Active affiliate' : 'Inactive affiliate',
+					active: isAff,
+					text: isAff ? 'Active affiliate' : 'Inactive affiliate',
 				}}
 			>
 				<section className='my-6'>
-					{isAffiliate ? (
-						<div className='w-full pr-16'>
-							<section className='mt-6'>
-								<header className='flex items-end justify-between pb-2 border-b border-gray-200'>
-									<h2 className='font-bold text-lg text-gray-800'>
-										Basic information
-									</h2>
-									{lgid && (
-										<div className='relative'>
-											<button
-												onClick={() => {
-													navigator.clipboard.writeText(lgid || '');
-													setCopyText('LGID copied');
-													setCopiedText(true);
-													setTimeout(function () {
-														setCopiedText(false);
-														setCopyText('Copy LGID');
-													}, 2000);
-												}}
-												onMouseEnter={() => setCopiedText(true)}
-												onMouseLeave={() => setCopiedText(false)}
-												className='p-1 rounded-lg bg-gray-100 text-gray-900 text-xs border border-gray-300 ring-gray transition-main ring-gray'
-											>
-												Leadgeek ID: {lgid}
-											</button>
-											{copiedText && (
-												<div className='absolute top-0 right-0 flex items-center p-2 transform -translate-y-10 rounded-lg shadow-md bg-gray-900 text-white text-xs whitespace-nowrap'>
-													{copyText || 'Copy LGID'}
-												</div>
-											)}
-										</div>
-									)}
-								</header>
-								<div className='grid grid-flow-col grid-rows-3 grid-cols-2 gap-y-2 gap-x-8 mt-6'>
+					{isAff ? (
+						<div className='w-full'>
+							<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-300 card-200'>
+								<div className='pb-4 border-b border-200'>
+									<header className='flex items-end justify-between px-4 md:px-6 lg:px-8'>
+										<h2 className='font-bold text-lg text-300'>
+											Basic information
+										</h2>
+										{lgid && (
+											<div className='relative'>
+												<button
+													onClick={() => {
+														navigator.clipboard.writeText(lgid || '');
+														setCopyText('LGID copied');
+														setCopiedText(true);
+														setTimeout(function () {
+															setCopiedText(false);
+															setCopyText('Copy LGID');
+														}, 2000);
+													}}
+													onMouseEnter={() => setCopiedText(true)}
+													onMouseLeave={() => setCopiedText(false)}
+													className='py-1 px-2 bg-gray-100 dark:bg-gray-900 text-300 rounded-main text-xs font-semibold transition-main ring-gray'
+												>
+													Leadgeek ID: {lgid}
+												</button>
+												{copiedText && (
+													<div className='absolute top-0 right-0 flex items-center p-2 rounded-lg shadow-md bg-gray-900 text-white text-xs whitespace-nowrap transform -translate-y-10'>
+														{copyText || 'Copy LGID'}
+													</div>
+												)}
+											</div>
+										)}
+									</header>
+								</div>
+								<ul className='grid grid-flow-col grid-rows-5 grid-cols-1 gap-y-3 gap-x-8 mt-4 px-4 md:px-6 lg:px-8'>
 									{basicInformationItems.map((item, i) => (
 										<BasicInformationItem
 											key={i}
@@ -388,14 +409,16 @@ const AffiliatesPage = () => {
 											size={item.size}
 										/>
 									))}
-								</div>
+								</ul>
 							</section>
-							<section className='mt-6'>
-								<header className='pb-2 border-b border-gray-200'>
-									<h2 className='font-bold text-lg text-gray-800'>
-										Commission history
-									</h2>
-								</header>
+							<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-300 card-200'>
+								<div className='pb-4 border-b border-200'>
+									<header className='px-4 md:px-6 lg:px-8'>
+										<h2 className='font-bold text-lg text-300'>
+											Commission history
+										</h2>
+									</header>
+								</div>
 								{paymentStatus === 'loading' ? (
 									<Spinner
 										divWidth={null}
@@ -405,56 +428,52 @@ const AffiliatesPage = () => {
 										text={'Loading affiliate payments...'}
 									/>
 								) : payments.length > 0 ? (
-									<div>
-										<div className={classes.tableWrapper}>
-											<table className={classes.table} id='payments'>
-												<thead className={classes.tableHeadWrapper}>
-													<tr className={classes.tableHead}>
-														<th>Transaction ID</th>
-														<th className={classes.tableHeadCell}>Plan</th>
-														<th className={classes.tableHeadCell}>Amount</th>
+									<div className={classes.tableWrapper}>
+										<table className={classes.table} id='payments'>
+											<thead className={classes.tableHeadWrapper}>
+												<tr className={classes.tableHead}>
+													<th>Transaction ID</th>
+													<th className={classes.tableHeadCell}>Plan</th>
+													<th className={classes.tableHeadCell}>Amount</th>
 
-														<th className='pl-2 text-right'>Date created</th>
-														<th className='pl-2 text-right'>
-															Est. payout date
-														</th>
+													<th className='pl-2 text-right'>Date created</th>
+													<th className='pl-2 text-right'>Est. payout date</th>
+												</tr>
+											</thead>
+											<tbody className={classes.tableBody}>
+												{payments.map((payment, i) => (
+													<tr key={i} className={classes.rowWrapper}>
+														{/* transaction id */}
+														<td>{truncateAndObfuscate(payment.id, 22)}</td>
+														{/* plan */}
+														<td className={classes.defaultCellWrapper}>
+															{planCheckerByPrice(payment.amount)}
+														</td>
+														{/* amount */}
+														<td className={classes.defaultCellWrapper}>
+															<span>$</span>
+															{calcAffCommission(payment.amount)}
+															<span className={classes.valueIndicator}>
+																{payment.currency.toUpperCase()}
+															</span>
+														</td>
+														{/* date created */}
+														<td className='pl-2 text-right'>
+															{formatTimestamp(payment.created, true)}
+														</td>
+														{/* payout date */}
+														<td className='pl-2 text-right'>
+															{calcNextPayoutDate(payment.created).toFormat(
+																'LLLL dd, yyyy'
+															)}
+														</td>
 													</tr>
-												</thead>
-												<tbody className={classes.tableBody}>
-													{payments.map((payment, i) => (
-														<tr key={i} className={classes.rowWrapper}>
-															{/* transaction id */}
-															<td>{truncateAndObfuscate(payment.id, 22)}</td>
-															{/* plan */}
-															<td className={classes.defaultCellWrapper}>
-																{planCheckerByPrice(payment.amount)}
-															</td>
-															{/* amount */}
-															<td className={classes.defaultCellWrapper}>
-																<span>$</span>
-																{calcAffCommission(payment.amount)}
-																<span className={classes.valueIndicator}>
-																	{payment.currency.toUpperCase()}
-																</span>
-															</td>
-															{/* date created */}
-															<td className='pl-2 text-right'>
-																{formatTimestamp(payment.created, true)}
-															</td>
-															{/* payout date */}
-															<td className='pl-2 text-right'>
-																{calcNextPayoutDate(payment.created).toFormat(
-																	'LLLL dd, yyyy'
-																)}
-															</td>
-														</tr>
-													))}
-												</tbody>
-											</table>
-										</div>
+												))}
+											</tbody>
+										</table>
 									</div>
 								) : (
-									<section className='mt-6'>
+									<section className='mt-4 px-4 md:px-6 lg:px-8'>
 										<NullState
 											header={'No affiliate payments found'}
 											text={'No payments have been found for your account.'}
@@ -468,28 +487,27 @@ const AffiliatesPage = () => {
 							{modal && (
 								<>
 									<div
-										// ref={modalRef}
 										onClick={() => {
 											setModal((prev) => !prev);
 										}}
 										className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
 									/>
 									<div
-										className={`absolute top-1/2 inset-x-0 z-20 max-h-screen max-w-4xl mx-auto p-6 rounded-lg bg-white shadow-lg transform -translate-y-1/2`}
+										className={`absolute top-1/2 inset-x-0 z-20 max-h-screen max-w-4xl mx-auto pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-200 card-200 transform -translate-y-1/2`}
 									>
-										<div className='relative pb-1 border-b border-gray-200'>
-											<header className='flex items-center'>
-												<h3 className='text-xl font-bold text-gray-800'>
+										<div className='relative pb-1 border-b border-200'>
+											<header className='px-4 md:px-6 lg:px-8'>
+												<h3 className='text-xl font-bold text-300'>
 													Generated affiliate links
 												</h3>
 											</header>
 											<button
 												onClick={() => setModal((prev) => !prev)}
-												className='absolute top-0 right-0 ml-2 p-1 hover:bg-gray-100 rounded-md hover:text-gray-700 ring-gray transition duration-100 ease-in-out'
+												className='absolute top-0 right-3 md:right-5 lg:right-7 ml-2 p-1 hover:bg-gray-100 rounded-md hover:text-gray-700 ring-gray transition-main'
 											>
 												<svg
 													xmlns='http://www.w3.org/2000/svg'
-													className='h-5 w-5'
+													className='svg-base'
 													viewBox='0 0 20 20'
 													fill='currentColor'
 												>
@@ -501,20 +519,22 @@ const AffiliatesPage = () => {
 												</svg>
 											</button>
 										</div>
-										{codeItems.map((codeItem, i) => (
-											<CodeItem
-												key={i}
-												title={codeItem.title}
-												code={codeItem.code}
-												clipboard={codeItem.clipboard}
-											/>
-										))}
+										<div className='px-4 md:px-6 lg:px-8'>
+											{codeItems.map((codeItem, i) => (
+												<CodeItem
+													key={i}
+													title={codeItem.title}
+													code={codeItem.code}
+													clipboard={codeItem.clipboard}
+												/>
+											))}
+										</div>
 									</div>
 								</>
 							)}
 						</div>
 					) : (
-						<section className='mt-6'>
+						<section className='mt-4'>
 							<NullState
 								header={'Become a Leadgeek affiliate'}
 								text={
@@ -561,15 +581,15 @@ const BasicInformationItem: React.FC<BasicInformationItemProps> = ({
 	const [tooltip, setTooltip] = useState(false);
 
 	return (
-		<div
-			className={`flex justify-between text-gray-900 ${
+		<li
+			className={`flex justify-between text-200 ${
 				size ? `${size} items-start` : 'items-center'
 			}`}
 		>
 			<header className='flex items-center'>
 				<h3 className='align-bottom'>{title}</h3>
 				{t && (
-					<div className='mt-1 ml-2 relative z-0 flex items-end'>
+					<div className='relative z-0 flex items-end mt-1 ml-2'>
 						<div
 							onMouseEnter={() => setTooltip(true)}
 							onMouseLeave={() => setTooltip(false)}
@@ -589,7 +609,7 @@ const BasicInformationItem: React.FC<BasicInformationItemProps> = ({
 							</svg>
 						</div>
 						{tooltip && (
-							<div className='absolute left-0 flex items-center p-2 transform translate-x-6 translate-y-1 rounded-lg shadow-md bg-gray-900 text-white text-xs whitespace-nowrap'>
+							<div className='absolute left-0 flex items-center p-2 rounded-main shadow-md bg-gray-900 text-white text-xs whitespace-nowrap transform translate-x-6 translate-y-1'>
 								{t}
 							</div>
 						)}
@@ -597,7 +617,7 @@ const BasicInformationItem: React.FC<BasicInformationItemProps> = ({
 				)}
 			</header>
 			{isInteractable ? value : <div>{value}</div>}
-		</div>
+		</li>
 	);
 };
 
@@ -613,8 +633,8 @@ const CodeItem: React.FC<CodeItemProps> = ({ title, code, clipboard }) => {
 
 	return (
 		<div className='mt-6'>
-			<header className='relative pb-1 border-b border-gray-200'>
-				<h4 className='text-lg font-bold text-gray-800'>{title}</h4>
+			<header className='relative pb-1 border-b border-200'>
+				<h4 className='text-lg font-bold text-300'>{title}</h4>
 				{hover && (
 					<div className='absolute left-1/2 transform -translate-x-1/2 -translate-y-8 p-2 rounded-lg shadow-md bg-gray-900 text-white text-xs whitespace-nowrap'>
 						{copyText}
@@ -633,9 +653,9 @@ const CodeItem: React.FC<CodeItemProps> = ({ title, code, clipboard }) => {
 						setHover(false);
 					}, 2000);
 				}}
-				className='w-full mt-2 rounded-lg text-left ring-gray transition-main'
+				className='w-full mt-2 rounded-main text-left ring-gray transition-main'
 			>
-				<pre className='p-4 bg-gray-900 rounded-lg text-gray-300 shadow-lg whitespace-pre'>
+				<pre className='p-4 bg-gray-900 dark:bg-darkGray-100 card-200 text-gray-300 whitespace-pre'>
 					{code}
 				</pre>
 			</button>
@@ -660,7 +680,7 @@ const svgList = {
 };
 
 const classes = {
-	tableWrapper: 'w-full relative mt-4',
+	tableWrapper: 'w-full relative mt-4 px-4 md:px-6 lg:px-8',
 	table: 'w-full table-auto',
 	tableHeadWrapper: 'border-b border-gray-200',
 	tableHead:

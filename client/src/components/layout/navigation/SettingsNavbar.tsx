@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { NavLink } from 'react-router-dom';
 
@@ -42,13 +42,13 @@ const SettingsNavbar = () => {
 			description: 'Manage your Leadgeek plans',
 			new: false,
 		},
-		{
-			title: 'Affiliates',
-			link: '/settings/affiliates/',
-			description:
-				'Generate your unique affiliate link and view earned commissions',
-			new: true,
-		},
+		// {
+		// 	title: 'Affiliates',
+		// 	link: '/settings/affiliates/',
+		// 	description:
+		// 		'Generate your unique affiliate link and view earned commissions',
+		// 	new: true,
+		// },
 	];
 
 	return (

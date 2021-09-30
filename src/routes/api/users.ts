@@ -276,121 +276,135 @@ router.post(
 // @route       POST api/get-active-plan-details
 // @description Get a user's subscription information for the active plan
 // @access      Private
-router.post('/active-plan-details', auth, async (req, res) => {
-	try {
-		// desctructure necessary items
-		const { subId } = req.body;
-		let message;
-		if (subId) {
-			// handler to create subscription info object
-			const returnSubscriptionInfo = (
-				item: Stripe.Response<Stripe.Subscription>
-			) => {
-				console.log(item);
-				return {
-					id: item.id,
-					cancelAt: item.cancel_at,
-					cancelAtPeriodEnd: item.cancel_at_period_end,
-					created: item.created,
-					currentPeriodEnd: item.current_period_end,
-					plan: {
-						id: item.items.data[0].price.product,
-						amount: item.items.data[0].price.unit_amount,
-					},
+router.post(
+	'/active-plan-details',
+	auth,
+	async (req: Request<{}, {}, { subId: string }>, res: Response) => {
+		try {
+			// desctructure necessary items
+			const { subId } = req.body;
+			let message;
+			if (subId) {
+				// handler to create subscription info object
+				const returnSubscriptionInfo = (
+					item: Stripe.Response<Stripe.Subscription>
+				) => {
+					return {
+						id: item.id,
+						cancelAt: item.cancel_at,
+						cancelAtPeriodEnd: item.cancel_at_period_end,
+						created: item.created,
+						currentPeriodEnd: item.current_period_end,
+						plan: {
+							id: item.items.data[0].price.product,
+							amount: item.items.data[0].price.unit_amount,
+						},
+					};
 				};
-			};
-			// get the active subscription from stripe
-			const subscription = await stripe.subscriptions.retrieve(subId);
-			// create the subscription info object
-			const subscriptionData = returnSubscriptionInfo(subscription);
+				// get the active subscription from stripe
+				const subscription = await stripe.subscriptions.retrieve(subId);
+				// create the subscription info object
+				const subscriptionData = returnSubscriptionInfo(subscription);
 
-			message = 'Subscription data found';
-			console.log(message);
+				message = 'Subscription data found';
+				console.log(message);
 
-			// return the subscription data + message
-			return res.status(200).json({
-				message,
-				subscription: subscriptionData,
-			});
-		} else {
-			message = 'No active subscriptions found';
-			console.log(message);
+				// return the subscription data + message
+				return res.status(200).json({
+					message,
+					subscription: subscriptionData,
+				});
+			} else {
+				message = 'No active subscriptions found';
+				console.log(message);
 
-			// return an empty subscription object + message
-			return res.status(200).json({ message, subscription: {} });
+				// return an empty subscription object + message
+				return res.status(200).json({ message, subscription: {} });
+			}
+		} catch (error) {
+			console.error(error.message);
+			res.status(500).send('Server error');
 		}
-	} catch (error) {
-		console.error(error.message);
-		res.status(500).send('Server error');
 	}
-});
+);
 
 // @route       POST api/get-affiliate-payments
 // @description Retrieve an affiliates payments
 // @access      Private
-// router.post(
-// 	'/get-affiliate-payments',
-// 	auth,
-// 	async (req, res) => {
-// 		try {
-// 			const { clients, affCreated } = req.body;
+router.post(
+	'/affiliate-payments',
+	auth,
+	async (
+		req: Request<
+			{},
+			{},
+			{ clients: { userId: string; cusId: string }[]; affCreated: string }
+		>,
+		res: Response
+	) => {
+		try {
+			// destructure necessary items
+			const { clients, affCreated } = req.body;
+			console.log(clients, affCreated);
 
-// 			const affCreatedUnix = (new Date(affCreated).getTime() / 1000).toFixed(0);
+			// fn to change date string to UNIX timestamp for Stripe API
+			const affCreatedUnix = (new Date(affCreated).getTime() / 1000).toFixed(0);
 
-// 			let clientCusIds = [];
-// 			clients.map((client) => clientCusIds.push(client.cusId));
+			// push client cusIds into array
+			let clientCusIds: string[] = [];
+			clients.map((client) => clientCusIds.push(client.cusId));
 
-// 			const returnChargeInfo = (item) => {
-// 				return {
-// 					id: item.id,
-// 					amount: item.amount,
-// 					amountCaptured: item.amount_captured,
-// 					currency: item.currency,
-// 					created: item.created,
-// 					customer: item.customer,
-// 					paid: item.paid,
-// 					refunded: item.refunded,
-// 				};
-// 			};
+			const returnChargeInfo = (item: any) => {
+				return {
+					id: item.id,
+					amount: item.amount,
+					amountCaptured: item.amount_captured,
+					currency: item.currency,
+					created: item.created,
+					customer: item.customer,
+					paid: item.paid,
+					refunded: item.refunded,
+				};
+			};
 
-// 			let allCharges = [];
+			let allCharges = [];
 
-// 			if (clientCusIds.length > 0) {
-// 				console.log('Getting all Stripe charges...');
-// 				for await (const charge of stripe.charges.list({
-// 					limit: 100,
-// 					created: { gte: affCreatedUnix },
-// 				})) {
-// 					allCharges.push(returnChargeInfo(charge));
-// 				}
+			if (clientCusIds.length > 0) {
+				console.log('Getting all Stripe charges...');
+				for await (const charge of stripe.charges.list({
+					limit: 100,
+					created: { gte: +affCreatedUnix },
+				})) {
+					allCharges.push(returnChargeInfo(charge));
+				}
 
-// 				const affPayments = allCharges
-// 					.filter((charge) => clientCusIds.includes(charge.customer))
-// 					.filter(
-// 						(charge) => charge.paid === true && charge.refunded === false
-// 					);
+				const affPayments = allCharges
+					.filter((charge) => clientCusIds.includes(charge.customer))
+					.filter(
+						(charge) => charge.paid === true && charge.refunded === false
+					);
 
-// 				let message;
-// 				if (affPayments.length > 0) {
-// 					message = 'Referred clients with valid payments were found.';
-// 					console.log(message);
-// 					return res.status(200).json({ message, affPayments });
-// 				} else {
-// 					message = 'No referred clients found';
-// 					console.log(message);
-// 					return res.status(200).json({ message, affPayments: [] });
-// 				}
-// 			} else {
-// 				let message = 'No referred clients found';
-// 				console.log(message);
-// 				return res.status(200).json({ message, affPayments: [] });
-// 			}
-// 		} catch (error) {
-// 			console.error(error.message);
-// 			res.status(500).send('Server error');
-// 		}
-// 	}
-// );
+				let message;
+				if (affPayments.length > 0) {
+					message = 'Referred clients with valid payments were found.';
+					console.log(message);
+					return res.status(200).json({ message, affPayments });
+				} else {
+					message = 'No referred clients found';
+					console.log(message);
+					return res.status(200).json({ message, affPayments: [] });
+				}
+			} else {
+				let message = 'No referred clients found';
+				console.log(message);
+				return res.status(200).json({ message, affPayments: [] });
+			}
+		} catch (error) {
+			console.error(error.message);
+			res.status(500).send('Server error');
+		}
+	}
+);
 
 // router.put('/update-affiliate-paypal', auth, async (req, res) => {
 // 	try {

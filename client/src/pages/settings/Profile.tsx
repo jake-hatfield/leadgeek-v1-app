@@ -14,8 +14,8 @@ import Spinner from '@components/utils/Spinner';
 
 const ProfilePage = () => {
 	const status = useAppSelector((state) => state.auth.status);
-	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 	const user = useAppSelector((state) => state.auth.user);
+
 	return (
 		user && (
 			<AuthLayout>
@@ -30,8 +30,6 @@ const ProfilePage = () => {
 								'LLL dd, yyyy'
 							)}`,
 					}}
-					isAuthenticated={isAuthenticated}
-					user={user}
 				>
 					<section>
 						{status === 'loading' ? (

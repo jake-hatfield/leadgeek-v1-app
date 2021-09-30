@@ -25,10 +25,8 @@ export const useDarkMode = (): (
 			// (!('theme' in localStorage) &&
 			// 	window.matchMedia('(prefers-color-scheme: dark)').matches)
 		) {
-			console.log('Dark theme!');
 			document.documentElement.classList.add('dark');
 		} else {
-			console.log('Light theme!');
 			document.documentElement.classList.remove('dark');
 		}
 	}, [theme, colorTheme]);

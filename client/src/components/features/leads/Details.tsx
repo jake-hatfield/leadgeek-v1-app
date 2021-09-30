@@ -214,7 +214,7 @@ const Details: React.FC<DetailsProps> = ({
 
 	// close details handler
 	const removeDetails = () => {
-		showDetails && setShowDetails(false);
+		setShowDetails(false);
 		return setTimeout(() => {
 			dispatch(clearCurrentLead());
 		}, animationTimeout + 1);

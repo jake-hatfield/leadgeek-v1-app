@@ -197,9 +197,9 @@ body {
 }
 
 .code-html-tag {
-	@apply text-pink-600;
+	@apply text-pink-600 dark:text-pink-300;
 }
 
 .code-html-attribute {
-	@apply text-purple-400;
+	@apply text-purple-400 dark:text-purple-300;
 }
