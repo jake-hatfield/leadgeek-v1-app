@@ -1,6 +1,11 @@
-import React, { RefObject, useEffect, useReducer } from 'react';
+import React, { RefObject, useEffect } from 'react';
 
+// packages
 import { DateTime } from 'luxon';
+
+// redux
+import { setAlert } from '@components/features/alert/alertSlice';
+import { updatePassword } from '@components/features/auth/authSlice';
 
 export const config = {
 	headers: {
@@ -318,3 +323,71 @@ export const passwordList = [
 	'matrix',
 	'minecraft',
 ];
+
+export const handleUpdatePassword = (
+	e: React.FormEvent<HTMLFormElement>,
+	email: string,
+	password_1: string,
+	password_2: string
+) => {
+	e.preventDefault();
+
+	// error for empty password
+	if (!password_1 || !password_2) {
+		return setAlert({
+			title: 'Required field missing',
+			message: "Password field can't be empty",
+			alertType: 'danger',
+		});
+	}
+
+	// error for password not matching
+	if (password_1 !== password_2) {
+		return setAlert({
+			title: "Passwords don't match",
+			message: 'Check spelling or case sensitivity',
+			alertType: 'danger',
+		});
+	}
+
+	// error for password too short
+	if (password_1.length <= 7 && password_2.length <= 7) {
+		return setAlert({
+			title: 'Password is too short',
+			message: 'Password must be at least 7 characters.',
+			alertType: 'danger',
+		});
+	}
+
+	// error for if password contains email string
+	const stringBeforeAt = (string: string) => {
+		let splitString = string.split('@');
+		return splitString[0];
+	};
+	let emailBeforeAt = stringBeforeAt(email);
+	if (
+		password_1.includes(emailBeforeAt) ||
+		password_2.includes(emailBeforeAt)
+	) {
+		return setAlert({
+			title: 'Something went wrong',
+			message:
+				'The password is too similar to your email. Please choose another password.',
+			alertType: 'danger',
+		});
+	}
+
+	// error for if password is from a list of common passwords
+	if (passwordList.includes(password_1) || passwordList.includes(password_2)) {
+		return setAlert({
+			title: 'Something went wrong',
+			message:
+				'The provided password is too common. Please pick a more unique password.',
+			alertType: 'danger',
+		});
+	} else {
+		// password passes, update in DB
+		const password = password_1;
+		return updatePassword({ email, password });
+	}
+};

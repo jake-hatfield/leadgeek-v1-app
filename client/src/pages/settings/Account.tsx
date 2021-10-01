@@ -101,7 +101,7 @@ const AccountPage = () => {
 										</header>
 									</div>
 									<div className='card-padding-x'>
-										<form
+										{/* <form
 											onSubmit={(e) => onFormSubmit(e)}
 											className={flex ? 'flex items-center' : ''}
 										>
@@ -123,7 +123,7 @@ const AccountPage = () => {
 												required={true}
 												styles={'w-1/2 ml-16'}
 											/>
-										</form>
+										</form> */}
 									</div>
 									<div className='flex justify-end mt-4 py-2 card-padding-x cs-bg rounded-b-lg border-t border-300'>
 										<Button
