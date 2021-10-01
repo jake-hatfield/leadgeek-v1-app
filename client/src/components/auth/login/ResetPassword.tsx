@@ -6,13 +6,10 @@ import { updatePassword } from '@features/auth/authSlice';
 import { setAlert } from '@features/alert/alertSlice';
 
 // components
-import FormField from '@components/utils/FormField';
-import { ReactComponent as Check } from '@assets/images/svgs/check.svg';
-import { ReactComponent as X } from '@assets/images/svgs/x.svg';
+import PasswordFormField from '@components/utils/PasswordFormField';
 
 // utils
 import { passwordList } from '@utils/utils';
-import PasswordFormField from '@components/utils/PasswordFormField';
 
 interface ResetPasswordProps {
 	email: string;
@@ -29,17 +26,19 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({
 
 	// auth state
 	const authStatus = useAppSelector((state) => state.auth.status);
+
+	// local state
+	const [commonPasswordValidated, setCommonPasswordValidated] = useState(false);
+	const [emailValidated, setEmailValidated] = useState(false);
 	const [formData, setFormData] = useState({
 		password_1: '',
 		password_2: '',
 	});
-	const { password_1, password_2 } = formData;
 	const [lengthValidated, setLengthValidated] = useState(false);
-	const [emailValidated, setEmailValidated] = useState(false);
-	const [commonPasswordValidated, setCommonPasswordValidated] = useState(false);
-	const checkSyles =
-		'inline-block h-4 w-4 text-teal-500 bg-teal-200 rounded-full';
-	const xStyles = 'inline-block h-4 w-4 text-red-500 bg-red-200 rounded-full';
+	const [terriblePasswords] = useState(passwordList);
+
+	// destructure necessary items
+	const { password_1, password_2 } = formData;
 
 	// reset password validation
 	// export const resetPwValidation = (resetPwToken) => async (dispatch) => {
@@ -110,61 +109,11 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({
 	// 	}
 	// };
 
-	const securityMeasureBullets = [
-		{
-			svg: (
-				<span>
-					{lengthValidated ? (
-						<Check className={checkSyles} />
-					) : (
-						<X className={xStyles} />
-					)}
-				</span>
-			),
-			content: 'Is 7 characters or longer',
-		},
-		{
-			svg: (
-				<span>
-					{emailValidated ? (
-						<Check className={checkSyles} />
-					) : (
-						<X className={xStyles} />
-					)}
-				</span>
-			),
-			content: `Does not match or significantly contain your email, e.g. don't use "email123"`,
-		},
-		{
-			svg: (
-				<span>
-					{commonPasswordValidated ? (
-						<Check className={checkSyles} />
-					) : (
-						<X className={xStyles} />
-					)}
-				</span>
-			),
-			content: (
-				<span>
-					Is not a member of this{' '}
-					<a
-						href='https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-100.txt'
-						target='_blank'
-						rel='noopener noreferrer'
-						className='link'
-					>
-						list of common passwords
-					</a>
-				</span>
-			),
-		},
-	];
+	// handle form input change
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
-	const [terriblePasswords] = useState(passwordList);
 	useEffect(() => {
 		if (password_1 || password_2) {
 			setCommonPasswordValidated(false);
@@ -204,73 +153,77 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({
 				setEmailValidated(true);
 			}
 			if (password_1.length < 7 || password_2.length < 7) {
-				setLengthValidated(false);
-				return;
+				return setLengthValidated(false);
 			}
 		}
-	}, [password_1, password_2, terriblePasswords, setAlert, email]);
+	}, [password_1, password_2, terriblePasswords, email]);
+
 	const handleUpdatePassword = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		// error for empty password
 		if (!password_1 || !password_2) {
-			setAlert({
+			return setAlert({
 				title: 'Please enter a password',
 				message:
 					"The password field can't be empty. Please enter a password and try again.",
 				alertType: 'danger',
 			});
-			return;
 		}
+		// error for password not matching
 		if (password_1 !== password_2) {
-			setAlert({
+			return setAlert({
 				title: "The passwords don't match",
 				message:
 					"The passwords don't match up. Please check spelling or case sensitivity and try again.",
 				alertType: 'danger',
 			});
-			return;
 		} else {
+			// error for password too short
 			if (!lengthValidated) {
-				setAlert({
+				return setAlert({
 					title: 'The password is too short',
 					message: 'The password needs to be at least 7 characters.',
 					alertType: 'danger',
 				});
-				return;
 			} else {
+				// password passes, update in DB
 				const password = password_1;
-				updatePassword({ email, password });
-				return;
+				return updatePassword({ email, password });
 			}
 		}
 	};
-	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+	// handle form submit
+	const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (lengthValidated && emailValidated && commonPasswordValidated) {
 			handleUpdatePassword(e);
 		}
 	};
+
 	return authStatus === 'idle' ? (
-		<form onSubmit={(e) => onSubmit(e)}>
-			<div className={flex ? 'flex items-center' : ''}>
-				<PasswordFormField
-					label='New Password'
-					placeholder='Create a new password'
-					name='password_1'
-					value={password_1}
-					onChange={(e) => onChange(e)}
-					required={true}
-					styles={'w-1/2'}
-				/>
-				<PasswordFormField
-					label='Confirm Password'
-					placeholder='Enter the password again'
-					name='password_2'
-					value={password_2}
-					onChange={(e) => onChange(e)}
-					required={true}
-					styles={'w-1/2 ml-16'}
-				/>
-			</div>
+		<form
+			onSubmit={(e) => onFormSubmit(e)}
+			className={flex ? 'flex items-center' : ''}
+		>
+			<PasswordFormField
+				label='New Password'
+				placeholder='Create a new password'
+				name='password_1'
+				value={password_1}
+				onChange={(e) => onChange(e)}
+				required={true}
+				styles={'w-1/2'}
+			/>
+			<PasswordFormField
+				label='Confirm Password'
+				placeholder='Enter the password again'
+				name='password_2'
+				value={password_2}
+				onChange={(e) => onChange(e)}
+				required={true}
+				styles={'w-1/2 ml-16'}
+			/>
 		</form>
 	) : (
 		<div />

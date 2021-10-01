@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { DateTime } from 'luxon';
 
 // redux
-import { useAppSelector, useDarkMode } from '@hooks/hooks';
+import { useAppDispatch, useAppSelector, useDarkMode } from '@hooks/hooks';
+import { updatePassword } from '@components/features/auth/authSlice';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
@@ -15,6 +16,8 @@ import SettingsLayout from '@components/layout/SettingsLayout';
 import Spinner from '@components/utils/Spinner';
 
 const AccountPage = () => {
+	const dispatch = useAppDispatch();
+
 	// auth state
 	const status = useAppSelector((state) => state.auth.status);
 	const user = useAppSelector((state) => state.auth.user);
@@ -98,11 +101,29 @@ const AccountPage = () => {
 										</header>
 									</div>
 									<div className='card-padding-x'>
-										<ResetPassword
-											email={user && user.email}
-											flex={true}
-											fullWidthButton={false}
-										/>
+										<form
+											onSubmit={(e) => onFormSubmit(e)}
+											className={flex ? 'flex items-center' : ''}
+										>
+											<PasswordFormField
+												label='New Password'
+												placeholder='Create a new password'
+												name='password_1'
+												value={password_1}
+												onChange={(e) => onChange(e)}
+												required={true}
+												styles={'w-1/2'}
+											/>
+											<PasswordFormField
+												label='Confirm Password'
+												placeholder='Enter the password again'
+												name='password_2'
+												value={password_2}
+												onChange={(e) => onChange(e)}
+												required={true}
+												styles={'w-1/2 ml-16'}
+											/>
+										</form>
 									</div>
 									<div className='flex justify-end mt-4 py-2 card-padding-x cs-bg rounded-b-lg border-t border-300'>
 										<Button
@@ -127,7 +148,6 @@ const AccountPage = () => {
 									<div className='mt-4 card-padding-x'>
 										<div className='center-between text-200'>
 											<div>Theme</div>
-
 											<label
 												htmlFor='colorTheme'
 												className='flex items-center cursor-pointer text-sm font-semibold text-100'
