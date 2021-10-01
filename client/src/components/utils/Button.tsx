@@ -10,6 +10,7 @@ interface ButtonProps {
 	path: any;
 	conditional: any;
 	conditionalDisplay: any;
+	lightOnly?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -22,6 +23,7 @@ const Button: React.FC<ButtonProps> = ({
 	path,
 	conditional,
 	conditionalDisplay,
+	lightOnly,
 }) => {
 	return (
 		<button
@@ -32,7 +34,9 @@ const Button: React.FC<ButtonProps> = ({
 				size === 'sm' ? 'text-sm' : 'text-xs'
 			} font-semibold ${
 				cta
-					? 'cs-purple'
+					? lightOnly
+						? 'cs-purple-light'
+						: 'cs-purple'
 					: 'text-100 group hover:text-purple-500 dark:hover:text-purple-300 dark:bg-darkGray-300 dark:hover:bg-darkGray-200'
 			} transition-main ring-purple`}
 		>

@@ -55,8 +55,7 @@ export const authenticateUser = createAsyncThunk(
 			dispatch(
 				setAlert({
 					title: 'Login error',
-					message:
-						"Email & password combination aren't correct. Please try again or reset your password.",
+					message: "Email & password combination aren't correct",
 					alertType: 'danger',
 				})
 			);
@@ -104,7 +103,7 @@ export const updatePassword = createAsyncThunk(
 				dispatch(
 					setAlert({
 						title: 'Reset success',
-						message: 'Your password was successfully updated.',
+						message: 'Your password was successfully updated',
 						alertType: 'success',
 					})
 				);
@@ -115,8 +114,7 @@ export const updatePassword = createAsyncThunk(
 				return dispatch(
 					setAlert({
 						title: 'Error resetting password',
-						message:
-							"Your password couldn't be updated. Please contact support.",
+						message: 'Please contact support',
 						alertType: 'danger',
 					})
 				);

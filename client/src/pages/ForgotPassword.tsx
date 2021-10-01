@@ -1,30 +1,40 @@
 import React, { useState } from 'react';
 
-import { NavLink } from 'react-router-dom';
+// packages
 import axios from 'axios';
+import { NavLink } from 'react-router-dom';
 
+// redux
+import { useAppDispatch } from '@hooks/hooks';
 import { setAlert } from '@features/alert/alertSlice';
 
+// components
+import Button from '@components/utils/Button';
+import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 import DefaultLayout from '@components/layout/DefaultLayout';
 import FormField from '@components/utils/FormField';
-// import LoginImage from '@components/auth/login/LoginImage';
-import DefaultFooter from '@components/layout/navigation/DefaultFooter';
-import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/leadgeek-logo-light.svg';
-import Button from '@components/utils/Button';
+import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/logo-app.svg';
 
+// utils
 import { setResetPwToken } from '@utils/authTokens';
 import { config } from '@utils/utils';
-import { useAppDispatch } from '@hooks/hooks';
 
-const ForgotPassword = () => {
+const ForgotPassword: React.FC = () => {
 	const dispatch = useAppDispatch();
+
+	// local state
 	const [formData, setFormData] = useState({
 		email: '',
 	});
+
+	// destructure necessary items
 	const { email } = formData;
+
+	// on form input change
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 
+	// forgot password handler
 	const forgotPassword = async (email: string) => {
 		const emailToLowerCase = email.toLowerCase();
 		const body = JSON.stringify({ email: emailToLowerCase });
@@ -38,7 +48,7 @@ const ForgotPassword = () => {
 				dispatch(
 					dispatch(
 						setAlert({
-							title: 'Email sent',
+							title: 'Success',
 							message: `An email has been sent to ${email} if an account is associated.`,
 							alertType: 'success',
 						})
@@ -53,7 +63,7 @@ const ForgotPassword = () => {
 			if (errorMsg === 'Email not found in database') {
 				dispatch(
 					setAlert({
-						title: 'Email sent',
+						title: 'Success',
 						message: `An email has been sent to ${email} if an account is associated.`,
 						alertType: 'success',
 					})
@@ -62,8 +72,7 @@ const ForgotPassword = () => {
 				dispatch(
 					setAlert({
 						title: 'Error sending email',
-						message:
-							'Email could not be sent. Please contact LeadGeek support.',
+						message: 'Please contact support',
 						alertType: 'danger',
 					})
 				);
@@ -71,14 +80,15 @@ const ForgotPassword = () => {
 		}
 	};
 
+	// submit handler
 	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		// error for empty email
 		if (email === '') {
 			dispatch(
 				setAlert({
-					title: 'Please enter your email',
-					message:
-						'The email field is required. Please enter one and try again.',
+					title: 'Required field missing',
+					message: 'Please enter your email',
 					alertType: 'danger',
 				})
 			);
@@ -88,68 +98,70 @@ const ForgotPassword = () => {
 	};
 	return (
 		<DefaultLayout>
-			<section className='h-screen relative flex justify-center bg-gray-100'>
-				<div className='h-2 absolute z-10 inset-x-0 top-0 bg-purple-300' />
-				<div className='xl:h-screen w-full xl:w-3/5 md:flex md:flex-col md:justify-between bg-gray-100'>
-					<div className='mt-6 hidden md:block container'>
-						<a href='https://leadgeek.io'>
-							<LeadGeekLogo className='inline-block w-12' />
-						</a>
-					</div>
-					<div>
-						<div className='mt-12 md:mt-0 mx-auto py-4 lg:py-6 px-6 md:px-8 lg:px-12 w-full max-w-md bg-white rounded-md shadow-lg'>
-							<header>
-								<LeadGeekLogo className='md:hidden w-12' />
-								<h1 className='pb-2 text-xl md:text-2xl lg:text-3xl font-black text-gray-900 border-b border-gray-200'>
-									Reset password
-								</h1>
-								<div className='mt-2'>
-									<p className='inline-block'>
-										Don't worry, it happens to the best of us.
-									</p>
-									<p className='mt-2 inline-block'>
-										We'll send password reset instructions to the email below.
-									</p>
-								</div>
-							</header>
-							<form className='my-3' onSubmit={(e) => onSubmit(e)}>
-								<FormField
-									label='Email'
-									type='email'
-									placeholder='dsaunders@gmail.com'
-									name='email'
-									value={email}
-									onChange={onChange}
-									required={true}
-									styles={null}
-								/>
-								<div className='mt-4'>
-									<Button
-										text={'Send email'}
-										onClick={onSubmit}
-										width={'w-full'}
-										margin={false}
-										size={'sm'}
-										path={null}
-										cta={true}
-										conditional={null}
-										conditionalDisplay={null}
-									/>
-								</div>
-								<div className='mt-4 text-sm text-gray-400'>
-									<NavLink exact to={'/login'} className='link'>
-										Back to log in
-									</NavLink>
-								</div>
-							</form>
+			<section className={classes.content}>
+				<article className='mt-12 md:mt-0 mx-auto w-full max-w-md card-300 bg-white card-padding-y'>
+					<header className='pb-4 border-b border-gray-200'>
+						<h1 className='card-padding-x font-bold text-xl text-gray-900'>
+							Reset password
+						</h1>
+					</header>
+					<div className='card-padding-x'>
+						<div className='mt-4'>
+							<p className='inline-block'>
+								Don't worry, it happens to the best of us.
+							</p>
+							<p className='mt-2 inline-block'>
+								Receive password reset instructions to the email below.
+							</p>
 						</div>
+						<form onSubmit={(e) => onSubmit(e)}>
+							<FormField
+								label='Email'
+								type='email'
+								placeholder='dsaunders@gmail.com'
+								name='email'
+								value={email}
+								onChange={onChange}
+								required={true}
+								styles={null}
+								lightOnly={true}
+							/>
+							<div className='mt-4'>
+								<Button
+									text={'Send email'}
+									onClick={onSubmit}
+									width={'w-full'}
+									margin={false}
+									size={'sm'}
+									path={null}
+									cta={true}
+									conditional={null}
+									conditionalDisplay={null}
+									lightOnly={true}
+								/>
+							</div>
+							<div className='mt-4 text-sm text-gray-400'>
+								<NavLink exact to={'/login'} className='link-light'>
+									Back to log in
+								</NavLink>
+							</div>
+						</form>
 					</div>
-					<DefaultFooter />
-				</div>
-				{/* <LoginImage /> */}
+				</article>
 			</section>
 		</DefaultLayout>
 	);
+};
+
+const classes = {
+	card: 'max-w-md w-full mt-12 md:mt-0 mx-auto card-200 card-padding-y bg-white',
+	content: 'h-full w-full md:flex md:flex-col md:justify-center container',
+	contentHeader: 'mt-8 hidden md:block container',
+	logoLg: 'default-logo-lg text-purple-500',
+	logoSm: 'default-logo-sm',
+	signup: 'flex items-center mt-4 card-padding-x text-sm',
+	subheaderLink: 'block md:inline-block ml-2 link',
+	title: 'card-padding-x font-bold text-xl text-gray-900',
 };
 
 export default ForgotPassword;

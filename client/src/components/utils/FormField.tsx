@@ -9,6 +9,7 @@ interface FormFieldProps {
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	required: boolean;
 	styles: string | null;
+	lightOnly?: boolean;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -20,10 +21,14 @@ const FormField: React.FC<FormFieldProps> = ({
 	onChange,
 	required,
 	styles,
+	lightOnly,
 }) => {
 	return (
 		<div className={`pt-4 ${styles ? styles : ''} flex-col items-center`}>
-			<label htmlFor={name} className='form-field-label'>
+			<label
+				htmlFor={name}
+				className={lightOnly ? 'form-field-label-light' : 'form-field-label'}
+			>
 				{label}
 			</label>
 			<input
@@ -34,7 +39,7 @@ const FormField: React.FC<FormFieldProps> = ({
 				placeholder={placeholder}
 				required={required}
 				onChange={onChange}
-				className='mt-1 form-field'
+				className={`mt-1 ${lightOnly ? 'form-field-light' : 'form-field'}`}
 			/>
 		</div>
 	);

@@ -32,8 +32,12 @@ body {
 	@apply flex items-center justify-between;
 }
 
+.link-light {
+	@apply font-semibold text-purple-800 hover:text-purple-900 transition-main;
+}
+
 .link {
-	@apply font-semibold text-purple-800 hover:text-purple-900 dark:text-purple-300 dark:hover:text-purple-400 transition-main;
+	@apply link-light dark:text-purple-300 dark:hover:text-purple-400;
 }
 
 .rounded-main {
@@ -100,8 +104,12 @@ body {
 	@apply bg-gray-900 text-white;
 }
 
+.cs-purple-light {
+	@apply bg-purple-500 hover:bg-purple-600 text-white;
+}
+
 .cs-purple {
-	@apply bg-purple-500 hover:bg-purple-600 dark:bg-purple-200 dark:hover:bg-purple-300 text-white dark:text-purple-900;
+	@apply cs-purple-light dark:bg-purple-200 dark:hover:bg-purple-300 dark:text-purple-900;
 }
 
 .cs-pink {
@@ -132,8 +140,12 @@ body {
 	@apply rounded-main border border-300 shadow-xl;
 }
 
+.input-light {
+	@apply bg-gray-100 hover:bg-gray-200;
+}
+
 .input {
-	@apply bg-gray-100 hover:bg-gray-200 dark:bg-darkGray-400 dark:hover:bg-darkGray-300;
+	@apply input-light dark:bg-darkGray-400 dark:hover:bg-darkGray-300;
 }
 
 .button-gray-100 {
@@ -156,8 +168,16 @@ body {
 	@apply card-padding-y card-padding-x;
 }
 
+.form-field-light {
+	@apply w-full mt-2 p-2 input-light rounded-main text-sm border border-300 placeholder-gray-700 ring-purple;
+}
+
 .form-field {
 	@apply w-full mt-2 p-2 input rounded-main text-sm border border-300 placeholder-gray-700 ring-purple;
+}
+
+.form-field-label-light {
+	@apply block text-sm font-semibold text-gray-700;
 }
 
 .form-field-label {
@@ -210,4 +230,10 @@ body {
 
 .code-html-attribute {
 	@apply text-purple-400 dark:text-purple-300;
+}
+
+.bg-splatter {
+	background: #fff url('../assets/images/pngs/bg-splatter.png') top;
+	background-size: 1132px 1014px;
+	@apply relative z-0 overflow-hidden !important;
 }

@@ -245,6 +245,21 @@ const BillingPage = () => {
 				</div>
 			),
 		},
+		{
+			title: 'Update subscription',
+			value: (
+				<div>
+					<a
+						href='mailto:support@leadgeek.io'
+						target='_blank'
+						rel='noopener noreferrer'
+						className='link'
+					>
+						Contact support
+					</a>
+				</div>
+			),
+		},
 	];
 
 	return (
@@ -260,7 +275,7 @@ const BillingPage = () => {
 						{user?.subscription.cusId ? (
 							<>
 								{/* subscription information */}
-								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-6 cs-light-300 card-200'>
+								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-5 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
 										<header className='card-padding-x'>
 											<h2 className='font-bold text-lg text-300'>
@@ -277,7 +292,7 @@ const BillingPage = () => {
 											text={'Loading subscription information...'}
 										/>
 									) : planState.plan.id ? (
-										<dl className='grid grid-flow-col grid-rows-5 grid-cols-1 gap-y-3 gap-x-8 mt-4 text-200'>
+										<dl className='grid grid-flow-row grid-cols-1 gap-y-3 gap-x-8 mt-4 text-200'>
 											{subscriptionInformation.map((subscriptionItem, i) => (
 												<DescriptionList
 													key={i}
@@ -287,21 +302,7 @@ const BillingPage = () => {
 											))}
 										</dl>
 									) : (
-										// 	<div className='flex items-center justify-between'>
-										// 		<div>Change subscription preferences</div>
-										// 		<div>
-										// 			<a
-										// 				href='mailto:support@leadgeek.io?subject=Update Account'
-										// 				target='__blank'
-										// 				rel='noopener noreferrer'
-										// 				className='ml-2 font-semibold text-purple-600 hover:text-gray-700 ring-gray rounded-lg transition-main'
-										// 			>
-										// 				Contact support
-										// 			</a>
-										// 		</div>
-										// 	</div>
-										// </div>
-										<div>There are no active plans</div>
+										<div className='mt-4'>There are no active plans</div>
 									)}
 								</section>
 								{/* billing history */}
