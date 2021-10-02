@@ -80,6 +80,7 @@ router.post('/', async (req: Request, res: Response) => {
 			},
 		};
 
+		// sign the token with expiration after 5 days
 		jwt.sign(
 			payload,
 			jwtSecret,
@@ -276,32 +277,43 @@ router.post(
 // @route       PUT api/auth
 // @description update password in database
 // @access      Public
-router.put('/update-password', async (req: Request, res: Response) => {
-	const { email, password } = req.body;
-	try {
-		let user = await User.findOne({
-			email,
-		});
-		if (user) {
-			console.log('User found in the database');
-			// encrypt password
-			const salt = await bcrypt.genSalt(10);
-			const newHashedPassword = await bcrypt.hash(password, salt);
-			// await user.updateOne({
-			// 	password: newHashedPassword,
-			// 	resetPwToken: null,
-			// 	resetPwExpires: null,
-			// });
-			console.log('Password was succesfully updated');
-			return res.status(200).send('Password was successfully updated');
-		} else {
-			const message = 'No user exists in the database to update';
-			console.error(message);
-			res.status(404).json(message);
+router.put(
+	'/update-password',
+	async (
+		req: Request<{}, {}, { email: string; password: string }>,
+		res: Response
+	) => {
+		try {
+			// destructure necessary items
+			const { email, password } = req.body;
+
+			console.log(password);
+
+			let user = await User.findOne({
+				email,
+			});
+
+			if (user) {
+				console.log('User found in the database');
+				// encrypt password
+				const salt = await bcrypt.genSalt(10);
+				const newHashedPassword = await bcrypt.hash(password, salt);
+				await user.updateOne({
+					password: newHashedPassword,
+					resetPwToken: null,
+					resetPwExpires: null,
+				});
+				console.log('Password was succesfully updated');
+				return res.status(200).send('Password was successfully updated');
+			} else {
+				const message = 'No user exists in the database to update';
+				console.error(message);
+				res.status(404).json(message);
+			}
+		} catch (error) {
+			console.error(error);
 		}
-	} catch (error) {
-		console.error(error);
 	}
-});
+);
 
 module.exports = router;

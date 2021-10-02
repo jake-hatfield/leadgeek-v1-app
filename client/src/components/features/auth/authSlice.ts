@@ -38,14 +38,18 @@ export const authenticateUser = createAsyncThunk(
 		{ dispatch, rejectWithValue }
 	) => {
 		try {
-			// desctructure items
+			// destructure items
 			const { email, password } = options;
+
 			// set email string to all lowercase to prevent false mismatches
 			const emailToLowerCase = email.toLowerCase();
+
 			// prepare body JSON object
 			const body = JSON.stringify({ email: emailToLowerCase, password });
+
 			// make request to api
 			const res = await axios.post('/api/auth', body, config);
+
 			// if response contains a token, update it in auth state
 			if (res.data.token) {
 				return res.data.token;
@@ -68,7 +72,10 @@ export const getUserData = createAsyncThunk(
 	'auth/getUserData',
 	async (_, { rejectWithValue }) => {
 		try {
+			// make GET request to API
 			const res = await axios.get('/api/auth');
+
+			// return data to state
 			return res.data;
 		} catch (error) {
 			console.log(error);
@@ -81,9 +88,13 @@ export const surrogateUser = createAsyncThunk(
 	'auth/surrogateUser',
 	async (options: { id: string }) => {
 		try {
-			const { id } = options;
-			const body = JSON.stringify({ id });
+			// prepare body JSON object
+			const body = JSON.stringify({ id: options.id });
+
+			// make POST request to API
 			const { data } = await axios.post('/api/auth/surrogate-user', body);
+
+			// return data to state
 			return data;
 		} catch (error) {
 			console.log(error);
@@ -93,12 +104,40 @@ export const surrogateUser = createAsyncThunk(
 
 export const updatePassword = createAsyncThunk(
 	'auth/updatePassword',
-	async (options: { email: string; password: string }, { dispatch }) => {
+	async (
+		options: { email: string; password: string },
+		{ dispatch, rejectWithValue }
+	) => {
 		try {
+			// destructure necessary items
 			const { email, password } = options;
+
+			// double check everything is there before sending it to the API
+			if (!email || !password) {
+				dispatch(
+					setAlert({
+						title: 'Error',
+						message: 'Required information is missing',
+						alertType: 'danger',
+					})
+				);
+				return rejectWithValue('Required information is missing');
+			}
+
+			// email to lowercase to prevent stupid errors
 			const emailToLowerCase = email.toLowerCase();
+
+			// prepare body JSON object
 			const body = JSON.stringify({ email: emailToLowerCase, password });
-			const { data } = await axios.put('/api/auth/update-password', body);
+
+			// make PUT request to API
+			const { data } = await axios.put(
+				'/api/auth/update-password',
+				body,
+				config
+			);
+
+			// if password was successfully updated, alert the user, clear the reset password token in LS, and log them in
 			if (data === 'Password was successfully updated') {
 				dispatch(
 					setAlert({
@@ -108,9 +147,8 @@ export const updatePassword = createAsyncThunk(
 					})
 				);
 				localStorage.removeItem('resetPwToken');
-				// dispatch(login(emailToLowerCase, password));
-				return;
 			} else {
+				// password wasn't successfully updated, alert the user
 				return dispatch(
 					setAlert({
 						title: 'Error resetting password',
@@ -129,20 +167,24 @@ export const validateResetPwToken = createAsyncThunk(
 	'auth/validateResetPwToken',
 	async (options: { resetPwToken: string }, { dispatch }) => {
 		try {
-			const { resetPwToken } = options;
-			const body = JSON.stringify({ resetPwToken });
+			// prepare body JSON object
+			const body = JSON.stringify({ resetPwToken: options.resetPwToken });
+
+			// make POST request to API
 			const { data } = await axios.post(
 				'/api/auth/reset-password-validation',
 				body
 			);
+
+			// if link was validated, update user in state
 			if (data.message === 'Password reset link was validated') {
 				return data.user;
 			} else {
+				// alert that link couldn't be update
 				return dispatch(
 					setAlert({
-						title: 'Error resetting password',
-						message:
-							"Your password couldn't be reset. Please request a new email link or contact support.",
+						title: "Password couldn't be reset",
+						message: 'Please request a new email link or contact support.',
 						alertType: 'danger',
 					})
 				);
@@ -216,7 +258,6 @@ export const authSlice = createSlice({
 				state.user = user;
 			})
 			.addCase(updatePassword.fulfilled, (state) => {
-				state.user = null;
 				state.validatedResetPwToken = false;
 			})
 			.addCase(validateResetPwToken.pending, (state) => {

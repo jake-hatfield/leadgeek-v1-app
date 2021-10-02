@@ -46,14 +46,13 @@ const ForgotPassword: React.FC = () => {
 			);
 			if (data.message === 'Password recovery email sent successfully') {
 				dispatch(
-					dispatch(
-						setAlert({
-							title: 'Success',
-							message: `An email has been sent to ${email} if an account is associated.`,
-							alertType: 'success',
-						})
-					)
+					setAlert({
+						title: 'Success',
+						message: `An email has been sent to ${email} if an account is associated.`,
+						alertType: 'success',
+					})
 				);
+
 				const { token } = data;
 				setResetPwToken(token);
 			}

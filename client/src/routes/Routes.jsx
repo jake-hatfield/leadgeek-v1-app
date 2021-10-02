@@ -22,11 +22,11 @@ const Routes = () => {
 		<Fragment>
 			<Route exact path='/login' component={Login} />
 			<Route exact path='/reset/forgot-password' component={ForgotPassword} />
-			<Route
+			{/* <Route
 				exact
 				path='/reset/reset-password/:token'
 				component={ResetPassword}
-			/>
+			/> */}
 			<PrivateRoute exact path='/' component={Feed} />
 			<PrivateRoute exact path='/leads' component={Feed} />
 			<PrivateRoute exact path='/leads/liked' component={Liked} />
