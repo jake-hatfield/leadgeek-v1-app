@@ -63,7 +63,7 @@ const UserSchema: Schema<IUserDocument> = new Schema({
 		default: null,
 	},
 	resetPwExpires: {
-		type: Date,
+		type: Number,
 		default: null,
 	},
 	role: {

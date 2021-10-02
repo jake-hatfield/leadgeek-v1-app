@@ -29,7 +29,7 @@ export interface IUser {
 		brand?: string;
 	};
 	resetPwToken: string | null;
-	resetPwExpires: Date | null;
+	resetPwExpires: number | null;
 	role: Roles;
 	referrals: {
 		referred: {

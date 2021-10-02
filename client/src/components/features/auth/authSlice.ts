@@ -105,12 +105,12 @@ export const surrogateUser = createAsyncThunk(
 export const updatePassword = createAsyncThunk(
 	'auth/updatePassword',
 	async (
-		options: { email: string; password: string },
+		options: { email: string; password: string; redirect: boolean },
 		{ dispatch, rejectWithValue }
 	) => {
 		try {
 			// destructure necessary items
-			const { email, password } = options;
+			const { email, password, redirect } = options;
 
 			// double check everything is there before sending it to the API
 			if (!email || !password) {
@@ -147,6 +147,10 @@ export const updatePassword = createAsyncThunk(
 					})
 				);
 				localStorage.removeItem('resetPwToken');
+				localStorage.removeItem('email');
+				if (redirect) {
+					return dispatch(authenticateUser({ email, password }));
+				}
 			} else {
 				// password wasn't successfully updated, alert the user
 				return dispatch(
@@ -165,7 +169,7 @@ export const updatePassword = createAsyncThunk(
 
 export const validateResetPwToken = createAsyncThunk(
 	'auth/validateResetPwToken',
-	async (options: { resetPwToken: string }, { dispatch }) => {
+	async (options: { resetPwToken: string }, { dispatch, rejectWithValue }) => {
 		try {
 			// prepare body JSON object
 			const body = JSON.stringify({ resetPwToken: options.resetPwToken });
@@ -173,21 +177,26 @@ export const validateResetPwToken = createAsyncThunk(
 			// make POST request to API
 			const { data } = await axios.post(
 				'/api/auth/reset-password-validation',
-				body
+				body,
+				config
 			);
+
+			console.log(data.message);
 
 			// if link was validated, update user in state
 			if (data.message === 'Password reset link was validated') {
-				return data.user;
+				localStorage.setItem('email', data.user);
+				return;
 			} else {
-				// alert that link couldn't be update
-				return dispatch(
+				// alert that link couldn't be updated
+				dispatch(
 					setAlert({
 						title: "Password couldn't be reset",
 						message: 'Please request a new email link or contact support.',
 						alertType: 'danger',
 					})
 				);
+				return rejectWithValue(data.message);
 			}
 		} catch (error) {
 			console.log(error);
@@ -263,10 +272,13 @@ export const authSlice = createSlice({
 			.addCase(validateResetPwToken.pending, (state) => {
 				state.status = 'loading';
 			})
-			.addCase(validateResetPwToken.fulfilled, (state, action) => {
-				state.user!.email = action.payload;
+			.addCase(validateResetPwToken.fulfilled, (state) => {
 				state.status = 'idle';
 				state.validatedResetPwToken = true;
+			})
+			.addCase(validateResetPwToken.rejected, (state, action) => {
+				state.status = 'idle';
+				state.validatedResetPwToken = false;
 			});
 	},
 });

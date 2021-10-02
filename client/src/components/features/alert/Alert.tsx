@@ -76,7 +76,7 @@ const Alert: React.FC = () => {
 		<animated.div
 			key={id}
 			style={animationStyle}
-			className={`fixed bottom-0 left-1/2 z-40 w-full max-w-2xl py-4 px-6 rounded-main shadow-lg bg-gray-900 dark:bg-darkGray-200 border border-gray-700 dark:border-darkGray-100`}
+			className={`fixed bottom-0 left-1/2 z-40 w-full max-w-3xl py-4 px-6 rounded-main shadow-lg bg-gray-900 dark:bg-darkGray-200 border border-gray-700 dark:border-darkGray-100`}
 		>
 			<div className='w-full flex items-center justify-between'>
 				<div className='flex item-center'>
@@ -102,7 +102,7 @@ const Alert: React.FC = () => {
 					</div>
 					<div className='ml-2 flex items-center text-white'>
 						<p className='font-semibold flex-none'>{title}</p>
-						<p className='w-96 ml-2 text-gray-200 truncate pl-4'>{message}</p>
+						<p className='ml-2 pl-4 mr-8 text-gray-200 truncate'>{message}</p>
 					</div>
 				</div>
 				<button

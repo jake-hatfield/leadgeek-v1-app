@@ -121,7 +121,7 @@ const AccountPage = () => {
 			dispatch(removeAlert());
 			// password passes, update in DB
 			const password = password_1;
-			return dispatch(updatePassword({ email, password }));
+			return dispatch(updatePassword({ email, password, redirect: false }));
 		}
 	};
 

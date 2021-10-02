@@ -36,29 +36,36 @@ const ForgotPassword: React.FC = () => {
 
 	// forgot password handler
 	const forgotPassword = async (email: string) => {
+		// set email to lowercase to prevent errors
 		const emailToLowerCase = email.toLowerCase();
+
+		// prepare body JSON object
 		const body = JSON.stringify({ email: emailToLowerCase });
+
 		try {
+			// make POST request to API
 			const { data } = await axios.post(
 				'/api/auth/forgot-password',
 				body,
 				config
 			);
+
+			// if email was sent, alert the user
 			if (data.message === 'Password recovery email sent successfully') {
 				dispatch(
 					setAlert({
 						title: 'Success',
-						message: `An email has been sent to ${email} if an account is associated.`,
+						message: `Email sent to ${email} if an account is associated.`,
 						alertType: 'success',
 					})
 				);
 
-				const { token } = data;
-				setResetPwToken(token);
+				return setResetPwToken(data.token);
 			}
 		} catch (error: any) {
 			// make sure people can't guess user's password by trial and error
 			const errorMsg = error?.response.data;
+
 			if (errorMsg === 'Email not found in database') {
 				dispatch(
 					setAlert({
@@ -68,6 +75,7 @@ const ForgotPassword: React.FC = () => {
 					})
 				);
 			} else {
+				// server error
 				dispatch(
 					setAlert({
 						title: 'Error sending email',
