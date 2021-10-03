@@ -17,14 +17,16 @@ import {
 } from '@components/features/leads/leadsSlice';
 
 // utils
+import { Notification } from '@utils/interfaces/Notification';
 import { useOutsideMouseup } from '@utils/utils';
 import { useDarkMode } from '@hooks/hooks';
 
 interface NavbarProps {
 	name: string;
+	notifications: Notification[];
 }
 
-const Navbar: React.FC<NavbarProps> = ({ name }) => {
+const Navbar: React.FC<NavbarProps> = ({ name, notifications }) => {
 	const dispatch = useAppDispatch();
 	const location = useLocation();
 
@@ -113,7 +115,7 @@ const Navbar: React.FC<NavbarProps> = ({ name }) => {
 									/>
 								</svg>
 								{notifications.length > 0 && (
-									<div className='absolute top-0 right-0 h-2 w-2 bg-pink-600 dark:bg-pink-100 rounded-full shadow-sm border border-white dark:border-darkGray-400 transform translate-y-0.5 -translate-x-1' />
+									<div className='absolute top-0 right-0 h-2.5 w-2.5 bg-pink-600 dark:bg-pink-100 rounded-full shadow-sm border-2 border-white dark:border-darkGray-400 transform translate-y-1 -translate-x-1' />
 								)}
 							</button>
 							{notificationDropdown && (

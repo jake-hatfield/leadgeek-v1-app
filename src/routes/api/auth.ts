@@ -13,6 +13,8 @@ import auth from '../../middleware/auth';
 
 // models
 import User, { IUserDocument } from '../../models/User';
+import Notification from '@models/Notification';
+import { INotification } from 'types/Notification';
 
 // router
 const router = Router();
@@ -22,8 +24,27 @@ const router = Router();
 // @access      Private
 router.get('/', auth, async (req: Request, res: Response) => {
 	try {
-		// THIS MAY CAUSE AN ISSUE BY MAKING IT REQ.BODY.USER INSTEAD OF REQ.USER
+		// lookup user and strip the password before sending it to the frontend
 		const user = await User.findById(req.body.user.id).select('-password');
+
+		// get the user's last login time
+		const lastLoggedIn = new Date(user.lastLoggedIn).getTime();
+		console.log(lastLoggedIn);
+
+		// get all notifications
+		const notifications = await Notification.find({});
+
+		let unseenNotifications: any[] = [];
+		notifications.forEach(
+			(notification) =>
+				new Date(notification.date).getTime() < lastLoggedIn &&
+				unseenNotifications.push(notification)
+		);
+
+		user.notifications = unseenNotifications;
+
+		console.log(unseenNotifications);
+
 		return res.json(user);
 	} catch (error) {
 		console.error(error.message);
@@ -70,7 +91,7 @@ router.post('/', async (req: Request, res: Response) => {
 			});
 		}
 
-		// user.lastLoggedIn = Date.now();
+		user.lastLoggedIn = new Date().toISOString();
 		user.save();
 
 		// return the JWT

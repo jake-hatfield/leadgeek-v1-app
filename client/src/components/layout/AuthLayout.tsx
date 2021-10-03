@@ -23,7 +23,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 			<Alert />
 			{status === 'idle' && isAuthenticated && user ? (
 				<div className='min-h-screen w-full relative cs-bg overflow-hidden'>
-					<Navbar name={user.name} />
+					<Navbar name={user.name} notifications={user.notifications} />
 					<main className='h-full w-full '>{children}</main>
 					{/* <ContextMenu menu={[{ title: 'hello' }]} /> */}
 				</div>

@@ -14,7 +14,7 @@ export interface IUser {
 	email: string;
 	password: string;
 	dateCreated: Date;
-	lastLoggedIn: Date;
+	lastLoggedIn: string;
 	subscription: {
 		cusId?: string;
 		subIds: {
@@ -50,5 +50,8 @@ export interface IUser {
 		date: string;
 		leadId: string;
 		comment: string;
+	}[];
+	notifications: {
+		_id: ObjectId;
 	}[];
 }

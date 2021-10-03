@@ -1,4 +1,5 @@
 import { Lead } from './Lead';
+import { Notification } from './Notification';
 
 export type Role =
 	| 'user'
@@ -45,4 +46,5 @@ export interface User {
 	likedLeads: Lead[];
 	archivedLeads: Lead[];
 	comments: { date: string; leadId: string; comment: string }[];
+	notifications: Notification[];
 }

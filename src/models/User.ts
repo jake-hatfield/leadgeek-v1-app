@@ -130,6 +130,11 @@ const UserSchema: Schema<IUserDocument> = new Schema({
 			comment: { type: String },
 		},
 	],
+	notifications: [
+		{
+			id: { type: Schema.Types.ObjectId, ref: 'Notification' },
+		},
+	],
 });
 
 const User = model<IUserDocument, IUserModel>('User', UserSchema);
