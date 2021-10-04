@@ -151,7 +151,7 @@ const AccountPage = () => {
 							/>
 						) : (
 							<>
-								<div className='mt-4 pt-2 md:pt-4 lg:pt-6 cs-light-300 card-200'>
+								{/* <div className='mt-4 pt-2 md:pt-4 lg:pt-6 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
 										<header className='card-padding-x'>
 											<h2 className='font-bold text-lg text-300'>Profile</h2>
@@ -190,7 +190,7 @@ const AccountPage = () => {
 											conditionalDisplay={null}
 										/>
 									</div>
-								</div>
+								</div> */}
 								<div className='mt-4 pt-2 md:pt-4 lg:pt-6 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
 										<header className='card-padding-x'>

@@ -3,6 +3,7 @@ import { Request, Response, Router } from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import { ObjectId } from 'mongoose';
 import nodemailer from 'nodemailer';
 
 // env
@@ -14,7 +15,6 @@ import auth from '../../middleware/auth';
 // models
 import User, { IUserDocument } from '../../models/User';
 import Notification from '@models/Notification';
-import { INotification } from 'types/Notification';
 
 // router
 const router = Router();
@@ -29,21 +29,26 @@ router.get('/', auth, async (req: Request, res: Response) => {
 
 		// get the user's last login time
 		const lastLoggedIn = new Date(user.lastLoggedIn).getTime();
-		console.log(lastLoggedIn);
 
 		// get all notifications
 		const notifications = await Notification.find({});
 
-		let unseenNotifications: any[] = [];
+		const seenNotificationIds = user.notifications;
+		const unseenNotificationIds: { _id: ObjectId }[] = [];
+
+		// check if the notification is newer than the user's last login date and not already in user array and add it to the unseen notification array
 		notifications.forEach(
 			(notification) =>
 				new Date(notification.date).getTime() < lastLoggedIn &&
-				unseenNotifications.push(notification)
+				seenNotificationIds.map((n) => n._id).indexOf(notification.id) < 0 &&
+				unseenNotificationIds.push({ _id: notification.id })
 		);
 
-		user.notifications = unseenNotifications;
+		// add the unseen notifications to the user's array
+		user.notifications = [...user.notifications, ...unseenNotificationIds];
 
-		console.log(unseenNotifications);
+		// save the user's notifications in DB
+		await user.save();
 
 		return res.json(user);
 	} catch (error) {
@@ -55,79 +60,22 @@ router.get('/', auth, async (req: Request, res: Response) => {
 // @route       POST api/auth
 // @description Authenticate user and get token
 // @access      Public
-router.post('/', async (req: Request, res: Response) => {
-	// get email and password out of request body
-	const email: string = req.body.email;
-	const password: string = req.body.password;
+router.post(
+	'/',
+	async (
+		req: Request<{}, {}, { email: string; password: string }>,
+		res: Response
+	) => {
+		// destructure necessary items
+		const { email, password } = req.body;
 
-	try {
-		// see if user exists
-		let user: IUserDocument = await User.findOne({ email });
-		// if user doesn't exist, return a 401 error
-		if (!user) {
-			return res.status(401).json({
-				token: null,
-				errors: [
-					{
-						message:
-							'Email & password combination not correct. Please try again or reset your password.',
-					},
-				],
-			});
-		}
-
-		// validate password with bcrypt
-		const isMatch = await bcrypt.compare(password, user.password);
-		// if passwords don't match, return a 401 error
-		if (!isMatch) {
-			return res.status(401).json({
-				token: null,
-				errors: [
-					{
-						message:
-							'Email & password combination not correct. Please try again or reset your password.',
-					},
-				],
-			});
-		}
-
-		user.lastLoggedIn = new Date().toISOString();
-		user.save();
-
-		// return the JWT
-		const payload = {
-			user: {
-				id: user.id,
-			},
-		};
-
-		// sign the token with expiration after 5 days
-		jwt.sign(
-			payload,
-			jwtSecret,
-			{ expiresIn: 60 * 60 * 24 * 5 },
-			(err, token) => {
-				if (err) throw err;
-				return res.json({ token, errors: null });
-			}
-		);
-	} catch (error) {
-		console.error(error.message);
-		// if there's an error, it's got to be with the server
-		res.status(500).send('Server error');
-	}
-});
-
-// @route       POST api/auth/surrogate-user
-// @description Log in as user for administrative purposes
-// @access      Private
-router.post('/surrogate-user', auth, async (req: Request, res: Response) => {
-	try {
-		const { id } = req.body;
-		if (id) {
-			let user = await User.findOne({ _id: id });
+		try {
+			// see if user exists
+			let user: IUserDocument = await User.findOne({ email });
+			// if user doesn't exist, return a 401 error
 			if (!user) {
-				return res.status(400).json({
+				return res.status(401).json({
+					token: null,
 					errors: [
 						{
 							message:
@@ -136,35 +84,103 @@ router.post('/surrogate-user', auth, async (req: Request, res: Response) => {
 					],
 				});
 			}
+
+			// validate password with bcrypt
+			const isMatch = await bcrypt.compare(password, user.password);
+			// if passwords don't match, return a 401 error
+			if (!isMatch) {
+				return res.status(401).json({
+					token: null,
+					errors: [
+						{
+							message:
+								'Email & password combination not correct. Please try again or reset your password.',
+						},
+					],
+				});
+			}
+
+			user.lastLoggedIn = new Date().toISOString();
+			user.save();
+
 			// return the JWT
 			const payload = {
 				user: {
-					id,
+					id: user.id,
 				},
 			};
+
+			// sign the token with expiration after 5 days
 			jwt.sign(
 				payload,
 				jwtSecret,
 				{ expiresIn: 60 * 60 * 24 * 5 },
 				(err, token) => {
 					if (err) throw err;
-					res.json({ token, user });
+					return res.json({ token, errors: null });
 				}
 			);
-		} else {
-			return res.status(200).json({
-				errors: [
-					{
-						message: 'No user found.',
-					},
-				],
-			});
+		} catch (error) {
+			console.error(error.message);
+			// if there's an error, it's got to be with the server
+			res.status(500).send('Server error');
 		}
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).send('Server error');
 	}
-});
+);
+
+// @route       POST api/auth/surrogate-user
+// @description Log in as user for administrative purposes
+// @access      Private
+router.post(
+	'/surrogate-user',
+	auth,
+	async (req: Request<{}, {}, { id: string }>, res: Response) => {
+		try {
+			// destructure necessary items
+			const { id } = req.body;
+
+			if (id) {
+				let user = await User.findOne({ _id: id });
+				if (!user) {
+					return res.status(400).json({
+						errors: [
+							{
+								message:
+									'Email & password combination not correct. Please try again or reset your password.',
+							},
+						],
+					});
+				}
+				// return the JWT
+				const payload = {
+					user: {
+						id,
+					},
+				};
+				jwt.sign(
+					payload,
+					jwtSecret,
+					{ expiresIn: 60 * 60 * 24 * 5 },
+					(err, token) => {
+						if (err) throw err;
+						res.json({ token, user });
+					}
+				);
+			} else {
+				return res.status(200).json({
+					errors: [
+						{
+							message: 'No user found.',
+						},
+					],
+				});
+			}
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).send('Server error');
+		}
+	}
+);
 
 // @route       POST api/auth/forgot-password
 // @description request forgot password

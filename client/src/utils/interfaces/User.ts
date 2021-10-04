@@ -46,5 +46,5 @@ export interface User {
 	likedLeads: Lead[];
 	archivedLeads: Lead[];
 	comments: { date: string; leadId: string; comment: string }[];
-	notifications: Notification[];
+	notifications: { _id: string }[];
 }

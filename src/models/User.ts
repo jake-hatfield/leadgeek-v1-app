@@ -132,7 +132,11 @@ const UserSchema: Schema<IUserDocument> = new Schema({
 	],
 	notifications: [
 		{
-			id: { type: Schema.Types.ObjectId, ref: 'Notification' },
+			notificationId: { type: Schema.Types.ObjectId, ref: 'Notification' },
+			new: {
+				type: Boolean,
+				default: false,
+			},
 		},
 	],
 });

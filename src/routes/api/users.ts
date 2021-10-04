@@ -2,6 +2,7 @@
 import { Request, Response, Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { ObjectId } from 'mongoose';
 import Stripe from 'stripe';
 
 // env
@@ -13,6 +14,7 @@ import auth from '@middleware/auth';
 
 // models
 import User from '../../models/User';
+import Notification from '../../models/Notification';
 
 // router
 const router = Router();
@@ -328,7 +330,7 @@ router.post(
 	}
 );
 
-// @route       POST api/get-affiliate-payments
+// @route       POST api/affiliate-payments
 // @description Retrieve an affiliates payments
 // @access      Private
 router.post(
@@ -401,6 +403,40 @@ router.post(
 			}
 		} catch (error) {
 			console.error(error.message);
+			res.status(500).send('Server error');
+		}
+	}
+);
+
+// @route       POST api/notifications
+// @description Retrieve a user's notifications
+// @access      Private
+router.post(
+	'/notifications',
+	auth,
+	async (
+		req: Request<{}, {}, { ids: { _ids: ObjectId }[] }>,
+		res: Response
+	) => {
+		try {
+			// destructure necessary items
+			const { ids } = req.body;
+
+			const notifications = await Notification.find({ _id: { $in: ids } });
+
+			let message;
+			if (notifications.length === 0) {
+				message = 'There are no notifications to show';
+				console.log(message);
+			} else {
+				let message = `Successfully populated ${notifications.length} notifications.`;
+				console.log(message);
+			}
+			return res.status(200).send({
+				notifications,
+			});
+		} catch (error) {
+			console.log(error);
 			res.status(500).send('Server error');
 		}
 	}
