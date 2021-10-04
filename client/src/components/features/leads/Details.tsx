@@ -1066,7 +1066,7 @@ const Trend: React.FC<TrendProps> = ({
 			>
 				{trend !== null && svgList[trend]}
 			</svg>
-			<span>{percentDifference}%</span>
+			<span className='ml-1'>{percentDifference}%</span>
 			{showPopup && (
 				<div className='absolute z-40 left-1/2 flex items-center p-2 shadow-md cs-darkGray rounded-main text-xs whitespace-nowrap transform -translate-y-8 -translate-x-1/2'>
 					{`The ${type} ${value} is ${percentDifference}% ${

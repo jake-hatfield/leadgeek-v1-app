@@ -96,8 +96,6 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 
 	const [colorTheme] = useDarkMode();
 
-	console.log(notifications);
-
 	return (
 		<header className='w-full cs-light-400 text-300 shadow-sm border-b border-300'>
 			<nav className='container'>
@@ -140,13 +138,13 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 									/>
 								</svg>
 								{notificationIds.length > 0 && (
-									<div className='absolute top-0 right-0 h-2.5 w-2.5 bg-pink-600 dark:bg-pink-100 rounded-full shadow-sm border-2 border-white dark:border-darkGray-400 transform translate-y-1 -translate-x-1' />
+									<div className='absolute top-0 right-0 h-2.5 w-2.5 bg-pink-600 dark:bg-pink-100 rounded-full  border-2 border-white dark:border-darkGray-400 transform translate-y-1 -translate-x-0.5' />
 								)}
 							</button>
 							{notificationDropdown && (
 								<article
 									ref={notificationsModalRef}
-									className='absolute top-0 right-0 z-30 w-80 pt-4 pb-2 cs-light-400 card-200 text-300 break-words transform translate-y-12'
+									className='absolute top-0 right-0 z-30 w-80 pt-4 cs-light-400 card-200 text-300 break-words transform translate-y-12'
 								>
 									<header className='pb-2 px-4 border-b border-200'>
 										<h4 className='font-bold text-lg'>Notifications</h4>
@@ -159,7 +157,7 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 											margin={true}
 											text={null}
 										/>
-									) : notifications.length > 0 ? (
+									) : [notifications].length > 0 ? (
 										<ul className='w-full text-sm text-200'>
 											{notifications.map((item: any, i: number) => (
 												<NotificationItem key={i} item={item} />
@@ -173,6 +171,13 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 											</span>
 										</div>
 									)}
+									<div className='flex justify-center border-t border-200'>
+										<div className='pt-2 pb-3 px-4'>
+											<button className='link text-sm rounded-main ring-purple'>
+												Load older notifications
+											</button>
+										</div>
+									</div>
 								</article>
 							)}
 						</div>
@@ -287,29 +292,31 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ item }) => {
 					href={item.externalLink}
 					target='_blank'
 					rel='noopener noreferrer'
-					className='flex items-center mt-2 link transition-main text-base'
+					className='inline-block mt-2 link transition-main'
 				>
-					View
-					<svg
-						xmlns='http://www.w3.org/2000/svg'
-						className='ml-2 h-5 w-5'
-						viewBox='0 0 20 20'
-						fill='currentColor'
-					>
-						<path d='M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z' />
-						<path d='M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z' />
-					</svg>
+					<span className='flex items-center'>
+						<span>View</span>
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							className='ml-2 svg-sm'
+							viewBox='0 0 20 20'
+							fill='currentColor'
+						>
+							<path d='M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z' />
+							<path d='M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z' />
+						</svg>
+					</span>
 				</a>
 			)}
 			{item.internalLink && (
 				<NavLink
 					to={item.internalLink}
-					className='flex items-center mt-2 link transition-main text-base'
+					className='flex items-center mt-2 link transition-main'
 				>
 					View
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
-						className='ml-2 h-5 w-5'
+						className='ml-2 svg-sm'
 						viewBox='0 0 20 20'
 						fill='currentColor'
 					>

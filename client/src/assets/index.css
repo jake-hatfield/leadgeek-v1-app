@@ -33,7 +33,7 @@ body {
 }
 
 .link-light {
-	@apply font-semibold text-purple-800 hover:text-purple-900 transition-main;
+	@apply font-semibold text-purple-700 hover:text-purple-900 transition-main;
 }
 
 .link {
