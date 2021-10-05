@@ -31,15 +31,16 @@ router.get('/', auth, async (req: Request, res: Response) => {
 		const lastLoggedIn = new Date(user.lastLoggedIn).getTime();
 
 		// get all notifications
-		const notifications = await Notification.find({});
+		const notifications = await Notification.find({
+			date: { $lte: lastLoggedIn },
+		}).sort({ date: -1 });
 
 		const seenNotificationIds = user.notifications;
 		const unseenNotificationIds: { _id: ObjectId }[] = [];
 
-		// check if the notification is newer than the user's last login date and not already in user array and add it to the unseen notification array
+		// check if the notification is and not already in user array and add it to the unseen notification array
 		notifications.forEach(
 			(notification) =>
-				new Date(notification.date).getTime() < lastLoggedIn &&
 				seenNotificationIds.map((n) => n._id).indexOf(notification.id) < 0 &&
 				unseenNotificationIds.push({ _id: notification.id })
 		);

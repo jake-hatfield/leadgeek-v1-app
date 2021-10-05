@@ -1,6 +1,8 @@
 export interface INotification {
 	title: string;
 	description: string;
-	date: Date;
-	link: string | null;
+	date: number;
+	externalLink: string | null;
+	internalLink: string | null;
+	clearable: boolean;
 }

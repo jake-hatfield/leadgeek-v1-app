@@ -85,8 +85,15 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 	);
 
 	useEffect(() => {
-		getNotificationData(notificationIds);
-	}, [notificationIds, getNotificationData]);
+		notificationDropdown &&
+			!notifications &&
+			getNotificationData(notificationIds);
+	}, [
+		notificationDropdown,
+		notifications,
+		notificationIds,
+		getNotificationData,
+	]);
 
 	// clear user data on logout
 	const logoutUser = () => {
@@ -144,7 +151,7 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 							{notificationDropdown && (
 								<article
 									ref={notificationsModalRef}
-									className='absolute top-0 right-0 z-30 w-80 pt-4 cs-light-400 card-200 text-300 break-words transform translate-y-12'
+									className='absolute top-0 right-0 z-30 w-80 pt-4 pb-2 cs-light-400 card-200 text-300 break-words transform translate-y-12'
 								>
 									<header className='pb-2 px-4 border-b border-200'>
 										<h4 className='font-bold text-lg'>Notifications</h4>
@@ -157,9 +164,9 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 											margin={true}
 											text={null}
 										/>
-									) : [notifications].length > 0 ? (
+									) : notifications.length > 0 ? (
 										<ul className='w-full text-sm text-200'>
-											{notifications.map((item: any, i: number) => (
+											{notifications.slice(0, 4).map((item: any, i: number) => (
 												<NotificationItem key={i} item={item} />
 											))}
 										</ul>
@@ -171,13 +178,6 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 											</span>
 										</div>
 									)}
-									<div className='flex justify-center border-t border-200'>
-										<div className='pt-2 pb-3 px-4'>
-											<button className='link text-sm rounded-main ring-purple'>
-												Load older notifications
-											</button>
-										</div>
-									</div>
 								</article>
 							)}
 						</div>
@@ -261,12 +261,9 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ item }) => {
 		>
 			<div className='center-between mb-1'>
 				<header className='flex items-center'>
-					{!item.new && (
-						<span className='h-1.5 w-1.5 mr-2 bg-pink-600 dark:bg-pink-100 rounded-full shadow-sm' />
-					)}
 					<h5 className='mr-4 font-semibold text-base'>{item.title}</h5>
 				</header>
-				{hover && (
+				{hover && item.clearable && (
 					<button className='relative icon-button'>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
@@ -283,8 +280,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ item }) => {
 					</button>
 				)}
 			</div>
-			<time dateTime={DateTime.fromISO(item.date).toFormat('yyyy-LL-d')}>
-				{DateTime.fromISO(item.date).toFormat('LLL dd @ t')}
+			<time dateTime={DateTime.fromSeconds(item.date).toFormat('yyyy-LL-d')}>
+				{DateTime.fromSeconds(item.date).toFormat('LLL dd @ t')}
 			</time>
 			<p className='pt-2 text-100'>{item.description}</p>
 			{item.externalLink && (
@@ -310,7 +307,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ item }) => {
 			)}
 			{item.internalLink && (
 				<NavLink
-					to={item.internalLink}
+					to={`/${item.internalLink}/`}
 					className='flex items-center mt-2 link transition-main'
 				>
 					View

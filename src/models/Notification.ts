@@ -18,12 +18,20 @@ const NotificationSchema: Schema<INotificationDocument> = new Schema({
 		required: true,
 	},
 	date: {
-		type: Date,
+		type: Number,
 		required: true,
 	},
-	link: {
+	externalLink: {
 		type: String,
 		default: null,
+	},
+	internalLink: {
+		type: String,
+		default: null,
+	},
+	clearable: {
+		type: Boolean,
+		default: false,
 	},
 });
 

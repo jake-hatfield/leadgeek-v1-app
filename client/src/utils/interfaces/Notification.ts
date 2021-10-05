@@ -1,8 +1,8 @@
 export interface Notification {
 	title: string;
 	description: string;
-	date: string;
-	new: boolean;
+	date: number;
 	externalLink: string | null;
 	internalLink: string | null;
+	clearable: boolean;
 }
