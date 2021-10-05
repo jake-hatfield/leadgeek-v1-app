@@ -28,7 +28,7 @@ const ResetPasswordPage = () => {
 	);
 
 	// local state
-	const [email] = useState(localStorage.getItem('email'));
+	const [email, setEmail] = useState(localStorage.getItem('email'));
 	const [resetPwToken] = useState<string>(localStorage.resetPwToken);
 	const [formData, setFormData] = useState({
 		password_1: '',
@@ -86,7 +86,7 @@ const ResetPasswordPage = () => {
 		}
 
 		// error for password too short
-		if (password_1.length < 7 && password_2.length < 7) {
+		if (password_1.length < 7) {
 			return dispatch(
 				setAlert({
 					title: 'Password is too short',
@@ -102,10 +102,7 @@ const ResetPasswordPage = () => {
 			return splitString[0];
 		};
 		let emailBeforeAt = stringBeforeAt(email);
-		if (
-			password_1.includes(emailBeforeAt) ||
-			password_2.includes(emailBeforeAt)
-		) {
+		if (password_1.includes(emailBeforeAt)) {
 			return dispatch(
 				setAlert({
 					title: 'Password is too similar to your email',
@@ -116,10 +113,7 @@ const ResetPasswordPage = () => {
 		}
 
 		// error for if password is from a list of common passwords
-		if (
-			passwordList.includes(password_1) ||
-			passwordList.includes(password_2)
-		) {
+		if (passwordList.includes(password_1)) {
 			return dispatch(
 				setAlert({
 					title: 'Password is too common',
@@ -172,10 +166,11 @@ const ResetPasswordPage = () => {
 						</form>
 						<div className='mt-4 card-padding-x'>
 							<Button
-								text={'Save'}
-								onClick={() =>
-									email && handleUpdatePassword(email, password_1, password_2)
-								}
+								text={'Reset password'}
+								onClick={() => {
+									setEmail(localStorage.getItem('email'));
+									email && handleUpdatePassword(email, password_1, password_2);
+								}}
 								width={'w-full'}
 								margin={false}
 								size={'sm'}

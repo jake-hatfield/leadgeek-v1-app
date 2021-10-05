@@ -56,7 +56,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({
 			onClick={() => setExportLeads(false)}
 			filename={`${user.role || 'leadgeek'}_plan_leads_${currentLocalDate}.csv`}
 			target='_blank'
-			className='ml-4 py-2 px-3 flex items-center rounded-lg bg-purple-500 text-white shadow-sm hover:shadow-md text-sm font-semibold hover:bg-purple-600 transition duration-100 ease-in-out ring-purple'
+			className='ml-4 py-2 px-3 flex items-center rounded-main cs-purple shadow-sm hover:shadow-md text-sm font-semibold transition-main ring-purple'
 		>
 			<span>
 				<svg

@@ -27,7 +27,7 @@ router.get('/', auth, async (req: Request, res: Response) => {
 		// lookup user and strip the password before sending it to the frontend
 		const user = await User.findById(req.body.user.id).select('-password');
 
-		// the notification time is in seconds, so convert to miliseconds for comparision
+		// the notification time in DB is in seconds, so convert to miliseconds for comparision
 		const lastLogin = user.lastLoggedIn / 1000;
 
 		// get new notifications based on time
@@ -133,7 +133,7 @@ router.post(
 router.post(
 	'/surrogate-user',
 	auth,
-	async (req: Request<{}, {}, { id: string }>, res: Response) => {
+	async (req: Request<{}, {}, { id: ObjectId }>, res: Response) => {
 		try {
 			// destructure necessary items
 			const { id } = req.body;
@@ -297,20 +297,20 @@ router.post(
 		try {
 			console.log('Searching for user password reset token...');
 
-			console.log(req.body.resetPwToken);
+			const currentTime = new Date().getTime();
 
 			// lookup for user
 			const user = await User.findOne({
 				resetPwToken: req.body.resetPwToken,
 				resetPwExpires: {
-					$gte: Date.now(),
+					$gte: currentTime,
 				},
 			});
 
 			if (!user) {
 				console.error('Token not found.');
-				return res.status(400).json({
-					error: { message: 'Password reset link expired or invalid' },
+				return res.status(200).send({
+					message: 'Password reset link expired or invalid',
 				});
 			} else {
 				console.log('Token found!');

@@ -267,7 +267,7 @@ const Leads: React.FC<LeadsProps> = ({
 									/>
 								) : (
 									<Spinner
-										divWidth={'w-28'}
+										divWidth={'w-24 ml-1'}
 										center={false}
 										spinnerWidth={'sm'}
 										margin={false}

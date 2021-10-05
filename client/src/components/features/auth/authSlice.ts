@@ -169,7 +169,8 @@ export const updatePassword = createAsyncThunk(
 				localStorage.removeItem('resetPwToken');
 				localStorage.removeItem('email');
 				if (redirect) {
-					return dispatch(authenticateUser({ email, password }));
+					await dispatch(authenticateUser({ email, password }));
+					return dispatch(getUserData());
 				}
 			} else {
 				// password wasn't successfully updated, alert the user
@@ -200,8 +201,6 @@ export const validateResetPwToken = createAsyncThunk(
 				body,
 				config
 			);
-
-			console.log(data.message);
 
 			// if link was validated, update user in state
 			if (data.message === 'Password reset link was validated') {

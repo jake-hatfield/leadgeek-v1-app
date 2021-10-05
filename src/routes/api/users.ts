@@ -89,7 +89,7 @@ router.post(
 		req: Request<
 			{},
 			{},
-			{ clients: { userId: string; cusId: string }[]; affCreated: string }
+			{ clients: { userId: ObjectId; cusId: string }[]; affCreated: string }
 		>,
 		res: Response
 	) => {

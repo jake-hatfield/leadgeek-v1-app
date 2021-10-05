@@ -10,10 +10,9 @@ import { setAlert } from '@features/alert/alertSlice';
 
 // components
 import Button from '@components/utils/Button';
-import DefaultFooter from '@components/layout/navigation/DefaultFooter';
 import DefaultLayout from '@components/layout/DefaultLayout';
 import FormField from '@components/utils/FormField';
-import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/logo-app.svg';
+import Spinner from '@components/utils/Spinner';
 
 // utils
 import { setResetPwToken } from '@utils/authTokens';
@@ -26,6 +25,7 @@ const ForgotPassword: React.FC = () => {
 	const [formData, setFormData] = useState({
 		email: '',
 	});
+	const [status, setStatus] = useState<'loading' | 'idle'>('idle');
 
 	// destructure necessary items
 	const { email } = formData;
@@ -36,6 +36,7 @@ const ForgotPassword: React.FC = () => {
 
 	// forgot password handler
 	const forgotPassword = async (email: string) => {
+		setStatus('loading');
 		// set email to lowercase to prevent errors
 		const emailToLowerCase = email.toLowerCase();
 
@@ -52,6 +53,7 @@ const ForgotPassword: React.FC = () => {
 
 			// if email was sent, alert the user
 			if (data.message === 'Password recovery email sent successfully') {
+				setStatus('idle');
 				dispatch(
 					setAlert({
 						title: 'Success',
@@ -90,6 +92,7 @@ const ForgotPassword: React.FC = () => {
 	// submit handler
 	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+
 		// error for empty email
 		if (email === '') {
 			dispatch(
@@ -134,18 +137,28 @@ const ForgotPassword: React.FC = () => {
 								lightOnly={true}
 							/>
 							<div className='mt-4'>
-								<Button
-									text={'Send email'}
-									onClick={onSubmit}
-									width={'w-full'}
-									margin={false}
-									size={'sm'}
-									path={null}
-									cta={true}
-									conditional={null}
-									conditionalDisplay={null}
-									lightOnly={true}
-								/>
+								{status === 'idle' ? (
+									<Button
+										text={'Send email'}
+										onClick={onSubmit}
+										width={'w-full'}
+										margin={false}
+										size={'sm'}
+										path={null}
+										cta={true}
+										conditional={null}
+										conditionalDisplay={null}
+										lightOnly={true}
+									/>
+								) : (
+									<Spinner
+										divWidth={null}
+										center={false}
+										spinnerWidth={'sm'}
+										margin={false}
+										text={null}
+									/>
+								)}
 							</div>
 							<div className='mt-4 text-sm text-gray-400'>
 								<NavLink exact to={'/login'} className='link-light'>
