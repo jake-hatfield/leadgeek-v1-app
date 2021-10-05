@@ -23,9 +23,8 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 			<Alert />
 			{status === 'idle' && isAuthenticated && user ? (
 				<div className='min-h-screen w-full relative cs-bg overflow-hidden'>
-					<Navbar name={user.name} notificationIds={user.notifications} />
+					<Navbar />
 					<main className='h-full w-full '>{children}</main>
-					{/* <ContextMenu menu={[{ title: 'hello' }]} /> */}
 				</div>
 			) : (
 				<Spinner
@@ -39,29 +38,5 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 		</Fragment>
 	);
 };
-
-// interface ContextMenuProps {
-// 	menu: { title: string }[];
-// }
-
-// const ContextMenu: React.FC<ContextMenuProps> = ({ menu }) => {
-// 	const { xPos, yPos, showMenu } = useContextMenu();
-// 	console.log(xPos, yPos);
-// 	return showMenu && menu ? (
-// 		<ul
-// 			className='absolute card-padding cs-light-200 card-300'
-// 			style={{
-// 				top: yPos,
-// 				left: xPos,
-// 			}}
-// 		>
-// 			{menu.map((menuItem, i) => (
-// 				<li>{menuItem.title}</li>
-// 			))}
-// 		</ul>
-// 	) : (
-// 		<></>
-// 	);
-// };
 
 export default AuthLayout;

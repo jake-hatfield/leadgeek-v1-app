@@ -68,6 +68,26 @@ export const authenticateUser = createAsyncThunk(
 	}
 );
 
+export const clearNotification = createAsyncThunk(
+	'auth/clearNotification',
+	async (options: { notificationId: string; userId: string }) => {
+		// destructure necessary items
+		const { notificationId, userId } = options;
+
+		// prepare JSON body object
+		const body = JSON.stringify({ notificationId, userId });
+
+		// make POST request to user API
+		const { data } = await axios.post(
+			'/api/users/clear-notification',
+			body,
+			config
+		);
+
+		return data;
+	}
+);
+
 export const getUserData = createAsyncThunk(
 	'auth/getUserData',
 	async (_, { rejectWithValue }) => {
@@ -239,6 +259,11 @@ export const authSlice = createSlice({
 				state.isAuthenticated = false;
 				state.user = null;
 				state.validatedResetPwToken = false;
+			})
+			.addCase(clearNotification.fulfilled, (state, action) => {
+				if (state.user?.notifications) {
+					state.user.notifications = action.payload;
+				}
 			})
 			.addCase(getUserData.pending, (state) => {
 				state.status = 'loading';

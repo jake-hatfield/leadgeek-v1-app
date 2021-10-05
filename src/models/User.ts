@@ -27,7 +27,7 @@ const UserSchema: Schema<IUserDocument> = new Schema({
 		default: Date.now,
 	},
 	lastLoggedIn: {
-		type: Date,
+		type: Number,
 		default: null,
 	},
 	subscription: {
@@ -133,10 +133,6 @@ const UserSchema: Schema<IUserDocument> = new Schema({
 	notifications: [
 		{
 			notificationId: { type: Schema.Types.ObjectId, ref: 'Notification' },
-			new: {
-				type: Boolean,
-				default: false,
-			},
 		},
 	],
 });

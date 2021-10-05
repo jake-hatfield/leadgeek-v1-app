@@ -14,7 +14,7 @@ export interface IUser {
 	email: string;
 	password: string;
 	dateCreated: Date;
-	lastLoggedIn: string;
+	lastLoggedIn: number;
 	subscription: {
 		cusId?: string;
 		subIds: {

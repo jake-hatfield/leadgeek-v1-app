@@ -27,26 +27,27 @@ router.get('/', auth, async (req: Request, res: Response) => {
 		// lookup user and strip the password before sending it to the frontend
 		const user = await User.findById(req.body.user.id).select('-password');
 
-		// get the user's last login time
-		const lastLoggedIn = new Date(user.lastLoggedIn).getTime();
+		// the notification time is in seconds, so convert to miliseconds for comparision
+		const lastLogin = user.lastLoggedIn / 1000;
 
-		// get all notifications
+		// get new notifications based on time
 		const notifications = await Notification.find({
-			date: { $lte: lastLoggedIn },
+			date: { $gte: lastLogin },
 		}).sort({ date: -1 });
 
-		const seenNotificationIds = user.notifications;
-		const unseenNotificationIds: { _id: ObjectId }[] = [];
+		const newNotifications: { _id: ObjectId }[] = [];
 
-		// check if the notification is and not already in user array and add it to the unseen notification array
+		// check if the notification is already in user array and add it to new notifications if not
 		notifications.forEach(
 			(notification) =>
-				seenNotificationIds.map((n) => n._id).indexOf(notification.id) < 0 &&
-				unseenNotificationIds.push({ _id: notification.id })
+				user.notifications.map((n) => n._id).indexOf(notification.id) < 0 &&
+				newNotifications.push({ _id: notification.id })
 		);
 
 		// add the unseen notifications to the user's array
-		user.notifications = [...user.notifications, ...unseenNotificationIds];
+		user.notifications = [...user.notifications, ...newNotifications];
+
+		user.lastLoggedIn = new Date().getTime();
 
 		// save the user's notifications in DB
 		await user.save();
@@ -100,9 +101,6 @@ router.post(
 					],
 				});
 			}
-
-			user.lastLoggedIn = new Date().toISOString();
-			user.save();
 
 			// return the JWT
 			const payload = {

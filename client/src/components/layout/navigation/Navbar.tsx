@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+	useState,
+	useEffect,
+	useRef,
+	useCallback,
+	useMemo,
+} from 'react';
 
 // packages
 import axios from 'axios';
@@ -7,8 +13,11 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
-import { useAppDispatch } from '@hooks/hooks';
-import { removeUserData } from '@components/features/auth/authSlice';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
+import {
+	clearNotification,
+	removeUserData,
+} from '@components/features/auth/authSlice';
 import {
 	setLeadLoading,
 	clearCurrentLead,
@@ -24,21 +33,18 @@ import { config, useOutsideMouseup } from '@utils/utils';
 import { useDarkMode } from '@hooks/hooks';
 import { Notification } from '@utils/interfaces/Notification';
 
-interface NavbarProps {
-	name: string;
-	notificationIds: { _id: string }[];
-}
-
-const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
+const Navbar: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const location = useLocation();
+
+	// auth state
+	const user = useAppSelector((state) => state.auth.user);
 
 	// local state
 	const [notificationDropdown, setNotificationDropdown] = useState(false);
 	const [notifications, setNotifications] = useState<any>([]);
 	const [userDropdown, setUserDropdown] = useState(false);
-	const [firstInitial, setFirstInitial] = useState<string>('');
-	const [status, setStatus] = useState<'loading' | 'idle'>('loading');
+	const [status, setStatus] = useState<'loading' | 'idle'>('idle');
 
 	// notifications modal handlers
 	const notificationsModalRef = useRef(null);
@@ -59,41 +65,35 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 		{ keyup: true }
 	);
 
-	const setInitials = useCallback((name: string | undefined) => {
-		if (!name) return;
-		const userInitials = name.split(' ').map((n) => n[0]);
-		setFirstInitial(userInitials[0]);
-	}, []);
-
 	// set user initials
-	useEffect(() => {
-		setInitials(name);
-	}, [name, setInitials]);
+	const initial = useMemo(() => {
+		if (user?.name) return user?.name.split(' ').map((n) => n[0])[0];
+	}, [user?.name]);
 
+	// populate notifications
 	const getNotificationData = useCallback(
 		async (notificationIds: { _id: string }[]) => {
+			setStatus('loading');
+			// prepare JSON body object
 			const body = JSON.stringify({ ids: notificationIds });
-			const res = await axios.post<{ notifications: Notification[] }>(
+
+			// make POST request to user API
+			const { data } = await axios.post<{ notifications: Notification[] }>(
 				'/api/users/notifications',
 				body,
 				config
 			);
 			setStatus('idle');
-			return setNotifications(res.data.notifications);
+			console.log(data.notifications);
+			return setNotifications(data.notifications);
 		},
 		[]
 	);
-
 	useEffect(() => {
-		notificationDropdown &&
-			!notifications &&
-			getNotificationData(notificationIds);
-	}, [
-		notificationDropdown,
-		notifications,
-		notificationIds,
-		getNotificationData,
-	]);
+		user?.notifications &&
+			user?.notifications.length > 0 &&
+			getNotificationData(user.notifications);
+	}, []);
 
 	// clear user data on logout
 	const logoutUser = () => {
@@ -144,7 +144,7 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 										d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
 									/>
 								</svg>
-								{notificationIds.length > 0 && (
+								{user?.notifications && user?.notifications.length > 0 && (
 									<div className='absolute top-0 right-0 h-2.5 w-2.5 bg-pink-600 dark:bg-pink-100 rounded-full  border-2 border-white dark:border-darkGray-400 transform translate-y-1 -translate-x-0.5' />
 								)}
 							</button>
@@ -167,15 +167,23 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 									) : notifications.length > 0 ? (
 										<ul className='w-full text-sm text-200'>
 											{notifications.slice(0, 4).map((item: any, i: number) => (
-												<NotificationItem key={i} item={item} />
+												<NotificationItem
+													key={i}
+													item={item}
+													userId={user?._id}
+													setNotifications={setNotifications}
+												/>
 											))}
 										</ul>
 									) : (
 										<div className='py-6 px-4 font-semibold text-sm text-gray-700 dark:text-gray-400'>
-											You're all caught up!{' '}
-											<span role='img' aria-label='Party emoji'>
-												🎉
-											</span>
+											<p>
+												Notifications for your account will show up here, but
+												you're all caught up for now!{' '}
+												<span role='img' aria-label='Party emoji'>
+													🎉
+												</span>
+											</p>
 										</div>
 									)}
 								</article>
@@ -189,7 +197,7 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 								}}
 								className='p-2 h-8 w-8 all-center cs-purple rounded-full shadow-sm transition-main ring-purple'
 							>
-								<span className='text-lg font-bold'>{firstInitial}</span>
+								<span className='text-lg font-bold'>{initial}</span>
 							</button>
 							{userDropdown && (
 								<div className='relative'>
@@ -208,7 +216,7 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 														>
 															👋
 														</span>
-														Hi, {name?.split(' ')[0] || 'Account'}
+														Hi, {user?.name.split(' ')[0] || 'Account'}
 													</h5>
 												</div>
 											</header>
@@ -248,11 +256,21 @@ const Navbar: React.FC<NavbarProps> = ({ name, notificationIds }) => {
 
 interface NotificationItemProps {
 	item: Notification;
+	userId: string | undefined;
+	setNotifications: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({ item }) => {
+const NotificationItem: React.FC<NotificationItemProps> = ({
+	item,
+	userId,
+	setNotifications,
+}) => {
+	const dispatch = useAppDispatch();
+
 	// local state
 	const [hover, setHover] = useState(false);
+	const [buttonHover, setButtonHover] = useState(false);
+
 	return (
 		<li
 			onMouseEnter={() => setHover(true)}
@@ -264,7 +282,21 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ item }) => {
 					<h5 className='mr-4 font-semibold text-base'>{item.title}</h5>
 				</header>
 				{hover && item.clearable && (
-					<button className='relative icon-button'>
+					<button
+						onMouseEnter={() => setButtonHover(true)}
+						onMouseLeave={() => setButtonHover(false)}
+						onClick={() => {
+							setNotifications((prev) =>
+								prev.filter((n) => n._id !== item._id)
+							);
+
+							userId &&
+								dispatch(
+									clearNotification({ notificationId: item._id, userId })
+								);
+						}}
+						className='relative icon-button'
+					>
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
 							className='svg-sm'
@@ -277,6 +309,11 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ item }) => {
 								clipRule='evenodd'
 							/>
 						</svg>
+						{buttonHover && (
+							<div className='absolute top-0 right-0 z-10 min-w-max p-2 rounded-md shadow-md bg-gray-900 text-left text-white text-xs transform -translate-y-1 -translate-x-8'>
+								Clear notification
+							</div>
+						)}
 					</button>
 				)}
 			</div>
@@ -360,4 +397,4 @@ const navLinks = {
 	],
 };
 
-export default Navbar;
+export default React.memo(Navbar);

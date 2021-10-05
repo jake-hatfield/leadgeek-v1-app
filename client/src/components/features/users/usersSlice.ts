@@ -12,33 +12,6 @@ const initialState = {
 		lastPage: null,
 		totalItems: null,
 	},
-	userSettings: {
-		billing: {
-			plan: {
-				loading: true,
-				id: null,
-				created: null,
-				cancelAt: null,
-				cancelAtPeriod: null,
-				currentPeriodEnd: null,
-				plan: {
-					id: null,
-					amount: null,
-				},
-			},
-			paymentHistory: {
-				loading: true,
-				payments: [],
-			},
-		},
-		affiliates: {
-			paypalEmail: '',
-			paymentHistory: {
-				loading: true,
-				payments: [],
-			},
-		},
-	},
 };
 
 export const usersSlice = createSlice({
