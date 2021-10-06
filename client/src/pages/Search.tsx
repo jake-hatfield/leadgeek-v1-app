@@ -12,8 +12,9 @@ import AuthLayout from '@components/layout/AuthLayout';
 import Leads from '@components/features/leads/Leads';
 import Spinner from '@components/utils/Spinner';
 
-const Search = () => {
+const Search: React.FC = () => {
 	const dispatch = useAppDispatch();
+
 	// auth state
 	const status = useAppSelector((state) => state.auth.status);
 	const user = useAppSelector((state) => state.auth.user);
@@ -43,7 +44,7 @@ const Search = () => {
 		} else {
 			status === 'idle' && dispatch(setLeadIdle());
 		}
-	}, [status, user?._id, searchValue, page, filters, dispatch]);
+	}, [status, user?._id, searchValue, newSearch, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (
 		<AuthLayout>
@@ -55,7 +56,6 @@ const Search = () => {
 				itemLimit={filters.itemLimit}
 				user={user}
 				status={status}
-				headerTitle={'Search results'}
 				search={true}
 				currentSearchValue={searchValue}
 			/>

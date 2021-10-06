@@ -18,7 +18,6 @@ import Routes from './routes/Routes';
 
 // utils
 import setAuthToken from '@utils/authTokens';
-import { useDarkMode } from '@hooks/hooks';
 
 const App: React.FC = () => {
 	useEffect(() => {
@@ -32,8 +31,6 @@ const App: React.FC = () => {
 			if (!localStorage.token) store.dispatch(removeUserData());
 		});
 	}, []);
-
-	const [colorTheme] = useDarkMode();
 
 	const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY!);
 

@@ -5,12 +5,7 @@ import { DateTime } from 'luxon';
 import { animated, useSpring } from 'react-spring';
 
 // redux
-import {
-	useAppDispatch,
-	useAppSelector,
-	useContextMenu,
-	useDarkMode,
-} from '@hooks/hooks';
+import { useAppDispatch, useAppSelector, useDarkMode } from '@hooks/hooks';
 import {
 	handleArchiveLead,
 	handleLikeLead,
@@ -443,7 +438,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 								transform: expandedViewAnimationStyle.x
 									.to({
 										range: [0, 0.35, 0.75, 1],
-										output: [1, 0.95, 1.03, 1],
+										output: [1, 0.98, 1.02, 1],
 									})
 									.to((x) => `scale(${x})`),
 								translateY: '1.5rem',

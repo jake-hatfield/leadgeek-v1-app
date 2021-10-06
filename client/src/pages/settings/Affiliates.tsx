@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 // packages
 import axios from 'axios';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@hooks/hooks';
+import { useAppSelector } from '@hooks/hooks';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
@@ -32,7 +32,6 @@ interface Payment {
 }
 
 const AffiliatesPage = () => {
-	const dispatch = useAppDispatch();
 	// auth state
 	const status = useAppSelector((state) => state.auth.status);
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
@@ -68,23 +67,26 @@ const AffiliatesPage = () => {
 		paymentHistory: { status: paymentStatus, payments },
 	} = affState;
 
-	const handleAffPayments = (
-		clients: { userId: string; cusId: string }[] | undefined,
-		affCreated: string | undefined
-	) => {
-		if (!clients || !affCreated) {
-			return setAffState({
-				...affState,
-				paymentHistory: {
-					...affState.paymentHistory,
-					status: 'idle',
-					payments: [],
-				},
-			});
-		} else {
-			return getAffPayments(clients, affCreated);
-		}
-	};
+	const handleAffPayments = useCallback(
+		(
+			clients: { userId: string; cusId: string }[] | undefined,
+			affCreated: string | undefined
+		) => {
+			if (!clients || !affCreated) {
+				return setAffState({
+					...affState,
+					paymentHistory: {
+						...affState.paymentHistory,
+						status: 'idle',
+						payments: [],
+					},
+				});
+			} else {
+				return getAffPayments(clients, affCreated);
+			}
+		},
+		[affState]
+	);
 	// get affiliate payments if user is authenticated & affiliate
 	useEffect(() => {
 		isAuthenticated &&
@@ -100,6 +102,7 @@ const AffiliatesPage = () => {
 		isAff,
 		user?.referrals.referrer.clients,
 		user?.referrals.referrer.dateCreated,
+		handleAffPayments,
 	]);
 
 	// hotkeys
@@ -355,10 +358,6 @@ const AffiliatesPage = () => {
 			<SettingsLayout
 				title={'Affiliates'}
 				description={'Generate your unique link and review payouts'}
-				pill={{
-					active: isAff,
-					text: isAff ? 'Active affiliate' : 'Inactive affiliate',
-				}}
 			>
 				<section className='my-6'>
 					{isAff ? (

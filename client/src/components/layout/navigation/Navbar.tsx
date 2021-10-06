@@ -93,7 +93,7 @@ const Navbar: React.FC = () => {
 		user?.notifications &&
 			user?.notifications.length > 0 &&
 			getNotificationData(user.notifications);
-	}, []);
+	}, [user?.notifications, getNotificationData]);
 
 	// clear user data on logout
 	const logoutUser = () => {
@@ -222,16 +222,12 @@ const Navbar: React.FC = () => {
 											</header>
 											<nav>
 												{navLinks.dropdownItems.map((item, i) => (
-													<NavLink
-														key={i}
-														to={`/${item.link}`}
-														className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-darkGray-100 transition-main focus:outline-none'
-													>
-														<span className='font-semibold text-sm text-200'>
-															{item.title}
-														</span>
-													</NavLink>
+													<UserDropdownItem key={i} item={item} />
 												))}
+												{(user?.role === 'admin' || user?.role === 'master') &&
+													navLinks.adminLinks.map((item, i) => (
+														<UserDropdownItem key={i} item={item} />
+													))}
 												<button
 													key={'logout'}
 													onClick={() => logoutUser()}
@@ -251,6 +247,21 @@ const Navbar: React.FC = () => {
 				</div>
 			</nav>
 		</header>
+	);
+};
+
+interface UserDropdownItemProps {
+	item: NavLinkItem;
+}
+
+const UserDropdownItem: React.FC<UserDropdownItemProps> = ({ item }) => {
+	return (
+		<NavLink
+			to={`/${item.link}/`}
+			className='w-full py-2 px-4 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-darkGray-100 transition-main focus:outline-none'
+		>
+			<span className='font-semibold text-sm text-200'>{item.title}</span>
+		</NavLink>
 	);
 };
 
@@ -363,36 +374,35 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 	);
 };
 
+interface NavLinkItem {
+	title: string;
+	link: string;
+}
+
 // primary links
-const navLinks = {
+const navLinks: {
+	primaryLinks: NavLinkItem[];
+	secondaryLinks: NavLinkItem[];
+	adminLinks: NavLinkItem[];
+	dropdownItems: NavLinkItem[];
+} = {
 	primaryLinks: [
 		{
 			title: 'Leads',
-			link: '/leads',
-			path: (
-				<path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
-			),
+			link: 'leads',
 		},
 	],
 	secondaryLinks: [],
 	adminLinks: [
 		{
 			title: 'Admin',
-			link: '/admin/',
-			path: (
-				<path
-					fillRule='evenodd'
-					d='M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-					clipRule='evenodd'
-				/>
-			),
+			link: 'admin',
 		},
 	],
 	dropdownItems: [
 		{
 			title: 'Settings',
-			link: 'settings/account/',
-			path: null,
+			link: 'settings/account',
 		},
 	],
 };

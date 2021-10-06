@@ -1,20 +1,17 @@
 // packages
 import { Request, Response, Router } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongoose';
 import Stripe from 'stripe';
 
 // env
-const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
 
 // middleware
 import auth from '@middleware/auth';
 
 // models
-import User from '../../models/User';
-import Notification from '../../models/Notification';
+import User from '@models/User';
+import Notification from '@models/Notification';
 
 // router
 const router = Router();
@@ -293,43 +290,64 @@ router.post(
 // 	}
 // });
 
-// router.post('/get-all-users', auth, async (req, res) => {
-// 	try {
-// 		const { page, itemLimit } = req.body;
-// 		const users = await User.find({})
-// 			.countDocuments()
-// 			.then((numUsers) => {
-// 				totalItems = numUsers;
-// 				return User.find({})
-// 					.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
-// 					.limit(itemLimit || ITEMS_PER_PAGE)
-// 					.sort({ dateCreated: -1 });
-// 			});
-// 		if (users.length > 0) {
-// 			return res.status(200).send({
-// 				users,
-// 				page,
-// 				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
-// 				hasPreviousPage: page > 1,
-// 				nextPage: page + 1,
-// 				previousPage: page - 1,
-// 				lastPage: Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
-// 				totalItems,
-// 			});
-// 		} else {
-// 			return res.status(400).json({
-// 				errors: [
-// 					{
-// 						message:
-// 							'There was an error fetching all users. You done something wrong, boy.',
-// 					},
-// 				],
-// 			});
-// 		}
-// 	} catch (error) {
-// 		console.log(error);
-// 	}
-// });
+router.post(
+	'/get-all-users',
+	auth,
+	async (
+		req: Request<{}, {}, { page: number; itemLimit: number }>,
+		res: Response
+	) => {
+		try {
+			// destructure necessary items
+			const { page, itemLimit } = req.body;
+
+			let totalItems;
+
+			// lookup all users
+			const users = await User.find({})
+				.countDocuments()
+				.then((numUsers) => {
+					totalItems = numUsers;
+					return User.find({})
+						.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
+						.limit(itemLimit || ITEMS_PER_PAGE)
+						.sort({ dateCreated: -1 });
+				});
+
+			// there are users found
+			if (users.length > 0) {
+				return res.status(200).send({
+					users,
+					page,
+					hasNextPage:
+						(itemLimit || ITEMS_PER_PAGE) * page <
+						((totalItems && totalItems) || 1),
+					hasPreviousPage: page > 1,
+					nextPage: page + 1,
+					previousPage: page - 1,
+					lastPage:
+						totalItems && Math.ceil(totalItems / (itemLimit || ITEMS_PER_PAGE)),
+					totalItems,
+				});
+			} else {
+				return res.status(200).send({
+					users: [],
+					page: 1,
+					hasNextPage: false,
+					hasPreviousPage: false,
+					nextPage: 2,
+					previousPage: 0,
+					lastPage: null,
+					totalItems: 0,
+					message:
+						'There was an error fetching all users. You done something wrong, boy.',
+				});
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
 
 // @route       POST api/cancel-subscription
 // @description Cancel current user's requested stripe subscription

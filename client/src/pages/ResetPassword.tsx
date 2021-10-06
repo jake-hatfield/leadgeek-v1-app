@@ -41,7 +41,7 @@ const ResetPasswordPage = () => {
 	// check for valid token on page load
 	useEffect(() => {
 		dispatch(validateResetPwToken({ resetPwToken }));
-	}, []);
+	}, [resetPwToken, dispatch]);
 
 	// handle form input change
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {

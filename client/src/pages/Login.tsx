@@ -22,19 +22,26 @@ import setAuthToken from '@utils/authTokens';
 
 const Login: React.FC = () => {
 	const dispatch = useAppDispatch();
+
+	// auth state
 	const status = useAppSelector((state) => state.auth.status);
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 	const token = useAppSelector((state) => state.auth.token);
 
+	// local state
 	const [formData, setFormData] = useState({
 		email: '',
 		password: '',
 	});
+
+	// destructure necessary items
 	const { email, password } = formData;
 
+	// handle form change
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 
+	// handle submission login logic
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		const res = await dispatch(authenticateUser({ email, password }));
@@ -45,8 +52,9 @@ const Login: React.FC = () => {
 		}
 	};
 
+	// redirect to app if authenticated
 	if (isAuthenticated && token) {
-		return <Redirect to='/leads' />;
+		return <Redirect to='/leads/' />;
 	}
 
 	return (

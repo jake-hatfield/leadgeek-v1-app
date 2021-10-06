@@ -21,7 +21,6 @@ import DatePicker from '../filters/DatePicker';
 import Details from './Details';
 import ExportButton from './ExportButton';
 import Filter from '../filters/Filter';
-import Header from '@components/layout/navigation/Header';
 import LeadTable from './LeadTable';
 import PaginationComponent from '@components/layout/navigation/Pagination';
 import Spinner from '@components/utils/Spinner';
@@ -37,7 +36,6 @@ interface LeadsProps {
 	pagination: Pagination;
 	type: 'feed' | 'liked' | 'archived' | 'search';
 	itemLimit: number;
-	headerTitle: string | null;
 	user: User;
 	status: 'idle' | 'loading' | 'failed';
 	search: boolean;
@@ -50,7 +48,6 @@ const Leads: React.FC<LeadsProps> = ({
 	pagination,
 	type,
 	itemLimit,
-	headerTitle,
 	user,
 	status: authStatus,
 	currentSearchValue,
@@ -70,7 +67,7 @@ const Leads: React.FC<LeadsProps> = ({
 	const [showDetails, setShowDetails] = useState(false);
 
 	// destructure necessary items
-	const { _id: userId, likedLeads, archivedLeads, comments } = user;
+	const { _id: userId, likedLeads, archivedLeads } = user;
 	const {
 		count: filterCount,
 		dateLimits: { selected: dateSelected },
@@ -279,14 +276,14 @@ const Leads: React.FC<LeadsProps> = ({
 				</nav>
 				<div className='container'>
 					{leadStatus === 'failed' ? (
-						<div className='mt-6 container'>
+						<div className='mt-6 container text-200'>
 							There was an error making that request. If this issue persists,
 							please{' '}
 							<a
 								href='mailto:support@leadgeek.io'
 								target='_blank'
 								rel='noopener noreferrer'
-								className='link text-purple-500 hover:text-purple-600 rounded-lg transition-main ring-gray'
+								className='link rounded-main transition-main ring-gray'
 							>
 								contact Leadgeek support
 							</a>
@@ -336,13 +333,13 @@ const Leads: React.FC<LeadsProps> = ({
 			text={'Loading leads...'}
 		/>
 	) : (
-		<div className='mt-6 container'>
+		<div className='mt-6 container text-200'>
 			There was an error making that request. If this issue persists, please{' '}
 			<a
 				href='mailto:support@leadgeek.io'
 				target='_blank'
 				rel='noopener noreferrer'
-				className='link text-purple-500 hover:text-purple-600 rounded-lg transition-main ring-gray'
+				className='link rounded-main transition-main ring-gray'
 			>
 				contact Leadgeek support
 			</a>

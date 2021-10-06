@@ -65,7 +65,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
 	};
 
 	if (redirectToSearch) {
-		return <Redirect to={{ pathname: '/search' }} />;
+		return <Redirect to={{ pathname: '/search/' }} />;
 	}
 	return (
 		<div className='flex items-center justify-end'>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DefaultFooter = () => {
+const DefaultFooter: React.FC = () => {
 	return (
 		<footer className='mt-6 xl:mt-0 mb-6 container'>
 			<span className='bg-white'>

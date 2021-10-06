@@ -7,8 +7,9 @@ import AuthLayout from '@components/layout/AuthLayout';
 import Leads from '@components/features/leads/Leads';
 import Spinner from '@components/utils/Spinner';
 
-const Archived = () => {
+const Archived: React.FC = () => {
 	const dispatch = useAppDispatch();
+
 	// auth state
 	const status = useAppSelector((state) => state.auth.status);
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
@@ -34,7 +35,6 @@ const Archived = () => {
 				pagination={archived.pagination}
 				type={'archived'}
 				itemLimit={filters.itemLimit}
-				headerTitle={null}
 				user={user}
 				status={status}
 				search={false}

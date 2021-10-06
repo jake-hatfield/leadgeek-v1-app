@@ -8,13 +8,13 @@ import mongoose, { ObjectId } from 'mongoose';
 import auth from '@middleware/auth';
 
 // models
-import Lead, { ILeadDocument } from '../../models/Lead';
-import User from '../../models/User';
+import Lead, { ILeadDocument } from '@models/Lead';
+import User from '@models/User';
 
 // types
-import { Filter } from '../../types/Filter';
+import { Filter } from 'types/Filter';
 import { ILead } from 'types/Lead';
-import { Roles } from '../../types/User';
+import { Roles } from 'types/User';
 
 // router
 const router = Router();

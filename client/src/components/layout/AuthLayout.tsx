@@ -20,7 +20,6 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 
 	return (
 		<Fragment>
-			<Alert />
 			{status === 'idle' && isAuthenticated && user ? (
 				<div className='min-h-screen w-full relative cs-bg overflow-hidden'>
 					<Navbar />
@@ -35,6 +34,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 					text={'Loading account...'}
 				/>
 			)}
+			<Alert />
 		</Fragment>
 	);
 };

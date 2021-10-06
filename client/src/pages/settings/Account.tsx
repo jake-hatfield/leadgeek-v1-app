@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 
-// packages
-import { DateTime } from 'luxon';
-
 // redux
 import { useAppDispatch, useAppSelector, useDarkMode } from '@hooks/hooks';
 import { removeAlert, setAlert } from '@features/alert/alertSlice';
@@ -11,7 +8,6 @@ import { updatePassword } from '@components/features/auth/authSlice';
 // components
 import AuthLayout from '@components/layout/AuthLayout';
 import Button from '@components/utils/Button';
-import FormField from '@components/utils/FormField';
 import PasswordFormField from '@components/utils/PasswordFormField';
 import SettingsLayout from '@components/layout/SettingsLayout';
 import Spinner from '@components/utils/Spinner';
@@ -131,14 +127,6 @@ const AccountPage = () => {
 				<SettingsLayout
 					title={'Account'}
 					description={'Change your account preferences'}
-					pill={{
-						active: true,
-						text:
-							status === 'idle' &&
-							`Member since ${DateTime.fromISO(user.dateCreated).toFormat(
-								'LLL dd, yyyy'
-							)}`,
-					}}
 				>
 					<section>
 						{status === 'loading' ? (
@@ -191,7 +179,7 @@ const AccountPage = () => {
 										/>
 									</div>
 								</div> */}
-								<div className='mt-4 pt-2 md:pt-4 lg:pt-6 cs-light-300 card-200'>
+								<article className='mt-4 pt-2 md:pt-4 lg:pt-6 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
 										<header className='card-padding-x'>
 											<h2 className='font-bold text-lg text-300'>Security</h2>
@@ -237,8 +225,8 @@ const AccountPage = () => {
 											conditionalDisplay={null}
 										/>
 									</div>
-								</div>
-								<div className='mt-4 py-2 md:py-4 lg:py-6 cs-light-300 card-200'>
+								</article>
+								<article className='mt-4 py-2 md:py-4 lg:py-6 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
 										<header className='card-padding-x'>
 											<h2 className='font-bold text-lg text-300'>Appearance</h2>
@@ -303,7 +291,7 @@ const AccountPage = () => {
 											</label>
 										</div>
 									</div>
-								</div>
+								</article>
 							</>
 						)}
 					</section>

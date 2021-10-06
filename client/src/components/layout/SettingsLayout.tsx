@@ -7,14 +7,12 @@ interface SettingsLayoutProps {
 	children: React.ReactNode;
 	title: string;
 	description: string;
-	pill: any;
 }
 
 const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 	children,
 	title,
 	description,
-	pill,
 }) => {
 	return (
 		<div className='flex flex-row container mt-12'>

@@ -5,7 +5,6 @@ import alertReducer from '@features/alert/alertSlice';
 import authReducer from '@features/auth/authSlice';
 import filterReducer from '@features/filters/filtersSlice';
 import leadsReducer from '@features/leads/leadsSlice';
-import usersReducer from '@features/users/usersSlice';
 
 const store = configureStore({
 	reducer: {
@@ -13,7 +12,6 @@ const store = configureStore({
 		auth: authReducer,
 		filters: filterReducer,
 		leads: leadsReducer,
-		users: usersReducer,
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({

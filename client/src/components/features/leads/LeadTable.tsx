@@ -56,13 +56,13 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	return (
 		<section className={classes.sectionWrapper}>
 			{status === 'failed' ? (
-				<div className='mt-6 container cs-light-300'>
+				<div className='mt-6 container text-200'>
 					There was an error making that request. If this issue persists, please{' '}
 					<a
 						href='mailto:support@leadgeek.io'
 						target='_blank'
 						rel='noopener noreferrer'
-						className='link text-purple-500 hover:text-purple-600 rounded-lg transition-main ring-gray'
+						className='link rounded-main transition-main ring-gray'
 					>
 						contact Leadgeek support
 					</a>

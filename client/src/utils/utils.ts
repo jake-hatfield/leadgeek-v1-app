@@ -3,10 +3,6 @@ import React, { RefObject, useEffect } from 'react';
 // packages
 import { DateTime } from 'luxon';
 
-// redux
-import { setAlert } from '@components/features/alert/alertSlice';
-import { updatePassword } from '@components/features/auth/authSlice';
-
 export const config = {
 	headers: {
 		'Content-Type': 'application/json',
@@ -38,11 +34,11 @@ export const returnDomainFromUrl = (url: string) => {
 	let result, match;
 	if (
 		(match = url.match(
-			/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im
+			/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n?=]+)/im
 		))
 	) {
 		result = match[1];
-		if ((match = result.match(/^[^\.]+\.(.+\..+)$/))) {
+		if ((match = result.match(/^[^.]+\.(.+\..+)$/))) {
 			result = match[1];
 		}
 	}
@@ -141,7 +137,7 @@ export const useOutsideMousedown = (
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [ref, setState_1, setState_2]);
+	}, [ref, setState_1, setState_2, conditional]);
 };
 
 export const useOutsideMouseup = (

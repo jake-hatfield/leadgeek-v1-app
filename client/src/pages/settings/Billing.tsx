@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 
 // packages
 import axios from 'axios';
 import { DateTime } from 'luxon';
+import { useStateIfMounted } from 'use-state-if-mounted';
 
 // redux
 import { useAppSelector } from '@hooks/hooks';
@@ -54,8 +55,9 @@ const BillingPage = () => {
 	const authStatus = useAppSelector((state) => state.auth.status);
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 	const user = useAppSelector((state) => state.auth.user);
+
 	// local state
-	const [planState, setPlanState] = useState<PlanState>({
+	const [planState, setPlanState] = useStateIfMounted<PlanState>({
 		plan: {
 			status: 'loading',
 			id: null,
@@ -70,7 +72,7 @@ const BillingPage = () => {
 		},
 	});
 
-	const [paymentState, setPaymentState] = useState<PaymentState>({
+	const [paymentState, setPaymentState] = useStateIfMounted<PaymentState>({
 		paymentHistory: {
 			status: 'loading',
 			payments: [],
@@ -125,7 +127,7 @@ const BillingPage = () => {
 				console.log(error);
 			}
 		},
-		[planState]
+		[planState, setPlanState]
 	);
 
 	// get active plan details
@@ -174,7 +176,7 @@ const BillingPage = () => {
 				console.log(error);
 			}
 		},
-		[paymentState]
+		[paymentState, setPaymentState]
 	);
 
 	useEffect(() => {
@@ -269,7 +271,6 @@ const BillingPage = () => {
 				<SettingsLayout
 					title={'Plan & billing'}
 					description={'Update your plan and view past invoices'}
-					pill={null}
 				>
 					<section className='my-6'>
 						{user?.subscription.cusId ? (

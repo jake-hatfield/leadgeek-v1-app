@@ -61,14 +61,23 @@ const ForgotPassword: React.FC = () => {
 						alertType: 'success',
 					})
 				);
-
 				return setResetPwToken(data.token);
+			} else {
+				setStatus('idle');
+				return dispatch(
+					setAlert({
+						title: 'Email send failure',
+						message: data.message,
+						alertType: 'danger',
+					})
+				);
 			}
 		} catch (error: any) {
 			// make sure people can't guess user's password by trial and error
 			const errorMsg = error?.response.data;
 
 			if (errorMsg === 'Email not found in database') {
+				setStatus('idle');
 				dispatch(
 					setAlert({
 						title: 'Success',
@@ -77,6 +86,7 @@ const ForgotPassword: React.FC = () => {
 					})
 				);
 			} else {
+				setStatus('idle');
 				// server error
 				dispatch(
 					setAlert({

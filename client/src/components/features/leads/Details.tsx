@@ -1,4 +1,10 @@
-import React, { Fragment, useRef, useEffect, useState } from 'react';
+import React, {
+	Fragment,
+	useState,
+	useEffect,
+	useRef,
+	useCallback,
+} from 'react';
 
 // packages
 import { DateTime } from 'luxon';
@@ -82,7 +88,7 @@ const Details: React.FC<DetailsProps> = ({
 		} else {
 			setShowDetails(false);
 		}
-	}, [currentLead]);
+	}, [currentLead, setShowDetails]);
 
 	// destructure necessary items
 	const { data } = currentLead;
@@ -126,7 +132,7 @@ const Details: React.FC<DetailsProps> = ({
 		} else {
 			setComment('');
 		}
-	}, [currentLead]);
+	}, [user?.comments, currentLead]);
 
 	// prev/next navigation
 	const getLead = (val: number) => {
@@ -592,15 +598,19 @@ const Details: React.FC<DetailsProps> = ({
 	];
 
 	// set notes & handlers
-	const notes: (string | null)[] = [data.variations, data.notes, data.shipping];
-	const checkNotes = () => {
+	const checkNotes = useCallback(() => {
+		const notes: (string | null)[] = [
+			data.variations,
+			data.notes,
+			data.shipping,
+		];
 		setNoteCount(notes.filter((note) => note !== '').length);
-	};
+	}, [data.variations, data.notes, data.shipping]);
 	useEffect(() => {
 		if (currentLead) {
 			checkNotes();
 		}
-	}, [currentLead]);
+	}, [currentLead, checkNotes]);
 
 	// set ASIN/ISBN identifying text
 	useEffect(() => {
@@ -1017,7 +1027,7 @@ const Trend: React.FC<TrendProps> = ({
 				setIsGood(false);
 			}
 		}
-	});
+	}, [currentValue, compareValue, currentValueGreater, lowerIsBetter]);
 
 	const svgList = {
 		up: (

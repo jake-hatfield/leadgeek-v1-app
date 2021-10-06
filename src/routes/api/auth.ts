@@ -10,11 +10,11 @@ import nodemailer from 'nodemailer';
 const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 
 // middleware
-import auth from '../../middleware/auth';
+import auth from '@middleware/auth';
 
 // models
-import User, { IUserDocument } from '../../models/User';
 import Notification from '@models/Notification';
+import User, { IUserDocument } from '@models/User';
 
 // router
 const router = Router();
@@ -233,9 +233,9 @@ router.post(
 					},
 					debug: true,
 				});
-				let url;
 
 				// set url depending on environment
+				let url;
 				if (process.env.NODE_ENV === 'production') {
 					url = `https://app.leadgeek.io`;
 				} else {
@@ -256,27 +256,39 @@ router.post(
 						'-- Leadgeek Support \n',
 				};
 
-				console.log('Sending email...');
+				console.log('Attempting to send email...');
 
 				// verify the email was sent
 				transporter.verify(function (error, success) {
 					if (error) {
-						console.log(error);
+						console.error('There was establishing a connection: ', error);
+						return res.status(200).send({
+							message: 'Please contact support if this error persists',
+							token: null,
+						});
 					} else {
 						console.log('Server is ready to take our messages');
-						transporter.sendMail(mailOptions, (err, res) => {
-							if (err) {
-								console.error('There was an error sending the email: ', err);
+
+						// send email
+						transporter.sendMail(mailOptions, (error, info) => {
+							if (error) {
+								console.error('There was an error sending the email: ', error);
+								transporter.close();
+								return res.status(200).send({
+									message: 'Please contact support if this error persists',
+									token: null,
+								});
 							} else {
 								console.log(
 									'Email sent successfully. Here are the details:',
-									res
+									info
 								);
+								transporter.close();
+								return res.status(200).send({
+									message: 'Password recovery email sent successfully',
+									token,
+								});
 							}
-						});
-						return res.status(200).json({
-							message: 'Password recovery email sent successfully',
-							token,
 						});
 					}
 				});
