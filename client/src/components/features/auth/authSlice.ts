@@ -78,7 +78,7 @@ export const clearNotification = createAsyncThunk(
 		const body = JSON.stringify({ notificationId, userId });
 
 		// make POST request to user API
-		const { data } = await axios.post(
+		const { data } = await axios.put(
 			'/api/users/clear-notification',
 			body,
 			config
@@ -106,13 +106,19 @@ export const getUserData = createAsyncThunk(
 
 export const surrogateUser = createAsyncThunk(
 	'auth/surrogateUser',
-	async (options: { id: string }) => {
+	async (options: { userId: string; surrogateId: string }) => {
 		try {
+			const { userId, surrogateId } = options;
+
 			// prepare body JSON object
-			const body = JSON.stringify({ id: options.id });
+			const body = JSON.stringify({ userId, surrogateId });
 
 			// make POST request to API
-			const { data } = await axios.post('/api/auth/surrogate-user', body);
+			const { data } = await axios.post(
+				'/api/auth/surrogate-user',
+				body,
+				config
+			);
 
 			// return data to state
 			return data;

@@ -133,45 +133,60 @@ router.post(
 router.post(
 	'/surrogate-user',
 	auth,
-	async (req: Request<{}, {}, { id: ObjectId }>, res: Response) => {
+	async (
+		req: Request<{}, {}, { userId: ObjectId; surrogateId: ObjectId }>,
+		res: Response
+	) => {
 		try {
 			// destructure necessary items
-			const { id } = req.body;
+			const { userId, surrogateId } = req.body;
 
-			if (id) {
-				let user = await User.findOne({ _id: id });
+			const admin = await User.find({ _id: userId, role: 'master' });
+
+			if (!admin) {
+				return res.status(401).send({
+					message: 'Access prohibited',
+					token: null,
+					user: null,
+				});
+			}
+
+			if (surrogateId) {
+				const user = await User.findOne({ _id: surrogateId });
+
 				if (!user) {
-					return res.status(400).json({
-						errors: [
-							{
-								message:
-									'Email & password combination not correct. Please try again or reset your password.',
-							},
-						],
+					return res.status(400).send({
+						message:
+							'Email & password combination not correct. Please try again or reset your password.',
+						token: null,
+						user: null,
 					});
 				}
+
 				// return the JWT
 				const payload = {
 					user: {
-						id,
+						surrogateId,
 					},
 				};
 				jwt.sign(
 					payload,
 					jwtSecret,
 					{ expiresIn: 60 * 60 * 24 * 5 },
-					(err, token) => {
-						if (err) throw err;
-						res.json({ token, user });
+					(error, token) => {
+						if (error) throw error;
+						const message = 'Surrogation successful';
+						console.log(message);
+						res.send({ message, token, user });
 					}
 				);
 			} else {
-				return res.status(200).json({
-					errors: [
-						{
-							message: 'No user found.',
-						},
-					],
+				console.log('Surrogation unsuccessful');
+
+				return res.status(200).send({
+					message: 'No user found.',
+					token: null,
+					user: null,
 				});
 			}
 		} catch (err) {
