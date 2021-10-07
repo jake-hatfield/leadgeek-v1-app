@@ -146,7 +146,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 				) : (
 					<div />
 				)}
-				<div className='flex items-center justify-between text-sm'>
+				<div className='center-between text-sm'>
 					{filteredItems ? (
 						<div className='relative flex items-center'>
 							{filteredItems > 0 && totalItems && totalItems > filteredItems && (

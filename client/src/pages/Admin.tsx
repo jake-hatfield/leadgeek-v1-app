@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { DateTime } from 'luxon';
 import { Redirect } from 'react-router';
+import { useStateIfMounted } from 'use-state-if-mounted';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@hooks/hooks';
@@ -12,6 +13,7 @@ import { surrogateUser } from '@features/auth/authSlice';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
+import LocalPaginationComponent from '@components/layout/navigation/LocalPagination';
 import Spinner from '@components/utils/Spinner';
 import Toggle from '@components/utils/Toggle';
 import { ReactComponent as Check } from '@assets/images/svgs/check.svg';
@@ -20,10 +22,13 @@ import { ReactComponent as X } from '@assets/images/svgs/x.svg';
 // utils
 import { capitalize } from '@utils/utils';
 import { User } from '@utils/interfaces/User';
+import { Pagination } from '@utils/interfaces/Pagination';
 
 interface UsersState {
 	status: 'loading' | 'idle' | 'failed';
-	allUsers: User[];
+	totalByIds: User[];
+	pageByIds: User[];
+	pagination: Pagination;
 }
 
 // TODO!!
@@ -38,10 +43,26 @@ const Admin = () => {
 
 	// local state
 	const [toolsActive, setToolsActive] = useState(false);
-	const [usersState, setUsersState] = useState<UsersState>({
+	const [usersState, setUsersState] = useStateIfMounted<UsersState>({
 		status: 'loading',
-		allUsers: [],
+		totalByIds: [],
+		pageByIds: [],
+		pagination: {
+			page: 1,
+			hasNextPage: null,
+			hasPreviousPage: false,
+			nextPage: null,
+			previousPage: null,
+			lastPage: null,
+			totalItems: null,
+			filteredItems: null,
+		},
 	});
+
+	const { page, hasNextPage, hasPreviousPage, nextPage, previousPage } =
+		usersState.pagination;
+
+	console.log(page, hasNextPage, hasPreviousPage, nextPage, previousPage);
 
 	// upload leads from Google sheet to MongoDB
 	const handleExportLeads = async (e: React.MouseEvent<HTMLElement>) => {
@@ -81,17 +102,33 @@ const Admin = () => {
 
 	// get all users
 	const getAllUsers = useCallback(
-		async (userId) => {
+		async (userId: string) => {
 			try {
 				// make a POST request to the API
-				const { data } = await axios.get(`/api/users/all/${userId}`);
+				const { data } = await axios.get<{
+					users: User[];
+					message: string;
+				}>(`/api/users/all/${userId}`);
 
 				// if there are users, set it in state
 				if (data.users.length > 0) {
+					const itemLimit = 20;
+
 					return setUsersState({
 						...usersState,
 						status: 'idle',
-						allUsers: data.users,
+						totalByIds: data.users,
+						pageByIds: data.users.slice(0, itemLimit),
+						pagination: {
+							...usersState.pagination,
+							page: 1,
+							hasNextPage: data.users.length > itemLimit ? true : false,
+							hasPreviousPage: false,
+							nextPage: 2,
+							previousPage: 0,
+							lastPage: Math.ceil(data.users.length / itemLimit),
+							totalItems: data.users.length,
+						},
 					});
 				} else {
 					// set status to idle
@@ -110,16 +147,16 @@ const Admin = () => {
 				console.log(error);
 			}
 		},
-		[usersState, dispatch]
+		[usersState, setUsersState, dispatch]
 	);
 
 	// get new users on page load
 	useEffect(() => {
 		status === 'idle' &&
 			user?._id &&
-			usersState.allUsers.length === 0 &&
+			usersState.totalByIds.length === 0 &&
 			getAllUsers(user?._id);
-	}, [status, user?._id, usersState.allUsers, getAllUsers]);
+	}, [status, user?._id, usersState.totalByIds, getAllUsers]);
 
 	const onToggle = () => {
 		setToolsActive((prev) => !prev);
@@ -130,7 +167,7 @@ const Admin = () => {
 		// export leads
 		{
 			title: 'Export leads',
-			onClick: (e: any) => handleExportLeads(e),
+			onClick: (e: React.MouseEvent<HTMLElement>) => handleExportLeads(e),
 		},
 	];
 
@@ -180,80 +217,85 @@ const Admin = () => {
 										<h2 className='font-bold text-lg text-300'>Users</h2>
 									</header>
 								</div>
-								<>
-									{status === 'idle' ? (
-										<table className='w-full table-auto'>
-											<thead className='border-b border-200'>
-												<tr className='cs-bg text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
-													<th className='p-3' />
-													<th className='p-3'>Name</th>
-													<th className='p-3'>Email</th>
-													<th className='p-3'>Plan</th>
-													<th className='p-3'>Created</th>
-													<th className='p-3'>Last login</th>
+								{status === 'idle' ? (
+									<table className='w-full table-auto'>
+										<thead className='border-b border-200'>
+											<tr className='cs-bg text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
+												<th className='p-3' />
+												<th className='p-3'>Name</th>
+												<th className='p-3'>Email</th>
+												<th className='p-3'>Plan</th>
+												<th className='p-3'>Created</th>
+												<th className='p-3'>Last login</th>
+											</tr>
+										</thead>
+										<tbody className='text-100'>
+											{usersState.pageByIds.map((lgUser) => (
+												<tr
+													key={lgUser._id}
+													className='text-sm border-b last:border-none border-100 dark:border-darkGray-200 hover:bg-gray-100 dark:hover:bg-darkGray-300'
+												>
+													<td className='p-3 all-center'>
+														{lgUser.subscription.subIds[0] &&
+														lgUser.subscription.subIds[0].active ? (
+															<Check className='inline-block svg-sm text-teal-900 bg-teal-200 rounded-full' />
+														) : (
+															<X className='inline-block svg-sm text-red-500 dark:text-red-600 bg-red-200 dark:bg-red-100 rounded-full' />
+														)}
+													</td>
+													<td className='p-3'>
+														<button
+															onClick={() =>
+																user?.role === 'master' &&
+																dispatch(
+																	surrogateUser({
+																		userId: user?._id,
+																		surrogateId: lgUser._id,
+																	})
+																)
+															}
+															className='link'
+														>
+															{lgUser.name}
+														</button>
+													</td>
+													<td className='p-3'>{lgUser.email}</td>
+													<td className='p-3'>{capitalize(lgUser.role)}</td>
+													<td className='p-3'>
+														{lgUser.lastLoggedIn
+															? DateTime.fromMillis(
+																	+lgUser.dateCreated
+															  ).toFormat('LLL dd @ t')
+															: '-'}
+													</td>
+													<td className='p-3'>
+														{lgUser.lastLoggedIn
+															? DateTime.fromMillis(
+																	+lgUser.lastLoggedIn
+															  ).toFormat('LLL dd @ t')
+															: '-'}
+													</td>
 												</tr>
-											</thead>
-											<tbody className='text-100'>
-												{usersState.allUsers.map((lgUser) => (
-													<tr
-														key={lgUser._id}
-														className='text-sm border-b last:border-none border-100 dark:border-darkGray-200 hover:bg-gray-100 dark:hover:bg-darkGray-300'
-													>
-														<td className='p-3 all-center'>
-															{lgUser.subscription.subIds[0] &&
-															lgUser.subscription.subIds[0].active ? (
-																<Check className='inline-block svg-sm text-teal-900 bg-teal-200 rounded-full' />
-															) : (
-																<X className='inline-block svg-sm text-red-500 dark:text-red-600 bg-red-200 dark:bg-red-100 rounded-full' />
-															)}
-														</td>
-														<td className='p-3'>
-															<button
-																onClick={() =>
-																	user?.role === 'master' &&
-																	dispatch(
-																		surrogateUser({
-																			userId: user?._id,
-																			surrogateId: lgUser._id,
-																		})
-																	)
-																}
-																className='link'
-															>
-																{lgUser.name}
-															</button>
-														</td>
-														<td className='p-3'>{lgUser.email}</td>
-														<td className='p-3'>{capitalize(lgUser.role)}</td>
-														<td className='p-3'>
-															{lgUser.lastLoggedIn
-																? DateTime.fromMillis(
-																		+lgUser.dateCreated
-																  ).toFormat('LLL dd @ t')
-																: '-'}
-														</td>
-														<td className='p-3'>
-															{lgUser.lastLoggedIn
-																? DateTime.fromMillis(
-																		+lgUser.lastLoggedIn
-																  ).toFormat('LLL dd @ t')
-																: '-'}
-														</td>
-													</tr>
-												))}
-											</tbody>
-										</table>
-									) : (
-										<Spinner
-											divWidth={null}
-											center={false}
-											spinnerWidth={null}
-											margin={false}
-											text={'Loading users...'}
-										/>
-									)}
-								</>
+											))}
+										</tbody>
+									</table>
+								) : (
+									<Spinner
+										divWidth={null}
+										center={false}
+										spinnerWidth={null}
+										margin={false}
+										text={'Loading users...'}
+									/>
+								)}
 							</article>
+							{usersState.totalByIds && (
+								<LocalPaginationComponent
+									items={usersState.totalByIds}
+									pagination={usersState.pagination}
+									setItems={setUsersState}
+								/>
+							)}
 						</div>
 					</div>
 				</section>
@@ -281,8 +323,6 @@ interface NavbarLinkProps {
 }
 
 const NavbarLink: React.FC<NavbarLinkProps> = ({ item, status }) => {
-	console.log(status);
-
 	return (
 		<button
 			className={`mb-2 -ml-0.5 pl-4 relative flex items-center group ${
