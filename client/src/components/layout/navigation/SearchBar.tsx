@@ -80,7 +80,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
 						name='q'
 						placeholder={placeholder || 'Enter a search...'}
 						onChange={(e) => onSearchChange(e)}
-						className='py-2 pl-10 w-full rounded-main border border-300 input text-sm placeholder-gray-700 text-300 transition-main ring-purple'
+						className='py-2 pl-10 w-full rounded-main border border-300 input text-sm placeholder-gray-700 text-300 ring-purple'
 					/>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'

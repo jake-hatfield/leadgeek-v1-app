@@ -1,20 +1,27 @@
 import React, { useState } from 'react';
 
+// packages
+import axios from 'axios';
+
 // redux
 import { useAppDispatch, useAppSelector, useDarkMode } from '@hooks/hooks';
 import { removeAlert, setAlert } from '@features/alert/alertSlice';
-import { updatePassword } from '@components/features/auth/authSlice';
+import {
+	getUserData,
+	updatePassword,
+} from '@components/features/auth/authSlice';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
 import Button from '@components/utils/Button';
+import FormField from '@components/utils/FormField';
 import PasswordFormField from '@components/utils/PasswordFormField';
 import SettingsLayout from '@components/layout/SettingsLayout';
 import Spinner from '@components/utils/Spinner';
 import Toggle from '@components/utils/Toggle';
 
 // utils
-import { passwordList } from '@utils/utils';
+import { config, passwordList } from '@utils/utils';
 
 const AccountPage = () => {
 	const dispatch = useAppDispatch();
@@ -28,6 +35,7 @@ const AccountPage = () => {
 
 	// local state
 	const [formData, setFormData] = useState({
+		name: user?.name || '',
 		password_1: '',
 		password_2: '',
 	});
@@ -38,6 +46,55 @@ const AccountPage = () => {
 	// handle form input change
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
+	};
+
+	const handleUpdateProfile = async () => {
+		if (!formData.name) {
+			return dispatch(
+				setAlert({
+					title: 'Required field missing',
+					message: "Name field can't be empty",
+					alertType: 'danger',
+				})
+			);
+		}
+
+		if (formData.name === user?.name) {
+			return dispatch(
+				setAlert({
+					title: 'Error updating name',
+					message: 'The current and updated name are the same',
+					alertType: 'warning',
+				})
+			);
+		}
+
+		const body = JSON.stringify({ userId: user?._id, name: formData.name });
+
+		const { data } = await axios.put<{
+			message:
+				| 'Profile was successfully updated'
+				| 'No user exists in the database to update';
+		}>('/api/auth/update-profile', body, config);
+
+		if (data.message === 'Profile was successfully updated') {
+			dispatch(
+				setAlert({
+					title: 'Update success',
+					message: 'Your profile was successfully updated',
+					alertType: 'success',
+				})
+			);
+			return dispatch(getUserData());
+		} else {
+			return dispatch(
+				setAlert({
+					title: 'Error updating profile',
+					message: 'Please contact support',
+					alertType: 'danger',
+				})
+			);
+		}
 	};
 
 	const handleUpdatePassword = (
@@ -144,7 +201,7 @@ const AccountPage = () => {
 							/>
 						) : (
 							<>
-								{/* <div className='mt-4 pt-2 md:pt-4 lg:pt-6 cs-light-300 card-200'>
+								<div className='mt-4 pt-2 md:pt-4 lg:pt-6 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
 										<header className='card-padding-x'>
 											<h2 className='font-bold text-lg text-300'>Profile</h2>
@@ -156,24 +213,17 @@ const AccountPage = () => {
 											type={'text'}
 											name={'name'}
 											placeholder={user.name}
-											value={user.name}
+											value={formData.name || user.name}
+											onChange={(e) => onChange(e)}
 											required={true}
 											styles={'w-1/2'}
 										/>
-										<FormField
-											label={'Email'}
-											type={'email'}
-											name={'email'}
-											placeholder={user.email}
-											value={user.email}
-											required={true}
-											styles={'w-1/2 ml-16'}
-										/>
+										<div className='w-1/2 ml-16' />
 									</div>
 									<div className='flex justify-end mt-4 py-2 card-padding-x cs-bg rounded-b-lg border-t border-300'>
 										<Button
 											text={'Save'}
-											onClick={() => alert('hello')}
+											onClick={() => handleUpdateProfile()}
 											width={null}
 											margin={false}
 											size={'sm'}
@@ -183,7 +233,7 @@ const AccountPage = () => {
 											conditionalDisplay={null}
 										/>
 									</div>
-								</div> */}
+								</div>
 								<article className='mt-4 pt-2 md:pt-4 lg:pt-6 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
 										<header className='card-padding-x'>

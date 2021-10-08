@@ -59,11 +59,6 @@ const Admin = () => {
 		},
 	});
 
-	const { page, hasNextPage, hasPreviousPage, nextPage, previousPage } =
-		usersState.pagination;
-
-	console.log(page, hasNextPage, hasPreviousPage, nextPage, previousPage);
-
 	// upload leads from Google sheet to MongoDB
 	const handleExportLeads = async (e: React.MouseEvent<HTMLElement>) => {
 		e.stopPropagation();
@@ -217,7 +212,7 @@ const Admin = () => {
 										<h2 className='font-bold text-lg text-300'>Users</h2>
 									</header>
 								</div>
-								{status === 'idle' ? (
+								{usersState.status === 'idle' ? (
 									<table className='w-full table-auto'>
 										<thead className='border-b border-200'>
 											<tr className='cs-bg text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>

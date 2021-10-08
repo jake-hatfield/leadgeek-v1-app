@@ -35,6 +35,11 @@ const SettingsNavbar = () => {
 			new: false,
 		},
 		{
+			title: 'Arbitrage',
+			link: 'arbitrage',
+			new: true,
+		},
+		{
 			title: 'Plan & billing',
 			link: 'billing',
 			new: false,

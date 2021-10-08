@@ -30,10 +30,13 @@ import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/logo-app.svg
 
 // utils
 import { config, useOutsideMouseup } from '@utils/utils';
-import { useDarkMode } from '@hooks/hooks';
 import { Notification } from '@utils/interfaces/Notification';
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+	colorTheme: 'light' | 'dark';
+}
+
+const Navbar: React.FC<NavbarProps> = ({ colorTheme }) => {
 	const dispatch = useAppDispatch();
 	const location = useLocation();
 
@@ -101,8 +104,6 @@ const Navbar: React.FC = () => {
 		setUserDropdown(false);
 	};
 
-	const [colorTheme] = useDarkMode();
-
 	return (
 		<header className='w-full cs-light-400 text-300 shadow-sm border-b border-300'>
 			<nav className='container'>
@@ -115,9 +116,7 @@ const Navbar: React.FC = () => {
 						}}
 					>
 						<LeadGeekLogo
-							className={`h-6 ${
-								colorTheme === 'dark' ? 'text-purple-500' : 'text-purple-300'
-							}`}
+							className={`h-6 text-purple-500 dark:text-purple-300`}
 						/>
 					</NavLink>
 					<SearchBar placeholder='Enter a search...' />

@@ -9,6 +9,7 @@ interface FormFieldProps {
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	required: boolean;
 	styles: string | null;
+	disabled?: boolean;
 	lightOnly?: boolean;
 }
 
@@ -21,6 +22,7 @@ const FormField: React.FC<FormFieldProps> = ({
 	onChange,
 	required,
 	styles,
+	disabled,
 	lightOnly,
 }) => {
 	return (

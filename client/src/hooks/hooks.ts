@@ -11,10 +11,11 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 // dark mode
 export const useDarkMode = (): [
-	string,
+	'light' | 'dark',
 	React.Dispatch<React.SetStateAction<string>>
 ] => {
 	const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
 	// return a new theme that's the opposite of the current theme
 	const colorTheme = theme === 'light' ? 'dark' : 'light';
 

@@ -385,7 +385,47 @@ router.put(
 			} else {
 				const message = 'No user exists in the database to update';
 				console.error(message);
-				res.status(404).json(message);
+				return res.status(404).json(message);
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
+);
+
+// @route       PUT api/auth
+// @description update password in database
+// @access      Public
+router.put(
+	'/update-profile',
+	async (
+		req: Request<{}, {}, { userId: ObjectId; name: string }>,
+		res: Response
+	) => {
+		try {
+			// destructure necessary items
+			const { userId, name } = req.body;
+
+			// lookup user
+			const user = await User.findOne({
+				_id: userId,
+			});
+
+			if (user) {
+				console.log('User found in the database');
+
+				await user.updateOne({
+					name,
+				});
+				const message = 'Profile was succesfully updated';
+				console.log(message);
+				return res
+					.status(200)
+					.send({ message: 'Profile was successfully updated' });
+			} else {
+				const message = 'No user exists in the database to update';
+				console.error(message);
+				return res.status(404).send({ message });
 			}
 		} catch (error) {
 			console.error(error);
