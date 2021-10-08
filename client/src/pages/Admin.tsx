@@ -284,7 +284,7 @@ const Admin = () => {
 									/>
 								)}
 							</article>
-							{usersState.totalByIds && (
+							{usersState.totalByIds.length > 0 && (
 								<LocalPaginationComponent
 									items={usersState.totalByIds}
 									pagination={usersState.pagination}

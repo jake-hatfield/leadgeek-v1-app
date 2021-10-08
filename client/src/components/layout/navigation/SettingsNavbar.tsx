@@ -40,15 +40,15 @@ const SettingsNavbar = () => {
 			new: true,
 		},
 		{
+			title: 'Affiliate',
+			link: 'affiliates',
+			new: false,
+		},
+		{
 			title: 'Plan & billing',
 			link: 'billing',
 			new: false,
 		},
-		// {
-		// 	title: 'Affiliates',
-		// 	link: 'affiliates',
-		// 	new: true,
-		// },
 	];
 
 	return (
@@ -65,4 +65,4 @@ const SettingsNavbar = () => {
 	);
 };
 
-export default SettingsNavbar;
+export default React.memo(SettingsNavbar);

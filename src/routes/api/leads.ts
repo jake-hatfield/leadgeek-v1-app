@@ -169,7 +169,18 @@ router.post(
 			if (activeSub.length === 0) {
 				let message = 'There are no leads to show';
 				console.log(message);
-				return res.status(200).send({ status: 'failure', message });
+				return res.status(200).send({
+					feed: [],
+					page: 1,
+					hasNextPage: false,
+					hasPreviousPage: false,
+					nextPage: 1,
+					previousPage: 0,
+					lastPage: null,
+					totalItems: 0,
+					filteredItems: 0,
+					lastUpdated: null,
+				});
 			}
 
 			// we can proceed getting leads

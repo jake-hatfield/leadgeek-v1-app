@@ -48,7 +48,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 	const previousDay = mostRecentDay.minusBusiness({ days: 1 });
 	const lastFiveStart = mostRecentDay.minusBusiness({ days: 5 });
 	const lastFourteenStart = mostRecentDay.minusBusiness({ days: 10 });
-	const last30Start = mostRecentDay.minusBusiness({ days: 30 });
+	const last30Start = mostRecentDay.minusBusiness({ days: 21 });
 	const lastDay = DateTime.fromISO(dateCreated);
 
 	// date options in picker
@@ -187,8 +187,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			dispatch(
 				setAlert({
 					title: 'Invalid date range',
-					message:
-						'This date range is older than your Leadgeek account. Please select a valid date range.',
+					message: 'This date range is older than your Leadgeek account',
 					alertType: 'danger',
 				})
 			);

@@ -125,6 +125,13 @@ const BillingPage = () => {
 				}
 			} catch (error) {
 				console.log(error);
+				return setPlanState({
+					...planState,
+					plan: {
+						...planState.plan,
+						status: 'idle',
+					},
+				});
 			}
 		},
 		[planState, setPlanState]
@@ -174,6 +181,13 @@ const BillingPage = () => {
 				});
 			} catch (error) {
 				console.log(error);
+				return setPaymentState({
+					...paymentState,
+					paymentHistory: {
+						...paymentState.paymentHistory,
+						status: 'idle',
+					},
+				});
 			}
 		},
 		[paymentState, setPaymentState]
@@ -276,7 +290,7 @@ const BillingPage = () => {
 						{user?.subscription.cusId ? (
 							<>
 								{/* subscription information */}
-								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-5 cs-light-300 card-200'>
+								<section className='pt-2 md:pt-4 lg:pt-6 pb-5 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
 										<header className='card-padding-x'>
 											<h2 className='font-bold text-lg text-300'>
@@ -303,7 +317,9 @@ const BillingPage = () => {
 											))}
 										</dl>
 									) : (
-										<div className='mt-4'>There are no active plans</div>
+										<div className='mt-4 card-padding-x'>
+											No active plans were found.
+										</div>
 									)}
 								</section>
 								{/* billing history */}
@@ -384,7 +400,7 @@ const BillingPage = () => {
 											</table>
 										</div>
 									) : (
-										<section className='mt-4'>
+										<section className='mt-4 card-padding-x'>
 											<NullState
 												header={'No subscription payments found'}
 												text={'No payments have been found for your account.'}

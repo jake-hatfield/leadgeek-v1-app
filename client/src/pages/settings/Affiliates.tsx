@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 // packages
 import axios from 'axios';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useStateIfMounted } from 'use-state-if-mounted';
 
 // redux
 import { useAppSelector } from '@hooks/hooks';
@@ -36,11 +37,12 @@ const AffiliatesPage = () => {
 	const status = useAppSelector((state) => state.auth.status);
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 	const user = useAppSelector((state) => state.auth.user);
+
 	// local state
-	const [affState, setAffState] = useState<{
+	const [affState, setAffState] = useStateIfMounted<{
 		paypalEmail: string;
 		paymentHistory: {
-			status: string;
+			status: 'loading' | 'idle';
 			payments: Payment[];
 		};
 	}>({
@@ -53,8 +55,8 @@ const AffiliatesPage = () => {
 	const [changePaypal, setChangePaypal] = useState(false);
 	const [copiedText, setCopiedText] = useState(false);
 	const [copyText, setCopyText] = useState('Copy LGID');
-	const [isAff] = useState(
-		isAuthenticated && user?.referrals.referrer.isReferrer
+	const [isAff, setIsAff] = useState(
+		user?.referrals.referrer.isReferrer || false
 	);
 	const [lastPayout] = useState(calcNextPossiblePayoutDate(-1));
 	const [lgid] = useState(isAuthenticated && user?.referrals.referrer.lgid);
@@ -67,11 +69,19 @@ const AffiliatesPage = () => {
 		paymentHistory: { status: paymentStatus, payments },
 	} = affState;
 
+	// set affiliate status on load
+	useEffect(() => {
+		user?.referrals.referrer.isReferrer === true
+			? setIsAff(true)
+			: setIsAff(false);
+	}, [user?.referrals.referrer.isReferrer]);
+
 	const handleAffPayments = useCallback(
-		(
+		async (
 			clients: { userId: string; cusId: string }[] | undefined,
 			affCreated: string | undefined
 		) => {
+			// if no clients or affiliate date created
 			if (!clients || !affCreated) {
 				return setAffState({
 					...affState,
@@ -81,16 +91,44 @@ const AffiliatesPage = () => {
 						payments: [],
 					},
 				});
-			} else {
-				return getAffPayments(clients, affCreated);
+			}
+
+			try {
+				// prepare JSON object
+				const body = JSON.stringify({ clients, affCreated });
+
+				// make POST request to API
+				const {
+					data: { message, affPayments },
+				} = await axios.post('/api/users/affiliate-payments', body, config);
+
+				if (message === 'Referred clients with valid payments were found.') {
+					console.log(affPayments);
+					setAffState({
+						...affState,
+						paymentHistory: {
+							...affState.paymentHistory,
+							status: 'idle',
+							payments: affPayments,
+						},
+					});
+				} else {
+					// dispatch({
+					// type: FINISHED_AFFILIATE_PAYMENTS_LOADING,
+					// });
+				}
+			} catch (error) {
+				console.log(error);
 			}
 		},
-		[affState]
+		[affState, setAffState]
 	);
+
 	// get affiliate payments if user is authenticated & affiliate
 	useEffect(() => {
 		isAuthenticated &&
 			status === 'idle' &&
+			paymentStatus === 'loading' &&
 			isAff &&
 			handleAffPayments(
 				user?.referrals.referrer.clients,
@@ -99,6 +137,7 @@ const AffiliatesPage = () => {
 	}, [
 		isAuthenticated,
 		status,
+		paymentStatus,
 		isAff,
 		user?.referrals.referrer.clients,
 		user?.referrals.referrer.dateCreated,
@@ -118,31 +157,6 @@ const AffiliatesPage = () => {
 	// handle input change for PayPal email
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setAffState({ ...affState, [e.target.name]: e.target.value });
-	};
-
-	const getAffPayments = async (
-		clients: { userId: string; cusId: string }[],
-		affCreated: string
-	) => {
-		try {
-			const body = JSON.stringify({ clients, affCreated });
-			const {
-				data: { msg: message, affPayments },
-			} = await axios.post('/api/users/affiliate-payments', body, config);
-			if (message === 'Referred clients with valid payments were found.') {
-				console.log(affPayments);
-				// dispatch({
-				// 	type: SET_AFFILIATE_PAYMENTS,
-				// 	payload: affPayments,
-				// });
-			} else {
-				// dispatch({
-				// type: FINISHED_AFFILIATE_PAYMENTS_LOADING,
-				// });
-			}
-		} catch (error) {
-			console.log(error);
-		}
 	};
 
 	// export const updatePaypalEmail =
@@ -362,7 +376,7 @@ const AffiliatesPage = () => {
 				<section className='my-6'>
 					{isAff ? (
 						<div className='w-full'>
-							<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-300 card-200'>
+							<section className='pt-2 md:pt-4 lg:pt-6 pb-5 cs-light-300 card-200'>
 								<div className='pb-4 border-b border-200'>
 									<header className='flex items-end justify-between card-padding-x'>
 										<h2 className='font-bold text-lg text-300'>
@@ -500,7 +514,7 @@ const AffiliatesPage = () => {
 											</header>
 											<button
 												onClick={() => setModal((prev) => !prev)}
-												className='absolute top-0 right-3 md:right-5 lg:right-7 ml-2 p-1 hover:bg-gray-100 rounded-md hover:text-gray-700 ring-gray transition-main'
+												className='absolute top-0 right-3 md:right-5 lg:right-7 ml-2 p-1 text-100 hover:bg-gray-100 dark:hover:bg-darkGray-100 rounded-md hover:text-gray-700 dark:hover:text-gray-400 ring-gray transition-main'
 											>
 												<svg
 													xmlns='http://www.w3.org/2000/svg'

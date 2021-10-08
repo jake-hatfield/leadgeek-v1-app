@@ -32,11 +32,7 @@ import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/logo-app.svg
 import { config, useOutsideMouseup } from '@utils/utils';
 import { Notification } from '@utils/interfaces/Notification';
 
-interface NavbarProps {
-	colorTheme: 'light' | 'dark';
-}
-
-const Navbar: React.FC<NavbarProps> = ({ colorTheme }) => {
+const Navbar: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const location = useLocation();
 
@@ -87,7 +83,6 @@ const Navbar: React.FC<NavbarProps> = ({ colorTheme }) => {
 				config
 			);
 			setStatus('idle');
-			console.log(data.notifications);
 			return setNotifications(data.notifications);
 		},
 		[]
@@ -95,8 +90,9 @@ const Navbar: React.FC<NavbarProps> = ({ colorTheme }) => {
 	useEffect(() => {
 		user?.notifications &&
 			user?.notifications.length > 0 &&
+			notificationDropdown &&
 			getNotificationData(user.notifications);
-	}, [user?.notifications, getNotificationData]);
+	}, [user?.notifications, notificationDropdown, getNotificationData]);
 
 	// clear user data on logout
 	const logoutUser = () => {

@@ -144,12 +144,21 @@ export const getFeedLeads = createAsyncThunk(
 			});
 
 			// POST request to route
-			const { data } = await axios.post('/api/leads', body, config);
+			const { data } = await axios.post<{
+				feed: Lead[];
+				page: number;
+				hasNextPage: boolean;
+				hasPreviousPage: boolean;
+				nextPage: number;
+				previousPage: number;
+				lastPage: number | null;
+				totalItems: number;
+				filteredItems: number;
+				lastUpdated: string | null;
+			}>('/api/leads', body, config);
 
-			// if there are leads, return data to redux store
-			if (data.message !== 'There are no leads to show') {
-				return data;
-			}
+			// return data to redux store
+			return data;
 		} catch (error) {
 			console.log(error);
 			return rejectWithValue(error);
@@ -510,7 +519,6 @@ export const leadsSlice = createSlice({
 					filteredItems,
 					lastUpdated,
 				} = action.payload;
-
 				state.status = 'idle';
 				state.currentLeadStatus = 'idle';
 				state.feed.pageByIds = feed;
