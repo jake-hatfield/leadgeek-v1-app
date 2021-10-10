@@ -3,7 +3,7 @@ import path from 'path';
 
 // packages
 import express, { Request, Response, NextFunction } from 'express';
-import Sentry from '@sentry/node';
+// import Sentry from '@sentry/node';
 
 // files
 import connectDB from '@config/db';
