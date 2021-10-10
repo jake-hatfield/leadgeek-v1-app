@@ -11,9 +11,9 @@
 	"scripts": {
 		"client": "npm start -C client",
 		"dev": "dotenv -e .env.development concurrently \"npm run server\" \"npm run client\"",
-		"heroku-postbuild": "cd client && npm install --only=dev && npm install && npm run build",
+		"heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client && rm -v -rf src",
 		"install": "cd client && npm install",
-		"postinstall": "tsc && mv -i -v client dist/ && rm -v -rf src",
+		"postinstall": "tsc && mv -i -v client dist/src/",
 		"server": "nodemon -e ts,js --exec ts-node --files -r tsconfig-paths/register src/server.ts --ignore-client",
 		"start": "node dist/src/server.js"
 	},

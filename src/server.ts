@@ -45,9 +45,9 @@ if (process.env.NODE_ENV === 'production') {
 	// 301 www to non-www
 	app.use(redirectWWWTraffic);
 	// set static folder
-	app.use('/client', express.static(path.join(__dirname, 'client/build')));
+	app.use(express.static(path.join(__dirname, './client/build')));
 	app.get('*', (req, res) => {
-		res.sendFile(path.join(__dirname, 'client/build/index.html'));
+		res.sendFile(path.join(__dirname, './client/build/index.html'));
 	});
 }
 
