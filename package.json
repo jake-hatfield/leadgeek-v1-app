@@ -14,7 +14,7 @@
 		"client": "npm start -C client",
 		"dev": "dotenv -e .env.development concurrently \"npm run server\" \"npm run client\"",
 		"start": "node dist/src/server.js",
-		"build": "tsc && cd client && npm run build",
+		"postinstall": "tsc && cd client && npm run build && mv -i -v client dist/ && rm -v -rf src",
 		"heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
 	},
 	"author": "Jake Hatfield",
