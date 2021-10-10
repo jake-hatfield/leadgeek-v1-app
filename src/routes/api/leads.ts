@@ -5,11 +5,11 @@ import { DateTime } from 'luxon';
 import mongoose, { ObjectId } from 'mongoose';
 
 // middleware
-import auth from '@middleware/auth';
+import auth from '../../middleware/auth';
 
 // models
-import Lead, { ILeadDocument } from '@models/Lead';
-import User from '@models/User';
+import Lead, { ILeadDocument } from '../../models/Lead';
+import User from '../../models/User';
 
 // types
 import { Filter } from 'types/Filter';

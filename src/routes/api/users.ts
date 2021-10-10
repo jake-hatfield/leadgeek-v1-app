@@ -7,11 +7,11 @@ import Stripe from 'stripe';
 const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
 
 // middleware
-import auth from '@middleware/auth';
+import auth from '../../middleware/auth';
 
 // models
-import User from '@models/User';
-import Notification from '@models/Notification';
+import User from '../../models/User';
+import Notification from '../../models/Notification';
 
 // router
 const router = Router();

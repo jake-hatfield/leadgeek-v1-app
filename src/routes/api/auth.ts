@@ -10,11 +10,11 @@ import nodemailer from 'nodemailer';
 const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 
 // middleware
-import auth from '@middleware/auth';
+import auth from '../../middleware/auth';
 
 // models
-import Notification from '@models/Notification';
-import User, { IUserDocument } from '@models/User';
+import Notification from '../../models/Notification';
+import User, { IUserDocument } from '../../models/User';
 
 // router
 const router = Router();
