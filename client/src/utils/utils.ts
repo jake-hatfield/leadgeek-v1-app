@@ -1,6 +1,13 @@
 import React, { RefObject, useEffect } from 'react';
 
+// packages
 import { DateTime } from 'luxon';
+
+export const config = {
+	headers: {
+		'Content-Type': 'application/json',
+	},
+};
 
 export const capitalize = (string: string) => {
 	return string[0].toUpperCase() + string.slice(1);
@@ -27,11 +34,11 @@ export const returnDomainFromUrl = (url: string) => {
 	let result, match;
 	if (
 		(match = url.match(
-			/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im
+			/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n?=]+)/im
 		))
 	) {
 		result = match[1];
-		if ((match = result.match(/^[^\.]+\.(.+\..+)$/))) {
+		if ((match = result.match(/^[^.]+\.(.+\..+)$/))) {
 			result = match[1];
 		}
 	}
@@ -114,32 +121,33 @@ export const openLinkHandler = (retailerLink: string, amzLink: string) => {
 export const useOutsideMousedown = (
 	ref: RefObject<HTMLElement>,
 	setState_1: React.Dispatch<boolean>,
-	setState_2: React.Dispatch<boolean>
+	setState_2: React.Dispatch<boolean> | null,
+	conditional?: any
 ) => {
 	useEffect(() => {
-		function handleClickOutside(e: any) {
-			if (ref.current && !ref.current.contains(e.target)) {
+		const handleClickOutside = (e: any) => {
+			if (!ref.current?.contains(e.target as Node) || conditional) {
 				setState_1(false);
 				if (setState_2) {
 					setState_2(false);
 				}
 			}
-		}
+		};
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [ref, setState_1, setState_2]);
+	}, [ref, setState_1, setState_2, conditional]);
 };
 
 export const useOutsideMouseup = (
 	ref: RefObject<HTMLElement>,
 	setState_1: React.Dispatch<boolean>,
-	setState_2: React.Dispatch<boolean>
+	setState_2: React.Dispatch<boolean> | null
 ) => {
 	useEffect(() => {
 		function handleClickOutside(e: any) {
-			if (ref.current && !ref.current.contains(e.target)) {
+			if (!ref.current?.contains(e.target)) {
 				setState_1(false);
 				if (setState_2) {
 					setState_2(false);
@@ -191,6 +199,8 @@ export const calcNextPossiblePayoutDate = (instance: number) => {
 		} else {
 			return newDate.plus({ months: -1 });
 		}
+	} else {
+		return newDate;
 	}
 };
 
@@ -205,3 +215,107 @@ export const calcNextPayoutDate = (date: number) => {
 		return newDate.set({ day: 15 });
 	}
 };
+
+export const passwordList = [
+	'123456',
+	'password',
+	'12345678',
+	'qwerty',
+	'123456789',
+	'12345',
+	'1234',
+	'111111',
+	'1234567',
+	'dragon',
+	'123123',
+	'baseball',
+	'abc123',
+	'football',
+	'monkey',
+	'letmein',
+	'696969',
+	'shadow',
+	'master',
+	'666666',
+	'qwertyuiop',
+	'123321',
+	'mustang',
+	'1234567890',
+	'michael',
+	'654321',
+	'pussy',
+	'superman',
+	'1qaz2wsx',
+	'7777777',
+	'fuckyou',
+	'121212',
+	'000000',
+	'qazwsx',
+	'123qwe',
+	'killer',
+	'trustno1',
+	'jordan',
+	'jennifer',
+	'zxcvbnm',
+	'asdfgh',
+	'hunter',
+	'buster',
+	'soccer',
+	'harley',
+	'batman',
+	'andrew',
+	'tigger',
+	'sunshine',
+	'iloveyou',
+	'fuckme',
+	'2000',
+	'charlie',
+	'robert',
+	'thomas',
+	'hockey',
+	'ranger',
+	'daniel',
+	'starwars',
+	'klaster',
+	'112233',
+	'george',
+	'asshole',
+	'computer',
+	'michelle',
+	'jessica',
+	'pepper',
+	'1111',
+	'zxcvbn',
+	'555555',
+	'11111111',
+	'131313',
+	'freedom',
+	'777777',
+	'pass',
+	'fuck',
+	'maggie',
+	'159753',
+	'aaaaaa',
+	'ginger',
+	'princess',
+	'joshua',
+	'cheese',
+	'amanda',
+	'summer',
+	'love',
+	'ashley',
+	'6969',
+	'nicole',
+	'chelsea',
+	'biteme',
+	'matthew',
+	'access',
+	'yankees',
+	'987654321',
+	'dallas',
+	'austin',
+	'thunder',
+	'taylor',
+	'matrix',
+	'minecraft',
+];

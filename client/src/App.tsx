@@ -1,16 +1,23 @@
 import React, { Fragment, useEffect } from 'react';
+
+// packages
 import { BrowserRouter as Router, Switch } from 'react-router-dom';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
 // redux
 import { Provider } from 'react-redux';
 import store from './store';
-import { loadUser } from '@redux/actions/auth';
-import setAuthToken from '@utils/authTokens';
-// stripe
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import {
+	getUserData,
+	removeUserData,
+} from '@components/features/auth/authSlice';
+
 // routes
 import Routes from './routes/Routes';
-import { LOGOUT } from '@redux/actions/types';
+
+// utils
+import setAuthToken from '@utils/authTokens';
 
 const App: React.FC = () => {
 	useEffect(() => {
@@ -18,10 +25,10 @@ const App: React.FC = () => {
 		if (localStorage.token) {
 			setAuthToken(localStorage.token);
 		}
-		store.dispatch(loadUser());
+		store.dispatch(getUserData());
 		// log user out from all tabs if they log out in one tab
 		window.addEventListener('storage', () => {
-			if (!localStorage.token) store.dispatch({ type: LOGOUT });
+			if (!localStorage.token) store.dispatch(removeUserData());
 		});
 	}, []);
 
