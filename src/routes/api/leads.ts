@@ -596,9 +596,12 @@ router.post(
 		res: Response
 	) => {
 		try {
+			// destructure necessary items
 			const { userId, leadId } = req.body;
+
 			// find lead in the feed
 			const lead = await Lead.findById(leadId);
+
 			if (lead) {
 				// find the user's liked leads
 				const user = await User.findById(userId);
@@ -660,19 +663,26 @@ router.post(
 		res: Response
 	) => {
 		try {
+			// destructure necessary items
 			const { userId, leadId } = req.body;
+
 			// find lead in the feed
 			const lead = await Lead.findById(leadId);
+
 			if (lead) {
 				// find the user's liked leads
 				const user = await User.findById(userId);
 				const archivedLeads = user.archivedLeads;
+
+				console.log(archivedLeads);
 				// check if the lead is already liked
 				const indexed = archivedLeads
 					.map((l) => {
 						return l._id;
 					})
 					.indexOf(leadId);
+
+				console.log(indexed);
 				if (indexed >= 0) {
 					unarchiveLead(user, leadId);
 					return res.status(200).send({
@@ -739,7 +749,7 @@ router.post(
 
 					// build the new comment
 					const newComment = {
-						leadId: leadId.toString(),
+						leadId: leadId,
 						comment,
 						date: DateTime.now().toISO(),
 					};

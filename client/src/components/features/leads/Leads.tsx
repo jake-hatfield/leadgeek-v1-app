@@ -170,9 +170,6 @@ const Leads: React.FC<LeadsProps> = ({
 		<Fragment>
 			<section className={classes.leadsWrapper}>
 				<nav className={classes.navWrapper}>
-					{/* <header>
-						<h1 className='text-2xl text-300 font-bold'>Leads</h1>
-					</header> */}
 					<div className={classes.nav}>
 						<div>
 							{primaryLinks.map((link, i) => (
@@ -197,10 +194,10 @@ const Leads: React.FC<LeadsProps> = ({
 						<div className={classes.navToolsWrapper}>
 							<Button
 								text={
-									dateSelected
-										? dateSelected!
+									dateSelected && user.dateCreated
+										? dateSelected
 										: `${
-												DateTime.fromISO(user?.dateCreated).toFormat(
+												DateTime.fromISO(user?.dateCreated.toString()).toFormat(
 													'LLL dd, yyyy'
 												) || 'Jan 1, 2021'
 										  } - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
@@ -248,7 +245,7 @@ const Leads: React.FC<LeadsProps> = ({
 									type={type}
 									date={date}
 									setDate={setDate}
-									dateCreated={user.dateCreated}
+									dateCreated={user.dateCreated.toString()}
 									lastUpdated={lastUpdated}
 								/>
 							)}

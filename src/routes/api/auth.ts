@@ -28,7 +28,7 @@ router.get('/', auth, async (req: Request, res: Response) => {
 		const user = await User.findById(req.body.user.id).select('-password');
 
 		// the notification time in DB is in seconds, so convert to miliseconds for comparision
-		const lastLogin = user.lastLoggedIn / 1000;
+		const lastLogin = user.lastLoggedIn;
 
 		// get new notifications based on time
 		const notifications = await Notification.find({
@@ -47,7 +47,7 @@ router.get('/', auth, async (req: Request, res: Response) => {
 		// add the unseen notifications to the user's array
 		user.notifications = [...user.notifications, ...newNotifications];
 
-		user.lastLoggedIn = new Date().getTime();
+		user.lastLoggedIn = new Date();
 
 		// save the user's notifications in DB
 		await user.save();
@@ -224,10 +224,21 @@ router.post(
 				// create reset password token
 				const token = crypto.randomBytes(20).toString('hex');
 
+				const addHoursToDate = (date: Date, hours: number): Date => {
+					return new Date(new Date(date).setHours(date.getHours() + hours));
+				};
+
+				let date = new Date();
+
+				console.log(date, addHoursToDate(date, 1));
+
 				// update user reset password in DB - token expires in 1 hour
-				const update = {
+				const update: {
+					resetPwToken: string;
+					resetPwExpires: Date;
+				} = {
 					resetPwToken: token,
-					resetPwExpires: Date.now() + 3600000,
+					resetPwExpires: addHoursToDate(date, 1),
 				};
 
 				// update the user's token and token expiration date
@@ -324,7 +335,7 @@ router.post(
 		try {
 			console.log('Searching for user password reset token...');
 
-			const currentTime = new Date().getTime();
+			const currentTime = new Date();
 
 			// lookup for user
 			const user = await User.findOne({

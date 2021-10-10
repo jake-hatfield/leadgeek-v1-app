@@ -132,7 +132,7 @@ const AffiliatesPage = () => {
 			isAff &&
 			handleAffPayments(
 				user?.referrals.referrer.clients,
-				user?.referrals.referrer.dateCreated
+				user?.referrals.referrer.dateCreated?.toString()
 			);
 	}, [
 		isAuthenticated,

@@ -14,7 +14,7 @@ export interface IUser {
 	email: string;
 	password: string;
 	dateCreated: Date;
-	lastLoggedIn: number;
+	lastLoggedIn: Date;
 	subscription: {
 		cusId?: string;
 		subIds: {
@@ -29,7 +29,7 @@ export interface IUser {
 		brand?: string;
 	};
 	resetPwToken: string | null;
-	resetPwExpires: number | null;
+	resetPwExpires: Date | null;
 	role: Roles;
 	referrals: {
 		referred: {
@@ -48,7 +48,7 @@ export interface IUser {
 	archivedLeads: { _id: ObjectId }[];
 	comments: {
 		date: string;
-		leadId: string;
+		leadId: ObjectId;
 		comment: string;
 	}[];
 	notifications: {

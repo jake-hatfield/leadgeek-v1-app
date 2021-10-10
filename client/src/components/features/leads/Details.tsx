@@ -304,10 +304,9 @@ const Details: React.FC<DetailsProps> = ({
 		{
 			activePath: (
 				<path
-					strokeLinecap='round'
-					strokeLinejoin='round'
-					strokeWidth={2}
+					fillRule='evenodd'
 					d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
+					clipRule='evenodd'
 				/>
 			),
 			inactivePath: (
@@ -316,6 +315,7 @@ const Details: React.FC<DetailsProps> = ({
 					strokeLinejoin='round'
 					strokeWidth={2}
 					d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
+					clipRule='evenodd'
 				/>
 			),
 			disabled: false,

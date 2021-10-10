@@ -24,10 +24,10 @@ const UserSchema: Schema<IUserDocument> = new Schema({
 	},
 	dateCreated: {
 		type: Date,
-		default: Date.now,
+		default: new Date(),
 	},
 	lastLoggedIn: {
-		type: Number,
+		type: Date,
 		default: null,
 	},
 	subscription: {
@@ -63,7 +63,7 @@ const UserSchema: Schema<IUserDocument> = new Schema({
 		default: null,
 	},
 	resetPwExpires: {
-		type: Number,
+		type: Date,
 		default: null,
 	},
 	role: {
@@ -125,8 +125,8 @@ const UserSchema: Schema<IUserDocument> = new Schema({
 	],
 	comments: [
 		{
-			date: { type: Date, default: Date.now() },
-			leadId: { type: String, required: true },
+			date: { type: Date, default: new Date() },
+			leadId: { type: Schema.Types.ObjectId, required: true },
 			comment: { type: String },
 		},
 	],

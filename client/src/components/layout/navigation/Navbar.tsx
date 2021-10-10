@@ -323,8 +323,10 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 					</button>
 				)}
 			</div>
-			<time dateTime={DateTime.fromSeconds(item.date).toFormat('yyyy-LL-d')}>
-				{DateTime.fromSeconds(item.date).toFormat('LLL dd @ t')}
+			<time
+				dateTime={DateTime.fromISO(item.date.toString()).toFormat('yyyy-LL-d')}
+			>
+				{DateTime.fromISO(item.date.toString()).toFormat('LLL dd @ t')}
 			</time>
 			<p className='pt-2 text-100'>{item.description}</p>
 			{item.externalLink && (

@@ -258,15 +258,15 @@ const Admin = () => {
 													<td className='p-3'>{capitalize(lgUser.role)}</td>
 													<td className='p-3'>
 														{lgUser.lastLoggedIn
-															? DateTime.fromMillis(
-																	+lgUser.dateCreated
-															  ).toFormat('LLL dd @ t')
+															? DateTime.fromISO(
+																	lgUser.dateCreated.toString()
+															  ).toFormat('LLL dd')
 															: '-'}
 													</td>
 													<td className='p-3'>
 														{lgUser.lastLoggedIn
-															? DateTime.fromMillis(
-																	+lgUser.lastLoggedIn
+															? DateTime.fromISO(
+																	lgUser.lastLoggedIn.toString()
 															  ).toFormat('LLL dd @ t')
 															: '-'}
 													</td>

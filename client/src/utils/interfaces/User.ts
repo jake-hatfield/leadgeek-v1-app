@@ -1,5 +1,4 @@
 import { Lead } from './Lead';
-import { Notification } from './Notification';
 
 export type Role =
 	| 'user'
@@ -15,8 +14,8 @@ export interface User {
 	name: string;
 	email: string;
 	password?: string;
-	dateCreated: string;
-	lastLoggedIn: string | null;
+	dateCreated: Date;
+	lastLoggedIn: Date | null;
 	subscription: {
 		cusId?: string;
 		subIds: { id: string | null; active: boolean }[];
@@ -28,7 +27,7 @@ export interface User {
 		brand?: string;
 	};
 	resetPwToken: string | null;
-	resetPwExpires: string | null;
+	resetPwExpires: Date | null;
 	role: Role;
 	referrals: {
 		referred: {
@@ -39,12 +38,12 @@ export interface User {
 			isReferrer: boolean;
 			lgid: string | null;
 			paypalEmail: string | null;
-			dateCreated?: string;
+			dateCreated?: Date;
 			clients?: { userId: string; cusId: string }[];
 		};
 	};
 	likedLeads: Lead[];
 	archivedLeads: Lead[];
-	comments: { date: string; leadId: string; comment: string }[];
+	comments: { date: Date; leadId: string; comment: string }[];
 	notifications: { _id: string }[];
 }

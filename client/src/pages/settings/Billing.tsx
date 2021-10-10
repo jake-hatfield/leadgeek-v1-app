@@ -25,28 +25,24 @@ import {
 } from '@utils/utils';
 
 interface PlanState {
+	status: 'loading' | 'idle';
+	id: string | null;
+	created: string | null;
+	cancelAt: string | null;
+	cancelAtPeriod: boolean | null;
+	currentPeriodEnd: string | null;
 	plan: {
-		status: 'loading' | 'idle';
 		id: string | null;
-		created: string | null;
-		cancelAt: string | null;
-		cancelAtPeriod: boolean | null;
-		currentPeriodEnd: string | null;
-		plan: {
-			id: string | null;
-			amount: number | null;
-		};
+		amount: number | null;
 	};
 }
 
 interface PaymentState {
-	paymentHistory: {
-		status: 'loading' | 'idle';
-		payments: any;
-		pagination: {
-			page: number;
-			itemLimit: 10;
-		};
+	status: 'loading' | 'idle';
+	payments: any;
+	pagination: {
+		page: number;
+		itemLimit: 10;
 	};
 }
 
@@ -58,28 +54,24 @@ const BillingPage = () => {
 
 	// local state
 	const [planState, setPlanState] = useStateIfMounted<PlanState>({
+		status: 'loading',
+		id: null,
+		created: null,
+		cancelAt: null,
+		cancelAtPeriod: null,
+		currentPeriodEnd: null,
 		plan: {
-			status: 'loading',
 			id: null,
-			created: null,
-			cancelAt: null,
-			cancelAtPeriod: null,
-			currentPeriodEnd: null,
-			plan: {
-				id: null,
-				amount: null,
-			},
+			amount: null,
 		},
 	});
 
 	const [paymentState, setPaymentState] = useStateIfMounted<PaymentState>({
-		paymentHistory: {
-			status: 'loading',
-			payments: [],
-			pagination: {
-				page: 1,
-				itemLimit: 10,
-			},
+		status: 'loading',
+		payments: [],
+		pagination: {
+			page: 1,
+			itemLimit: 10,
 		},
 	});
 
@@ -98,39 +90,32 @@ const BillingPage = () => {
 				if (message === 'Subscription data found') {
 					return setPlanState({
 						...planState,
+						status: 'idle',
+						id: subscription.id,
+						created: subscription.created,
+						cancelAt: subscription.cancelAt,
+						cancelAtPeriod: subscription.cancelAtPeriod,
+						currentPeriodEnd: subscription.currentPeriodEnd,
 						plan: {
 							...planState.plan,
-							status: 'idle',
-							id: subscription.id,
-							created: subscription.created,
-							cancelAt: subscription.cancelAt,
-							cancelAtPeriod: subscription.cancelAtPeriod,
-							currentPeriodEnd: subscription.currentPeriodEnd,
-							plan: {
-								...planState.plan.plan,
-								id: subscription.plan.id,
-								amount: subscription.plan.amount,
-							},
+							id: subscription.plan.id,
+							amount: subscription.plan.amount,
 						},
 					});
 				} else {
 					// update state loading status
 					return setPlanState({
 						...planState,
-						plan: {
-							...planState.plan,
-							status: 'idle',
-						},
+
+						status: 'idle',
 					});
 				}
 			} catch (error) {
 				console.log(error);
 				return setPlanState({
 					...planState,
-					plan: {
-						...planState.plan,
-						status: 'idle',
-					},
+
+					status: 'idle',
 				});
 			}
 		},
@@ -146,13 +131,13 @@ const BillingPage = () => {
 
 		isAuthenticated &&
 			authStatus === 'idle' &&
-			planState.plan.status === 'loading' &&
+			planState.status === 'loading' &&
 			activeSub?.id &&
 			getActivePlanDetails(activeSub.id);
 	}, [
 		isAuthenticated,
 		authStatus,
-		planState.plan.status,
+		planState.status,
 		user?.subscription.subIds,
 		getActivePlanDetails,
 	]);
@@ -173,20 +158,14 @@ const BillingPage = () => {
 				// update state
 				return setPaymentState({
 					...paymentState,
-					paymentHistory: {
-						...paymentState.paymentHistory,
-						status: 'idle',
-						payments: data.payments,
-					},
+					status: 'idle',
+					payments: data.payments,
 				});
 			} catch (error) {
 				console.log(error);
 				return setPaymentState({
 					...paymentState,
-					paymentHistory: {
-						...paymentState.paymentHistory,
-						status: 'idle',
-					},
+					status: 'idle',
 				});
 			}
 		},
@@ -196,13 +175,13 @@ const BillingPage = () => {
 	useEffect(() => {
 		isAuthenticated &&
 			authStatus === 'idle' &&
-			paymentState.paymentHistory.status === 'loading' &&
+			paymentState.status === 'loading' &&
 			user?.subscription.cusId &&
 			getSuccessfulPayments(user.subscription.cusId);
 	}, [
 		isAuthenticated,
 		authStatus,
-		paymentState.paymentHistory.status,
+		paymentState.status,
 		user?.subscription.cusId,
 		getSuccessfulPayments,
 	]);
@@ -214,7 +193,9 @@ const BillingPage = () => {
 				<div>
 					{isAuthenticated &&
 						user?.dateCreated &&
-						DateTime.fromISO(user.dateCreated).toFormat('LLL dd, yyyy')}
+						DateTime.fromISO(user.dateCreated.toString()).toFormat(
+							'LLL dd, yyyy'
+						)}
 				</div>
 			),
 		},
@@ -222,8 +203,7 @@ const BillingPage = () => {
 			title: 'Current subscription active since',
 			value: (
 				<div>
-					{planState.plan.created &&
-						formatTimestamp(+planState.plan.created, true)}
+					{planState.created && formatTimestamp(+planState.created, true)}
 				</div>
 			),
 		},
@@ -231,8 +211,7 @@ const BillingPage = () => {
 			title: 'Current subscription',
 			value: (
 				<div>
-					{planState.plan.plan.amount &&
-						planCheckerByPrice(planState.plan.plan.amount)}{' '}
+					{planState.plan.amount && planCheckerByPrice(planState.plan.amount)}{' '}
 					plan
 				</div>
 			),
@@ -240,14 +219,14 @@ const BillingPage = () => {
 		{
 			title: `Est. charge for
            ${
-							!planState.plan.cancelAtPeriod &&
-							planState.plan.currentPeriodEnd &&
-							formatTimestamp(+planState.plan.currentPeriodEnd, false)
+							!planState.cancelAtPeriod &&
+							planState.currentPeriodEnd &&
+							formatTimestamp(+planState.currentPeriodEnd, false)
 						}`,
 			value: (
 				<div>
-					{planState.plan.plan.amount && (
-						<div className='font-bold'>${planState.plan.plan.amount / 100}</div>
+					{planState.plan.amount && (
+						<div className='font-bold'>${planState.plan.amount / 100}</div>
 					)}
 				</div>
 			),
@@ -298,7 +277,7 @@ const BillingPage = () => {
 											</h2>
 										</header>
 									</div>
-									{planState.plan.status === 'loading' ? (
+									{planState.status === 'loading' ? (
 										<Spinner
 											divWidth={null}
 											center={false}
@@ -329,7 +308,7 @@ const BillingPage = () => {
 											Billing history
 										</h2>
 									</header>
-									{paymentState.paymentHistory.status === 'loading' ? (
+									{paymentState.status === 'loading' ? (
 										<Spinner
 											divWidth={null}
 											center={false}
@@ -337,7 +316,7 @@ const BillingPage = () => {
 											margin={true}
 											text={'Loading historical payments...'}
 										/>
-									) : paymentState.paymentHistory.payments.length > 0 ? (
+									) : paymentState.payments.length > 0 ? (
 										<div className={classes.tableWrapper}>
 											<table className={classes.table} id='payments'>
 												<thead className={classes.tableHeadWrapper}>
@@ -356,7 +335,7 @@ const BillingPage = () => {
 													</tr>
 												</thead>
 												<tbody className={classes.tableBody}>
-													{paymentState.paymentHistory.payments.map(
+													{paymentState.payments.map(
 														(payment: any, i: number) => (
 															<tr key={i} className={classes.rowWrapper}>
 																{/* invoice id */}

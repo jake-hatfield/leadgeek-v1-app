@@ -57,7 +57,7 @@ const ForgotPassword: React.FC = () => {
 				dispatch(
 					setAlert({
 						title: 'Success',
-						message: `Email sent to ${email} if an account is associated.`,
+						message: `An email sent to ${email} if an account is associated`,
 						alertType: 'success',
 					})
 				);
