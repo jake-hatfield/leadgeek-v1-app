@@ -13,9 +13,9 @@
 		"server": "nodemon -e ts,js --exec ts-node --files -r tsconfig-paths/register src/server.ts --ignore-client",
 		"client": "npm start -C client",
 		"dev": "dotenv -e .env.development concurrently \"npm run server\" \"npm run client\"",
-		"start": "cross-env NODE_ENV=production node dist/src/server.js",
-		"build": "tsc && cd client && npm run build",
-		"postinstall": "npm run build"
+		"start": "node dist/src/server.js",
+		"build": "tsc",
+		"postinstall": "npm run build && cd client && npm run build"
 	},
 	"author": "Jake Hatfield",
 	"license": "(ISC) See license in LICENSE.md",
