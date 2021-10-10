@@ -8,10 +8,10 @@ import Sentry from '@sentry/node';
 // files
 import connectDB from '@config/db';
 
-Sentry.init({
-	dsn: 'https://89b1c9784db640928e7384d0f8d91f8b@o975120.ingest.sentry.io/5931105',
-	tracesSampleRate: 1.0,
-});
+// Sentry.init({
+// 	dsn: 'https://89b1c9784db640928e7384d0f8d91f8b@o975120.ingest.sentry.io/5931105',
+// 	tracesSampleRate: 1.0,
+// });
 
 const app = express();
 
