@@ -60,9 +60,7 @@ const Admin = () => {
 	});
 
 	// upload leads from Google sheet to MongoDB
-	const handleExportLeads = async (e: React.MouseEvent<HTMLElement>) => {
-		e.stopPropagation();
-
+	const handleExportLeads = async () => {
 		try {
 			// make GET request to API
 			const { data } = await axios.get('/api/leads/export');
@@ -162,7 +160,7 @@ const Admin = () => {
 		// export leads
 		{
 			title: 'Export leads',
-			onClick: (e: React.MouseEvent<HTMLElement>) => handleExportLeads(e),
+			onClick: () => handleExportLeads(),
 		},
 	];
 
@@ -312,7 +310,7 @@ const Admin = () => {
 interface NavbarLinkProps {
 	item: {
 		title: string;
-		onClick: (e: any) => void;
+		onClick: any;
 	};
 	status: boolean;
 }
@@ -325,10 +323,8 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({ item, status }) => {
 					? 'opacity-25 cursor-default'
 					: 'opacity-100 hover:text-purple-500 dark:hover:text-purple-300 hover:border-purple-500 dark:hover:border-purple-200'
 			} font-semibold text-base text-gray-800 dark:text-gray-200 border-l-2 border-gray-200 dark:border-darkGray-100  transition-main`}
-			disabled={status}
-			onClick={(e) => {
-				status === true && item.onClick(e);
-			}}
+			disabled={!status}
+			onClick={item.onClick}
 		>
 			{item.title}
 		</button>
