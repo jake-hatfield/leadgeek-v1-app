@@ -14,6 +14,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@hooks/hooks';
+import { setAlert } from '@features/alert/alertSlice';
 import {
 	addComment,
 	clearCurrentLead,
@@ -414,6 +415,13 @@ const Details: React.FC<DetailsProps> = ({
 			link: null,
 			handleClick: () => {
 				navigator.clipboard.writeText(data.promo);
+				dispatch(
+					setAlert({
+						title: 'Success',
+						message: 'Promo code copied to your clipboard',
+						alertType: 'success',
+					})
+				);
 			},
 			disabled: data.promo ? false : true,
 		},
