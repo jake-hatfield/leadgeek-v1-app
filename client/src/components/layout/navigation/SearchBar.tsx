@@ -29,32 +29,16 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
 	const [query, setQuery] = useState('');
 
 	// search helpers
-	const onSearchChange = (e: any) => {
+	const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setQuery(e.target.value);
 	};
 
 	// handle search submit
-	const handleSearchSubmit = async (e: any) => {
+	const handleSearchSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		if (query) {
-			if (location.pathname !== '/search') {
-				setRedirectToSearch(true);
-			}
 
-			if (query === currentSearchValue) {
-				return dispatch(
-					setAlert({
-						title: 'Already showing results',
-						message: 'Results for this query are already showing.',
-						alertType: 'danger',
-					})
-				);
-			}
-			dispatch(removeAlert());
-			dispatch(setLeadLoading());
-			return dispatch(setSearchValue(query));
-		} else {
-			dispatch(
+		if (!query) {
+			return dispatch(
 				setAlert({
 					title: 'No value was entered',
 					message: 'Please enter a search value and try again.',
@@ -62,11 +46,31 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
 				})
 			);
 		}
+
+		if (location.pathname !== '/search/') {
+			setRedirectToSearch(true);
+		}
+
+		if (query === currentSearchValue) {
+			return dispatch(
+				setAlert({
+					title: 'Already showing results',
+					message: 'Results for this query are already showing.',
+					alertType: 'danger',
+				})
+			);
+		}
+
+		dispatch(removeAlert());
+		dispatch(setLeadLoading());
+
+		return dispatch(setSearchValue(query));
 	};
 
 	if (redirectToSearch) {
 		return <Redirect to={{ pathname: '/search/' }} />;
 	}
+
 	return (
 		<div className='flex items-center justify-end'>
 			<div className='w-72 relative z-0'>

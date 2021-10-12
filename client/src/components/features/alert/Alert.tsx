@@ -21,6 +21,8 @@ const Alert: React.FC = () => {
 	useEffect(() => {
 		if (alert.id) {
 			setAlertVisible(true);
+		} else if (!alert.id) {
+			setAlertVisible(false);
 		}
 	}, [alert.id]);
 
