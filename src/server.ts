@@ -6,7 +6,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import * as Sentry from '@sentry/node';
 
 // files
-import connectDB from './config/db';
+import connectDB from '@config/db';
 
 Sentry.init({
 	dsn: 'https://89b1c9784db640928e7384d0f8d91f8b@o975120.ingest.sentry.io/5931105',
@@ -22,9 +22,9 @@ connectDB();
 app.use(express.json());
 
 // define routes
-app.use('/api/auth', require('./routes/api/auth'));
-app.use('/api/leads', require('./routes/api/leads'));
-app.use('/api/users', require('./routes/api/users'));
+app.use('/api/auth', require('@routes/api/auth'));
+app.use('/api/leads', require('@routes/api/leads'));
+app.use('/api/users', require('@routes/api/users'));
 
 function redirectWWWTraffic(req: Request, res: Response, next: NextFunction) {
 	if (req.headers.host.slice(0, 4) === 'www.') {
