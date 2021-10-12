@@ -35,7 +35,6 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	liked,
 	archived,
 	status,
-	showDetails,
 	setShowDetails,
 	type,
 	currentSearchValue,
@@ -95,10 +94,10 @@ const LeadTable: React.FC<LeadTableProps> = ({
 						</thead>
 						<tbody className={classes.tableBody}>
 							{status === 'loading'
-								? [...Array(filters.itemLimit)].map((lead, i) => (
+								? [...Array(filters.itemLimit)].map((_, i) => (
 										<LeadRowLoader key={i} colorTheme={colorTheme} />
 								  ))
-								: leads.map((lead, i) => (
+								: leads.map((lead) => (
 										<LeadRow
 											key={lead._id}
 											lead={lead}

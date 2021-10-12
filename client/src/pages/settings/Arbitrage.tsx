@@ -3,8 +3,8 @@ import React, { Fragment, useState } from 'react';
 import { animated, useSpring } from 'react-spring';
 
 // redux
-import { useAppDispatch, useAppSelector } from '@hooks/hooks';
-import { removeAlert, setAlert } from '@features/alert/alertSlice';
+import { useAppSelector } from '@hooks/hooks';
+// import { removeAlert, setAlert } from '@features/alert/alertSlice';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
@@ -15,7 +15,7 @@ import Spinner from '@components/utils/Spinner';
 import Toggle from '@components/utils/Toggle';
 
 const ArbitragePage = () => {
-	const dispatch = useAppDispatch();
+	// const dispatch = useAppDispatch();
 
 	// auth state
 	const status = useAppSelector((state) => state.auth.status);
@@ -32,13 +32,13 @@ const ArbitragePage = () => {
 	const [advancedPrepView, setAdvancedPrepView] = useState(false);
 
 	// destructure necessary items
-	const {
-		unitFee,
-		stdInventoryFee,
-		labelingFee,
-		inspectionFee,
-		marketingInsertFee,
-	} = formData;
+	// const {
+	// 	unitFee,
+	// 	stdInventoryFee,
+	// 	labelingFee,
+	// 	inspectionFee,
+	// 	marketingInsertFee,
+	// } = formData;
 
 	// handle form input change
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {

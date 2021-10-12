@@ -306,7 +306,7 @@ export const authSlice = createSlice({
 				state.status = 'idle';
 				state.validatedResetPwToken = true;
 			})
-			.addCase(validateResetPwToken.rejected, (state, action) => {
+			.addCase(validateResetPwToken.rejected, (state) => {
 				state.status = 'idle';
 				state.validatedResetPwToken = false;
 			});

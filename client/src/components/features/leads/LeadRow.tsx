@@ -169,7 +169,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		monthlySalesCellWrapper: 'p-2 w-24',
 		profitCellWrapper: 'w-36 p-2 uppercase',
 		quickViewCellWrapper: quickView
-			? 'w-12py-4 pl-5 pr-12'
+			? 'w-12 py-4 pl-5 pr-12'
 			: 'w-12 py-2 pl-2 pr-10',
 		quickViewExpandedWrapper:
 			'absolute transform -translate-x-14 rounded-l-lg border-l border-t border-b border-300 cs-light-400 text-100',

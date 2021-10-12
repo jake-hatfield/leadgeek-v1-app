@@ -13,7 +13,7 @@ const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 import auth from '../../middleware/auth';
 
 // models
-import Notification from '../../models/Notification';
+import Notification from '@models/Notification';
 import User, { IUserDocument } from '../../models/User';
 
 // router

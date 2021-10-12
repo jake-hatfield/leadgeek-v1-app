@@ -22,7 +22,6 @@ const FormField: React.FC<FormFieldProps> = ({
 	onChange,
 	required,
 	styles,
-	disabled,
 	lightOnly,
 }) => {
 	return (
