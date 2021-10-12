@@ -105,9 +105,9 @@ const Navbar: React.FC = () => {
 			<nav className='container'>
 				<div className='center-between py-1.5'>
 					<NavLink
-						to={'/leads/'}
+						to={'/'}
 						onClick={() => {
-							location.pathname !== '/leads/' && dispatch(setLeadLoading());
+							location.pathname !== '/' && dispatch(setLeadLoading());
 							dispatch(clearCurrentLead());
 						}}
 					>
@@ -383,12 +383,7 @@ const navLinks: {
 	adminLinks: NavLinkItem[];
 	dropdownItems: NavLinkItem[];
 } = {
-	primaryLinks: [
-		{
-			title: 'Leads',
-			link: 'leads',
-		},
-	],
+	primaryLinks: [],
 	secondaryLinks: [],
 	adminLinks: [
 		{

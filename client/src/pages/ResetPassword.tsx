@@ -131,7 +131,7 @@ const ResetPasswordPage = () => {
 
 	// if user is authenticated, redirect to app
 	if (isAuthenticated) {
-		return <Redirect to='/leads' />;
+		return <Redirect to='/' />;
 	}
 
 	return status === 'idle' ? (

@@ -140,7 +140,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 							: "You haven't liked any leads yet, but you can go to the Feed to check some products out."
 					}`}
 					path={svgList.liked}
-					link={'/leads'}
+					link={'/'}
 					linkText={'Go to the Feed'}
 				/>
 			) : type === 'archived' ? (
@@ -156,7 +156,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 							: "You haven't archived any leads yet, but you can go to the Feed to check some products out."
 					}`}
 					path={svgList.archived}
-					link={'/leads'}
+					link={'/'}
 					linkText={'Go to the Feed'}
 				/>
 			) : type === 'search' && !currentSearchValue ? (
@@ -164,7 +164,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 					header={'No search results found'}
 					text={'Please try a different search query'}
 					path={svgList.search}
-					link={'/leads'}
+					link={'/'}
 					linkText={'Go to the Feed'}
 				/>
 			) : (

@@ -166,7 +166,7 @@ const Admin = () => {
 
 	// redirect if user doesn't have permissions to view admin page
 	if (user && user?.role !== 'master' && user?.role !== 'admin') {
-		return <Redirect to={{ pathname: '/leads/' }} />;
+		return <Redirect to={{ pathname: '/' }} />;
 	}
 
 	return (

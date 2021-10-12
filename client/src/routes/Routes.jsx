@@ -31,9 +31,8 @@ const Routes = () => {
 				component={ResetPassword}
 			/>
 			<PrivateRoute exact path='/' component={Feed} />
-			<PrivateRoute exact path='/leads/' component={Feed} />
-			<PrivateRoute exact path='/leads/liked/' component={Liked} />
-			<PrivateRoute exact path='/leads/archived/' component={Archived} />
+			<PrivateRoute exact path='/liked/' component={Liked} />
+			<PrivateRoute exact path='/archived/' component={Archived} />
 			<PrivateRoute exact path='/search/' component={Search} />
 			<PrivateRoute exact path='/settings/account/' component={Account} />
 			<PrivateRoute exact path='/settings/arbitrage/' component={Arbitrage} />

@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect } from 'react';
 
 // packages
 import { DateTime } from 'luxon';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useSpring } from 'react-spring';
 
 // redux
@@ -53,6 +53,8 @@ const Leads: React.FC<LeadsProps> = ({
 	currentSearchValue,
 }) => {
 	const dispatch = useAppDispatch();
+	const location = useLocation();
+
 	// lead state
 	const leadStatus = useAppSelector((state) => state.leads.status);
 	const currentLead = useAppSelector((state) => state.leads.currentLead);
@@ -176,9 +178,9 @@ const Leads: React.FC<LeadsProps> = ({
 								<NavLink
 									key={i}
 									exact
-									to={`/leads${link.link}`}
+									to={`${link.link}`}
 									onClick={() => {
-										dispatch(setLeadLoading());
+										location.pathname !== '/' && dispatch(setLeadLoading());
 										currentLead && dispatch(clearCurrentLead());
 									}}
 									className={classes.navLink}
