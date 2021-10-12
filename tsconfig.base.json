@@ -8,15 +8,8 @@
 		"sourceMap": true,
 		"rootDir": "./",
 		"outDir": "dist",
-		"baseUrl": "./src/",
-		"paths": {
-			"@config/*": ["./config/*"],
-			"@middleware/*": ["./middleware/*"],
-			"@models/*": ["./models/*"],
-			"@routes/*": ["./routes/*"],
-			"@types/*": ["./types/*"]
-		},
 		"typeRoots": ["./src/@types", "./node_modules/@types"]
 	},
-	"include": ["./src/**/*"]
+	"include": ["./src/**/*"],
+	"extends": "./tsconfig.paths.json"
 }
