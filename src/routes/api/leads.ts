@@ -674,7 +674,6 @@ router.post(
 				const user = await User.findById(userId);
 				const archivedLeads = user.archivedLeads;
 
-				console.log(archivedLeads);
 				// check if the lead is already liked
 				const indexed = archivedLeads
 					.map((l) => {
@@ -682,7 +681,6 @@ router.post(
 					})
 					.indexOf(leadId);
 
-				console.log(indexed);
 				if (indexed >= 0) {
 					unarchiveLead(user, leadId);
 					return res.status(200).send({

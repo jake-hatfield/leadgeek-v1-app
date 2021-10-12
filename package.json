@@ -15,7 +15,7 @@
 		"install": "cd client && npm install",
 		"postinstall": "tsc && mv -i -v client dist/src/",
 		"server": "nodemon -e ts,js --exec ts-node --files -r tsconfig-paths/register src/server.ts --ignore-client",
-		"start": "node dist/src/server.js"
+		"start": "node -r ts-node/register -r tsconfig-paths/register dist/src/server.js"
 	},
 	"author": "Jake Hatfield",
 	"license": "(ISC) See license in LICENSE.md",
