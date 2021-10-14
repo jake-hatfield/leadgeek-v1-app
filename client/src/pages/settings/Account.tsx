@@ -75,7 +75,7 @@ const AccountPage = () => {
 			message:
 				| 'Profile was successfully updated'
 				| 'No user exists in the database to update';
-		}>('/api/auth/update-profile', body, config);
+		}>('/api/auth/profile', body, config);
 
 		if (data.message === 'Profile was successfully updated') {
 			dispatch(

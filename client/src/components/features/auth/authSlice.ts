@@ -74,14 +74,9 @@ export const clearNotification = createAsyncThunk(
 		// destructure necessary items
 		const { notificationId, userId } = options;
 
-		// prepare JSON body object
-		const body = JSON.stringify({ notificationId, userId });
-
 		// make POST request to user API
-		const { data } = await axios.put(
-			'/api/users/clear-notification',
-			body,
-			config
+		const { data } = await axios.delete(
+			`/api/users/notification?notificationId=${notificationId}&userId=${userId}`
 		);
 
 		return data;
@@ -106,24 +101,48 @@ export const getUserData = createAsyncThunk(
 
 export const surrogateUser = createAsyncThunk(
 	'auth/surrogateUser',
-	async (options: { userId: string; surrogateId: string }) => {
+	async (
+		options: { userId: string; surrogateId: string },
+		{ dispatch, rejectWithValue }
+	) => {
 		try {
 			const { userId, surrogateId } = options;
 
-			// prepare body JSON object
-			const body = JSON.stringify({ userId, surrogateId });
-
 			// make POST request to API
-			const { data } = await axios.post(
-				'/api/auth/surrogate-user',
-				body,
-				config
+			const { data } = await axios.get<{
+				message:
+					| 'Surrogation successful'
+					| 'Surrogation unsuccessful'
+					| 'Access prohibited'
+					| 'Server error';
+				token: string | null;
+				user: User | null;
+			}>(
+				`/api/auth/surrogate-user?userId=${userId}&surrogateId=${surrogateId}`
 			);
 
-			// return data to state
-			return data;
+			if (data.message === 'Surrogation successful') {
+				return data;
+			} else {
+				dispatch(
+					setAlert({
+						title: 'Error',
+						message: data.message,
+						alertType: 'danger',
+					})
+				);
+				return rejectWithValue(data.message);
+			}
 		} catch (error) {
 			console.log(error);
+			dispatch(
+				setAlert({
+					title: 'Error',
+					message: 'Something went wrong',
+					alertType: 'danger',
+				})
+			);
+			return rejectWithValue('Something went wrong');
 		}
 	}
 );
@@ -157,11 +176,7 @@ export const updatePassword = createAsyncThunk(
 			const body = JSON.stringify({ email: emailToLowerCase, password });
 
 			// make PUT request to API
-			const { data } = await axios.put(
-				'/api/auth/update-password',
-				body,
-				config
-			);
+			const { data } = await axios.put('/api/auth/password', body, config);
 
 			// if password was successfully updated, alert the user, clear the reset password token in LS, and log them in
 			if (data === 'Password was successfully updated') {
@@ -198,14 +213,9 @@ export const validateResetPwToken = createAsyncThunk(
 	'auth/validateResetPwToken',
 	async (options: { resetPwToken: string }, { dispatch, rejectWithValue }) => {
 		try {
-			// prepare body JSON object
-			const body = JSON.stringify({ resetPwToken: options.resetPwToken });
-
 			// make POST request to API
-			const { data } = await axios.post(
-				'/api/auth/reset-password-validation',
-				body,
-				config
+			const { data } = await axios.get(
+				`/api/auth/password-validation?resetPwToken=${options.resetPwToken}`
 			);
 
 			// if link was validated, update user in state

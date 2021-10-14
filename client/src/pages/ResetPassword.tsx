@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 // packages
-import { Redirect, NavLink } from 'react-router-dom';
+import { NavLink, Redirect } from 'react-router-dom';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@hooks/hooks';

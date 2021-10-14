@@ -127,19 +127,19 @@ router.post(
 	}
 );
 
-// @route       POST api/auth/surrogate-user
+// @route       GET api/auth/surrogate-user
 // @description Log in as user for administrative purposes
 // @access      Private
-router.post(
+router.get(
 	'/surrogate-user',
 	auth,
 	async (
-		req: Request<{}, {}, { userId: ObjectId; surrogateId: ObjectId }>,
+		req: Request<{}, {}, {}, { userId: string; surrogateId: string }>,
 		res: Response
 	) => {
 		try {
 			// destructure necessary items
-			const { userId, surrogateId } = req.body;
+			const { userId, surrogateId } = req.query;
 
 			const admin = await User.find({ _id: userId, role: 'master' });
 
@@ -155,9 +155,8 @@ router.post(
 				const user = await User.findOne({ _id: surrogateId });
 
 				if (!user) {
-					return res.status(400).send({
-						message:
-							'Email & password combination not correct. Please try again or reset your password.',
+					return res.status(401).send({
+						message: 'Access prohibited',
 						token: null,
 						user: null,
 					});
@@ -177,34 +176,37 @@ router.post(
 						if (error) throw error;
 						const message = 'Surrogation successful';
 						console.log(message);
-						res.send({ message, token, user });
+						return res.send({ message, token, user });
 					}
 				);
 			} else {
-				console.log('Surrogation unsuccessful');
+				const message = 'Surrogation unsuccessful';
+				console.log(message);
 
 				return res.status(200).send({
-					message: 'No user found.',
+					message,
 					token: null,
 					user: null,
 				});
 			}
-		} catch (err) {
-			console.error(err.message);
-			res.status(500).send('Server error');
+		} catch (error) {
+			console.error(error.message);
+			return res
+				.status(500)
+				.send({ message: 'Server error', token: null, user: null });
 		}
 	}
 );
 
-// @route       POST api/auth/forgot-password
+// @route       GET api/auth/forgot-password
 // @description request forgot password
 // @access      Public
-router.post(
-	'/forgot-password',
-	async (req: Request<{}, {}, { email: string }>, res: Response) => {
+router.get(
+	'/password',
+	async (req: Request<{}, {}, {}, { email: string }>, res: Response) => {
 		try {
 			// destructure necessary items
-			const { email } = req.body;
+			const { email } = req.query;
 
 			// if no email, return error
 			if (email === '') {
@@ -229,8 +231,6 @@ router.post(
 				};
 
 				let date = new Date();
-
-				console.log(date, addHoursToDate(date, 1));
 
 				// update user reset password in DB - token expires in 1 hour
 				const update: {
@@ -326,20 +326,20 @@ router.post(
 	}
 );
 
-// @route       POST api/auth/reset-password-validation
+// @route       GET api/auth/reset-password-validation
 // @description validate password reset token
 // @access      Public
-router.post(
-	'/reset-password-validation',
-	async (req: Request<{}, {}, { resetPwToken: string }>, res: Response) => {
+router.get(
+	'/password-validation',
+	async (req: Request<{}, {}, {}, { resetPwToken: string }>, res: Response) => {
 		try {
-			console.log('Searching for user password reset token...');
+			console.log("Searching for user's password reset token...");
 
 			const currentTime = new Date();
 
 			// lookup for user
 			const user = await User.findOne({
-				resetPwToken: req.body.resetPwToken,
+				resetPwToken: req.query.resetPwToken,
 				resetPwExpires: {
 					$gte: currentTime,
 				},
@@ -367,7 +367,7 @@ router.post(
 // @description update password in database
 // @access      Public
 router.put(
-	'/update-password',
+	'/password',
 	async (
 		req: Request<{}, {}, { email: string; password: string }>,
 		res: Response
@@ -408,7 +408,7 @@ router.put(
 // @description update password in database
 // @access      Public
 router.put(
-	'/update-profile',
+	'/profile',
 	async (
 		req: Request<{}, {}, { userId: ObjectId; name: string }>,
 		res: Response
