@@ -145,15 +145,9 @@ const BillingPage = () => {
 	const getSuccessfulPayments = useCallback(
 		async (cusId: string) => {
 			try {
-				// build request body
-				const body = JSON.stringify({ cusId });
-
+				console.log(cusId);
 				// POST request to route
-				const { data } = await axios.post(
-					'/api/users/successful-payments/',
-					body,
-					config
-				);
+				const { data } = await axios.get(`/api/users/payments?cusId=${cusId}`);
 
 				// update state
 				return setPaymentState({

@@ -151,19 +151,19 @@ router.post(
 	}
 );
 
-// @route       POST api/clear-notification
+// @route       POST api/notification
 // @description Clear a user's notification by ID
 // @access      Private
-router.put(
-	'/clear-notification',
+router.delete(
+	'/notification',
 	auth,
 	async (
-		req: Request<{}, {}, { notificationId: ObjectId; userId: ObjectId }>,
+		req: Request<{}, {}, {}, { notificationId: string; userId: string }>,
 		res: Response
 	) => {
 		try {
 			// destructure necessary items
-			const { notificationId, userId } = req.body;
+			const { notificationId, userId } = req.query;
 
 			// if required information is missing, return
 			if (!notificationId || !userId) {
@@ -194,52 +194,59 @@ router.put(
 	}
 );
 
-router.get('/all/:id', auth, async (req: Request, res: Response) => {
-	try {
-		// destructure necessary items
-		const { id } = req.params;
+// @route       GET api/users/
+// @description Get all users (ADMIN)
+// @access      Private
+router.get(
+	'/',
+	auth,
+	async (req: Request<{}, {}, {}, { id: string }>, res: Response) => {
+		try {
+			// destructure necessary items
+			const { id } = req.query;
 
-		if (!req.params.id) {
-			return res.status(401).send({
-				users: [],
-				message: 'Access prohibited',
-			});
+			if (!id) {
+				return res.status(401).send({
+					users: [],
+					message: 'Access prohibited',
+				});
+			}
+
+			const master = await User.find({ _id: id, role: 'master' });
+
+			if (!master) {
+				return res.status(401).send({
+					users: [],
+					message: 'Access prohibited',
+				});
+			}
+
+			// lookup all users
+			const users = await User.find({}).sort({ dateCreated: -1 });
+
+			// there are users found
+			if (users.length > 0) {
+				return res.status(200).send({
+					users,
+					message: 'Returning all users',
+				});
+			} else {
+				return res.status(200).send({
+					users: [],
+					message:
+						'There was an error fetching all users. You done something wrong, boy',
+				});
+			}
+		} catch (error) {
+			console.log(error);
 		}
-
-		const master = await User.find({ _id: id, role: 'master' });
-
-		if (!master) {
-			return res.status(401).send({
-				users: [],
-				message: 'Access prohibited',
-			});
-		}
-
-		// lookup all users
-		const users = await User.find({}).sort({ dateCreated: -1 });
-
-		// there are users found
-		if (users.length > 0) {
-			return res.status(200).send({
-				users,
-				message: 'Returning all users',
-			});
-		} else {
-			return res.status(200).send({
-				users: [],
-				message:
-					'There was an error fetching all users. You done something wrong, boy',
-			});
-		}
-	} catch (error) {
-		console.log(error);
 	}
-});
+);
 
-// @route       POST api/notifications
+// @route       POST api/users/notifications
 // @description Retrieve a user's notifications
 // @access      Private
-router.post(
+router.get(
 	'/notifications',
 	auth,
 	async (
@@ -270,27 +277,48 @@ router.post(
 	}
 );
 
-// @route       POST api/get-successful-payments
+interface Payment {
+	amount: number;
+	currency: string;
+	paymentMethod: {
+		brand: string;
+		last4: string;
+	};
+	created: number;
+	invoice: {
+		id: string;
+		pdf: string;
+	};
+}
+
+// @route       GET api/users/payments
 // @description Get a user's payment history
 // @access      Private
-router.post(
-	'/successful-payments',
+router.get(
+	'/payments',
 	auth,
-	async (req: Request<{}, {}, { cusId: string }>, res: Response) => {
+	async (
+		req: Request<{}, {}, {}, { cusId: string }>,
+		res: Response<{
+			message: 'No payments found' | 'Payments found' | 'Server error';
+			payments: Payment[];
+		}>
+	) => {
 		try {
-			const { cusId } = req.body;
-			const returnBillingInfo = (item: any) => {
+			const { cusId } = req.query;
+
+			const returnBillingInfo = (item: Stripe.PaymentIntent) => {
 				return {
 					amount: item.amount,
 					currency: item.currency,
 					paymentMethod: {
-						brand: item.payment_method.card.brand,
-						last4: item.payment_method.card.last4,
+						brand: (item.payment_method as Stripe.PaymentMethod).card.brand,
+						last4: (item.payment_method as Stripe.PaymentMethod).card.last4,
 					},
 					created: item.created,
 					invoice: {
-						id: item.invoice.id,
-						pdf: item.invoice.invoice_pdf,
+						id: (item.invoice as Stripe.Invoice).id,
+						pdf: (item.invoice as Stripe.Invoice).invoice_pdf,
 					},
 				};
 			};
@@ -308,22 +336,22 @@ router.post(
 				if (successfulPayments.length > 0) {
 					return res
 						.status(200)
-						.json({ message: 'Payments found', payments: successfulPayments });
+						.send({ message: 'Payments found', payments: successfulPayments });
 				} else {
-					return res.status(200).json({
+					return res.status(200).send({
 						message: 'No payments found',
 						payments: [],
 					});
 				}
 			} else {
-				return res.status(200).json({
+				return res.status(200).send({
 					message: 'No payments found',
 					payments: [],
 				});
 			}
 		} catch (error) {
 			console.error(error.message);
-			res.status(500).send('Server error');
+			res.status(500).send({ message: 'Server error', payments: [] });
 		}
 	}
 );

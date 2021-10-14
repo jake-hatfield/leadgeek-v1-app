@@ -16,7 +16,6 @@ import Spinner from '@components/utils/Spinner';
 
 // utils
 import { setResetPwToken } from '@utils/authTokens';
-import { config } from '@utils/utils';
 
 const ForgotPassword: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -40,15 +39,10 @@ const ForgotPassword: React.FC = () => {
 		// set email to lowercase to prevent errors
 		const emailToLowerCase = email.toLowerCase();
 
-		// prepare body JSON object
-		const body = JSON.stringify({ email: emailToLowerCase });
-
 		try {
 			// make POST request to API
-			const { data } = await axios.post(
-				'/api/auth/forgot-password',
-				body,
-				config
+			const { data } = await axios.get(
+				`/api/auth/password?email=${emailToLowerCase}`
 			);
 
 			// if email was sent, alert the user

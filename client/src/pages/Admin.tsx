@@ -101,7 +101,7 @@ const Admin = () => {
 				const { data } = await axios.get<{
 					users: User[];
 					message: string;
-				}>(`/api/users/all/${userId}`);
+				}>(`/api/users?id=${userId}`);
 
 				// if there are users, set it in state
 				if (data.users.length > 0) {
