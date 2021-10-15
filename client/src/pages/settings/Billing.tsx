@@ -78,13 +78,10 @@ const BillingPage = () => {
 	const getActivePlanDetails = useCallback(
 		async (activeSubId: string) => {
 			try {
-				// build request body
-				const body = JSON.stringify({ subId: activeSubId });
-
-				// POST request to route
+				// GET request to route
 				const {
 					data: { message, subscription },
-				} = await axios.post('/api/users/active-plan-details', body, config);
+				} = await axios.get(`/api/users/plan?subId=${activeSubId}`);
 
 				// if subscription data is found, update state
 				if (message === 'Subscription data found') {
