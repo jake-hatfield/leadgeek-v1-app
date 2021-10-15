@@ -22,42 +22,61 @@ const router = Router();
 // @route       GET api/auth
 // @description Find user
 // @access      Private
-router.get('/', auth, async (req: Request, res: Response) => {
-	try {
-		// lookup user and strip the password before sending it to the frontend
-		const user = await User.findById(req.body.user.id).select('-password');
+router.get(
+	'/',
+	auth,
+	async (
+		req: Request<
+			{},
+			{},
+			{
+				user: {
+					id: string;
+				};
+			}
+		>,
+		res: Response<{
+			message: 'Returning user data' | 'Server error';
+			user: IUserDocument | null;
+		}>
+	) => {
+		try {
+			// lookup user and strip the password before sending it to the frontend
+			const user = await User.findById(req.body.user.id).select('-password');
 
-		// the notification time in DB is in seconds, so convert to miliseconds for comparision
-		const lastLogin = user.lastLoggedIn;
+			// the notification time in DB is in seconds, so convert to miliseconds for comparision
+			const lastLogin = user.lastLoggedIn;
 
-		// get new notifications based on time
-		const notifications = await Notification.find({
-			date: { $gte: lastLogin },
-		}).sort({ date: -1 });
+			// get new notifications based on time
+			const notifications = await Notification.find({
+				date: { $gte: lastLogin },
+			}).sort({ date: -1 });
 
-		const newNotifications: { _id: ObjectId }[] = [];
+			const newNotifications: { _id: ObjectId }[] = [];
 
-		// check if the notification is already in user array and add it to new notifications if not
-		notifications.forEach(
-			(notification) =>
-				user.notifications.map((n) => n._id).indexOf(notification.id) < 0 &&
-				newNotifications.push({ _id: notification.id })
-		);
+			// check if the notification is already in user array and add it to new notifications if not
+			notifications.forEach(
+				(notification) =>
+					user.notifications.map((n) => n._id).indexOf(notification.id) < 0 &&
+					newNotifications.push({ _id: notification.id })
+			);
 
-		// add the unseen notifications to the user's array
-		user.notifications = [...user.notifications, ...newNotifications];
+			// add the unseen notifications to the user's array
+			user.notifications = [...user.notifications, ...newNotifications];
 
-		user.lastLoggedIn = new Date();
+			// update the last login time
+			user.lastLoggedIn = new Date();
 
-		// save the user's notifications in DB
-		await user.save();
+			// save the user's notifications in DB
+			await user.save();
 
-		return res.json(user);
-	} catch (error) {
-		console.error(error.message);
-		return res.status(500).send('Server error');
+			return res.send({ message: 'Returning user data', user });
+		} catch (error) {
+			console.error(error.message);
+			return res.status(500).send({ message: 'Server error', user: null });
+		}
 	}
-});
+);
 
 // @route       POST api/auth
 // @description Authenticate user and get token
@@ -127,15 +146,23 @@ router.post(
 	}
 );
 
-// @route       GET api/auth/surrogate-user
+// @route       GET api/auth/surrogate?userId=__&surrogateId=__
 // @description Log in as user for administrative purposes
 // @access      Private
 router.get(
-	'/surrogate-user',
+	'/surrogate',
 	auth,
 	async (
 		req: Request<{}, {}, {}, { userId: string; surrogateId: string }>,
-		res: Response
+		res: Response<{
+			message:
+				| 'Access prohibited'
+				| 'Surrogation successful'
+				| 'Surrogation unsuccessful'
+				| 'Server error';
+			token: string | null;
+			user: IUserDocument | null;
+		}>
 	) => {
 		try {
 			// destructure necessary items
@@ -198,12 +225,23 @@ router.get(
 	}
 );
 
-// @route       GET api/auth/forgot-password
+// @route       GET api/auth/password?email=__
 // @description request forgot password
 // @access      Public
 router.get(
 	'/password',
-	async (req: Request<{}, {}, {}, { email: string }>, res: Response) => {
+	async (
+		req: Request<{}, {}, {}, { email: string }>,
+		res: Response<{
+			message:
+				| 'Email required'
+				| 'Email not found'
+				| 'Please contact support if this error persists'
+				| 'Password recovery email sent successfully'
+				| 'Server error';
+			token: string | null;
+		}>
+	) => {
 		try {
 			// destructure necessary items
 			const { email } = req.query;
@@ -211,7 +249,7 @@ router.get(
 			// if no email, return error
 			if (email === '') {
 				console.log('No email sent.');
-				res.status(400).send('Email required');
+				res.status(400).send({ message: 'Email required', token: null });
 			}
 
 			// lookup user
@@ -219,9 +257,9 @@ router.get(
 
 			// if no user exists, return error
 			if (user === null) {
-				const error = 'Email not found in database';
+				const error = 'Email not found';
 				console.error(error);
-				return res.status(403).send(error);
+				return res.status(403).send({ message: error, token: null });
 			} else {
 				// create reset password token
 				const token = crypto.randomBytes(20).toString('hex');
@@ -277,7 +315,7 @@ router.get(
 						'Hello,\n\n' +
 						`We\'ve received a request to reset the password for the Leadgeek account associated with ${user.email}. No changes have been made to this account yet.\n\n` +
 						'You can reset your password by clicking the link below.\n\n' +
-						`${url}/reset/reset-password/${token} \n\n` +
+						`${url}/reset/reset-password?t=${token} \n\n` +
 						'The link expires in 1 hour. If you did not request a new password or need additional help, please let us know by emailing support@leadgeek.io. \n\n' +
 						'-- Leadgeek Support \n',
 				};
@@ -285,7 +323,7 @@ router.get(
 				console.log('Attempting to send email...');
 
 				// verify the email was sent
-				transporter.verify(function (error, success) {
+				transporter.verify(function (error, _) {
 					if (error) {
 						console.error('There was establishing a connection: ', error);
 						return res.status(200).send({
@@ -321,17 +359,25 @@ router.get(
 			}
 		} catch (error) {
 			console.error(error.message);
-			return res.status(500).send('Server error');
+			return res.status(500).send({ message: 'Server error', token: null });
 		}
 	}
 );
 
-// @route       GET api/auth/reset-password-validation
+// @route       GET api/auth/password-validation?resetPwToken=__
 // @description validate password reset token
 // @access      Public
 router.get(
 	'/password-validation',
-	async (req: Request<{}, {}, {}, { resetPwToken: string }>, res: Response) => {
+	async (
+		req: Request<{}, {}, {}, { resetPwToken: string }>,
+		res: Response<{
+			message:
+				| 'Password reset link expired or invalid'
+				| 'Password reset link was validated';
+			userEmail: string | null;
+		}>
+	) => {
 		try {
 			console.log("Searching for user's password reset token...");
 
@@ -349,12 +395,13 @@ router.get(
 				console.error('Token not found.');
 				return res.status(200).send({
 					message: 'Password reset link expired or invalid',
+					userEmail: null,
 				});
 			} else {
 				console.log('Token found!');
 				return res.status(200).send({
-					user: user.email,
 					message: 'Password reset link was validated',
+					userEmail: user.email,
 				});
 			}
 		} catch (error) {
@@ -363,14 +410,16 @@ router.get(
 	}
 );
 
-// @route       PUT api/auth
+// @route       PUT api/auth/password?email=__&password=__
 // @description update password in database
 // @access      Public
 router.put(
 	'/password',
 	async (
 		req: Request<{}, {}, { email: string; password: string }>,
-		res: Response
+		res: Response<{
+			message: 'Password was updated' | 'No user found';
+		}>
 	) => {
 		try {
 			// destructure necessary items
@@ -391,12 +440,13 @@ router.put(
 					resetPwToken: null,
 					resetPwExpires: null,
 				});
-				console.log('Password was succesfully updated');
-				return res.status(200).send('Password was successfully updated');
+				const message = 'Password was updated';
+				console.log(message);
+				return res.status(200).send({ message });
 			} else {
-				const message = 'No user exists in the database to update';
+				const message = 'No user found';
 				console.error(message);
-				return res.status(404).json(message);
+				return res.status(404).send({ message });
 			}
 		} catch (error) {
 			console.error(error);
@@ -404,8 +454,8 @@ router.put(
 	}
 );
 
-// @route       PUT api/auth
-// @description update password in database
+// @route       PUT api/auth/profile?userId=__&name=__
+// @description update profile in database
 // @access      Public
 router.put(
 	'/profile',

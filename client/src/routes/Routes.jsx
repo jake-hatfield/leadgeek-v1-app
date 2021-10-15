@@ -25,11 +25,7 @@ const Routes = () => {
 		<Fragment>
 			<Route exact path='/login/' component={Login} />
 			<Route exact path='/reset/forgot-password/' component={ForgotPassword} />
-			<Route
-				exact
-				path='/reset/reset-password/:token'
-				component={ResetPassword}
-			/>
+			<Route exact path='/reset/reset-password/' component={ResetPassword} />
 			<PrivateRoute exact path='/' component={Feed} />
 			<PrivateRoute exact path='/liked/' component={Liked} />
 			<PrivateRoute exact path='/archived/' component={Archived} />

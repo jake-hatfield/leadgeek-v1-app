@@ -76,7 +76,7 @@ export const clearNotification = createAsyncThunk(
 
 		// make POST request to user API
 		const { data } = await axios.delete(
-			`/api/users/notification?notificationId=${notificationId}&userId=${userId}`
+			`/api/users/notifications?notificationId=${notificationId}&userId=${userId}`
 		);
 
 		return data;
@@ -88,10 +88,17 @@ export const getUserData = createAsyncThunk(
 	async (_, { rejectWithValue }) => {
 		try {
 			// make GET request to API
-			const res = await axios.get('/api/auth');
+			const { data } = await axios.get<{
+				message: 'Returning user data' | 'Server error';
+				user: User | null;
+			}>('/api/auth');
 
 			// return data to state
-			return res.data;
+			if (data.user) {
+				return data.user;
+			} else {
+				return rejectWithValue(data.message);
+			}
 		} catch (error) {
 			console.log(error);
 			return rejectWithValue(error);
@@ -117,9 +124,7 @@ export const surrogateUser = createAsyncThunk(
 					| 'Server error';
 				token: string | null;
 				user: User | null;
-			}>(
-				`/api/auth/surrogate-user?userId=${userId}&surrogateId=${surrogateId}`
-			);
+			}>(`/api/auth/surrogate?userId=${userId}&surrogateId=${surrogateId}`);
 
 			if (data.message === 'Surrogation successful') {
 				return data;
@@ -176,10 +181,12 @@ export const updatePassword = createAsyncThunk(
 			const body = JSON.stringify({ email: emailToLowerCase, password });
 
 			// make PUT request to API
-			const { data } = await axios.put('/api/auth/password', body, config);
+			const { data } = await axios.put<{
+				message: 'Password was updated' | 'No user found';
+			}>('/api/auth/password', body, config);
 
 			// if password was successfully updated, alert the user, clear the reset password token in LS, and log them in
-			if (data === 'Password was successfully updated') {
+			if (data.message === 'Password was updated') {
 				dispatch(
 					setAlert({
 						title: 'Reset success',
@@ -214,13 +221,19 @@ export const validateResetPwToken = createAsyncThunk(
 	async (options: { resetPwToken: string }, { dispatch, rejectWithValue }) => {
 		try {
 			// make POST request to API
-			const { data } = await axios.get(
-				`/api/auth/password-validation?resetPwToken=${options.resetPwToken}`
-			);
+			const { data } = await axios.get<{
+				message:
+					| 'Password reset link expired or invalid'
+					| 'Password reset link was validated';
+				userEmail: string | null;
+			}>(`/api/auth/password-validation?resetPwToken=${options.resetPwToken}`);
 
 			// if link was validated, update user in state
-			if (data.message === 'Password reset link was validated') {
-				localStorage.setItem('email', data.user);
+			if (
+				data.message === 'Password reset link was validated' &&
+				data.userEmail
+			) {
+				localStorage.setItem('email', data.userEmail);
 				return;
 			} else {
 				// alert that link couldn't be updated
