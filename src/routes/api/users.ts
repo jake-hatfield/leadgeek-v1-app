@@ -21,14 +21,39 @@ const stripe = new Stripe(stripeSecret, { apiVersion: '2020-08-27' });
 // @route       POST api/get-active-plan-details
 // @description Get a user's subscription information for the active plan
 // @access      Private
-router.post(
-	'/active-plan-details',
+router.get(
+	'/plan',
 	auth,
-	async (req: Request<{}, {}, { subId: string }>, res: Response) => {
+	async (
+		req: Request<{}, {}, {}, { subId: string }>,
+		res: Response<
+			| {
+					message:
+						| 'Subscription data found'
+						| 'No subscription data found'
+						| 'Server error';
+					subscription: {
+						id: string;
+						cancelAt: number;
+						cancelAtPeriodEnd: boolean;
+						created: number;
+						currentPeriodEnd: number;
+						plan: {
+							id: string | Stripe.Product | Stripe.DeletedProduct;
+							amount: number;
+						};
+					};
+			  }
+			| {}
+		>
+	) => {
 		try {
 			// desctructure necessary items
-			const { subId } = req.body;
-			let message;
+			const { subId } = req.query;
+			let message:
+				| 'Subscription data found'
+				| 'No subscription data found'
+				| 'Server error';
 			if (subId) {
 				// handler to create subscription info object
 				const returnSubscriptionInfo = (
@@ -55,20 +80,20 @@ router.post(
 				console.log(message);
 
 				// return the subscription data + message
-				return res.status(200).json({
+				return res.status(200).send({
 					message,
 					subscription: subscriptionData,
 				});
 			} else {
-				message = 'No active subscriptions found';
+				message = 'No subscription data found';
 				console.log(message);
 
 				// return an empty subscription object + message
-				return res.status(200).json({ message, subscription: {} });
+				return res.status(200).send({ message, subscription: {} });
 			}
 		} catch (error) {
 			console.error(error.message);
-			res.status(500).send('Server error');
+			res.status(500).send({ message: 'Server error', subscription: {} });
 		}
 	}
 );
@@ -90,16 +115,16 @@ router.post(
 		try {
 			// destructure necessary items
 			const { clients, affCreated } = req.body;
-			console.log(clients, affCreated);
 
 			// fn to change date string to UNIX timestamp for Stripe API
 			const affCreatedUnix = (new Date(affCreated).getTime() / 1000).toFixed(0);
 
 			// push client cusIds into array
-			let clientCusIds: string[] = [];
+			let clientCusIds: (string | Stripe.Customer | Stripe.DeletedCustomer)[] =
+				[];
 			clients.map((client) => clientCusIds.push(client.cusId));
 
-			const returnChargeInfo = (item: any) => {
+			const returnChargeInfo = (item: Stripe.Charge) => {
 				return {
 					id: item.id,
 					amount: item.amount,
@@ -159,7 +184,13 @@ router.delete(
 	auth,
 	async (
 		req: Request<{}, {}, {}, { notificationId: string; userId: string }>,
-		res: Response
+		res: Response<{
+			message:
+				| 'Required information is missing'
+				| 'Notification was deleted'
+				| 'Server error';
+			notifications: { _id: ObjectId }[];
+		}>
 	) => {
 		try {
 			// destructure necessary items
@@ -167,29 +198,35 @@ router.delete(
 
 			// if required information is missing, return
 			if (!notificationId || !userId) {
-				return res
-					.status(400)
-					.json({ message: 'Required information is missing' });
+				return res.status(400).json({
+					message: 'Required information is missing',
+					notifications: [],
+				});
 			}
 
 			// lookup the user
 			const user = await User.findById(userId);
 
+			// filter notifications for notification id
 			const updatedNotifications = user.notifications.filter(
 				(notification: { _id: ObjectId }) =>
 					notification._id.toString() !== notificationId.toString()
 			);
 
+			// set the user's notifications to the filtered array
 			user.notifications = updatedNotifications;
 
+			// save user document
 			await user.save();
 
+			// return with updated notifications
 			return res.status(200).send({
+				message: 'Notification was deleted',
 				notifications: user.notifications,
 			});
 		} catch (error) {
 			console.log(error);
-			res.status(500).send('Server error');
+			res.status(500).send({ message: 'Server error', notifications: [] });
 		}
 	}
 );
@@ -207,8 +244,8 @@ router.get(
 
 			if (!id) {
 				return res.status(401).send({
-					users: [],
 					message: 'Access prohibited',
+					users: [],
 				});
 			}
 
@@ -216,8 +253,8 @@ router.get(
 
 			if (!master) {
 				return res.status(401).send({
-					users: [],
 					message: 'Access prohibited',
+					users: [],
 				});
 			}
 
@@ -227,14 +264,13 @@ router.get(
 			// there are users found
 			if (users.length > 0) {
 				return res.status(200).send({
-					users,
 					message: 'Returning all users',
+					users,
 				});
 			} else {
 				return res.status(200).send({
+					message: 'Error fetching all users',
 					users: [],
-					message:
-						'There was an error fetching all users. You done something wrong, boy',
 				});
 			}
 		} catch (error) {
@@ -243,10 +279,12 @@ router.get(
 	}
 );
 
-// @route       POST api/users/notifications
+// @route       GET api/users/notifications
 // @description Retrieve a user's notifications
 // @access      Private
-router.get(
+
+// CHANGE THIS TO A GET REQUEST
+router.post(
 	'/notifications',
 	auth,
 	async (
