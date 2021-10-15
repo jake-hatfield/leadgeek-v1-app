@@ -10,7 +10,7 @@ const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
 import auth from '@middleware/auth';
 
 // models
-import User from '@models/User';
+import User, { IUserDocument } from '@models/User';
 import Notification from '@models/Notification';
 
 // router
@@ -18,7 +18,7 @@ const router = Router();
 
 const stripe = new Stripe(stripeSecret, { apiVersion: '2020-08-27' });
 
-// @route       POST api/get-active-plan-details
+// @route       GET api/users/plan?subId=__
 // @description Get a user's subscription information for the active plan
 // @access      Private
 router.get(
@@ -176,11 +176,11 @@ router.post(
 	}
 );
 
-// @route       POST api/notification
+// @route       DELETE api/users/notifications?notificationId=__&userId=__
 // @description Clear a user's notification by ID
 // @access      Private
 router.delete(
-	'/notification',
+	'/notifications',
 	auth,
 	async (
 		req: Request<{}, {}, {}, { notificationId: string; userId: string }>,
@@ -231,13 +231,22 @@ router.delete(
 	}
 );
 
-// @route       GET api/users/
+// @route       GET api/users?id=__
 // @description Get all users (ADMIN)
 // @access      Private
 router.get(
 	'/',
 	auth,
-	async (req: Request<{}, {}, {}, { id: string }>, res: Response) => {
+	async (
+		req: Request<{}, {}, {}, { id: string }>,
+		res: Response<{
+			message:
+				| 'Access prohibited'
+				| 'Returning all users'
+				| 'Error returning all users';
+			users: IUserDocument[];
+		}>
+	) => {
 		try {
 			// destructure necessary items
 			const { id } = req.query;
@@ -269,7 +278,7 @@ router.get(
 				});
 			} else {
 				return res.status(200).send({
-					message: 'Error fetching all users',
+					message: 'Error returning all users',
 					users: [],
 				});
 			}

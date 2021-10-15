@@ -18,7 +18,6 @@ import Spinner from '@components/utils/Spinner';
 // utils
 import {
 	capitalize,
-	config,
 	formatTimestamp,
 	planCheckerByPrice,
 	truncate,
