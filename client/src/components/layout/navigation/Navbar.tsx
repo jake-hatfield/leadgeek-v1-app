@@ -11,6 +11,7 @@ import axios from 'axios';
 import { DateTime } from 'luxon';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useHotkeys } from 'react-hotkeys-hook';
+import * as qs from 'qs';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@hooks/hooks';
@@ -29,7 +30,7 @@ import Spinner from '@components/utils/Spinner';
 import { ReactComponent as LeadGeekLogo } from '@assets/images/svgs/logo-app.svg';
 
 // utils
-import { config, useOutsideMouseup } from '@utils/utils';
+import { useOutsideMouseup } from '@utils/utils';
 import { Notification } from '@utils/interfaces/Notification';
 
 const Navbar: React.FC = () => {
@@ -73,14 +74,18 @@ const Navbar: React.FC = () => {
 	const getNotificationData = useCallback(
 		async (notificationIds: { _id: string }[]) => {
 			setStatus('loading');
-			// prepare JSON body object
-			const body = JSON.stringify({ ids: notificationIds });
 
 			// make POST request to user API
-			const { data } = await axios.post<{ notifications: Notification[] }>(
+			const { data } = await axios.get<{ notifications: Notification[] }>(
 				'/api/users/notifications',
-				body,
-				config
+				{
+					params: {
+						ids: notificationIds,
+					},
+					paramsSerializer: (params) => {
+						return qs.stringify(params);
+					},
+				}
 			);
 			setStatus('idle');
 			return setNotifications(data.notifications);

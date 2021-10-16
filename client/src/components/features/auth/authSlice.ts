@@ -108,12 +108,9 @@ export const getUserData = createAsyncThunk(
 
 export const surrogateUser = createAsyncThunk(
 	'auth/surrogateUser',
-	async (
-		options: { userId: string; surrogateId: string },
-		{ dispatch, rejectWithValue }
-	) => {
+	async (options: { surrogateId: string }, { dispatch, rejectWithValue }) => {
 		try {
-			const { userId, surrogateId } = options;
+			const { surrogateId } = options;
 
 			// make POST request to API
 			const { data } = await axios.get<{
@@ -124,7 +121,7 @@ export const surrogateUser = createAsyncThunk(
 					| 'Server error';
 				token: string | null;
 				user: User | null;
-			}>(`/api/auth/surrogate?userId=${userId}&surrogateId=${surrogateId}`);
+			}>(`/api/auth/surrogate?id=${surrogateId}`);
 
 			if (data.message === 'Surrogation successful') {
 				return data;
