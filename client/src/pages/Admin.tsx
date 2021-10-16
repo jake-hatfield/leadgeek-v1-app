@@ -94,61 +94,58 @@ const Admin = () => {
 	};
 
 	// get all users
-	const getAllUsers = useCallback(
-		async (userId: string) => {
-			try {
-				// make a POST request to the API
-				const { data } = await axios.get<{
-					users: User[];
-					message: string;
-				}>(`/api/users?id=${userId}`);
+	const getAllUsers = useCallback(async () => {
+		try {
+			// make a POST request to the API
+			const { data } = await axios.get<{
+				users: User[];
+				message: string;
+			}>(`/api/users/`);
 
-				// if there are users, set it in state
-				if (data.users.length > 0) {
-					const itemLimit = 20;
+			// if there are users, set it in state
+			if (data.users.length > 0) {
+				const itemLimit = 20;
 
-					return setUsersState({
-						...usersState,
-						status: 'idle',
-						totalByIds: data.users,
-						pageByIds: data.users.slice(0, itemLimit),
-						pagination: {
-							...usersState.pagination,
-							page: 1,
-							hasNextPage: data.users.length > itemLimit ? true : false,
-							hasPreviousPage: false,
-							nextPage: 2,
-							previousPage: 0,
-							lastPage: Math.ceil(data.users.length / itemLimit),
-							totalItems: data.users.length,
-						},
-					});
-				} else {
-					// set status to idle
-					setUsersState({ ...usersState, status: 'idle' });
+				return setUsersState({
+					...usersState,
+					status: 'idle',
+					totalByIds: data.users,
+					pageByIds: data.users.slice(0, itemLimit),
+					pagination: {
+						...usersState.pagination,
+						page: 1,
+						hasNextPage: data.users.length > itemLimit ? true : false,
+						hasPreviousPage: false,
+						nextPage: 2,
+						previousPage: 0,
+						lastPage: Math.ceil(data.users.length / itemLimit),
+						totalItems: data.users.length,
+					},
+				});
+			} else {
+				// set status to idle
+				setUsersState({ ...usersState, status: 'idle' });
 
-					// alert the admin that something went wrong
-					return dispatch(
-						setAlert({
-							title: 'Something went wrong',
-							message: 'There was an error retreiving users.',
-							alertType: 'danger',
-						})
-					);
-				}
-			} catch (error) {
-				console.log(error);
+				// alert the admin that something went wrong
+				return dispatch(
+					setAlert({
+						title: 'Something went wrong',
+						message: 'There was an error retreiving users.',
+						alertType: 'danger',
+					})
+				);
 			}
-		},
-		[usersState, setUsersState, dispatch]
-	);
+		} catch (error) {
+			console.log(error);
+		}
+	}, [usersState, setUsersState, dispatch]);
 
 	// get new users on page load
 	useEffect(() => {
 		status === 'idle' &&
 			user?._id &&
 			usersState.totalByIds.length === 0 &&
-			getAllUsers(user?._id);
+			getAllUsers();
 	}, [status, user?._id, usersState.totalByIds, getAllUsers]);
 
 	const onToggle = () => {
@@ -242,7 +239,6 @@ const Admin = () => {
 																user?.role === 'master' &&
 																dispatch(
 																	surrogateUser({
-																		userId: user?._id,
 																		surrogateId: lgUser._id,
 																	})
 																)

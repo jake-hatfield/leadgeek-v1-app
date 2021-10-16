@@ -25,7 +25,7 @@ const ITEMS_PER_PAGE = 15;
 // @route       POST api/leads/export
 // @description Create new lead
 // @access      Private
-router.get('/export', auth, async (req, res) => {
+router.get('/export', auth, async (_, res) => {
 	const SPREADSHEET_ID = process.env.REACT_APP_GOOGLE_SPREADSHEET_ID;
 	const CLIENT_EMAIL = process.env.REACT_APP_SHEETS_CLIENT_EMAIL;
 	const PRIVATE_KEY = process.env.REACT_APP_SHEETS_PRIVATE_KEY.replace(
@@ -706,11 +706,11 @@ router.post(
 	}
 );
 
-// @route       POST api/add-comment
+// @route       POST api/comment
 // @description Add a comment to a lead
 // @access      Private
 router.post(
-	'/add-comment',
+	'/comment',
 	auth,
 	async (
 		req: Request<

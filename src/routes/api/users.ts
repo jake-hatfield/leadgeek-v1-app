@@ -11,12 +11,77 @@ import auth from '@middleware/auth';
 
 // models
 import User, { IUserDocument } from '@models/User';
-import Notification from '@models/Notification';
+import Notification, { INotificationDocument } from '@models/Notification';
 
 // router
 const router = Router();
 
 const stripe = new Stripe(stripeSecret, { apiVersion: '2020-08-27' });
+
+// @route       GET api/users?id=__
+// @description Get all users (ADMIN)
+// @access      Private
+router.get(
+	'/',
+	auth,
+	async (
+		req: Request<
+			{},
+			{},
+			{
+				user: {
+					id: string;
+				};
+			}
+		>,
+		res: Response<{
+			message:
+				| 'Access prohibited'
+				| 'Returning all users'
+				| 'Error returning all users';
+			users: IUserDocument[];
+		}>
+	) => {
+		try {
+			// destructure necessary items
+			const { id } = req.body.user;
+
+			if (!id) {
+				return res.status(401).send({
+					message: 'Access prohibited',
+					users: [],
+				});
+			}
+
+			const master = await User.find({ _id: id, role: 'master' });
+
+			if (!master) {
+				return res.status(401).send({
+					message: 'Access prohibited',
+					users: [],
+				});
+			}
+
+			// lookup all users
+			const users = await User.find({}).sort({ dateCreated: -1 });
+
+			// there are users found
+			if (users.length > 0) {
+				return res.status(200).send({
+					message: 'Returning all users',
+					users,
+				});
+			} else {
+				return res.status(200).send({
+					message: 'Error returning all users',
+					users: [],
+				});
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
 
 // @route       GET api/users/plan?subId=__
 // @description Get a user's subscription information for the active plan
@@ -98,9 +163,10 @@ router.get(
 	}
 );
 
-// @route       POST api/affiliate-payments
+// @route       POST api/users/affiliate-payments
 // @description Retrieve an affiliates payments
 // @access      Private
+// CHANGE THIS TO A GET REQUEST
 router.post(
 	'/affiliate-payments',
 	auth,
@@ -231,95 +297,47 @@ router.delete(
 	}
 );
 
-// @route       GET api/users?id=__
-// @description Get all users (ADMIN)
+// @route       GET api/users/notifications?ids=[]
+// @description Retrieve a user's notifications
 // @access      Private
 router.get(
-	'/',
+	'/notifications',
 	auth,
 	async (
-		req: Request<{}, {}, {}, { id: string }>,
+		req: Request<{}, {}, {}, { ids: string[] }>,
 		res: Response<{
 			message:
-				| 'Access prohibited'
-				| 'Returning all users'
-				| 'Error returning all users';
-			users: IUserDocument[];
+				| 'There are no notifications to show'
+				| 'Successfully populated notifications'
+				| 'Server error';
+			notifications: INotificationDocument[];
 		}>
 	) => {
 		try {
 			// destructure necessary items
-			const { id } = req.query;
-
-			if (!id) {
-				return res.status(401).send({
-					message: 'Access prohibited',
-					users: [],
-				});
-			}
-
-			const master = await User.find({ _id: id, role: 'master' });
-
-			if (!master) {
-				return res.status(401).send({
-					message: 'Access prohibited',
-					users: [],
-				});
-			}
-
-			// lookup all users
-			const users = await User.find({}).sort({ dateCreated: -1 });
-
-			// there are users found
-			if (users.length > 0) {
-				return res.status(200).send({
-					message: 'Returning all users',
-					users,
-				});
-			} else {
-				return res.status(200).send({
-					message: 'Error returning all users',
-					users: [],
-				});
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
-);
-
-// @route       GET api/users/notifications
-// @description Retrieve a user's notifications
-// @access      Private
-
-// CHANGE THIS TO A GET REQUEST
-router.post(
-	'/notifications',
-	auth,
-	async (
-		req: Request<{}, {}, { ids: { _ids: ObjectId }[] }>,
-		res: Response
-	) => {
-		try {
-			// destructure necessary items
-			const { ids } = req.body;
+			const { ids } = req.query;
 
 			const notifications = await Notification.find({ _id: { $in: ids } });
 
-			let message;
+			let message:
+				| 'There are no notifications to show'
+				| 'Successfully populated notifications'
+				| 'Server error';
+
 			if (notifications.length === 0) {
 				message = 'There are no notifications to show';
 				console.log(message);
 			} else {
-				let message = `Successfully populated ${notifications.length} notifications.`;
+				let message = `Successfully populated notifications.`;
 				console.log(message);
 			}
 			return res.status(200).send({
+				message,
 				notifications,
 			});
 		} catch (error) {
 			console.log(error);
-			res.status(500).send('Server error');
+			res.status(500).send({ message: 'Server error', notifications: [] });
 		}
 	}
 );
@@ -338,7 +356,7 @@ interface Payment {
 	};
 }
 
-// @route       GET api/users/payments
+// @route       GET api/users/payments?cusId=__
 // @description Get a user's payment history
 // @access      Private
 router.get(

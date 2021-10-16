@@ -85,7 +85,13 @@ router.post(
 	'/',
 	async (
 		req: Request<{}, {}, { email: string; password: string }>,
-		res: Response
+		res: Response<{
+			message:
+				| 'Email & password combination not correct.'
+				| 'Login success'
+				| 'Server error';
+			token: string | null;
+		}>
 	) => {
 		// destructure necessary items
 		const { email, password } = req.body;
@@ -93,16 +99,12 @@ router.post(
 		try {
 			// see if user exists
 			let user: IUserDocument = await User.findOne({ email });
+
 			// if user doesn't exist, return a 401 error
 			if (!user) {
-				return res.status(401).json({
+				return res.status(401).send({
+					message: 'Email & password combination not correct.',
 					token: null,
-					errors: [
-						{
-							message:
-								'Email & password combination not correct. Please try again or reset your password.',
-						},
-					],
 				});
 			}
 
@@ -110,14 +112,9 @@ router.post(
 			const isMatch = await bcrypt.compare(password, user.password);
 			// if passwords don't match, return a 401 error
 			if (!isMatch) {
-				return res.status(401).json({
+				return res.status(401).send({
+					message: 'Email & password combination not correct.',
 					token: null,
-					errors: [
-						{
-							message:
-								'Email & password combination not correct. Please try again or reset your password.',
-						},
-					],
 				});
 			}
 
@@ -135,25 +132,34 @@ router.post(
 				{ expiresIn: 60 * 60 * 24 * 5 },
 				(err, token) => {
 					if (err) throw err;
-					return res.json({ token, errors: null });
+					return res.send({ message: 'Login success', token });
 				}
 			);
 		} catch (error) {
 			console.error(error.message);
 			// if there's an error, it's got to be with the server
-			res.status(500).send('Server error');
+			res.status(500).send({ message: 'Server error', token: null });
 		}
 	}
 );
 
-// @route       GET api/auth/surrogate?userId=__&surrogateId=__
-// @description Log in as user for administrative purposes
+// @route       GET api/auth/surrogate?id=__
+// @description Log in as user (ADMIN)
 // @access      Private
 router.get(
 	'/surrogate',
 	auth,
 	async (
-		req: Request<{}, {}, {}, { userId: string; surrogateId: string }>,
+		req: Request<
+			{},
+			{},
+			{
+				user: {
+					id: string;
+				};
+			},
+			{ id: string }
+		>,
 		res: Response<{
 			message:
 				| 'Access prohibited'
@@ -166,7 +172,8 @@ router.get(
 	) => {
 		try {
 			// destructure necessary items
-			const { userId, surrogateId } = req.query;
+			const { id: surrogateId } = req.query;
+			const { id: userId } = req.body.user;
 
 			const admin = await User.find({ _id: userId, role: 'master' });
 
@@ -456,12 +463,15 @@ router.put(
 
 // @route       PUT api/auth/profile?userId=__&name=__
 // @description update profile in database
-// @access      Public
+// @access      Private
 router.put(
 	'/profile',
+	auth,
 	async (
 		req: Request<{}, {}, { userId: ObjectId; name: string }>,
-		res: Response
+		res: Response<{
+			message: 'Profile was successfully updated' | 'No user found';
+		}>
 	) => {
 		try {
 			// destructure necessary items
@@ -478,13 +488,13 @@ router.put(
 				await user.updateOne({
 					name,
 				});
-				const message = 'Profile was succesfully updated';
+
+				const message = 'Profile was successfully updated';
 				console.log(message);
-				return res
-					.status(200)
-					.send({ message: 'Profile was successfully updated' });
+
+				return res.status(200).send({ message });
 			} else {
-				const message = 'No user exists in the database to update';
+				const message = 'No user found';
 				console.error(message);
 				return res.status(404).send({ message });
 			}

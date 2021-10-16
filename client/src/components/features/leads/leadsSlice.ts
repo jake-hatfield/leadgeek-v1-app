@@ -28,7 +28,7 @@ export const addComment = createAsyncThunk(
 			const body = JSON.stringify({ comment, userId, leadId });
 
 			// POST request to route
-			const { data } = await axios.post('/api/leads/add-comment', body, config);
+			const { data } = await axios.post('/api/leads/comment', body, config);
 
 			if (data.message === 'Comment was added') {
 				return data.comments;
