@@ -461,21 +461,24 @@ router.put(
 	}
 );
 
-// @route       PUT api/auth/profile?userId=__&name=__
+// @route       PUT api/auth/profile?&name=__
 // @description update profile in database
 // @access      Private
 router.put(
 	'/profile',
 	auth,
 	async (
-		req: Request<{}, {}, { userId: ObjectId; name: string }>,
+		req: Request<{}, {}, { user: { id: string }; name: string }>,
 		res: Response<{
 			message: 'Profile was successfully updated' | 'No user found';
 		}>
 	) => {
 		try {
 			// destructure necessary items
-			const { userId, name } = req.body;
+			const {
+				name,
+				user: { id: userId },
+			} = req.body;
 
 			// lookup user
 			const user = await User.findOne({

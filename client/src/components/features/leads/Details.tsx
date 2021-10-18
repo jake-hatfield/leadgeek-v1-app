@@ -174,7 +174,7 @@ const Details: React.FC<DetailsProps> = ({
 	useHotkeys(
 		's',
 		() => {
-			dispatch(handleLikeLead({ userId: user._id, leadId: currentLead._id }));
+			dispatch(handleLikeLead({ leadId: currentLead._id }));
 		},
 		{ keyup: true },
 		[currentLead]
@@ -183,9 +183,7 @@ const Details: React.FC<DetailsProps> = ({
 	useHotkeys(
 		'a',
 		() => {
-			dispatch(
-				handleArchiveLead({ userId: user._id, leadId: currentLead._id })
-			);
+			dispatch(handleArchiveLead({ leadId: currentLead._id }));
 		},
 		{ keyup: true },
 		[currentLead]
@@ -295,8 +293,7 @@ const Details: React.FC<DetailsProps> = ({
 				/>
 			),
 			disabled: false,
-			onClick: () =>
-				dispatch(handleLikeLead({ userId: user._id, leadId: currentLead._id })),
+			onClick: () => dispatch(handleLikeLead({ leadId: currentLead._id })),
 			state: like,
 			title: like ? 'Unlike lead' : 'Like lead',
 			description: 'S',
@@ -320,10 +317,7 @@ const Details: React.FC<DetailsProps> = ({
 				/>
 			),
 			disabled: false,
-			onClick: () =>
-				dispatch(
-					handleArchiveLead({ userId: user._id, leadId: currentLead._id })
-				),
+			onClick: () => dispatch(handleArchiveLead({ leadId: currentLead._id })),
 			state: archive,
 			title: archive ? 'Unarchive lead' : 'Archive lead',
 			description: 'A',

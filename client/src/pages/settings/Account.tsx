@@ -69,7 +69,7 @@ const AccountPage = () => {
 			);
 		}
 
-		const body = JSON.stringify({ userId: user?._id, name: formData.name });
+		const body = JSON.stringify({ name: formData.name });
 
 		const { data } = await axios.put<{
 			message:

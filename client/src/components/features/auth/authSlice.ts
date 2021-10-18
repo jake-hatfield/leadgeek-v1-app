@@ -306,7 +306,9 @@ export const authSlice = createSlice({
 				state.validatedResetPwToken = false;
 			})
 			.addCase(handleLikeLead.fulfilled, (state, action) => {
-				state.user!.likedLeads! = action.payload?.leads;
+				if (action.payload?.leads) {
+					state.user!.likedLeads! = action.payload?.leads;
+				}
 			})
 			.addCase(handleArchiveLead.fulfilled, (state, action) => {
 				state.user!.archivedLeads! = action.payload?.leads;

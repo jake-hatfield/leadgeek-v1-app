@@ -9,7 +9,7 @@ import auth from '@middleware/auth';
 
 // models
 import Lead, { ILeadDocument } from '@models/Lead';
-import User from '@models/User';
+import User, { IUserDocument } from '@models/User';
 
 // types
 import { Filter } from 'types/Filter';
@@ -19,97 +19,133 @@ import { Roles } from 'types/User';
 // router
 const router = Router();
 
-// global var
+// global value
 const ITEMS_PER_PAGE = 15;
 
 // @route       POST api/leads/export
-// @description Create new lead
+// @description Create new leads
 // @access      Private
-router.get('/export', auth, async (_, res) => {
-	const SPREADSHEET_ID = process.env.REACT_APP_GOOGLE_SPREADSHEET_ID;
-	const CLIENT_EMAIL = process.env.REACT_APP_SHEETS_CLIENT_EMAIL;
-	const PRIVATE_KEY = process.env.REACT_APP_SHEETS_PRIVATE_KEY.replace(
-		/\\n/gm,
-		'\n'
-	);
-	try {
-		console.log('Connecting to Google Sheets...');
-		const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
-		await doc.useServiceAccountAuth({
-			client_email: CLIENT_EMAIL,
-			private_key: PRIVATE_KEY,
-		});
-		await doc.loadInfo();
-		const sheet = await doc.sheetsByIndex[0];
-		if (!sheet) {
-			return res
-				.status(404)
-				.send('Error connecting to Google Sheets. No sheet was found');
-		} else {
-			console.log('Sheet found!');
-			const rows = await sheet.getRows();
-			rows.forEach(async (element, index) => {
-				if (element._id === undefined) {
-					rows[index]._id = mongoose.Types.ObjectId();
-					await rows[index].save();
-				}
-			});
-			const newLeads = rows.map((lead) => ({
-				data: {
-					source: lead.source,
-					title: lead.title,
-					brand: lead.brand,
-					category: lead.category,
-					retailerLink: lead.retailerLink,
-					amzLink: lead.amzLink,
-					promo: lead.promo,
-					buyPrice: +lead.buyPrice,
-					sellPrice: +lead.sellPrice,
-					netProfit: +lead.netProfit,
-					roi: +lead.roi,
-					bsrCurrent: +lead.bsrCurrent,
-					monthlySales: +lead.monthlySales,
-					bsr30: +lead.bsr30,
-					bsr90: +lead.bsr90,
-					competitorType: lead.competitorType,
-					competitorCount: lead.competitorCount,
-					price30: +lead.price30,
-					price90: +lead.price90,
-					variations: lead.variations,
-					cashback: lead.cashback,
-					weight: +lead.weight,
-					shipping: lead.shipping,
-					notes: lead.notes,
-					img: lead.img,
-					date: lead.date || Date.now(),
-					asin: lead.asin,
-				},
-				plan: lead.plan.split(','),
-				_id: lead._id,
-			}));
+router.post(
+	'/export',
+	auth,
+	async (
+		req: Request<{}, {}, { user: { id: string } }>,
+		res: Response<{
+			message:
+				| 'No user found'
+				| 'Access prohibited'
+				| 'Error connecting to Google Sheets'
+				| 'Leads were added to the database'
+				| 'There was an error uploading the leads'
+				| 'There were no rows to pull from Google Sheets';
+		}>
+	) => {
+		const SPREADSHEET_ID = process.env.REACT_APP_GOOGLE_SPREADSHEET_ID;
+		const CLIENT_EMAIL = process.env.REACT_APP_SHEETS_CLIENT_EMAIL;
+		const PRIVATE_KEY = process.env.REACT_APP_SHEETS_PRIVATE_KEY.replace(
+			/\\n/gm,
+			'\n'
+		);
+		try {
+			const { id } = req.body.user;
 
-			if (newLeads) {
-				try {
-					await Lead.insertMany(newLeads);
-					let message = `Leads were added to the database.`;
-					console.log(message);
-					return res.status(201).send(message);
-				} catch (error) {
-					console.log(error);
-					let message = 'There was an error uploading the leads.';
-					console.log(message);
-					return res.status(200).send(message);
-				}
-			} else {
-				let message = 'There were no rows to pull from Google Sheets';
-				console.log(message);
-				return res.status(200).send(message);
+			const user = await User.findById(id);
+
+			if (!user) {
+				return res.status(200).send({
+					message: 'No user found',
+				});
 			}
+
+			if (user.role !== 'master' && user.role !== 'admin') {
+				return res.status(401).send({
+					message: 'Access prohibited',
+				});
+			}
+
+			console.log('Connecting to Google Sheets...');
+			const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
+			await doc.useServiceAccountAuth({
+				client_email: CLIENT_EMAIL,
+				private_key: PRIVATE_KEY,
+			});
+			await doc.loadInfo();
+			const sheet = await doc.sheetsByIndex[0];
+			if (!sheet) {
+				return res
+					.status(404)
+					.send({ message: 'Error connecting to Google Sheets' });
+			} else {
+				console.log('Sheet found!');
+				const rows = await sheet.getRows();
+				rows.forEach(async (element, index) => {
+					if (element._id === undefined) {
+						rows[index]._id = mongoose.Types.ObjectId();
+						await rows[index].save();
+					}
+				});
+				const newLeads = rows.map((lead) => ({
+					data: {
+						source: lead.source,
+						title: lead.title,
+						brand: lead.brand,
+						category: lead.category,
+						retailerLink: lead.retailerLink,
+						amzLink: lead.amzLink,
+						promo: lead.promo,
+						buyPrice: +lead.buyPrice,
+						sellPrice: +lead.sellPrice,
+						netProfit: +lead.netProfit,
+						roi: +lead.roi,
+						bsrCurrent: +lead.bsrCurrent,
+						monthlySales: +lead.monthlySales,
+						bsr30: +lead.bsr30,
+						bsr90: +lead.bsr90,
+						competitorType: lead.competitorType,
+						competitorCount: lead.competitorCount,
+						price30: +lead.price30,
+						price90: +lead.price90,
+						variations: lead.variations,
+						cashback: lead.cashback,
+						weight: +lead.weight,
+						shipping: lead.shipping,
+						notes: lead.notes,
+						img: lead.img,
+						date: lead.date || new Date(),
+						asin: lead.asin,
+					},
+					plan: lead.plan.split(','),
+					_id: lead._id,
+				}));
+
+				let message:
+					| 'Leads were added to the database'
+					| 'There was an error uploading the leads'
+					| 'There were no rows to pull from Google Sheets';
+
+				if (newLeads) {
+					try {
+						await Lead.insertMany(newLeads);
+						message = 'Leads were added to the database';
+						console.log(message);
+						return res.status(201).send({ message });
+					} catch (error) {
+						console.log(error);
+						message = 'There was an error uploading the leads';
+						console.log(message);
+						return res.status(200).send({ message });
+					}
+				} else {
+					message = 'There were no rows to pull from Google Sheets';
+					console.log(message);
+					return res.status(200).send({ message });
+				}
+			}
+		} catch (error) {
+			console.log(error);
 		}
-	} catch (error) {
-		console.log(error);
 	}
-});
+);
 
 // @route       GET api/leads
 // @description Get paginated leads by plan and filters
@@ -122,8 +158,9 @@ router.post(
 			{},
 			{},
 			{
-				_id: ObjectId;
-				role: Roles;
+				user: {
+					id: string;
+				};
 				page: number;
 				filters: {
 					filters: Filter[];
@@ -140,8 +177,7 @@ router.post(
 		try {
 			// destructure items from request
 			const {
-				_id,
-				role,
+				user: { id },
 				page,
 				filters: {
 					filters: itemFilters,
@@ -151,7 +187,7 @@ router.post(
 			} = req.body;
 
 			// lookup user by id
-			const user = await User.findById({ _id });
+			const user = await User.findById({ _id: id });
 
 			// no user was found (though shouldn't ever happen)
 			if (!user) {
@@ -187,10 +223,11 @@ router.post(
 			console.log('Getting paginated leads...');
 
 			// set role filter
-			const roleFilter = [role.toString()];
+			const roleFilter = [user.role.toString()];
+
 			// declare admin roles and set admin to true if one exists
 			const administrativeRoles = ['master', 'admin'];
-			if (administrativeRoles.indexOf(role) >= 0) {
+			if (administrativeRoles.indexOf(user.role) >= 0) {
 				roleFilter.push('bundle');
 			}
 
@@ -291,7 +328,9 @@ router.post(
 			{},
 			{},
 			{
-				userId: ObjectId;
+				user: {
+					id: string;
+				};
 				filters: {
 					filters: Filter[];
 					dateLimits: {
@@ -308,7 +347,7 @@ router.post(
 		try {
 			// destructure necessary items
 			const {
-				userId,
+				user: { id: userId },
 				filters: {
 					filters: itemFilters,
 					dateLimits: { min: minDate, max: maxDate },
@@ -573,7 +612,7 @@ router.post(
 // @route       POST api/handle-like-lead
 // @description Like/unlike a lead
 // @access      Private
-const unlikeLead = async (user: any, leadId: ObjectId) => {
+const unlikeLead = async (user: IUserDocument, leadId: string) => {
 	const updatedLikedArray = user.likedLeads.filter(
 		(lead: { _id: ObjectId }) => lead._id.toString() !== leadId.toString()
 	);
@@ -582,22 +621,42 @@ const unlikeLead = async (user: any, leadId: ObjectId) => {
 	await user.save();
 };
 
-const likeLead = async (user: any, leadId: ObjectId) => {
+const likeLead = async (user: IUserDocument, leadId: string) => {
+	const newLead = new Lead({
+		_id: mongoose.Types.ObjectId(leadId),
+	});
+
 	console.log('Lead was liked.');
-	user.likedLeads.push(leadId);
+	user.likedLeads.push(newLead);
 	await user.save();
 };
 
 router.post(
-	'/handle-like-lead',
+	'/like/:leadId',
 	auth,
 	async (
-		req: Request<{}, {}, { userId: ObjectId; leadId: ObjectId }>,
-		res: Response
+		req: Request<
+			{ leadId: string },
+			{},
+			{
+				user: {
+					id: string;
+				};
+			}
+		>,
+		res: Response<{
+			title: 'Lead was unliked' | 'Lead was liked' | 'Error';
+			message: string;
+			leads: { _id: ObjectId }[];
+		}>
 	) => {
 		try {
 			// destructure necessary items
-			const { userId, leadId } = req.body;
+			const {
+				user: { id: userId },
+			} = req.body;
+
+			const { leadId } = req.params;
 
 			// find lead in the feed
 			const lead = await Lead.findById(leadId);
@@ -609,7 +668,7 @@ router.post(
 				// check if the lead is already liked
 				const indexed = likedLeads
 					.map((l) => {
-						return l._id;
+						return l._id.toString();
 					})
 					.indexOf(leadId);
 				if (indexed >= 0) {
@@ -628,11 +687,17 @@ router.post(
 					});
 				}
 			} else {
-				return res.status(404).send('There was an error liking this lead.');
+				return res.status(404).send({
+					title: 'Error',
+					message: 'There was an error liking this lead.',
+					leads: [],
+				});
 			}
 		} catch (error) {
 			console.error(error.message);
-			return res.status(500).send('Server error');
+			return res
+				.status(500)
+				.send({ title: 'Error', message: 'Server error', leads: [] });
 		}
 	}
 );
@@ -640,7 +705,7 @@ router.post(
 // @route       POST api/handle-archive-lead
 // @description Archive/unarchive a lead
 // @access      Private
-const unarchiveLead = async (user: any, leadId: ObjectId) => {
+const unarchiveLead = async (user: IUserDocument, leadId: string) => {
 	const updatedArchivedArray = user.archivedLeads.filter(
 		(lead: { _id: ObjectId }) => lead._id.toString() !== leadId.toString()
 	);
@@ -649,22 +714,38 @@ const unarchiveLead = async (user: any, leadId: ObjectId) => {
 	await user.save();
 };
 
-const archiveLead = async (user: any, leadId: ObjectId) => {
+const archiveLead = async (user: IUserDocument, leadId: string) => {
+	const newLead = new Lead({
+		_id: mongoose.Types.ObjectId(leadId),
+	});
+
 	console.log('Lead was archived.');
-	user.archivedLeads.push(leadId);
+	user.archivedLeads.push(newLead);
 	await user.save();
 };
 
 router.post(
-	'/handle-archive-lead',
+	'/archive/:leadId',
 	auth,
 	async (
-		req: Request<{}, {}, { userId: ObjectId; leadId: ObjectId }>,
+		req: Request<
+			{ leadId: string },
+			{},
+			{
+				user: {
+					id: string;
+				};
+			}
+		>,
 		res: Response
 	) => {
 		try {
 			// destructure necessary items
-			const { userId, leadId } = req.body;
+			const {
+				user: { id: userId },
+			} = req.body;
+
+			const { leadId } = req.params;
 
 			// find lead in the feed
 			const lead = await Lead.findById(leadId);
@@ -677,7 +758,7 @@ router.post(
 				// check if the lead is already liked
 				const indexed = archivedLeads
 					.map((l) => {
-						return l._id;
+						return l._id.toString();
 					})
 					.indexOf(leadId);
 

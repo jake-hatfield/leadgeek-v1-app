@@ -26,8 +26,8 @@ import { User } from '@utils/interfaces/User';
 interface LeadRowProps {
 	lead: Lead;
 	user: User;
-	liked: Lead[];
-	archived: Lead[];
+	liked: { _id: string }[];
+	archived: { _id: string }[];
 	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -111,13 +111,13 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	const favoriteHandler = (e: any) => {
 		e.stopPropagation();
 		setLike((prev) => !prev);
-		dispatch(handleLikeLead({ userId: user._id, leadId: lead._id }));
+		dispatch(handleLikeLead({ leadId: lead._id }));
 	};
 	// handle archiving leads
 	const archiveHandler = (e: any) => {
 		e.stopPropagation();
 		setArchive((prev) => !prev);
-		dispatch(handleArchiveLead({ userId: user._id, leadId: lead._id }));
+		dispatch(handleArchiveLead({ leadId: lead._id }));
 	};
 
 	// animations

@@ -63,9 +63,17 @@ const Admin = () => {
 	const handleExportLeads = async () => {
 		try {
 			// make GET request to API
-			const { data } = await axios.get('/api/leads/export');
+			const { data } = await axios.post<{
+				message:
+					| 'No user found'
+					| 'Access prohibited'
+					| 'Error connecting to Google Sheets'
+					| 'Leads were added to the database'
+					| 'There was an error uploading the leads'
+					| 'There were no rows to pull from Google Sheets';
+			}>('/api/leads/export');
 
-			if (data === 'Leads were added to the database.') {
+			if (data.message === 'Leads were added to the database') {
 				// redeploy Netlify site webhook
 				await axios.post(
 					'https://api.netlify.com/build_hooks/60f1da8987d39d7d6bceae55'
@@ -74,7 +82,7 @@ const Admin = () => {
 				return dispatch(
 					setAlert({
 						title: 'Upload success',
-						message: data,
+						message: data.message,
 						alertType: 'success',
 					})
 				);
