@@ -20,8 +20,8 @@ import { useDarkMode } from '@hooks/hooks';
 interface LeadTableProps {
 	leads: Lead[];
 	user: User;
-	liked: Lead[];
-	archived: Lead[];
+	liked: { _id: string }[];
+	archived: { _id: string }[];
 	status: 'idle' | 'loading' | 'failed';
 	showDetails: boolean;
 	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;

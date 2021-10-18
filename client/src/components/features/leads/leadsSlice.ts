@@ -10,7 +10,6 @@ import { Lead, LeadTypes } from '@utils/interfaces/Lead';
 import { Pagination } from '@utils/interfaces/Pagination';
 
 // utils
-import { Role } from '@utils/interfaces/User';
 import { config, truncate } from '@utils/utils';
 import { setItemLimit } from '../filters/filtersSlice';
 
@@ -93,7 +92,7 @@ export const getAllLeads = createAsyncThunk(
 export const getArchivedLeads = createAsyncThunk(
 	'leads/getArchivedLeads',
 	async (
-		options: { leads: Lead[]; page: number; filters: FilterState },
+		options: { leads: { _id: string }[]; page: number; filters: FilterState },
 		{ rejectWithValue }
 	) => {
 		try {
@@ -118,10 +117,6 @@ export const getFeedLeads = createAsyncThunk(
 	'leads/getFeedLeads',
 	async (
 		options: {
-			user: {
-				id: string;
-				role: Role;
-			};
 			page: number;
 			filters: FilterState;
 		},
@@ -129,16 +124,12 @@ export const getFeedLeads = createAsyncThunk(
 	) => {
 		try {
 			// destructure necessary items
-			const {
-				user: { id, role },
-				page,
-				filters,
-			} = options;
+			const { page, filters } = options;
+
+			console.log(filters);
 
 			// build request body
 			const body = JSON.stringify({
-				_id: id,
-				role,
 				page,
 				filters,
 			});
@@ -169,7 +160,7 @@ export const getFeedLeads = createAsyncThunk(
 export const getLikedLeads = createAsyncThunk(
 	'leads/getLikedLeads',
 	async (
-		options: { leads: Lead[]; page: number; filters: FilterState },
+		options: { leads: { _id: string }[]; page: number; filters: FilterState },
 		{ rejectWithValue }
 	) => {
 		try {
@@ -247,24 +238,16 @@ export const handleArchiveLead = createAsyncThunk(
 	'leads/handleArchiveLead',
 	async (
 		options: {
-			userId: string;
 			leadId: string;
 		},
 		{ dispatch }
 	) => {
 		try {
 			// destructure necessary items
-			const { userId, leadId } = options;
-
-			// build request body
-			const body = JSON.stringify({ userId, leadId });
+			const { leadId } = options;
 
 			// POST request to route
-			const res = await axios.post(
-				'/api/leads/handle-archive-lead',
-				body,
-				config
-			);
+			const res = await axios.post(`/api/leads/archive/${leadId}`);
 
 			if (res.status === 200) {
 				// destructure necessary items
@@ -294,20 +277,20 @@ export const handleLikeLead = createAsyncThunk(
 	'leads/handleLikeLead',
 	async (
 		options: {
-			userId: string;
 			leadId: string;
 		},
 		{ dispatch }
 	) => {
 		try {
 			// destructure necessary items
-			const { userId, leadId } = options;
-
-			// build request body
-			const body = JSON.stringify({ userId, leadId });
+			const { leadId } = options;
 
 			// POST request to route
-			const res = await axios.post('/api/leads/handle-like-lead', body, config);
+			const res = await axios.post<{
+				title: 'Lead was unliked' | 'Lead was liked' | 'Error';
+				message: string;
+				leads: { _id: string }[];
+			}>(`/api/leads/like/${leadId}`);
 
 			if (res.status === 200) {
 				// destructure necessary items
