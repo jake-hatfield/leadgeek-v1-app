@@ -27,6 +27,7 @@
 		"google-spreadsheet": "^3.1.15",
 		"jsonwebtoken": "^8.5.1",
 		"luxon": "^2.0.2",
+		"luxon-business-days": "^2.8.2",
 		"mongoose": "^5.12.0",
 		"mongoose-fuzzy-searching": "^2.0.2",
 		"nodemailer": "^6.6.3",
