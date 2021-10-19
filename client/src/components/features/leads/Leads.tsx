@@ -124,9 +124,7 @@ const Leads: React.FC<LeadsProps> = ({
 						alertType: 'warning',
 					})
 				);
-				dispatch(
-					getAllLeads({ userId, filters, type, query: currentSearchValue })
-				);
+				dispatch(getAllLeads({ filters, type, query: currentSearchValue }));
 				setExportLeads(true);
 			} else {
 				dispatch(

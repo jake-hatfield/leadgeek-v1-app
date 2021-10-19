@@ -11,23 +11,27 @@ import { Pagination } from '@utils/interfaces/Pagination';
 
 // utils
 import { config, truncate } from '@utils/utils';
-import { setItemLimit } from '../filters/filtersSlice';
+import { setItemLimit } from '@features/filters/filtersSlice';
 
 export const addComment = createAsyncThunk(
 	'leads/addComment',
-	async (
-		options: { comment: string; userId: string; leadId: string },
-		{ dispatch }
-	) => {
+	async (options: { comment: string; leadId: string }, { dispatch }) => {
 		try {
 			// destructure necessary items
-			const { comment, userId, leadId } = options;
+			const { comment, leadId } = options;
 
 			// build request body
-			const body = JSON.stringify({ comment, userId, leadId });
+			const body = JSON.stringify({ comment });
 
 			// POST request to route
-			const { data } = await axios.post('/api/leads/comment', body, config);
+			const { data } = await axios.post<{
+				message:
+					| 'Required information is missing'
+					| 'Comment was added'
+					| 'No user found'
+					| 'Server error';
+				comments: { leadId: string; comment: string; date: Date }[];
+			}>(`/api/leads/comment/${leadId}`, body, config);
 
 			if (data.message === 'Comment was added') {
 				return data.comments;
@@ -51,7 +55,6 @@ export const getAllLeads = createAsyncThunk(
 	'leads/getAllLeads',
 	async (
 		options: {
-			userId: string;
 			filters: FilterState;
 			type: LeadTypes;
 			query: string | null;
@@ -59,11 +62,10 @@ export const getAllLeads = createAsyncThunk(
 		{ dispatch }
 	) => {
 		// destructure necessary items
-		const { userId, filters, type, query } = options;
+		const { filters, type, query } = options;
 
 		// build request body
 		const body = JSON.stringify({
-			userId,
 			filters,
 			type,
 			query: query,
@@ -72,10 +74,21 @@ export const getAllLeads = createAsyncThunk(
 		// POST request to route
 		const {
 			data,
-		}: { data: { totalByIds: Lead[]; type: LeadTypes; message: string } } =
-			await axios.post('/api/leads/all', body, config);
+		}: {
+			data: {
+				message:
+					| 'No user found'
+					| 'There are no leads to show'
+					| 'Successfully queried leads'
+					| 'Server error';
+				totalByIds: Lead[];
+			};
+		} = await axios.post('/api/leads/all', body, config);
 
-		if (data.totalByIds.length > 0) {
+		if (
+			data.totalByIds.length > 0 &&
+			data.message === 'Successfully queried leads'
+		) {
 			dispatch(
 				setAlert({
 					title: 'Data ready for export',
@@ -85,7 +98,7 @@ export const getAllLeads = createAsyncThunk(
 			);
 		}
 
-		return { totalByIds: data.totalByIds, type: data.type };
+		return { totalByIds: data.totalByIds, type };
 	}
 );
 
@@ -126,8 +139,6 @@ export const getFeedLeads = createAsyncThunk(
 			// destructure necessary items
 			const { page, filters } = options;
 
-			console.log(filters);
-
 			// build request body
 			const body = JSON.stringify({
 				page,
@@ -146,7 +157,7 @@ export const getFeedLeads = createAsyncThunk(
 				totalItems: number;
 				filteredItems: number;
 				lastUpdated: string | null;
-			}>('/api/leads', body, config);
+			}>('/api/leads/feed', body, config);
 
 			// return data to redux store
 			return data;
@@ -185,7 +196,6 @@ export const getSearchResults = createAsyncThunk(
 	'leads/getSearchResults',
 	async (
 		options: {
-			userId: string;
 			query: string | null;
 			page: number;
 			filters: FilterState;
@@ -194,7 +204,7 @@ export const getSearchResults = createAsyncThunk(
 	) => {
 		try {
 			// destructure necessary items
-			const { userId, query, page, filters } = options;
+			const { query, page, filters } = options;
 
 			// handle navigation to the search page directly without a query
 			if (!query) {
@@ -214,7 +224,6 @@ export const getSearchResults = createAsyncThunk(
 
 			// build request body
 			const body = JSON.stringify({
-				userId,
 				query,
 				page,
 				filters,

@@ -47,8 +47,8 @@ export interface IUser {
 	likedLeads: { _id: ObjectId }[];
 	archivedLeads: { _id: ObjectId }[];
 	comments: {
-		date: string;
-		leadId: ObjectId;
+		date: Date;
+		leadId: string;
 		comment: string;
 	}[];
 	notifications: {
