@@ -266,7 +266,7 @@ export const authSlice = createSlice({
 	extraReducers: (builder) => {
 		builder
 			.addCase(addComment.fulfilled, (state, action) => {
-				if (state.user) {
+				if (state.user && action.payload) {
 					state.user.comments = action.payload;
 				}
 			})

@@ -26,7 +26,6 @@ import {
 	FilterTitles,
 	FilterTypes,
 } from '@utils/interfaces/Filter';
-import { User } from '@utils/interfaces/User';
 
 type NumericOrTextStrings = 'numeric' | 'text';
 

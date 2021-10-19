@@ -147,11 +147,11 @@ router.post(
 	}
 );
 
-// @route       GET api/leads
-// @description Get paginated leads by plan and filters
+// @route       POST api/leads/feed
+// @description Get paginated feed leads by plan and filters
 // @access      Private
 router.post(
-	'/',
+	'/feed',
 	auth,
 	async (
 		req: Request<
@@ -317,7 +317,7 @@ router.post(
 	}
 );
 
-// @route       GET api/leads
+// @route       POST api/leads/all
 // @description Get all leads by plan and type
 // @access      Private
 router.post(
@@ -342,7 +342,14 @@ router.post(
 				query?: string;
 			}
 		>,
-		res: Response
+		res: Response<{
+			message:
+				| 'No user found'
+				| 'There are no leads to show'
+				| 'Successfully queried leads'
+				| 'Server error';
+			totalByIds: ILeadDocument[];
+		}>
 	) => {
 		try {
 			// destructure necessary items
@@ -359,11 +366,16 @@ router.post(
 			// lookup user by id
 			const user = await User.findById(userId);
 
+			let message:
+				| 'No user found'
+				| 'There are no leads to show'
+				| 'Successfully queried leads';
+
 			// no user was found (though shouldn't ever happen)
 			if (!user) {
-				let message = 'There was an error finding a user with that id.';
+				message = 'No user found';
 				console.log(message);
-				return res.status(400).send({ status: 'failure', message });
+				return res.status(400).send({ message, totalByIds: [] });
 			}
 
 			// declare global variables
@@ -434,20 +446,20 @@ router.post(
 
 			// if the query is an empty array, return
 			if (allLeads.length === 0) {
-				let message = 'There are no leads to show';
+				message = 'There are no leads to show';
 				console.log(message);
-				return res.status(200).send({ totalByIds: [], type, message });
+				return res.status(200).send({ message, totalByIds: [] });
 			} else {
+				message = 'Successfully queried leads';
 				// return with data
 				return res.status(200).send({
+					message,
 					totalByIds: allLeads,
-					type,
-					message: 'Successfully queried leads',
 				});
 			}
 		} catch (error) {
 			console.error(error.message);
-			return res.status(500).send('Server error');
+			return res.status(500).send({ message: 'Server error', totalByIds: [] });
 		}
 	}
 );
@@ -609,7 +621,7 @@ router.post(
 	}
 );
 
-// @route       POST api/handle-like-lead
+// @route       POST api/like/leadId
 // @description Like/unlike a lead
 // @access      Private
 const unlikeLead = async (user: IUserDocument, leadId: string) => {
@@ -702,7 +714,7 @@ router.post(
 	}
 );
 
-// @route       POST api/handle-archive-lead
+// @route       POST api/archive/leadId
 // @description Archive/unarchive a lead
 // @access      Private
 const unarchiveLead = async (user: IUserDocument, leadId: string) => {
@@ -787,33 +799,45 @@ router.post(
 	}
 );
 
-// @route       POST api/comment
+// @route       POST api/comment/leadId
 // @description Add a comment to a lead
 // @access      Private
 router.post(
-	'/comment',
+	'/comment/:leadId',
 	auth,
 	async (
 		req: Request<
+			{ leadId: string },
 			{},
-			{},
-			{ comment: string; userId: ObjectId; leadId: ObjectId }
+			{ user: { id: string }; comment: string }
 		>,
-		res: Response
+		res: Response<{
+			message:
+				| 'Required information is missing'
+				| 'Comment was added'
+				| 'No user found'
+				| 'Server error';
+			comments: { leadId: string; comment: string; date: Date }[];
+		}>
 	) => {
 		try {
 			// destructure necessary items from request body
-			const { comment, userId, leadId } = req.body;
+			const {
+				user: { id: userId },
+				comment,
+			} = req.body;
+
+			const { leadId } = req.params;
 
 			// if required information is missing, return
 			if (!comment || !userId || !leadId) {
 				return res
-					.status(400)
-					.json({ message: 'Required information is missing' });
+					.status(401)
+					.send({ message: 'Required information is missing', comments: [] });
 			}
 
 			// declare global variables
-			let message;
+			let message: 'Comment was added' | 'No user found';
 
 			// query lead
 			const lead = await Lead.findById(leadId);
@@ -828,9 +852,9 @@ router.post(
 
 					// build the new comment
 					const newComment = {
-						leadId: leadId,
+						leadId,
 						comment,
-						date: DateTime.now().toISO(),
+						date: new Date(),
 					};
 
 					// if it already has a comment, update it
@@ -856,17 +880,15 @@ router.post(
 					console.log('Comment saved!');
 
 					// return successful
-					return res
-						.status(201)
-						.json({ message: 'Comment was added', comments: user.comments });
+					return res.status(201).send({ message, comments: user.comments });
 				} else {
-					message = 'User could not be found';
-					return res.status(400).json({ message });
+					message = 'No user found';
+					return res.status(200).send({ message, comments: [] });
 				}
 			}
 		} catch (error) {
 			console.error(error.message);
-			return res.status(500).send('Server error');
+			return res.status(500).send({ message: 'Server error', comments: [] });
 		}
 	}
 );
@@ -882,9 +904,8 @@ router.post(
 			{},
 			{},
 			{
-				userId: ObjectId;
+				user: { id: string };
 				query: string;
-				role: Roles;
 				page: number;
 				filters: {
 					filters: Filter[];
@@ -901,7 +922,7 @@ router.post(
 		try {
 			// destructure necessary items from request body
 			const {
-				userId,
+				user: { id: userId },
 				query,
 				page,
 				filters: {
@@ -916,7 +937,7 @@ router.post(
 
 			// no user was found (though shouldn't ever happen)
 			if (!user) {
-				let message = 'There was an error finding a user with that id.';
+				let message = 'No user found';
 				console.log(message);
 				return res.status(400).send({ status: 'failure', message });
 			}
@@ -992,7 +1013,6 @@ router.post(
 
 			console.log(message);
 
-			// TODO: Display total number of leads in search + apply filtersdd
 			return res.status(200).send({
 				message,
 				leads: searchMatches,

@@ -35,7 +35,6 @@ const Search: React.FC = () => {
 		if (status === 'idle' && user?._id && searchValue) {
 			dispatch(
 				getSearchResults({
-					userId: user._id,
 					query: searchValue,
 					page: newSearch ? 1 : page,
 					filters,

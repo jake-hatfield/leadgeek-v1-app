@@ -804,7 +804,6 @@ const Details: React.FC<DetailsProps> = ({
 														dispatch(
 															addComment({
 																comment,
-																userId: user._id,
 																leadId: currentLead._id,
 															})
 														);
