@@ -74,8 +74,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			title:
 				previousDay.startOf('day') <=
 				DateTime.now().minusBusiness({ days: 1 }).startOf('day')
-					? 'Previous day'
-					: 'Yesterday',
+					? 'Yesterday'
+					: 'Most previous day',
 			dateString: previousDay.toFormat('LLL dd'),
 			min: previousDay,
 			onClick: () => {

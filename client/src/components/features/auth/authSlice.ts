@@ -311,7 +311,9 @@ export const authSlice = createSlice({
 				}
 			})
 			.addCase(handleArchiveLead.fulfilled, (state, action) => {
-				state.user!.archivedLeads! = action.payload?.leads;
+				if (action.payload?.leads) {
+					state.user!.archivedLeads! = action.payload?.leads;
+				}
 			})
 			.addCase(surrogateUser.fulfilled, (state, action) => {
 				const { token, user } = action.payload;

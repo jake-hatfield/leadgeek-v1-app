@@ -269,10 +269,11 @@ router.post(
 				? minDate
 				: DateTime.now().isBusinessDay()
 				? DateTime.now().startOf('day').toISO()
-				: DateTime.minusBusiness({ days: 1 });
+				: DateTime.minusBusiness({ days: 1 }).isBusinessDay()
+				? DateTime.minusBusiness({ days: 1 })
+				: DateTime.minusBusiness({ days: 2 });
 			const maxDateFilter = maxDate ? maxDate : DateTime.now().toISO();
 
-			console.log(minDateFilter);
 			// convert iso to unix timestamp
 			const isoToTimestamp = (date: string) => {
 				return new Date(date).getTime();
@@ -540,7 +541,7 @@ router.post(
 				| 'You have not liked any leads'
 				| 'Successfully queried liked leads'
 				| 'Server error';
-			likedLeads: { _id: ObjectId }[];
+			likedLeads: ILeadDocument[];
 			page: number;
 			hasNextPage: boolean;
 			hasPreviousPage: boolean;
@@ -645,7 +646,7 @@ router.post(
 				| 'You have not archived any leads'
 				| 'Successfully queried archived leads'
 				| 'Server error';
-			archivedLeads: { _id: ObjectId }[];
+			archivedLeads: ILeadDocument[];
 			page: number;
 			hasNextPage: boolean;
 			hasPreviousPage: boolean;
