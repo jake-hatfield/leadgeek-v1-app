@@ -1,7 +1,7 @@
 // packages
 import { Request, Response, Router } from 'express';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
-import { DateTime } from 'luxon';
+import { DateTime } from 'luxon-business-days';
 import mongoose, { ObjectId } from 'mongoose';
 
 // middleware
@@ -14,7 +14,6 @@ import User, { IUserDocument } from '@models/User';
 // types
 import { Filter } from 'types/Filter';
 import { ILead } from 'types/Lead';
-import { Roles } from 'types/User';
 
 // router
 const router = Router();
@@ -172,7 +171,23 @@ router.post(
 				};
 			}
 		>,
-		res: Response
+		res: Response<{
+			message:
+				| 'No user found'
+				| 'There are no leads to show'
+				| 'Successfully queried feed leads'
+				| 'Server error';
+			feed: mongoose.LeanDocument<ILeadDocument>[];
+			page: number;
+			hasNextPage: boolean;
+			hasPreviousPage: boolean;
+			nextPage: number;
+			previousPage: number;
+			lastPage: number | null;
+			totalItems: number | null;
+			filteredItems: number;
+			lastUpdated: Date | null;
+		}>
 	) => {
 		try {
 			// destructure items from request
@@ -189,11 +204,28 @@ router.post(
 			// lookup user by id
 			const user = await User.findById({ _id: id });
 
+			let message:
+				| 'No user found'
+				| 'There are no leads to show'
+				| 'Successfully queried feed leads';
+
 			// no user was found (though shouldn't ever happen)
 			if (!user) {
-				let message = 'There was an error finding a user with that id.';
+				message = 'No user found';
 				console.log(message);
-				return res.status(400).send({ status: 'failure', message });
+				return res.status(200).send({
+					message,
+					feed: [],
+					page: 1,
+					hasNextPage: false,
+					hasPreviousPage: false,
+					nextPage: 1,
+					previousPage: 0,
+					lastPage: null,
+					totalItems: 0,
+					filteredItems: 0,
+					lastUpdated: null,
+				});
 			}
 
 			// lookup active subscriptions
@@ -203,9 +235,10 @@ router.post(
 
 			// if no active subscriptions, return
 			if (activeSub.length === 0) {
-				let message = 'There are no leads to show';
+				message = 'There are no leads to show';
 				console.log(message);
 				return res.status(200).send({
+					message,
 					feed: [],
 					page: 1,
 					hasNextPage: false,
@@ -232,11 +265,14 @@ router.post(
 			}
 
 			// set date filter
-			const fromJSDate = DateTime.fromJSDate(user.dateCreated);
-			const userDayCreated = fromJSDate.startOf('day').toISO();
-			const minDateFilter = minDate ? minDate : userDayCreated;
+			const minDateFilter = minDate
+				? minDate
+				: DateTime.now().isBusinessDay()
+				? DateTime.now().startOf('day').toISO()
+				: DateTime.minusBusiness({ days: 1 });
 			const maxDateFilter = maxDate ? maxDate : DateTime.now().toISO();
 
+			console.log(minDateFilter);
 			// convert iso to unix timestamp
 			const isoToTimestamp = (date: string) => {
 				return new Date(date).getTime();
@@ -264,9 +300,10 @@ router.post(
 				.sort({ 'data.date': -1 });
 
 			if (feed.length === 0) {
-				let message = 'There are no leads to show';
+				message = 'There are no leads to show';
 				console.log(message);
 				return res.status(200).send({
+					message,
 					feed,
 					page,
 					hasNextPage: false,
@@ -294,10 +331,13 @@ router.post(
 					.lean()
 					.countDocuments(feedQuery);
 
+				message = 'Successfully queried feed leads';
+
 				console.log(
 					`Successfully queried + paginated ${feed.length} of ${totalItems} database leads.`
 				);
 				return res.status(200).send({
+					message,
 					feed,
 					page,
 					hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < filteredItems,
@@ -312,7 +352,19 @@ router.post(
 			}
 		} catch (error) {
 			console.error(error.message);
-			return res.status(500).send('Server error');
+			return res.status(500).send({
+				message: 'Server error',
+				feed: [],
+				page: 1,
+				hasNextPage: false,
+				hasPreviousPage: false,
+				nextPage: 1,
+				previousPage: 0,
+				lastPage: null,
+				totalItems: 0,
+				filteredItems: 0,
+				lastUpdated: null,
+			});
 		}
 	}
 );
@@ -483,7 +535,20 @@ router.post(
 				};
 			}
 		>,
-		res: Response
+		res: Response<{
+			message:
+				| 'You have not liked any leads'
+				| 'Successfully queried liked leads'
+				| 'Server error';
+			likedLeads: { _id: ObjectId }[];
+			page: number;
+			hasNextPage: boolean;
+			hasPreviousPage: boolean;
+			nextPage: number;
+			previousPage: number;
+			lastPage: number | null;
+			totalItems: number | null;
+		}>
 	) => {
 		try {
 			// destructure necessary items from request body
@@ -513,12 +578,15 @@ router.post(
 						.sort({ 'data.date': -1 });
 				});
 
-			let message;
+			let message:
+				| 'You have not liked any leads'
+				| 'Successfully queried liked leads';
+
 			if (likedLeads.length === 0) {
 				message = 'You have not liked any leads';
 				console.log(message);
 			} else {
-				message = `Successfully queried ${likedLeads.length} liked leads.`;
+				message = 'Successfully queried liked leads';
 				console.log(message);
 			}
 			return res.status(200).send({
@@ -538,7 +606,17 @@ router.post(
 			});
 		} catch (error) {
 			console.log(error.message);
-			return res.status(500).send('Sever error');
+			return res.status(500).send({
+				message: 'Server error',
+				likedLeads: [],
+				page: 1,
+				hasNextPage: false,
+				hasPreviousPage: false,
+				nextPage: 2,
+				previousPage: 0,
+				lastPage: 0,
+				totalItems: null,
+			});
 		}
 	}
 );
@@ -562,7 +640,20 @@ router.post(
 				};
 			}
 		>,
-		res: Response
+		res: Response<{
+			message:
+				| 'You have not archived any leads'
+				| 'Successfully queried archived leads'
+				| 'Server error';
+			archivedLeads: { _id: ObjectId }[];
+			page: number;
+			hasNextPage: boolean;
+			hasPreviousPage: boolean;
+			nextPage: number;
+			previousPage: number;
+			lastPage: number | null;
+			totalItems: number | null;
+		}>
 	) => {
 		try {
 			// destructure necessary items from request body
@@ -591,12 +682,15 @@ router.post(
 						.sort({ 'data.date': -1 });
 				});
 
-			let message;
+			let message:
+				| 'You have not archived any leads'
+				| 'Successfully queried archived leads';
+
 			if (archivedLeads.length === 0) {
 				message = 'You have not archived any leads';
 				console.log(message);
 			} else {
-				let message = `Successfully queried ${archivedLeads.length} archived leads.`;
+				message = 'Successfully queried archived leads';
 				console.log(message);
 			}
 			return res.status(200).send({
@@ -616,7 +710,17 @@ router.post(
 			});
 		} catch (error) {
 			console.log(error.message);
-			return res.status(500).send('Sever error');
+			return res.status(500).send({
+				message: 'Server error',
+				archivedLeads: [],
+				page: 1,
+				hasNextPage: false,
+				hasPreviousPage: false,
+				nextPage: 2,
+				previousPage: 0,
+				lastPage: 0,
+				totalItems: null,
+			});
 		}
 	}
 );
@@ -749,7 +853,11 @@ router.post(
 				};
 			}
 		>,
-		res: Response
+		res: Response<{
+			title: 'Lead was archived' | 'Lead was unarchived' | 'Error';
+			message: string;
+			leads: { _id: ObjectId }[];
+		}>
 	) => {
 		try {
 			// destructure necessary items
@@ -790,11 +898,17 @@ router.post(
 					});
 				}
 			} else {
-				return res.status(404).send('There was an error archiving this lead.');
+				return res.status(404).send({
+					title: 'Error',
+					message: 'There was an error archiving this lead.',
+					leads: [],
+				});
 			}
 		} catch (error) {
 			console.error(error.message);
-			return res.status(500).send('Server error');
+			return res
+				.status(500)
+				.send({ title: 'Error', message: 'Server error', leads: [] });
 		}
 	}
 );

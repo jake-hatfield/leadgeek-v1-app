@@ -69,7 +69,7 @@ const Leads: React.FC<LeadsProps> = ({
 	const [showDetails, setShowDetails] = useState(false);
 
 	// destructure necessary items
-	const { _id: userId, likedLeads, archivedLeads } = user;
+	const { likedLeads, archivedLeads } = user;
 	const {
 		count: filterCount,
 		dateLimits: { selected: dateSelected },
@@ -194,14 +194,13 @@ const Leads: React.FC<LeadsProps> = ({
 						<div className={classes.navToolsWrapper}>
 							<Button
 								text={
-									dateSelected && user.dateCreated
+									dateSelected
 										? dateSelected
-										: `${
-												DateTime.fromISO(user?.dateCreated.toString()).toFormat(
-													'LLL dd, yyyy'
-												) || 'Jan 1, 2021'
-										  } - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
-										  'All leads'
+										: lastUpdated
+										? `${DateTime.fromISO(lastUpdated).toFormat(
+												'LLL dd, yyyy'
+										  )}`
+										: 'Loading...'
 								}
 								onClick={() => setDate((prev) => !prev)}
 								width={null}
@@ -273,7 +272,7 @@ const Leads: React.FC<LeadsProps> = ({
 				</nav>
 				<div className='container'>
 					{leadStatus === 'failed' ? (
-						<div className='mt-6 container text-200'>
+						<div className='mt-6 text-200'>
 							There was an error making that request. If this issue persists,
 							please{' '}
 							<a

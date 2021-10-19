@@ -114,7 +114,7 @@ const LeadSchema: Schema<ILeadDocument> = new Schema({
 		img: { type: String, required: true },
 		date: {
 			type: Date,
-			default: Date.now,
+			default: new Date(),
 		},
 	},
 	plan: [
