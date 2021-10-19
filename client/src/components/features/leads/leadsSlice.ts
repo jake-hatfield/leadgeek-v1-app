@@ -116,7 +116,20 @@ export const getArchivedLeads = createAsyncThunk(
 			const body = JSON.stringify({ leads, page, filters });
 
 			// POST request to route
-			const { data } = await axios.post('/api/leads/archived', body, config);
+			const { data } = await axios.post<{
+				message:
+					| 'You have not archived any leads'
+					| 'Successfully queried archived leads'
+					| 'Server error';
+				archivedLeads: Lead[];
+				page: number;
+				hasNextPage: boolean;
+				hasPreviousPage: boolean;
+				nextPage: number;
+				previousPage: number;
+				lastPage: number | null;
+				totalItems: number | null;
+			}>('/api/leads/archived', body, config);
 
 			return data;
 		} catch (error) {
@@ -182,7 +195,20 @@ export const getLikedLeads = createAsyncThunk(
 			const body = JSON.stringify({ leads, page, filters });
 
 			// POST request to route
-			const { data } = await axios.post('/api/leads/liked', body, config);
+			const { data } = await axios.post<{
+				message:
+					| 'You have not liked any leads'
+					| 'Successfully queried liked leads'
+					| 'Server error';
+				likedLeads: Lead[];
+				page: number;
+				hasNextPage: boolean;
+				hasPreviousPage: boolean;
+				nextPage: number;
+				previousPage: number;
+				lastPage: number | null;
+				totalItems: number | null;
+			}>('/api/leads/liked', body, config);
 
 			return data;
 		} catch (error) {
@@ -256,7 +282,11 @@ export const handleArchiveLead = createAsyncThunk(
 			const { leadId } = options;
 
 			// POST request to route
-			const res = await axios.post(`/api/leads/archive/${leadId}`);
+			const res = await axios.post<{
+				title: 'Lead was archived' | 'Lead was unarchived' | 'Error';
+				message: string;
+				leads: { _id: string }[];
+			}>(`/api/leads/archive/${leadId}`);
 
 			if (res.status === 200) {
 				// destructure necessary items
