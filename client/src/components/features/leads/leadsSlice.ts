@@ -502,25 +502,28 @@ export const leadsSlice = createSlice({
 				// otherwise update the total leads in the state with the new payload
 				state[type].totalByIds = totalByIds;
 			})
-			.addCase(getArchivedLeads.fulfilled, (state, action) => {
-				const {
-					archivedLeads,
-					page,
-					hasNextPage,
-					hasPreviousPage,
-					nextPage,
-					previousPage,
-					totalItems,
-				} = action.payload;
-				state.status = 'idle';
-				state.archived.pageByIds = archivedLeads;
-				state.archived.pagination.page = page;
-				state.archived.pagination.hasNextPage = hasNextPage;
-				state.archived.pagination.hasPreviousPage = hasPreviousPage;
-				state.archived.pagination.nextPage = nextPage;
-				state.archived.pagination.previousPage = previousPage;
-				state.archived.pagination.totalItems = totalItems;
-			})
+			.addCase(
+				getArchivedLeads.fulfilled,
+				(state, action: PayloadAction<any>) => {
+					const {
+						archivedLeads,
+						page,
+						hasNextPage,
+						hasPreviousPage,
+						nextPage,
+						previousPage,
+						totalItems,
+					} = action.payload;
+					state.status = 'idle';
+					state.archived.pageByIds = archivedLeads;
+					state.archived.pagination.page = page;
+					state.archived.pagination.hasNextPage = hasNextPage;
+					state.archived.pagination.hasPreviousPage = hasPreviousPage;
+					state.archived.pagination.nextPage = nextPage;
+					state.archived.pagination.previousPage = previousPage;
+					state.archived.pagination.totalItems = totalItems;
+				}
+			)
 			.addCase(getArchivedLeads.rejected, (state) => {
 				state.status = 'failed';
 			})
@@ -528,7 +531,7 @@ export const leadsSlice = createSlice({
 				state.status = 'loading';
 				state.currentLeadStatus = 'loading';
 			})
-			.addCase(getFeedLeads.fulfilled, (state, action) => {
+			.addCase(getFeedLeads.fulfilled, (state, action: PayloadAction<any>) => {
 				const {
 					feed,
 					page,
@@ -557,7 +560,7 @@ export const leadsSlice = createSlice({
 			.addCase(getFeedLeads.rejected, (state) => {
 				state.status = 'failed';
 			})
-			.addCase(getLikedLeads.fulfilled, (state, action) => {
+			.addCase(getLikedLeads.fulfilled, (state, action: PayloadAction<any>) => {
 				const {
 					likedLeads,
 					page,
@@ -582,31 +585,34 @@ export const leadsSlice = createSlice({
 			.addCase(getSearchResults.pending, (state) => {
 				state.status = 'loading';
 			})
-			.addCase(getSearchResults.fulfilled, (state, action) => {
-				const {
-					data: {
-						leads,
-						page,
-						hasNextPage,
-						hasPreviousPage,
-						nextPage,
-						previousPage,
-						totalItems,
-					},
-					query,
-				} = action.payload;
-				state.status = 'idle';
-				state.search.pageByIds = leads;
-				state.search.pagination.page = page;
-				state.search.pagination.page = page;
-				state.search.pagination.hasNextPage = hasNextPage;
-				state.search.pagination.hasPreviousPage = hasPreviousPage;
-				state.search.pagination.nextPage = nextPage;
-				state.search.pagination.previousPage = previousPage;
-				state.search.pagination.totalItems = totalItems;
-				state.search.searchValue = query;
-				state.search.newSearch = false;
-			})
+			.addCase(
+				getSearchResults.fulfilled,
+				(state, action: PayloadAction<any>) => {
+					const {
+						data: {
+							leads,
+							page,
+							hasNextPage,
+							hasPreviousPage,
+							nextPage,
+							previousPage,
+							totalItems,
+						},
+						query,
+					} = action.payload;
+					state.status = 'idle';
+					state.search.pageByIds = leads;
+					state.search.pagination.page = page;
+					state.search.pagination.page = page;
+					state.search.pagination.hasNextPage = hasNextPage;
+					state.search.pagination.hasPreviousPage = hasPreviousPage;
+					state.search.pagination.nextPage = nextPage;
+					state.search.pagination.previousPage = previousPage;
+					state.search.pagination.totalItems = totalItems;
+					state.search.searchValue = query;
+					state.search.newSearch = false;
+				}
+			)
 			.addCase(getSearchResults.rejected, (state) => {
 				state.status = 'failed';
 			})

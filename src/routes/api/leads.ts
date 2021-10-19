@@ -457,10 +457,15 @@ router.post(
 			}
 
 			// set date filter
-			const fromJSDate = DateTime.fromJSDate(user.dateCreated);
-			const userDayCreated = fromJSDate.startOf('day').toISODate();
-			const minDateFilter = minDate ? minDate : userDayCreated;
-			const maxDateFilter = maxDate ? maxDate : DateTime.now().toISODate();
+			const minDateFilter = minDate
+				? minDate
+				: DateTime.now().isBusinessDay()
+				? DateTime.now().startOf('day').toISO()
+				: DateTime.minusBusiness({ days: 1 }).isBusinessDay()
+				? DateTime.minusBusiness({ days: 1 })
+				: DateTime.minusBusiness({ days: 2 });
+			const maxDateFilter = maxDate ? maxDate : DateTime.now().toISO();
+
 			// convert iso to unix timestamp
 			const isoToTimestamp = (date: string) => {
 				return new Date(date).getTime();

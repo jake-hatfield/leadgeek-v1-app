@@ -123,8 +123,15 @@ export const surrogateUser = createAsyncThunk(
 				user: User | null;
 			}>(`/api/auth/surrogate?id=${surrogateId}`);
 
-			if (data.message === 'Surrogation successful') {
-				return data;
+			if (
+				data.message === 'Surrogation successful' &&
+				data.token &&
+				data.user
+			) {
+				return {
+					token: data.token,
+					user: data.user,
+				};
 			} else {
 				dispatch(
 					setAlert({
@@ -293,10 +300,10 @@ export const authSlice = createSlice({
 			.addCase(getUserData.pending, (state) => {
 				state.status = 'loading';
 			})
-			.addCase(getUserData.fulfilled, (state, action: PayloadAction<User>) => {
+			.addCase(getUserData.fulfilled, (state, action) => {
 				state.status = 'idle';
 				state.isAuthenticated = true;
-				state.user = action.payload;
+				state.user = action.payload as User;
 			})
 			.addCase(getUserData.rejected, (state) => {
 				state.status = 'idle';
@@ -315,10 +322,13 @@ export const authSlice = createSlice({
 					state.user!.archivedLeads! = action.payload?.leads;
 				}
 			})
-			.addCase(surrogateUser.fulfilled, (state, action) => {
-				const { token, user } = action.payload;
-				state.token = token;
-				state.user = user;
+			.addCase(surrogateUser.fulfilled, (state, action: PayloadAction<any>) => {
+				state.token = action.payload.token;
+				state.user = action.payload.user;
+			})
+			.addCase(surrogateUser.rejected, (state) => {
+				state.token = null;
+				state.user = null;
 			})
 			.addCase(updatePassword.fulfilled, (state) => {
 				state.validatedResetPwToken = false;
