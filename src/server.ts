@@ -3,7 +3,7 @@ import path from 'path';
 
 // packages
 import express, { Request, Response, NextFunction } from 'express';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 
 // files
 import connectDB from '@config/db';
@@ -25,9 +25,9 @@ app.use(
 app.use(express.json());
 
 // define routes
-app.use('/api/auth', require('./routes/api/auth'));
-app.use('/api/leads', require('./routes/api/leads'));
-app.use('/api/users', require('./routes/api/users'));
+app.use('/api/auth', require('@routes/api/auth'));
+app.use('/api/leads', require('@routes/api/leads'));
+app.use('/api/users', require('@routes/api/users'));
 
 function redirectWWWTraffic(req: Request, res: Response, next: NextFunction) {
 	if (req.headers.host.slice(0, 4) === 'www.') {

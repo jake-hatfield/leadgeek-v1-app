@@ -29,9 +29,7 @@ const Feed: React.FC = () => {
 		status === 'idle' &&
 			isAuthenticated &&
 			user?._id &&
-			dispatch(
-				getFeedLeads({ user: { id: user._id, role: user.role }, page, filters })
-			);
+			dispatch(getFeedLeads({ page, filters }));
 	}, [status, isAuthenticated, user?._id, user?.role, page, filters, dispatch]);
 
 	return status === 'idle' && user ? (

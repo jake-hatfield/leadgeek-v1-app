@@ -12,28 +12,115 @@ const endpointSecret =
 import auth from '@middleware/auth';
 
 // models
-import User from '@models/User';
-import Notification from '@models/Notification';
+import User, { IUserDocument } from '@models/User';
+import Notification, { INotificationDocument } from '@models/Notification';
 
 // router
 const router = Router();
 
-// global var
-const ITEMS_PER_PAGE = 15;
-
 const stripe = new Stripe(stripeSecret, { apiVersion: '2020-08-27' });
 
-// @route       POST api/get-active-plan-details
+// @route       GET api/users?id=__
+// @description Get all users (ADMIN)
+// @access      Private
+router.get(
+	'/',
+	auth,
+	async (
+		req: Request<
+			{},
+			{},
+			{
+				user: {
+					id: string;
+				};
+			}
+		>,
+		res: Response<{
+			message:
+				| 'Access prohibited'
+				| 'Returning all users'
+				| 'Error returning all users';
+			users: IUserDocument[];
+		}>
+	) => {
+		try {
+			// destructure necessary items
+			const { id } = req.body.user;
+
+			if (!id) {
+				return res.status(401).send({
+					message: 'Access prohibited',
+					users: [],
+				});
+			}
+
+			const master = await User.find({ _id: id, role: 'master' });
+
+			if (!master) {
+				return res.status(401).send({
+					message: 'Access prohibited',
+					users: [],
+				});
+			}
+
+			// lookup all users
+			const users = await User.find({}).sort({ dateCreated: -1 });
+
+			// there are users found
+			if (users.length > 0) {
+				return res.status(200).send({
+					message: 'Returning all users',
+					users,
+				});
+			} else {
+				return res.status(200).send({
+					message: 'Error returning all users',
+					users: [],
+				});
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+// @route       GET api/users/plan?subId=__
 // @description Get a user's subscription information for the active plan
 // @access      Private
-router.post(
-	'/active-plan-details',
+router.get(
+	'/plan',
 	auth,
-	async (req: Request<{}, {}, { subId: string }>, res: Response) => {
+	async (
+		req: Request<{}, {}, {}, { subId: string }>,
+		res: Response<
+			| {
+					message:
+						| 'Subscription data found'
+						| 'No subscription data found'
+						| 'Server error';
+					subscription: {
+						id: string;
+						cancelAt: number;
+						cancelAtPeriodEnd: boolean;
+						created: number;
+						currentPeriodEnd: number;
+						plan: {
+							id: string | Stripe.Product | Stripe.DeletedProduct;
+							amount: number;
+						};
+					};
+			  }
+			| {}
+		>
+	) => {
 		try {
 			// desctructure necessary items
-			const { subId } = req.body;
-			let message;
+			const { subId } = req.query;
+			let message:
+				| 'Subscription data found'
+				| 'No subscription data found'
+				| 'Server error';
 			if (subId) {
 				// handler to create subscription info object
 				const returnSubscriptionInfo = (
@@ -60,27 +147,28 @@ router.post(
 				console.log(message);
 
 				// return the subscription data + message
-				return res.status(200).json({
+				return res.status(200).send({
 					message,
 					subscription: subscriptionData,
 				});
 			} else {
-				message = 'No active subscriptions found';
+				message = 'No subscription data found';
 				console.log(message);
 
 				// return an empty subscription object + message
-				return res.status(200).json({ message, subscription: {} });
+				return res.status(200).send({ message, subscription: {} });
 			}
 		} catch (error) {
 			console.error(error.message);
-			res.status(500).send('Server error');
+			res.status(500).send({ message: 'Server error', subscription: {} });
 		}
 	}
 );
 
-// @route       POST api/affiliate-payments
+// @route       POST api/users/affiliate-payments
 // @description Retrieve an affiliates payments
 // @access      Private
+// CHANGE THIS TO A GET REQUEST
 router.post(
 	'/affiliate-payments',
 	auth,
@@ -95,16 +183,16 @@ router.post(
 		try {
 			// destructure necessary items
 			const { clients, affCreated } = req.body;
-			console.log(clients, affCreated);
 
 			// fn to change date string to UNIX timestamp for Stripe API
 			const affCreatedUnix = (new Date(affCreated).getTime() / 1000).toFixed(0);
 
 			// push client cusIds into array
-			let clientCusIds: string[] = [];
+			let clientCusIds: (string | Stripe.Customer | Stripe.DeletedCustomer)[] =
+				[];
 			clients.map((client) => clientCusIds.push(client.cusId));
 
-			const returnChargeInfo = (item: any) => {
+			const returnChargeInfo = (item: Stripe.Charge) => {
 				return {
 					id: item.id,
 					amount: item.amount,
@@ -156,146 +244,148 @@ router.post(
 	}
 );
 
-// @route       POST api/clear-notification
+// @route       DELETE api/users/notifications?notificationId=__&userId=__
 // @description Clear a user's notification by ID
 // @access      Private
-router.put(
-	'/clear-notification',
+router.delete(
+	'/notifications',
 	auth,
 	async (
-		req: Request<{}, {}, { notificationId: ObjectId; userId: ObjectId }>,
-		res: Response
+		req: Request<{}, {}, {}, { notificationId: string; userId: string }>,
+		res: Response<{
+			message:
+				| 'Required information is missing'
+				| 'Notification was deleted'
+				| 'Server error';
+			notifications: { _id: ObjectId }[];
+		}>
 	) => {
 		try {
 			// destructure necessary items
-			const { notificationId, userId } = req.body;
+			const { notificationId, userId } = req.query;
 
 			// if required information is missing, return
 			if (!notificationId || !userId) {
-				return res
-					.status(400)
-					.json({ message: 'Required information is missing' });
+				return res.status(400).json({
+					message: 'Required information is missing',
+					notifications: [],
+				});
 			}
 
 			// lookup the user
 			const user = await User.findById(userId);
 
+			// filter notifications for notification id
 			const updatedNotifications = user.notifications.filter(
 				(notification: { _id: ObjectId }) =>
 					notification._id.toString() !== notificationId.toString()
 			);
 
+			// set the user's notifications to the filtered array
 			user.notifications = updatedNotifications;
 
+			// save user document
 			await user.save();
 
+			// return with updated notifications
 			return res.status(200).send({
+				message: 'Notification was deleted',
 				notifications: user.notifications,
 			});
 		} catch (error) {
 			console.log(error);
-			res.status(500).send('Server error');
+			res.status(500).send({ message: 'Server error', notifications: [] });
 		}
 	}
 );
 
-router.get('/all/:id', auth, async (req: Request, res: Response) => {
-	try {
-		// destructure necessary items
-		const { id } = req.params;
-
-		if (!req.params.id) {
-			return res.status(401).send({
-				users: [],
-				message: 'Access prohibited',
-			});
-		}
-
-		const master = await User.find({ _id: id, role: 'master' });
-
-		if (!master) {
-			return res.status(401).send({
-				users: [],
-				message: 'Access prohibited',
-			});
-		}
-
-		// lookup all users
-		const users = await User.find({}).sort({ dateCreated: -1 });
-
-		// there are users found
-		if (users.length > 0) {
-			return res.status(200).send({
-				users,
-				message: 'Returning all users',
-			});
-		} else {
-			return res.status(200).send({
-				users: [],
-				message:
-					'There was an error fetching all users. You done something wrong, boy',
-			});
-		}
-	} catch (error) {
-		console.log(error);
-	}
-});
-
-// @route       POST api/notifications
+// @route       GET api/users/notifications?ids=[]
 // @description Retrieve a user's notifications
 // @access      Private
-router.post(
+router.get(
 	'/notifications',
 	auth,
 	async (
-		req: Request<{}, {}, { ids: { _ids: ObjectId }[] }>,
-		res: Response
+		req: Request<{}, {}, {}, { ids: string[] }>,
+		res: Response<{
+			message:
+				| 'There are no notifications to show'
+				| 'Successfully populated notifications'
+				| 'Server error';
+			notifications: INotificationDocument[];
+		}>
 	) => {
 		try {
 			// destructure necessary items
-			const { ids } = req.body;
+			const { ids } = req.query;
 
 			const notifications = await Notification.find({ _id: { $in: ids } });
 
-			let message;
+			let message:
+				| 'There are no notifications to show'
+				| 'Successfully populated notifications'
+				| 'Server error';
+
 			if (notifications.length === 0) {
 				message = 'There are no notifications to show';
 				console.log(message);
 			} else {
-				let message = `Successfully populated ${notifications.length} notifications.`;
+				let message = `Successfully populated notifications.`;
 				console.log(message);
 			}
 			return res.status(200).send({
+				message,
 				notifications,
 			});
 		} catch (error) {
 			console.log(error);
-			res.status(500).send('Server error');
+			res.status(500).send({ message: 'Server error', notifications: [] });
 		}
 	}
 );
 
-// @route       POST api/get-successful-payments
+interface Payment {
+	amount: number;
+	currency: string;
+	paymentMethod: {
+		brand: string;
+		last4: string;
+	};
+	created: number;
+	invoice: {
+		id: string;
+		pdf: string;
+	};
+}
+
+// @route       GET api/users/payments?cusId=__
 // @description Get a user's payment history
 // @access      Private
-router.post(
-	'/successful-payments',
+router.get(
+	'/payments',
 	auth,
-	async (req: Request<{}, {}, { cusId: string }>, res: Response) => {
+	async (
+		req: Request<{}, {}, {}, { cusId: string }>,
+		res: Response<{
+			message: 'No payments found' | 'Payments found' | 'Server error';
+			payments: Payment[];
+		}>
+	) => {
 		try {
-			const { cusId } = req.body;
-			const returnBillingInfo = (item: any) => {
+			const { cusId } = req.query;
+
+			const returnBillingInfo = (item: Stripe.PaymentIntent) => {
 				return {
 					amount: item.amount,
 					currency: item.currency,
 					paymentMethod: {
-						brand: item.payment_method.card.brand,
-						last4: item.payment_method.card.last4,
+						brand: (item.payment_method as Stripe.PaymentMethod).card.brand,
+						last4: (item.payment_method as Stripe.PaymentMethod).card.last4,
 					},
 					created: item.created,
 					invoice: {
-						id: item.invoice.id,
-						pdf: item.invoice.invoice_pdf,
+						id: (item.invoice as Stripe.Invoice).id,
+						pdf: (item.invoice as Stripe.Invoice).invoice_pdf,
 					},
 				};
 			};
@@ -313,22 +403,22 @@ router.post(
 				if (successfulPayments.length > 0) {
 					return res
 						.status(200)
-						.json({ message: 'Payments found', payments: successfulPayments });
+						.send({ message: 'Payments found', payments: successfulPayments });
 				} else {
-					return res.status(200).json({
+					return res.status(200).send({
 						message: 'No payments found',
 						payments: [],
 					});
 				}
 			} else {
-				return res.status(200).json({
+				return res.status(200).send({
 					message: 'No payments found',
 					payments: [],
 				});
 			}
 		} catch (error) {
 			console.error(error.message);
-			res.status(500).send({ message: 'Server error' });
+			res.status(500).send({ message: 'Server error', payments: [] });
 		}
 	}
 );

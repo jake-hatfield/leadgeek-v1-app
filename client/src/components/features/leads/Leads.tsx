@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect } from 'react';
 
 // packages
 import { DateTime } from 'luxon';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useSpring } from 'react-spring';
 
 // redux
@@ -53,6 +53,8 @@ const Leads: React.FC<LeadsProps> = ({
 	currentSearchValue,
 }) => {
 	const dispatch = useAppDispatch();
+	const location = useLocation();
+
 	// lead state
 	const leadStatus = useAppSelector((state) => state.leads.status);
 	const currentLead = useAppSelector((state) => state.leads.currentLead);
@@ -67,7 +69,7 @@ const Leads: React.FC<LeadsProps> = ({
 	const [showDetails, setShowDetails] = useState(false);
 
 	// destructure necessary items
-	const { _id: userId, likedLeads, archivedLeads } = user;
+	const { likedLeads, archivedLeads } = user;
 	const {
 		count: filterCount,
 		dateLimits: { selected: dateSelected },
@@ -122,9 +124,7 @@ const Leads: React.FC<LeadsProps> = ({
 						alertType: 'warning',
 					})
 				);
-				dispatch(
-					getAllLeads({ userId, filters, type, query: currentSearchValue })
-				);
+				dispatch(getAllLeads({ filters, type, query: currentSearchValue }));
 				setExportLeads(true);
 			} else {
 				dispatch(
@@ -176,9 +176,9 @@ const Leads: React.FC<LeadsProps> = ({
 								<NavLink
 									key={i}
 									exact
-									to={`/leads${link.link}`}
+									to={`${link.link}`}
 									onClick={() => {
-										dispatch(setLeadLoading());
+										location.pathname !== '/' && dispatch(setLeadLoading());
 										currentLead && dispatch(clearCurrentLead());
 									}}
 									className={classes.navLink}
@@ -194,14 +194,13 @@ const Leads: React.FC<LeadsProps> = ({
 						<div className={classes.navToolsWrapper}>
 							<Button
 								text={
-									dateSelected && user.dateCreated
+									dateSelected
 										? dateSelected
-										: `${
-												DateTime.fromISO(user?.dateCreated.toString()).toFormat(
-													'LLL dd, yyyy'
-												) || 'Jan 1, 2021'
-										  } - ${DateTime.now().toFormat('LLL dd, yyyy')}` ||
-										  'All leads'
+										: lastUpdated
+										? `${DateTime.fromISO(lastUpdated).toFormat(
+												'LLL dd, yyyy'
+										  )}`
+										: 'Loading...'
 								}
 								onClick={() => setDate((prev) => !prev)}
 								width={null}
@@ -273,7 +272,7 @@ const Leads: React.FC<LeadsProps> = ({
 				</nav>
 				<div className='container'>
 					{leadStatus === 'failed' ? (
-						<div className='mt-6 container text-200'>
+						<div className='mt-6 text-200'>
 							There was an error making that request. If this issue persists,
 							please{' '}
 							<a

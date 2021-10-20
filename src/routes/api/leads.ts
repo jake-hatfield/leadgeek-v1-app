@@ -1,7 +1,7 @@
 // packages
 import { Request, Response, Router } from 'express';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
-import { DateTime } from 'luxon';
+import { DateTime } from 'luxon-business-days';
 import mongoose, { ObjectId } from 'mongoose';
 
 // middleware
@@ -9,121 +9,157 @@ import auth from '@middleware/auth';
 
 // models
 import Lead, { ILeadDocument } from '@models/Lead';
-import User from '@models/User';
+import User, { IUserDocument } from '@models/User';
 
 // types
 import { Filter } from 'types/Filter';
 import { ILead } from 'types/Lead';
-import { Roles } from 'types/User';
 
 // router
 const router = Router();
 
-// global var
+// global value
 const ITEMS_PER_PAGE = 15;
 
 // @route       POST api/leads/export
-// @description Create new lead
-// @access      Private
-router.get('/export', auth, async (req, res) => {
-	const SPREADSHEET_ID = process.env.REACT_APP_GOOGLE_SPREADSHEET_ID;
-	const CLIENT_EMAIL = process.env.REACT_APP_SHEETS_CLIENT_EMAIL;
-	const PRIVATE_KEY = process.env.REACT_APP_SHEETS_PRIVATE_KEY.replace(
-		/\\n/gm,
-		'\n'
-	);
-	try {
-		console.log('Connecting to Google Sheets...');
-		const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
-		await doc.useServiceAccountAuth({
-			client_email: CLIENT_EMAIL,
-			private_key: PRIVATE_KEY,
-		});
-		await doc.loadInfo();
-		const sheet = await doc.sheetsByIndex[0];
-		if (!sheet) {
-			return res
-				.status(404)
-				.send('Error connecting to Google Sheets. No sheet was found');
-		} else {
-			console.log('Sheet found!');
-			const rows = await sheet.getRows();
-			rows.forEach(async (element, index) => {
-				if (element._id === undefined) {
-					rows[index]._id = mongoose.Types.ObjectId();
-					await rows[index].save();
-				}
-			});
-			const newLeads = rows.map((lead) => ({
-				data: {
-					source: lead.source,
-					title: lead.title,
-					brand: lead.brand,
-					category: lead.category,
-					retailerLink: lead.retailerLink,
-					amzLink: lead.amzLink,
-					promo: lead.promo,
-					buyPrice: +lead.buyPrice,
-					sellPrice: +lead.sellPrice,
-					netProfit: +lead.netProfit,
-					roi: +lead.roi,
-					bsrCurrent: +lead.bsrCurrent,
-					monthlySales: +lead.monthlySales,
-					bsr30: +lead.bsr30,
-					bsr90: +lead.bsr90,
-					competitorType: lead.competitorType,
-					competitorCount: lead.competitorCount,
-					price30: +lead.price30,
-					price90: +lead.price90,
-					variations: lead.variations,
-					cashback: lead.cashback,
-					weight: +lead.weight,
-					shipping: lead.shipping,
-					notes: lead.notes,
-					img: lead.img,
-					date: lead.date || Date.now(),
-					asin: lead.asin,
-				},
-				plan: lead.plan.split(','),
-				_id: lead._id,
-			}));
-
-			if (newLeads) {
-				try {
-					await Lead.insertMany(newLeads);
-					let message = `Leads were added to the database.`;
-					console.log(message);
-					return res.status(201).send(message);
-				} catch (error) {
-					console.log(error);
-					let message = 'There was an error uploading the leads.';
-					console.log(message);
-					return res.status(200).send(message);
-				}
-			} else {
-				let message = 'There were no rows to pull from Google Sheets';
-				console.log(message);
-				return res.status(200).send(message);
-			}
-		}
-	} catch (error) {
-		console.log(error);
-	}
-});
-
-// @route       GET api/leads
-// @description Get paginated leads by plan and filters
+// @description Create new leads
 // @access      Private
 router.post(
-	'/',
+	'/export',
+	auth,
+	async (
+		req: Request<{}, {}, { user: { id: string } }>,
+		res: Response<{
+			message:
+				| 'No user found'
+				| 'Access prohibited'
+				| 'Error connecting to Google Sheets'
+				| 'Leads were added to the database'
+				| 'There was an error uploading the leads'
+				| 'There were no rows to pull from Google Sheets';
+		}>
+	) => {
+		const SPREADSHEET_ID = process.env.REACT_APP_GOOGLE_SPREADSHEET_ID;
+		const CLIENT_EMAIL = process.env.REACT_APP_SHEETS_CLIENT_EMAIL;
+		const PRIVATE_KEY = process.env.REACT_APP_SHEETS_PRIVATE_KEY.replace(
+			/\\n/gm,
+			'\n'
+		);
+		try {
+			const { id } = req.body.user;
+
+			const user = await User.findById(id);
+
+			if (!user) {
+				return res.status(200).send({
+					message: 'No user found',
+				});
+			}
+
+			if (user.role !== 'master' && user.role !== 'admin') {
+				return res.status(401).send({
+					message: 'Access prohibited',
+				});
+			}
+
+			console.log('Connecting to Google Sheets...');
+			const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
+			await doc.useServiceAccountAuth({
+				client_email: CLIENT_EMAIL,
+				private_key: PRIVATE_KEY,
+			});
+			await doc.loadInfo();
+			const sheet = await doc.sheetsByIndex[0];
+			if (!sheet) {
+				return res
+					.status(404)
+					.send({ message: 'Error connecting to Google Sheets' });
+			} else {
+				console.log('Sheet found!');
+				const rows = await sheet.getRows();
+				rows.forEach(async (element, index) => {
+					if (element._id === undefined) {
+						rows[index]._id = mongoose.Types.ObjectId();
+						await rows[index].save();
+					}
+				});
+				const newLeads = rows.map((lead) => ({
+					data: {
+						source: lead.source,
+						title: lead.title,
+						brand: lead.brand,
+						category: lead.category,
+						retailerLink: lead.retailerLink,
+						amzLink: lead.amzLink,
+						promo: lead.promo,
+						buyPrice: +lead.buyPrice,
+						sellPrice: +lead.sellPrice,
+						netProfit: +lead.netProfit,
+						roi: +lead.roi,
+						bsrCurrent: +lead.bsrCurrent,
+						monthlySales: +lead.monthlySales,
+						bsr30: +lead.bsr30,
+						bsr90: +lead.bsr90,
+						competitorType: lead.competitorType,
+						competitorCount: lead.competitorCount,
+						price30: +lead.price30,
+						price90: +lead.price90,
+						variations: lead.variations,
+						cashback: lead.cashback,
+						weight: +lead.weight,
+						shipping: lead.shipping,
+						notes: lead.notes,
+						img: lead.img,
+						date: lead.date || new Date(),
+						asin: lead.asin,
+					},
+					plan: lead.plan.split(','),
+					_id: lead._id,
+				}));
+
+				let message:
+					| 'Leads were added to the database'
+					| 'There was an error uploading the leads'
+					| 'There were no rows to pull from Google Sheets';
+
+				if (newLeads) {
+					try {
+						await Lead.insertMany(newLeads);
+						message = 'Leads were added to the database';
+						console.log(message);
+						return res.status(201).send({ message });
+					} catch (error) {
+						console.log(error);
+						message = 'There was an error uploading the leads';
+						console.log(message);
+						return res.status(200).send({ message });
+					}
+				} else {
+					message = 'There were no rows to pull from Google Sheets';
+					console.log(message);
+					return res.status(200).send({ message });
+				}
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+// @route       POST api/leads/feed
+// @description Get paginated feed leads by plan and filters
+// @access      Private
+router.post(
+	'/feed',
 	auth,
 	async (
 		req: Request<
 			{},
 			{},
 			{
-				_id: ObjectId;
-				role: Roles;
+				user: {
+					id: string;
+				};
 				page: number;
 				filters: {
 					filters: Filter[];
@@ -135,13 +171,28 @@ router.post(
 				};
 			}
 		>,
-		res: Response
+		res: Response<{
+			message:
+				| 'No user found'
+				| 'There are no leads to show'
+				| 'Successfully queried feed leads'
+				| 'Server error';
+			feed: mongoose.LeanDocument<ILeadDocument>[];
+			page: number;
+			hasNextPage: boolean;
+			hasPreviousPage: boolean;
+			nextPage: number;
+			previousPage: number;
+			lastPage: number | null;
+			totalItems: number | null;
+			filteredItems: number;
+			lastUpdated: Date | null;
+		}>
 	) => {
 		try {
 			// destructure items from request
 			const {
-				_id,
-				role,
+				user: { id },
 				page,
 				filters: {
 					filters: itemFilters,
@@ -151,13 +202,30 @@ router.post(
 			} = req.body;
 
 			// lookup user by id
-			const user = await User.findById({ _id });
+			const user = await User.findById({ _id: id });
+
+			let message:
+				| 'No user found'
+				| 'There are no leads to show'
+				| 'Successfully queried feed leads';
 
 			// no user was found (though shouldn't ever happen)
 			if (!user) {
-				let message = 'There was an error finding a user with that id.';
+				message = 'No user found';
 				console.log(message);
-				return res.status(400).send({ status: 'failure', message });
+				return res.status(200).send({
+					message,
+					feed: [],
+					page: 1,
+					hasNextPage: false,
+					hasPreviousPage: false,
+					nextPage: 1,
+					previousPage: 0,
+					lastPage: null,
+					totalItems: 0,
+					filteredItems: 0,
+					lastUpdated: null,
+				});
 			}
 
 			// lookup active subscriptions
@@ -167,9 +235,10 @@ router.post(
 
 			// if no active subscriptions, return
 			if (activeSub.length === 0) {
-				let message = 'There are no leads to show';
+				message = 'There are no leads to show';
 				console.log(message);
 				return res.status(200).send({
+					message,
 					feed: [],
 					page: 1,
 					hasNextPage: false,
@@ -187,17 +256,22 @@ router.post(
 			console.log('Getting paginated leads...');
 
 			// set role filter
-			const roleFilter = [role.toString()];
+			const roleFilter = [user.role.toString()];
+
 			// declare admin roles and set admin to true if one exists
 			const administrativeRoles = ['master', 'admin'];
-			if (administrativeRoles.indexOf(role) >= 0) {
+			if (administrativeRoles.indexOf(user.role) >= 0) {
 				roleFilter.push('bundle');
 			}
 
 			// set date filter
-			const fromJSDate = DateTime.fromJSDate(user.dateCreated);
-			const userDayCreated = fromJSDate.startOf('day').toISO();
-			const minDateFilter = minDate ? minDate : userDayCreated;
+			const minDateFilter = minDate
+				? minDate
+				: DateTime.now().isBusinessDay()
+				? DateTime.now().startOf('day').toISO()
+				: DateTime.minusBusiness({ days: 1 }).isBusinessDay()
+				? DateTime.minusBusiness({ days: 1 })
+				: DateTime.minusBusiness({ days: 2 });
 			const maxDateFilter = maxDate ? maxDate : DateTime.now().toISO();
 
 			// convert iso to unix timestamp
@@ -227,9 +301,10 @@ router.post(
 				.sort({ 'data.date': -1 });
 
 			if (feed.length === 0) {
-				let message = 'There are no leads to show';
+				message = 'There are no leads to show';
 				console.log(message);
 				return res.status(200).send({
+					message,
 					feed,
 					page,
 					hasNextPage: false,
@@ -257,10 +332,13 @@ router.post(
 					.lean()
 					.countDocuments(feedQuery);
 
+				message = 'Successfully queried feed leads';
+
 				console.log(
 					`Successfully queried + paginated ${feed.length} of ${totalItems} database leads.`
 				);
 				return res.status(200).send({
+					message,
 					feed,
 					page,
 					hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < filteredItems,
@@ -275,12 +353,24 @@ router.post(
 			}
 		} catch (error) {
 			console.error(error.message);
-			return res.status(500).send('Server error');
+			return res.status(500).send({
+				message: 'Server error',
+				feed: [],
+				page: 1,
+				hasNextPage: false,
+				hasPreviousPage: false,
+				nextPage: 1,
+				previousPage: 0,
+				lastPage: null,
+				totalItems: 0,
+				filteredItems: 0,
+				lastUpdated: null,
+			});
 		}
 	}
 );
 
-// @route       GET api/leads
+// @route       POST api/leads/all
 // @description Get all leads by plan and type
 // @access      Private
 router.post(
@@ -291,7 +381,9 @@ router.post(
 			{},
 			{},
 			{
-				userId: ObjectId;
+				user: {
+					id: string;
+				};
 				filters: {
 					filters: Filter[];
 					dateLimits: {
@@ -303,12 +395,19 @@ router.post(
 				query?: string;
 			}
 		>,
-		res: Response
+		res: Response<{
+			message:
+				| 'No user found'
+				| 'There are no leads to show'
+				| 'Successfully queried leads'
+				| 'Server error';
+			totalByIds: ILeadDocument[];
+		}>
 	) => {
 		try {
 			// destructure necessary items
 			const {
-				userId,
+				user: { id: userId },
 				filters: {
 					filters: itemFilters,
 					dateLimits: { min: minDate, max: maxDate },
@@ -320,11 +419,16 @@ router.post(
 			// lookup user by id
 			const user = await User.findById(userId);
 
+			let message:
+				| 'No user found'
+				| 'There are no leads to show'
+				| 'Successfully queried leads';
+
 			// no user was found (though shouldn't ever happen)
 			if (!user) {
-				let message = 'There was an error finding a user with that id.';
+				message = 'No user found';
 				console.log(message);
-				return res.status(400).send({ status: 'failure', message });
+				return res.status(400).send({ message, totalByIds: [] });
 			}
 
 			// declare global variables
@@ -353,10 +457,15 @@ router.post(
 			}
 
 			// set date filter
-			const fromJSDate = DateTime.fromJSDate(user.dateCreated);
-			const userDayCreated = fromJSDate.startOf('day').toISODate();
-			const minDateFilter = minDate ? minDate : userDayCreated;
-			const maxDateFilter = maxDate ? maxDate : DateTime.now().toISODate();
+			const minDateFilter = minDate
+				? minDate
+				: DateTime.now().isBusinessDay()
+				? DateTime.now().startOf('day').toISO()
+				: DateTime.minusBusiness({ days: 1 }).isBusinessDay()
+				? DateTime.minusBusiness({ days: 1 })
+				: DateTime.minusBusiness({ days: 2 });
+			const maxDateFilter = maxDate ? maxDate : DateTime.now().toISO();
+
 			// convert iso to unix timestamp
 			const isoToTimestamp = (date: string) => {
 				return new Date(date).getTime();
@@ -395,20 +504,20 @@ router.post(
 
 			// if the query is an empty array, return
 			if (allLeads.length === 0) {
-				let message = 'There are no leads to show';
+				message = 'There are no leads to show';
 				console.log(message);
-				return res.status(200).send({ totalByIds: [], type, message });
+				return res.status(200).send({ message, totalByIds: [] });
 			} else {
+				message = 'Successfully queried leads';
 				// return with data
 				return res.status(200).send({
+					message,
 					totalByIds: allLeads,
-					type,
-					message: 'Successfully queried leads',
 				});
 			}
 		} catch (error) {
 			console.error(error.message);
-			return res.status(500).send('Server error');
+			return res.status(500).send({ message: 'Server error', totalByIds: [] });
 		}
 	}
 );
@@ -432,7 +541,20 @@ router.post(
 				};
 			}
 		>,
-		res: Response
+		res: Response<{
+			message:
+				| 'You have not liked any leads'
+				| 'Successfully queried liked leads'
+				| 'Server error';
+			likedLeads: ILeadDocument[];
+			page: number;
+			hasNextPage: boolean;
+			hasPreviousPage: boolean;
+			nextPage: number;
+			previousPage: number;
+			lastPage: number | null;
+			totalItems: number | null;
+		}>
 	) => {
 		try {
 			// destructure necessary items from request body
@@ -462,12 +584,15 @@ router.post(
 						.sort({ 'data.date': -1 });
 				});
 
-			let message;
+			let message:
+				| 'You have not liked any leads'
+				| 'Successfully queried liked leads';
+
 			if (likedLeads.length === 0) {
 				message = 'You have not liked any leads';
 				console.log(message);
 			} else {
-				message = `Successfully queried ${likedLeads.length} liked leads.`;
+				message = 'Successfully queried liked leads';
 				console.log(message);
 			}
 			return res.status(200).send({
@@ -487,7 +612,17 @@ router.post(
 			});
 		} catch (error) {
 			console.log(error.message);
-			return res.status(500).send('Sever error');
+			return res.status(500).send({
+				message: 'Server error',
+				likedLeads: [],
+				page: 1,
+				hasNextPage: false,
+				hasPreviousPage: false,
+				nextPage: 2,
+				previousPage: 0,
+				lastPage: 0,
+				totalItems: null,
+			});
 		}
 	}
 );
@@ -511,7 +646,20 @@ router.post(
 				};
 			}
 		>,
-		res: Response
+		res: Response<{
+			message:
+				| 'You have not archived any leads'
+				| 'Successfully queried archived leads'
+				| 'Server error';
+			archivedLeads: ILeadDocument[];
+			page: number;
+			hasNextPage: boolean;
+			hasPreviousPage: boolean;
+			nextPage: number;
+			previousPage: number;
+			lastPage: number | null;
+			totalItems: number | null;
+		}>
 	) => {
 		try {
 			// destructure necessary items from request body
@@ -540,12 +688,15 @@ router.post(
 						.sort({ 'data.date': -1 });
 				});
 
-			let message;
+			let message:
+				| 'You have not archived any leads'
+				| 'Successfully queried archived leads';
+
 			if (archivedLeads.length === 0) {
 				message = 'You have not archived any leads';
 				console.log(message);
 			} else {
-				let message = `Successfully queried ${archivedLeads.length} archived leads.`;
+				message = 'Successfully queried archived leads';
 				console.log(message);
 			}
 			return res.status(200).send({
@@ -565,15 +716,25 @@ router.post(
 			});
 		} catch (error) {
 			console.log(error.message);
-			return res.status(500).send('Sever error');
+			return res.status(500).send({
+				message: 'Server error',
+				archivedLeads: [],
+				page: 1,
+				hasNextPage: false,
+				hasPreviousPage: false,
+				nextPage: 2,
+				previousPage: 0,
+				lastPage: 0,
+				totalItems: null,
+			});
 		}
 	}
 );
 
-// @route       POST api/handle-like-lead
+// @route       POST api/like/leadId
 // @description Like/unlike a lead
 // @access      Private
-const unlikeLead = async (user: any, leadId: ObjectId) => {
+const unlikeLead = async (user: IUserDocument, leadId: string) => {
 	const updatedLikedArray = user.likedLeads.filter(
 		(lead: { _id: ObjectId }) => lead._id.toString() !== leadId.toString()
 	);
@@ -582,22 +743,42 @@ const unlikeLead = async (user: any, leadId: ObjectId) => {
 	await user.save();
 };
 
-const likeLead = async (user: any, leadId: ObjectId) => {
+const likeLead = async (user: IUserDocument, leadId: string) => {
+	const newLead = new Lead({
+		_id: mongoose.Types.ObjectId(leadId),
+	});
+
 	console.log('Lead was liked.');
-	user.likedLeads.push(leadId);
+	user.likedLeads.push(newLead);
 	await user.save();
 };
 
 router.post(
-	'/handle-like-lead',
+	'/like/:leadId',
 	auth,
 	async (
-		req: Request<{}, {}, { userId: ObjectId; leadId: ObjectId }>,
-		res: Response
+		req: Request<
+			{ leadId: string },
+			{},
+			{
+				user: {
+					id: string;
+				};
+			}
+		>,
+		res: Response<{
+			title: 'Lead was unliked' | 'Lead was liked' | 'Error';
+			message: string;
+			leads: { _id: ObjectId }[];
+		}>
 	) => {
 		try {
 			// destructure necessary items
-			const { userId, leadId } = req.body;
+			const {
+				user: { id: userId },
+			} = req.body;
+
+			const { leadId } = req.params;
 
 			// find lead in the feed
 			const lead = await Lead.findById(leadId);
@@ -609,7 +790,7 @@ router.post(
 				// check if the lead is already liked
 				const indexed = likedLeads
 					.map((l) => {
-						return l._id;
+						return l._id.toString();
 					})
 					.indexOf(leadId);
 				if (indexed >= 0) {
@@ -628,19 +809,25 @@ router.post(
 					});
 				}
 			} else {
-				return res.status(404).send('There was an error liking this lead.');
+				return res.status(404).send({
+					title: 'Error',
+					message: 'There was an error liking this lead.',
+					leads: [],
+				});
 			}
 		} catch (error) {
 			console.error(error.message);
-			return res.status(500).send('Server error');
+			return res
+				.status(500)
+				.send({ title: 'Error', message: 'Server error', leads: [] });
 		}
 	}
 );
 
-// @route       POST api/handle-archive-lead
+// @route       POST api/archive/leadId
 // @description Archive/unarchive a lead
 // @access      Private
-const unarchiveLead = async (user: any, leadId: ObjectId) => {
+const unarchiveLead = async (user: IUserDocument, leadId: string) => {
 	const updatedArchivedArray = user.archivedLeads.filter(
 		(lead: { _id: ObjectId }) => lead._id.toString() !== leadId.toString()
 	);
@@ -649,22 +836,42 @@ const unarchiveLead = async (user: any, leadId: ObjectId) => {
 	await user.save();
 };
 
-const archiveLead = async (user: any, leadId: ObjectId) => {
+const archiveLead = async (user: IUserDocument, leadId: string) => {
+	const newLead = new Lead({
+		_id: mongoose.Types.ObjectId(leadId),
+	});
+
 	console.log('Lead was archived.');
-	user.archivedLeads.push(leadId);
+	user.archivedLeads.push(newLead);
 	await user.save();
 };
 
 router.post(
-	'/handle-archive-lead',
+	'/archive/:leadId',
 	auth,
 	async (
-		req: Request<{}, {}, { userId: ObjectId; leadId: ObjectId }>,
-		res: Response
+		req: Request<
+			{ leadId: string },
+			{},
+			{
+				user: {
+					id: string;
+				};
+			}
+		>,
+		res: Response<{
+			title: 'Lead was archived' | 'Lead was unarchived' | 'Error';
+			message: string;
+			leads: { _id: ObjectId }[];
+		}>
 	) => {
 		try {
 			// destructure necessary items
-			const { userId, leadId } = req.body;
+			const {
+				user: { id: userId },
+			} = req.body;
+
+			const { leadId } = req.params;
 
 			// find lead in the feed
 			const lead = await Lead.findById(leadId);
@@ -674,15 +881,13 @@ router.post(
 				const user = await User.findById(userId);
 				const archivedLeads = user.archivedLeads;
 
-				console.log(archivedLeads);
 				// check if the lead is already liked
 				const indexed = archivedLeads
 					.map((l) => {
-						return l._id;
+						return l._id.toString();
 					})
 					.indexOf(leadId);
 
-				console.log(indexed);
 				if (indexed >= 0) {
 					unarchiveLead(user, leadId);
 					return res.status(200).send({
@@ -699,42 +904,60 @@ router.post(
 					});
 				}
 			} else {
-				return res.status(404).send('There was an error archiving this lead.');
+				return res.status(404).send({
+					title: 'Error',
+					message: 'There was an error archiving this lead.',
+					leads: [],
+				});
 			}
 		} catch (error) {
 			console.error(error.message);
-			return res.status(500).send('Server error');
+			return res
+				.status(500)
+				.send({ title: 'Error', message: 'Server error', leads: [] });
 		}
 	}
 );
 
-// @route       POST api/add-comment
+// @route       POST api/comment/leadId
 // @description Add a comment to a lead
 // @access      Private
 router.post(
-	'/add-comment',
+	'/comment/:leadId',
 	auth,
 	async (
 		req: Request<
+			{ leadId: string },
 			{},
-			{},
-			{ comment: string; userId: ObjectId; leadId: ObjectId }
+			{ user: { id: string }; comment: string }
 		>,
-		res: Response
+		res: Response<{
+			message:
+				| 'Required information is missing'
+				| 'Comment was added'
+				| 'No user found'
+				| 'Server error';
+			comments: { leadId: string; comment: string; date: Date }[];
+		}>
 	) => {
 		try {
 			// destructure necessary items from request body
-			const { comment, userId, leadId } = req.body;
+			const {
+				user: { id: userId },
+				comment,
+			} = req.body;
+
+			const { leadId } = req.params;
 
 			// if required information is missing, return
 			if (!comment || !userId || !leadId) {
 				return res
-					.status(400)
-					.json({ message: 'Required information is missing' });
+					.status(401)
+					.send({ message: 'Required information is missing', comments: [] });
 			}
 
 			// declare global variables
-			let message;
+			let message: 'Comment was added' | 'No user found';
 
 			// query lead
 			const lead = await Lead.findById(leadId);
@@ -749,9 +972,9 @@ router.post(
 
 					// build the new comment
 					const newComment = {
-						leadId: leadId,
+						leadId,
 						comment,
-						date: DateTime.now().toISO(),
+						date: new Date(),
 					};
 
 					// if it already has a comment, update it
@@ -777,17 +1000,15 @@ router.post(
 					console.log('Comment saved!');
 
 					// return successful
-					return res
-						.status(201)
-						.json({ message: 'Comment was added', comments: user.comments });
+					return res.status(201).send({ message, comments: user.comments });
 				} else {
-					message = 'User could not be found';
-					return res.status(400).json({ message });
+					message = 'No user found';
+					return res.status(200).send({ message, comments: [] });
 				}
 			}
 		} catch (error) {
 			console.error(error.message);
-			return res.status(500).send('Server error');
+			return res.status(500).send({ message: 'Server error', comments: [] });
 		}
 	}
 );
@@ -803,9 +1024,8 @@ router.post(
 			{},
 			{},
 			{
-				userId: ObjectId;
+				user: { id: string };
 				query: string;
-				role: Roles;
 				page: number;
 				filters: {
 					filters: Filter[];
@@ -822,7 +1042,7 @@ router.post(
 		try {
 			// destructure necessary items from request body
 			const {
-				userId,
+				user: { id: userId },
 				query,
 				page,
 				filters: {
@@ -837,7 +1057,7 @@ router.post(
 
 			// no user was found (though shouldn't ever happen)
 			if (!user) {
-				let message = 'There was an error finding a user with that id.';
+				let message = 'No user found';
 				console.log(message);
 				return res.status(400).send({ status: 'failure', message });
 			}
@@ -913,7 +1133,6 @@ router.post(
 
 			console.log(message);
 
-			// TODO: Display total number of leads in search + apply filtersdd
 			return res.status(200).send({
 				message,
 				leads: searchMatches,

@@ -18,7 +18,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
 			{...rest}
 			render={(props) =>
 				!isAuthenticated && status === 'idle' ? (
-					<Redirect to='/login' />
+					<Redirect to='/login/' />
 				) : (
 					<Component {...props} />
 				)

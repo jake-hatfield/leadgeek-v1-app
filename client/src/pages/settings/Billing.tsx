@@ -18,7 +18,6 @@ import Spinner from '@components/utils/Spinner';
 // utils
 import {
 	capitalize,
-	config,
 	formatTimestamp,
 	planCheckerByPrice,
 	truncate,
@@ -78,13 +77,10 @@ const BillingPage = () => {
 	const getActivePlanDetails = useCallback(
 		async (activeSubId: string) => {
 			try {
-				// build request body
-				const body = JSON.stringify({ subId: activeSubId });
-
-				// POST request to route
+				// GET request to route
 				const {
 					data: { message, subscription },
-				} = await axios.post('/api/users/active-plan-details', body, config);
+				} = await axios.get(`/api/users/plan?subId=${activeSubId}`);
 
 				// if subscription data is found, update state
 				if (message === 'Subscription data found') {
@@ -145,15 +141,9 @@ const BillingPage = () => {
 	const getSuccessfulPayments = useCallback(
 		async (cusId: string) => {
 			try {
-				// build request body
-				const body = JSON.stringify({ cusId });
-
+				console.log(cusId);
 				// POST request to route
-				const { data } = await axios.post(
-					'/api/users/successful-payments/',
-					body,
-					config
-				);
+				const { data } = await axios.get(`/api/users/payments?cusId=${cusId}`);
 
 				// update state
 				return setPaymentState({

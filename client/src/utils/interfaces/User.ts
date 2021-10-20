@@ -42,8 +42,8 @@ export interface User {
 			clients?: { userId: string; cusId: string }[];
 		};
 	};
-	likedLeads: Lead[];
-	archivedLeads: Lead[];
+	likedLeads: { _id: string }[];
+	archivedLeads: { _id: string }[];
 	comments: { date: Date; leadId: string; comment: string }[];
 	notifications: { _id: string }[];
 }

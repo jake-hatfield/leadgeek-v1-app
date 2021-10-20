@@ -11,7 +11,7 @@ export default function (req: Request, res: Response, next: NextFunction) {
 
 	// check if no token
 	if (!token) {
-		return res.status(401).json({
+		return res.status(401).send({
 			message: 'No token, authorization denied',
 		});
 	}
@@ -20,7 +20,7 @@ export default function (req: Request, res: Response, next: NextFunction) {
 	try {
 		jwt.verify(token, jwtSecret, (error, decoded) => {
 			if (error) {
-				return res.status(401).json({ message: 'Token is not valid' });
+				return res.status(401).send({ message: 'Token is not valid' });
 			} else {
 				req.body.user = decoded.user;
 				next();
@@ -28,6 +28,6 @@ export default function (req: Request, res: Response, next: NextFunction) {
 		});
 	} catch (error) {
 		console.error('something wrong with auth middleware');
-		res.status(500).json({ message: 'Server Error' });
+		res.status(500).send({ message: 'Server Error' });
 	}
 }

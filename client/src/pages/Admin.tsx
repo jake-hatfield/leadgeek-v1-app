@@ -60,14 +60,20 @@ const Admin = () => {
 	});
 
 	// upload leads from Google sheet to MongoDB
-	const handleExportLeads = async (e: React.MouseEvent<HTMLElement>) => {
-		e.stopPropagation();
-
+	const handleExportLeads = async () => {
 		try {
 			// make GET request to API
-			const { data } = await axios.get('/api/leads/export');
+			const { data } = await axios.post<{
+				message:
+					| 'No user found'
+					| 'Access prohibited'
+					| 'Error connecting to Google Sheets'
+					| 'Leads were added to the database'
+					| 'There was an error uploading the leads'
+					| 'There were no rows to pull from Google Sheets';
+			}>('/api/leads/export');
 
-			if (data === 'Leads were added to the database.') {
+			if (data.message === 'Leads were added to the database') {
 				// redeploy Netlify site webhook
 				await axios.post(
 					'https://api.netlify.com/build_hooks/60f1da8987d39d7d6bceae55'
@@ -76,7 +82,7 @@ const Admin = () => {
 				return dispatch(
 					setAlert({
 						title: 'Upload success',
-						message: data,
+						message: data.message,
 						alertType: 'success',
 					})
 				);
@@ -96,61 +102,58 @@ const Admin = () => {
 	};
 
 	// get all users
-	const getAllUsers = useCallback(
-		async (userId: string) => {
-			try {
-				// make a POST request to the API
-				const { data } = await axios.get<{
-					users: User[];
-					message: string;
-				}>(`/api/users/all/${userId}`);
+	const getAllUsers = useCallback(async () => {
+		try {
+			// make a POST request to the API
+			const { data } = await axios.get<{
+				users: User[];
+				message: string;
+			}>(`/api/users/`);
 
-				// if there are users, set it in state
-				if (data.users.length > 0) {
-					const itemLimit = 20;
+			// if there are users, set it in state
+			if (data.users.length > 0) {
+				const itemLimit = 20;
 
-					return setUsersState({
-						...usersState,
-						status: 'idle',
-						totalByIds: data.users,
-						pageByIds: data.users.slice(0, itemLimit),
-						pagination: {
-							...usersState.pagination,
-							page: 1,
-							hasNextPage: data.users.length > itemLimit ? true : false,
-							hasPreviousPage: false,
-							nextPage: 2,
-							previousPage: 0,
-							lastPage: Math.ceil(data.users.length / itemLimit),
-							totalItems: data.users.length,
-						},
-					});
-				} else {
-					// set status to idle
-					setUsersState({ ...usersState, status: 'idle' });
+				return setUsersState({
+					...usersState,
+					status: 'idle',
+					totalByIds: data.users,
+					pageByIds: data.users.slice(0, itemLimit),
+					pagination: {
+						...usersState.pagination,
+						page: 1,
+						hasNextPage: data.users.length > itemLimit ? true : false,
+						hasPreviousPage: false,
+						nextPage: 2,
+						previousPage: 0,
+						lastPage: Math.ceil(data.users.length / itemLimit),
+						totalItems: data.users.length,
+					},
+				});
+			} else {
+				// set status to idle
+				setUsersState({ ...usersState, status: 'idle' });
 
-					// alert the admin that something went wrong
-					return dispatch(
-						setAlert({
-							title: 'Something went wrong',
-							message: 'There was an error retreiving users.',
-							alertType: 'danger',
-						})
-					);
-				}
-			} catch (error) {
-				console.log(error);
+				// alert the admin that something went wrong
+				return dispatch(
+					setAlert({
+						title: 'Something went wrong',
+						message: 'There was an error retreiving users.',
+						alertType: 'danger',
+					})
+				);
 			}
-		},
-		[usersState, setUsersState, dispatch]
-	);
+		} catch (error) {
+			console.log(error);
+		}
+	}, [usersState, setUsersState, dispatch]);
 
 	// get new users on page load
 	useEffect(() => {
 		status === 'idle' &&
 			user?._id &&
 			usersState.totalByIds.length === 0 &&
-			getAllUsers(user?._id);
+			getAllUsers();
 	}, [status, user?._id, usersState.totalByIds, getAllUsers]);
 
 	const onToggle = () => {
@@ -162,13 +165,13 @@ const Admin = () => {
 		// export leads
 		{
 			title: 'Export leads',
-			onClick: (e: React.MouseEvent<HTMLElement>) => handleExportLeads(e),
+			onClick: () => handleExportLeads(),
 		},
 	];
 
 	// redirect if user doesn't have permissions to view admin page
 	if (user && user?.role !== 'master' && user?.role !== 'admin') {
-		return <Redirect to={{ pathname: '/leads/' }} />;
+		return <Redirect to={{ pathname: '/' }} />;
 	}
 
 	return (
@@ -244,7 +247,6 @@ const Admin = () => {
 																user?.role === 'master' &&
 																dispatch(
 																	surrogateUser({
-																		userId: user?._id,
 																		surrogateId: lgUser._id,
 																	})
 																)
@@ -312,7 +314,7 @@ const Admin = () => {
 interface NavbarLinkProps {
 	item: {
 		title: string;
-		onClick: (e: any) => void;
+		onClick: any;
 	};
 	status: boolean;
 }
@@ -325,10 +327,8 @@ const NavbarLink: React.FC<NavbarLinkProps> = ({ item, status }) => {
 					? 'opacity-25 cursor-default'
 					: 'opacity-100 hover:text-purple-500 dark:hover:text-purple-300 hover:border-purple-500 dark:hover:border-purple-200'
 			} font-semibold text-base text-gray-800 dark:text-gray-200 border-l-2 border-gray-200 dark:border-darkGray-100  transition-main`}
-			disabled={status}
-			onClick={(e) => {
-				status === true && item.onClick(e);
-			}}
+			disabled={!status}
+			onClick={item.onClick}
 		>
 			{item.title}
 		</button>
