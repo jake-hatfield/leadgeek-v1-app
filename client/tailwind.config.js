@@ -146,6 +146,7 @@ module.exports = {
 				'focus',
 			],
 			flexDirection: ['responsive', 'first', 'last', 'even', 'odd'],
+			scrollbar: ['dark'],
 		},
 	},
 	corePlugins: {

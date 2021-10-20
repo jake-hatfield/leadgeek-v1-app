@@ -26,7 +26,6 @@ import {
 	FilterTitles,
 	FilterTypes,
 } from '@utils/interfaces/Filter';
-import { User } from '@utils/interfaces/User';
 
 type NumericOrTextStrings = 'numeric' | 'text';
 
@@ -122,10 +121,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 		user &&
 			dispatch(
 				getFeedLeads({
-					user: {
-						id: user._id,
-						role: user.role,
-					},
 					page: 1,
 					filters: {
 						...filters,
@@ -143,7 +138,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 		);
 	};
 
-	const handleFilterSubmit = (user: User) => {
+	const handleFilterSubmit = () => {
 		// make sure an empty string isn't being passed as a value
 		if (!filter.value) {
 			return dispatch(
@@ -242,10 +237,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 
 		// get the newly filtered leads
 		return getFeedLeads({
-			user: {
-				id: user._id,
-				role: user.role,
-			},
 			page: 1,
 			filters,
 		});
@@ -437,7 +428,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 										<Button
 											text={'Apply'}
 											onClick={() => {
-												handleFilterSubmit(user);
+												handleFilterSubmit();
 											}}
 											width={'w-20'}
 											margin={false}

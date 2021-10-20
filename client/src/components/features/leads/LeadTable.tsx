@@ -20,8 +20,8 @@ import { useDarkMode } from '@hooks/hooks';
 interface LeadTableProps {
 	leads: Lead[];
 	user: User;
-	liked: Lead[];
-	archived: Lead[];
+	liked: { _id: string }[];
+	archived: { _id: string }[];
 	status: 'idle' | 'loading' | 'failed';
 	showDetails: boolean;
 	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
@@ -35,7 +35,6 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	liked,
 	archived,
 	status,
-	showDetails,
 	setShowDetails,
 	type,
 	currentSearchValue,
@@ -56,7 +55,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	return (
 		<section className={classes.sectionWrapper}>
 			{status === 'failed' ? (
-				<div className='mt-6 container text-200'>
+				<div className='mt-6 text-200'>
 					There was an error making that request. If this issue persists, please{' '}
 					<a
 						href='mailto:support@leadgeek.io'
@@ -95,10 +94,10 @@ const LeadTable: React.FC<LeadTableProps> = ({
 						</thead>
 						<tbody className={classes.tableBody}>
 							{status === 'loading'
-								? [...Array(filters.itemLimit)].map((lead, i) => (
+								? [...Array(filters.itemLimit)].map((_, i) => (
 										<LeadRowLoader key={i} colorTheme={colorTheme} />
 								  ))
-								: leads.map((lead, i) => (
+								: leads.map((lead) => (
 										<LeadRow
 											key={lead._id}
 											lead={lead}
@@ -140,7 +139,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 							: "You haven't liked any leads yet, but you can go to the Feed to check some products out."
 					}`}
 					path={svgList.liked}
-					link={'/leads'}
+					link={'/'}
 					linkText={'Go to the Feed'}
 				/>
 			) : type === 'archived' ? (
@@ -156,7 +155,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 							: "You haven't archived any leads yet, but you can go to the Feed to check some products out."
 					}`}
 					path={svgList.archived}
-					link={'/leads'}
+					link={'/'}
 					linkText={'Go to the Feed'}
 				/>
 			) : type === 'search' && !currentSearchValue ? (
@@ -164,7 +163,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 					header={'No search results found'}
 					text={'Please try a different search query'}
 					path={svgList.search}
-					link={'/leads'}
+					link={'/'}
 					linkText={'Go to the Feed'}
 				/>
 			) : (

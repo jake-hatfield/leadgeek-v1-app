@@ -74,14 +74,9 @@ export const clearNotification = createAsyncThunk(
 		// destructure necessary items
 		const { notificationId, userId } = options;
 
-		// prepare JSON body object
-		const body = JSON.stringify({ notificationId, userId });
-
 		// make POST request to user API
-		const { data } = await axios.put(
-			'/api/users/clear-notification',
-			body,
-			config
+		const { data } = await axios.delete(
+			`/api/users/notifications?notificationId=${notificationId}&userId=${userId}`
 		);
 
 		return data;
@@ -93,10 +88,17 @@ export const getUserData = createAsyncThunk(
 	async (_, { rejectWithValue }) => {
 		try {
 			// make GET request to API
-			const res = await axios.get('/api/auth');
+			const { data } = await axios.get<{
+				message: 'Returning user data' | 'Server error';
+				user: User | null;
+			}>('/api/auth');
 
 			// return data to state
-			return res.data;
+			if (data.user) {
+				return data.user;
+			} else {
+				return rejectWithValue(data.message);
+			}
 		} catch (error) {
 			console.log(error);
 			return rejectWithValue(error);
@@ -106,24 +108,50 @@ export const getUserData = createAsyncThunk(
 
 export const surrogateUser = createAsyncThunk(
 	'auth/surrogateUser',
-	async (options: { userId: string; surrogateId: string }) => {
+	async (options: { surrogateId: string }, { dispatch, rejectWithValue }) => {
 		try {
-			const { userId, surrogateId } = options;
-
-			// prepare body JSON object
-			const body = JSON.stringify({ userId, surrogateId });
+			const { surrogateId } = options;
 
 			// make POST request to API
-			const { data } = await axios.post(
-				'/api/auth/surrogate-user',
-				body,
-				config
-			);
+			const { data } = await axios.get<{
+				message:
+					| 'Surrogation successful'
+					| 'Surrogation unsuccessful'
+					| 'Access prohibited'
+					| 'Server error';
+				token: string | null;
+				user: User | null;
+			}>(`/api/auth/surrogate?id=${surrogateId}`);
 
-			// return data to state
-			return data;
+			if (
+				data.message === 'Surrogation successful' &&
+				data.token &&
+				data.user
+			) {
+				return {
+					token: data.token,
+					user: data.user,
+				};
+			} else {
+				dispatch(
+					setAlert({
+						title: 'Error',
+						message: data.message,
+						alertType: 'danger',
+					})
+				);
+				return rejectWithValue(data.message);
+			}
 		} catch (error) {
 			console.log(error);
+			dispatch(
+				setAlert({
+					title: 'Error',
+					message: 'Something went wrong',
+					alertType: 'danger',
+				})
+			);
+			return rejectWithValue('Something went wrong');
 		}
 	}
 );
@@ -157,14 +185,12 @@ export const updatePassword = createAsyncThunk(
 			const body = JSON.stringify({ email: emailToLowerCase, password });
 
 			// make PUT request to API
-			const { data } = await axios.put(
-				'/api/auth/update-password',
-				body,
-				config
-			);
+			const { data } = await axios.put<{
+				message: 'Password was updated' | 'No user found';
+			}>('/api/auth/password', body, config);
 
 			// if password was successfully updated, alert the user, clear the reset password token in LS, and log them in
-			if (data === 'Password was successfully updated') {
+			if (data.message === 'Password was updated') {
 				dispatch(
 					setAlert({
 						title: 'Reset success',
@@ -198,19 +224,20 @@ export const validateResetPwToken = createAsyncThunk(
 	'auth/validateResetPwToken',
 	async (options: { resetPwToken: string }, { dispatch, rejectWithValue }) => {
 		try {
-			// prepare body JSON object
-			const body = JSON.stringify({ resetPwToken: options.resetPwToken });
-
 			// make POST request to API
-			const { data } = await axios.post(
-				'/api/auth/reset-password-validation',
-				body,
-				config
-			);
+			const { data } = await axios.get<{
+				message:
+					| 'Password reset link expired or invalid'
+					| 'Password reset link was validated';
+				userEmail: string | null;
+			}>(`/api/auth/password-validation?resetPwToken=${options.resetPwToken}`);
 
 			// if link was validated, update user in state
-			if (data.message === 'Password reset link was validated') {
-				localStorage.setItem('email', data.user);
+			if (
+				data.message === 'Password reset link was validated' &&
+				data.userEmail
+			) {
+				localStorage.setItem('email', data.userEmail);
 				return;
 			} else {
 				// alert that link couldn't be updated
@@ -246,7 +273,7 @@ export const authSlice = createSlice({
 	extraReducers: (builder) => {
 		builder
 			.addCase(addComment.fulfilled, (state, action) => {
-				if (state.user) {
+				if (state.user && action.payload) {
 					state.user.comments = action.payload;
 				}
 			})
@@ -273,10 +300,10 @@ export const authSlice = createSlice({
 			.addCase(getUserData.pending, (state) => {
 				state.status = 'loading';
 			})
-			.addCase(getUserData.fulfilled, (state, action: PayloadAction<User>) => {
+			.addCase(getUserData.fulfilled, (state, action) => {
 				state.status = 'idle';
 				state.isAuthenticated = true;
-				state.user = action.payload;
+				state.user = action.payload as User;
 			})
 			.addCase(getUserData.rejected, (state) => {
 				state.status = 'idle';
@@ -286,15 +313,22 @@ export const authSlice = createSlice({
 				state.validatedResetPwToken = false;
 			})
 			.addCase(handleLikeLead.fulfilled, (state, action) => {
-				state.user!.likedLeads! = action.payload?.leads;
+				if (action.payload?.leads) {
+					state.user!.likedLeads! = action.payload?.leads;
+				}
 			})
 			.addCase(handleArchiveLead.fulfilled, (state, action) => {
-				state.user!.archivedLeads! = action.payload?.leads;
+				if (action.payload?.leads) {
+					state.user!.archivedLeads! = action.payload?.leads;
+				}
 			})
-			.addCase(surrogateUser.fulfilled, (state, action) => {
-				const { token, user } = action.payload;
-				state.token = token;
-				state.user = user;
+			.addCase(surrogateUser.fulfilled, (state, action: PayloadAction<any>) => {
+				state.token = action.payload.token;
+				state.user = action.payload.user;
+			})
+			.addCase(surrogateUser.rejected, (state) => {
+				state.token = null;
+				state.user = null;
 			})
 			.addCase(updatePassword.fulfilled, (state) => {
 				state.validatedResetPwToken = false;
@@ -306,7 +340,7 @@ export const authSlice = createSlice({
 				state.status = 'idle';
 				state.validatedResetPwToken = true;
 			})
-			.addCase(validateResetPwToken.rejected, (state, action) => {
+			.addCase(validateResetPwToken.rejected, (state) => {
 				state.status = 'idle';
 				state.validatedResetPwToken = false;
 			});

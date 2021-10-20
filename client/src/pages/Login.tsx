@@ -54,7 +54,7 @@ const Login: React.FC = () => {
 
 	// redirect to app if authenticated
 	if (isAuthenticated && token) {
-		return <Redirect to='/leads/' />;
+		return <Redirect to='/' />;
 	}
 
 	return (

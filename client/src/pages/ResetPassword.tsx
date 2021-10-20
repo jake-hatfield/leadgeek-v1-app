@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 // packages
-import { Redirect, NavLink } from 'react-router-dom';
+import { NavLink, Redirect, useLocation } from 'react-router-dom';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@hooks/hooks';
@@ -17,8 +17,9 @@ import Spinner from '@components/utils/Spinner';
 // utils
 import { passwordList } from '@utils/utils';
 
-const ResetPasswordPage = () => {
+const ResetPasswordPage: React.FC = () => {
 	const dispatch = useAppDispatch();
+	const location = useLocation();
 
 	// auth selectors
 	const status = useAppSelector((state) => state.auth.status);
@@ -29,7 +30,9 @@ const ResetPasswordPage = () => {
 
 	// local state
 	const [email, setEmail] = useState(localStorage.getItem('email'));
-	const [resetPwToken] = useState<string>(localStorage.resetPwToken);
+	const [resetPwToken] = useState<string | null>(
+		new URLSearchParams(location.search).get('t')
+	);
 	const [formData, setFormData] = useState({
 		password_1: '',
 		password_2: '',
@@ -40,7 +43,7 @@ const ResetPasswordPage = () => {
 
 	// check for valid token on page load
 	useEffect(() => {
-		dispatch(validateResetPwToken({ resetPwToken }));
+		resetPwToken && dispatch(validateResetPwToken({ resetPwToken }));
 	}, [resetPwToken, dispatch]);
 
 	// handle form input change
@@ -131,7 +134,7 @@ const ResetPasswordPage = () => {
 
 	// if user is authenticated, redirect to app
 	if (isAuthenticated) {
-		return <Redirect to='/leads' />;
+		return <Redirect to='/' />;
 	}
 
 	return status === 'idle' ? (

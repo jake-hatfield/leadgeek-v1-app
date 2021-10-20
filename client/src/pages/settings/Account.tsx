@@ -69,13 +69,13 @@ const AccountPage = () => {
 			);
 		}
 
-		const body = JSON.stringify({ userId: user?._id, name: formData.name });
+		const body = JSON.stringify({ name: formData.name });
 
 		const { data } = await axios.put<{
 			message:
 				| 'Profile was successfully updated'
 				| 'No user exists in the database to update';
-		}>('/api/auth/update-profile', body, config);
+		}>('/api/auth/profile', body, config);
 
 		if (data.message === 'Profile was successfully updated') {
 			dispatch(

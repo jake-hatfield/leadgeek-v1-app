@@ -26,8 +26,8 @@ import { User } from '@utils/interfaces/User';
 interface LeadRowProps {
 	lead: Lead;
 	user: User;
-	liked: Lead[];
-	archived: Lead[];
+	liked: { _id: string }[];
+	archived: { _id: string }[];
 	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -111,13 +111,13 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	const favoriteHandler = (e: any) => {
 		e.stopPropagation();
 		setLike((prev) => !prev);
-		dispatch(handleLikeLead({ userId: user._id, leadId: lead._id }));
+		dispatch(handleLikeLead({ leadId: lead._id }));
 	};
 	// handle archiving leads
 	const archiveHandler = (e: any) => {
 		e.stopPropagation();
 		setArchive((prev) => !prev);
-		dispatch(handleArchiveLead({ userId: user._id, leadId: lead._id }));
+		dispatch(handleArchiveLead({ leadId: lead._id }));
 	};
 
 	// animations
@@ -169,8 +169,8 @@ const LeadRow: React.FC<LeadRowProps> = ({
 		monthlySalesCellWrapper: 'p-2 w-24',
 		profitCellWrapper: 'w-36 p-2 uppercase',
 		quickViewCellWrapper: quickView
-			? 'py-4 pl-4 pr-12'
-			: 'py-2 pl-2 pr-10 w-12',
+			? 'w-12 py-4 pl-5 pr-12'
+			: 'w-12 py-2 pl-2 pr-10',
 		quickViewExpandedWrapper:
 			'absolute transform -translate-x-14 rounded-l-lg border-l border-t border-b border-300 cs-light-400 text-100',
 		quickViewMenu: quickView
