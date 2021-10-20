@@ -8,17 +8,20 @@ import Sentry from '@sentry/node';
 // files
 import connectDB from '@config/db';
 
-// Sentry.init({
-// 	dsn: 'https://89b1c9784db640928e7384d0f8d91f8b@o975120.ingest.sentry.io/5931105',
-// 	tracesSampleRate: 1.0,
-// });
-
 const app = express();
 
 // connect DB
 connectDB();
 
 // init middleware
+app.use(
+	express.json({
+		verify: (req: any, res, buf) => {
+			req.rawBody = buf;
+		},
+	})
+);
+
 app.use(express.json());
 
 // define routes
@@ -36,6 +39,11 @@ function redirectWWWTraffic(req: Request, res: Response, next: NextFunction) {
 
 // serve static assets in production
 if (process.env.NODE_ENV === 'production') {
+	// enable sentry
+	Sentry.init({
+		dsn: 'https://89b1c9784db640928e7384d0f8d91f8b@o975120.ingest.sentry.io/5931105',
+		tracesSampleRate: 1.0,
+	});
 	// force https
 	app.use((req, res, next) => {
 		if (req.header('x-forwarded-proto') !== 'https')

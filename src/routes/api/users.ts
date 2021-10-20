@@ -5,6 +5,8 @@ import Stripe from 'stripe';
 
 // env
 const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
+const endpointSecret =
+	process.env.REACT_APP_STRIPE_USERS_WEBHOOK_ENDPOINT_SECRET;
 
 // middleware
 import auth from '@middleware/auth';
@@ -330,5 +332,41 @@ router.post(
 		}
 	}
 );
+
+// @route       POST api/users/stripe-webhook
+// @description Webhooks for stripe
+// @access      Public
+router.post('/stripe-webhook', async (req: any, res: Response) => {
+	try {
+		const sig = req.headers['stripe-signature'];
+
+		let event;
+
+		try {
+			event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+		} catch (error) {
+			console.log(error.message);
+			res.status(401).send({ message: `Webhook Error: ${error.message}` });
+			return;
+		}
+		// Handle the event
+		switch (event.type) {
+			case 'customer.subscription.deleted':
+				const subscription = event.data.object;
+				console.log(subscription);
+				// Then define and call a function to handle the event customer.subscription.deleted
+				break;
+
+			default:
+				console.log(`Unhandled event type ${event.type}`);
+		}
+
+		// Return a 200 response to acknowledge receipt of the event
+		return res.status(200).end();
+	} catch (error) {
+		console.error(error.message);
+		res.status(500).send({ message: 'Server error' });
+	}
+});
 
 module.exports = router;
