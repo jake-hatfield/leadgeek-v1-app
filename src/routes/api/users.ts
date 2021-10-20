@@ -5,6 +5,8 @@ import Stripe from 'stripe';
 
 // env
 const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
+const endpointSecret =
+	process.env.REACT_APP_STRIPE_USERS_WEBHOOK_ENDPOINT_SECRET;
 
 // middleware
 import auth from '@middleware/auth';
