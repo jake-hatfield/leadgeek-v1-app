@@ -1,6 +1,6 @@
 // packages
 import { Request, Response, Router } from 'express';
-import { ObjectId } from 'mongoose';
+import { ObjectId, SchemaDefinitionProperty } from 'mongoose';
 import Stripe from 'stripe';
 
 // env
@@ -14,6 +14,7 @@ import auth from '@middleware/auth';
 // models
 import User, { IUserDocument } from '@models/User';
 import Notification, { INotificationDocument } from '@models/Notification';
+import WaitlistUser, { IWaitlistUserDocument } from '@models/WaitlistUser';
 
 // router
 const router = Router();
@@ -430,7 +431,9 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 	try {
 		const sig = req.headers['stripe-signature'];
 
-		let event;
+		// (TODO)<Jake>: log event_ids and make sure duplicates aren't processed
+
+		let event: Stripe.Event;
 
 		try {
 			event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
@@ -442,8 +445,46 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 		// Handle the event
 		switch (event.type) {
 			case 'customer.subscription.deleted':
-				const subscription = event.data.object;
-				console.log(subscription);
+				const data = event.data as Stripe.TypedEventData<Stripe.Subscription>;
+
+				const subscribedProductId: string = data.object.plan.product;
+
+				const getProductName = (id: string) => {
+					let name: 'bundle' | 'pro' | 'grow' | null;
+					switch (id) {
+						case process.env.REACT_APP_BUNDLE_PRODUCT_ID:
+							name = 'bundle';
+							break;
+						case process.env.REACT_APP_PRO_PRODUCT_ID:
+							name = 'pro';
+							break;
+						case process.env.REACT_APP_GROW_PRODUCT_ID:
+							name = 'grow';
+							break;
+						default:
+							name = null;
+					}
+					return name;
+				};
+
+				const subscribedProductName: 'bundle' | 'pro' | 'grow' | null =
+					getProductName(subscribedProductId);
+
+				if (!subscribedProductName) {
+					return res.status(404).end();
+				}
+
+				const waitlistUser: IWaitlistUserDocument = await WaitlistUser.findOne(
+					{
+						'plans.type': subscribedProductName,
+						'plans.active': true,
+					},
+					{},
+					{ sort: { dateCreated: 1 } }
+				);
+
+				console.log(waitlistUser);
+
 				// Then define and call a function to handle the event customer.subscription.deleted
 				break;
 
