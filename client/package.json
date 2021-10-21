@@ -63,6 +63,7 @@
 	},
 	"proxy": "http://localhost:5000/",
 	"devDependencies": {
+		"@types/react-image-magnify": "^2.7.1",
 		"babel-eslint": "^10.1.0",
 		"eslint-config-react-app": "^6.0.0",
 		"eslint-plugin-flowtype": "^5.10.0",
