@@ -8,8 +8,8 @@
 		"sourceMap": true,
 		"rootDir": "./",
 		"outDir": "dist",
-		"typeRoots": ["./src/@types", "./node_modules/@types"]
+		"typeRoots": ["./node_modules/@types"]
 	},
-	"include": ["./src/**/*"],
+	"include": ["./src/**/*", "./custom.d.ts"],
 	"extends": "./tsconfig.paths.json"
 }
