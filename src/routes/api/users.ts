@@ -1,12 +1,17 @@
 // packages
 import { Request, Response, Router } from 'express';
+import mailchimp from '@mailchimp/mailchimp_marketing';
+import md5 from 'md5';
 import { ObjectId } from 'mongoose';
 import Stripe from 'stripe';
 
 // env
-const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
 const endpointSecret =
 	process.env.REACT_APP_STRIPE_USERS_WEBHOOK_ENDPOINT_SECRET;
+const mailchimpAudienceId = process.env.REACT_APP_MAILCHIMP_AUDIENCE_ID;
+const mailchimpSecret = process.env.REACT_APP_MAILCHIMP_SECRET;
+const mailchimpServer = process.env.REACT_APP_MAILCHIMP_SERVER;
+const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
 
 // middleware
 import auth from '@middleware/auth';
@@ -14,10 +19,15 @@ import auth from '@middleware/auth';
 // models
 import User, { IUserDocument } from '@models/User';
 import Notification, { INotificationDocument } from '@models/Notification';
+import WaitlistUser, { IWaitlistUserDocument } from '@models/WaitlistUser';
 
 // router
 const router = Router();
 
+mailchimp.setConfig({
+	apiKey: mailchimpSecret,
+	server: mailchimpServer,
+});
 const stripe = new Stripe(stripeSecret, { apiVersion: '2020-08-27' });
 
 // @route       GET api/users?id=__
@@ -422,5 +432,227 @@ router.get(
 		}
 	}
 );
+
+// @route       POST api/users/stripe-webhook
+// @description Webhooks for stripe
+// @access      Public
+router.post('/stripe-webhook', async (req: any, res: Response) => {
+	try {
+		const sig = req.headers['stripe-signature'];
+
+		// (TODO)<Jake>: log event_ids and make sure duplicates aren't processed
+
+		// declare global variable
+		let event: Stripe.Event;
+
+		try {
+			// attempt to authenticate and build event
+			event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+		} catch (error) {
+			// something went wrong with verifying signature
+			console.log(error.message);
+			res.status(401).send({ message: `Webhook Error: ${error.message}` });
+			return;
+		}
+
+		// Handle the event
+		switch (event.type) {
+			case 'customer.subscription.deleted':
+				// destructure necessary items
+				const data = event.data as Stripe.TypedEventData<Stripe.Subscription>;
+
+				// get the productId from the event
+				const subscribedProductId: string = data.object.plan.product;
+
+				// return plan type in string
+				const getProductName = (id: string) => {
+					let name: 'bundle' | 'pro' | 'grow' | null;
+					switch (id) {
+						case process.env.REACT_APP_BUNDLE_PRODUCT_ID:
+							name = 'bundle';
+							break;
+						case process.env.REACT_APP_PRO_PRODUCT_ID:
+							name = 'pro';
+							break;
+						case process.env.REACT_APP_GROW_PRODUCT_ID:
+							name = 'grow';
+							break;
+						default:
+							name = null;
+					}
+					return name;
+				};
+
+				// handle a qualified waitlist user
+				const handleWaitlistUser = async (
+					waitlistUser: IWaitlistUserDocument,
+					subscribedProductName: 'bundle' | 'pro' | 'grow'
+				): Promise<any> => {
+					// destructure necessary items
+					const { email, plans } = waitlistUser;
+
+					// capitalize the plan name
+					const planCapitalized =
+						subscribedProductName.charAt(0).toUpperCase() +
+						subscribedProductName.slice(1);
+
+					// see if the subscriber already exists
+					const checkEmail = await mailchimp.searchMembers.search(email);
+
+					// if they do, update the tags
+					if (checkEmail.exact_matches.total_items > 0) {
+						const oldTags = checkEmail.exact_matches.members[0].tags;
+
+						// check if user is supposed to already be in the mailchimp automation
+						if (
+							oldTags.some(
+								(tag: { id: string; name: string }) =>
+									tag.name === 'Active Bundle Plan Waitlist' ||
+									tag.name === 'Active Pro Plan Waitlist' ||
+									tag.name === 'Active Grow Plan Waitlist'
+							)
+						) {
+							console.log('Waitlist user is already in MailChimp automation');
+							// get the next qualified user, if any
+							const nextQualifiedWaitlistUser = await WaitlistUser.findOne({
+								_id: { $ne: waitlistUser._id },
+								plans: {
+									$elemMatch: {
+										type: subscribedProductName,
+										active: true,
+									},
+								},
+							}).sort({ dateCreated: 1 });
+
+							return handleWaitlistUser(
+								nextQualifiedWaitlistUser,
+								subscribedProductName
+							);
+						}
+
+						console.log('Email found...');
+
+						// replace/update the tags
+						const tags = [
+							{
+								name: `${planCapitalized} Plan Waitlist`,
+								status: 'inactive',
+							},
+							{
+								name: `Active ${planCapitalized} Plan Waitlist`,
+								status: 'active',
+							},
+						];
+
+						const subscriberHash = await md5(email);
+
+						// make req to mailchimp api
+						mailchimp.lists.updateListMemberTags(
+							mailchimpAudienceId,
+							subscriberHash,
+							{
+								tags,
+							}
+						);
+					}
+
+					// update plan to inactive in DB
+					const planIndex = plans.findIndex(
+						(plan: { type: 'bundle' | 'pro' | 'grow'; active: boolean }) =>
+							plan.type === subscribedProductName
+					);
+
+					plans[planIndex].active = false;
+
+					waitlistUser.plans = plans;
+
+					await waitlistUser.save();
+
+					console.log('Waitlist user updated');
+
+					return;
+				};
+
+				// sets the name from the id
+				const subscribedProductName: 'bundle' | 'pro' | 'grow' | null =
+					getProductName(subscribedProductId);
+
+				// if there's a valid product name, check in the DB for a user that hasn't gone through this type of waitlist automation yet
+				if (subscribedProductName) {
+					const waitlistUser: IWaitlistUserDocument =
+						await WaitlistUser.findOne({
+							plans: {
+								$elemMatch: {
+									type: subscribedProductName,
+									active: true,
+								},
+							},
+						}).sort({ dateCreated: 1 });
+
+					if (waitlistUser) {
+						handleWaitlistUser(waitlistUser, subscribedProductName);
+					} else if (subscribedProductName === 'bundle') {
+						const proWaitlistUser: IWaitlistUserDocument =
+							await WaitlistUser.findOne({
+								plans: {
+									$elemMatch: {
+										type: 'pro',
+										active: true,
+									},
+								},
+							}).sort({ dateCreated: 1 });
+
+						if (proWaitlistUser) {
+							handleWaitlistUser(proWaitlistUser, 'pro');
+						} else {
+							const growWaitlistUser: IWaitlistUserDocument =
+								await WaitlistUser.findOne({
+									plans: {
+										$elemMatch: {
+											type: 'grow',
+											active: true,
+										},
+									},
+								}).sort({ dateCreated: 1 });
+
+							if (growWaitlistUser) {
+								handleWaitlistUser(growWaitlistUser, 'grow');
+							}
+						}
+					} else {
+						console.log(
+							`No qualified users on waitlist for id: ${subscribedProductId}`
+						);
+						return res.status(200).end();
+					}
+				} else {
+					console.log(
+						`No product matching this ID was found: ${subscribedProductId}`
+					);
+				}
+				break;
+			default:
+				console.log(`Unhandled event type ${event.type}`);
+		}
+
+		// Return a 200 response to acknowledge receipt of the event
+		return res.status(200).end();
+	} catch (error) {
+		console.error(error.message);
+		res.status(500);
+	}
+});
+
+// @route       POST api/users/mailchimp-webhook
+// @description Webhooks for mailchimp
+// @access      Public
+router.post('/mailchimp-webhook', async (req: Request, res: Response) => {
+	try {
+		console.log(req.body);
+	} catch (error) {
+		console.log(error);
+		return res.status(500);
+	}
+});
 
 module.exports = router;

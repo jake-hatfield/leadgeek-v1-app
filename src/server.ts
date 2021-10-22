@@ -22,8 +22,6 @@ app.use(
 	})
 );
 
-app.use(express.json());
-
 // define routes
 app.use('/api/auth', require('@routes/api/auth'));
 app.use('/api/leads', require('@routes/api/leads'));
