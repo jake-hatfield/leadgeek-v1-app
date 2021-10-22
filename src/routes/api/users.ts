@@ -464,7 +464,7 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 				// get the productId from the event
 				const subscribedProductId: string = data.object.plan.product;
 
-				// fn to return plan type in string
+				// return plan type in string
 				const getProductName = (id: string) => {
 					let name: 'bundle' | 'pro' | 'grow' | null;
 					switch (id) {
@@ -483,39 +483,56 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 					return name;
 				};
 
-				// sets the name from the id
-				const subscribedProductName: 'bundle' | 'pro' | 'grow' | null =
-					getProductName(subscribedProductId);
-
-				// if there's a valid product name, check in the DB for a user that hasn't gone through this type of waitlist automation yet
-				if (subscribedProductName) {
-					const waitlistUser: IWaitlistUserDocument =
-						await WaitlistUser.findOne({
-							plans: {
-								$elemMatch: {
-									type: subscribedProductName,
-									active: true,
-								},
-							},
-						}).sort({ dateCreated: 1 });
-
-					console.log(waitlistUser);
+				// handle a qualified waitlist user
+				const handleWaitlistUser = async (
+					waitlistUser: IWaitlistUserDocument,
+					subscribedProductName: 'bundle' | 'pro' | 'grow'
+				): Promise<any> => {
+					// destructure necessary items
 					const { email, plans } = waitlistUser;
-					const planType = plans.filter(
-						(plan) => plan.type === subscribedProductName
-					)[0].type;
+
 					// capitalize the plan name
 					const planCapitalized =
-						planType.charAt(0).toUpperCase() + planType.slice(1);
+						subscribedProductName.charAt(0).toUpperCase() +
+						subscribedProductName.slice(1);
 
 					// see if the subscriber already exists
 					const checkEmail = await mailchimp.searchMembers.search(email);
 
 					// if they do, update the tags
 					if (checkEmail.exact_matches.total_items > 0) {
+						const oldTags = checkEmail.exact_matches.members[0].tags;
+
+						// check if user is supposed to already be in the mailchimp automation
+						if (
+							oldTags.some(
+								(tag: { id: string; name: string }) =>
+									tag.name === 'Active Bundle Plan Waitlist' ||
+									tag.name === 'Active Pro Plan Waitlist' ||
+									tag.name === 'Active Grow Plan Waitlist'
+							)
+						) {
+							console.log('Waitlist user is already in MailChimp automation');
+							// get the next qualified user, if any
+							const nextQualifiedWaitlistUser = await WaitlistUser.findOne({
+								_id: { $ne: waitlistUser._id },
+								plans: {
+									$elemMatch: {
+										type: subscribedProductName,
+										active: true,
+									},
+								},
+							}).sort({ dateCreated: 1 });
+
+							return handleWaitlistUser(
+								nextQualifiedWaitlistUser,
+								subscribedProductName
+							);
+						}
+
 						console.log('Email found...');
 
-						// update the tags
+						// replace/update the tags
 						const tags = [
 							{
 								name: `${planCapitalized} Plan Waitlist`,
@@ -541,7 +558,8 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 
 					// update plan to inactive in DB
 					const planIndex = plans.findIndex(
-						(plan: any) => plan.type === subscribedProductName
+						(plan: { type: 'bundle' | 'pro' | 'grow'; active: boolean }) =>
+							plan.type === subscribedProductName
 					);
 
 					plans[planIndex].active = false;
@@ -549,6 +567,68 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 					waitlistUser.plans = plans;
 
 					await waitlistUser.save();
+
+					console.log('Waitlist user updated');
+
+					return;
+				};
+
+				// sets the name from the id
+				const subscribedProductName: 'bundle' | 'pro' | 'grow' | null =
+					getProductName(subscribedProductId);
+
+				// if there's a valid product name, check in the DB for a user that hasn't gone through this type of waitlist automation yet
+				if (subscribedProductName) {
+					const waitlistUser: IWaitlistUserDocument =
+						await WaitlistUser.findOne({
+							plans: {
+								$elemMatch: {
+									type: subscribedProductName,
+									active: true,
+								},
+							},
+						}).sort({ dateCreated: 1 });
+
+					if (waitlistUser) {
+						handleWaitlistUser(waitlistUser, subscribedProductName);
+					} else if (subscribedProductName === 'bundle') {
+						const proWaitlistUser: IWaitlistUserDocument =
+							await WaitlistUser.findOne({
+								plans: {
+									$elemMatch: {
+										type: 'pro',
+										active: true,
+									},
+								},
+							}).sort({ dateCreated: 1 });
+
+						if (proWaitlistUser) {
+							handleWaitlistUser(proWaitlistUser, 'pro');
+						} else {
+							const growWaitlistUser: IWaitlistUserDocument =
+								await WaitlistUser.findOne({
+									plans: {
+										$elemMatch: {
+											type: 'grow',
+											active: true,
+										},
+									},
+								}).sort({ dateCreated: 1 });
+
+							if (growWaitlistUser) {
+								handleWaitlistUser(growWaitlistUser, 'grow');
+							}
+						}
+					} else {
+						console.log(
+							`No qualified users on waitlist for id: ${subscribedProductId}`
+						);
+						return res.status(200).end();
+					}
+				} else {
+					console.log(
+						`No product matching this ID was found: ${subscribedProductId}`
+					);
 				}
 				break;
 			default:
@@ -559,7 +639,19 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 		return res.status(200).end();
 	} catch (error) {
 		console.error(error.message);
-		res.status(500).send({ message: 'Server error' });
+		res.status(500);
+	}
+});
+
+// @route       POST api/users/mailchimp-webhook
+// @description Webhooks for mailchimp
+// @access      Public
+router.post('/mailchimp-webhook', async (req: Request, res: Response) => {
+	try {
+		console.log(req.body);
+	} catch (error) {
+		console.log(error);
+		return res.status(500);
 	}
 });
 
