@@ -264,15 +264,17 @@ router.post(
 				roleFilter.push('bundle');
 			}
 
+			const now = DateTime.now();
+
 			// set date filter
 			const minDateFilter = minDate
 				? minDate
-				: DateTime.now().isBusinessDay()
-				? DateTime.now().startOf('day').toISO()
-				: DateTime.minusBusiness({ days: 1 }).isBusinessDay()
-				? DateTime.minusBusiness({ days: 1 })
-				: DateTime.minusBusiness({ days: 2 });
-			const maxDateFilter = maxDate ? maxDate : DateTime.now().toISO();
+				: now.isBusinessDay()
+				? now.startOf('day').toISO()
+				: now.minusBusiness({ days: 1 }).isBusinessDay()
+				? now.minusBusiness({ days: 1 }).toISO()
+				: now.minusBusiness({ days: 2 }).toISO();
+			const maxDateFilter = maxDate ? maxDate : now.toISO();
 
 			// convert iso to unix timestamp
 			const isoToTimestamp = (date: string) => {
@@ -456,15 +458,17 @@ router.post(
 				roleFilter.push('bundle');
 			}
 
+			const now = DateTime.now();
+
 			// set date filter
 			const minDateFilter = minDate
 				? minDate
-				: DateTime.now().isBusinessDay()
-				? DateTime.now().startOf('day').toISO()
-				: DateTime.minusBusiness({ days: 1 }).isBusinessDay()
-				? DateTime.minusBusiness({ days: 1 })
-				: DateTime.minusBusiness({ days: 2 });
-			const maxDateFilter = maxDate ? maxDate : DateTime.now().toISO();
+				: now.isBusinessDay()
+				? now.startOf('day').toISO()
+				: now.minusBusiness({ days: 1 }).isBusinessDay()
+				? now.minusBusiness({ days: 1 }).toISO()
+				: now.minusBusiness({ days: 2 }).toISO();
+			const maxDateFilter = maxDate ? maxDate : now.toISO();
 
 			// convert iso to unix timestamp
 			const isoToTimestamp = (date: string) => {
