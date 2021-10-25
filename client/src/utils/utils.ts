@@ -217,13 +217,17 @@ export const calcNextPayoutDate = (date: number) => {
 };
 
 export const calcLastBusinessDay = (dt: any): any => {
-	const yest = dt.minus({ days: 1 });
+	if (dt.isBusinessDay()) {
+		return dt;
+	} else {
+		const yest = dt.minus({ days: 1 });
 
-	if (yest.weekday === 6 || yest.weekday === 7) {
-		return calcLastBusinessDay(yest);
+		if (yest.weekday === 6 || yest.weekday === 7) {
+			return calcLastBusinessDay(yest);
+		}
+
+		return yest;
 	}
-
-	return yest;
 };
 
 export const passwordList = [

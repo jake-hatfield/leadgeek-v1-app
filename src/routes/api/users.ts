@@ -11,7 +11,8 @@ const endpointSecret =
 const mailchimpAudienceId = process.env.REACT_APP_MAILCHIMP_AUDIENCE_ID;
 const mailchimpSecret = process.env.REACT_APP_MAILCHIMP_SECRET;
 const mailchimpServer = process.env.REACT_APP_MAILCHIMP_SERVER;
-const stripeSecret = process.env.REACT_APP_STRIPE_SECRET_KEY;
+// force stripe key to be a string
+const stripeSecret = `${process.env.REACT_APP_STRIPE_SECRET_KEY}`;
 
 // middleware
 import auth from '@middleware/auth';
