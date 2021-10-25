@@ -656,6 +656,8 @@ router.post(
 				},
 			} = req.body;
 
+			console.log(req.body);
+
 			switch (type) {
 				case 'profile':
 					if (
@@ -712,7 +714,7 @@ router.post(
 					console.log(`Unhandled event type ${type}`);
 			}
 
-			return res.status(200);
+			return res.status(200).end();
 		} catch (error) {
 			console.log(error);
 			return res.status(500);
