@@ -11,7 +11,7 @@ import { setDateLimit } from '@features/filters/filtersSlice';
 import { setPage } from '@features/leads/leadsSlice';
 
 // utils
-import { useOutsideMousedown } from '@utils/utils';
+import { useOutsideMousedown, calcLastBusinessDay } from '@utils/utils';
 
 interface DatePickerProps {
 	type: 'feed' | 'liked' | 'archived' | 'search';
@@ -44,7 +44,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 	);
 
 	// set dates
-	const mostRecentDay = DateTime.fromISO(lastUpdated || DateTime.now());
+	const mostRecentDay = calcLastBusinessDay(DateTime.now());
 	const previousDay = mostRecentDay.minusBusiness({ days: 1 });
 	const lastFiveStart = mostRecentDay.minusBusiness({ days: 5 });
 	const lastFourteenStart = mostRecentDay.minusBusiness({ days: 10 });
@@ -74,8 +74,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			title:
 				previousDay.startOf('day') <=
 				DateTime.now().minusBusiness({ days: 1 }).startOf('day')
-					? 'Yesterday'
-					: 'Most previous day',
+					? 'Previous day'
+					: 'Yesterday',
 			dateString: previousDay.toFormat('LLL dd'),
 			min: previousDay,
 			onClick: () => {
@@ -146,16 +146,16 @@ const DatePicker: React.FC<DatePickerProps> = ({
 			title: 'All time',
 			dateString: `${lastDay.toFormat(
 				'LLL dd, yyyy'
-			)} - ${mostRecentDay.toFormat('LLL dd')}`,
+			)} - ${DateTime.now().toFormat('LLL dd')}`,
 			min: lastDay,
 			onClick: () => {
 				dispatch(
 					setDateLimit({
 						min: lastDay.startOf('day'),
-						max: mostRecentDay.endOf('day'),
+						max: DateTime.now().endOf('day'),
 						selected: `${lastDay.toFormat(
 							'LLL dd, yyyy'
-						)} - ${mostRecentDay.toFormat('LLL dd')}`,
+						)} - ${DateTime.now().toFormat('LLL dd')}`,
 					})
 				);
 			},

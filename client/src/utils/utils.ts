@@ -216,6 +216,16 @@ export const calcNextPayoutDate = (date: number) => {
 	}
 };
 
+export const calcLastBusinessDay = (dt: any): any => {
+	const yest = dt.minus({ days: 1 });
+
+	if (yest.weekday === 6 || yest.weekday === 7) {
+		return calcLastBusinessDay(yest);
+	}
+
+	return yest;
+};
+
 export const passwordList = [
 	'123456',
 	'password',
