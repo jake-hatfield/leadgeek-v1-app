@@ -26,6 +26,7 @@ import PaginationComponent from '@components/layout/navigation/Pagination';
 import Spinner from '@components/utils/Spinner';
 
 // utils
+import { calcLastBusinessDay } from '@utils/utils';
 import { Lead } from '@utils/interfaces/Lead';
 import { Pagination } from '@utils/interfaces/Pagination';
 import { User } from '@utils/interfaces/User';
@@ -196,11 +197,9 @@ const Leads: React.FC<LeadsProps> = ({
 								text={
 									dateSelected
 										? dateSelected
-										: lastUpdated
-										? `${DateTime.fromISO(lastUpdated).toFormat(
+										: calcLastBusinessDay(DateTime.now()).toFormat(
 												'LLL dd, yyyy'
-										  )}`
-										: 'Loading...'
+										  )
 								}
 								onClick={() => setDate((prev) => !prev)}
 								width={null}

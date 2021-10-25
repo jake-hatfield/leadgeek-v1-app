@@ -264,17 +264,11 @@ router.post(
 				roleFilter.push('bundle');
 			}
 
-			const now = DateTime.now();
-
 			// set date filter
-			const minDateFilter = minDate
-				? minDate
-				: now.isBusinessDay()
-				? now.startOf('day').toISO()
-				: now.minusBusiness({ days: 1 }).isBusinessDay()
-				? now.minusBusiness({ days: 1 }).toISO()
-				: now.minusBusiness({ days: 2 }).toISO();
-			const maxDateFilter = maxDate ? maxDate : now.toISO();
+			const fromJSDate = DateTime.fromJSDate(user.dateCreated);
+			const userDayCreated = fromJSDate.startOf('day').toISO();
+			const minDateFilter = minDate ? minDate : userDayCreated;
+			const maxDateFilter = maxDate ? maxDate : DateTime.now().toISO();
 
 			// convert iso to unix timestamp
 			const isoToTimestamp = (date: string) => {
@@ -458,17 +452,11 @@ router.post(
 				roleFilter.push('bundle');
 			}
 
-			const now = DateTime.now();
-
 			// set date filter
-			const minDateFilter = minDate
-				? minDate
-				: now.isBusinessDay()
-				? now.startOf('day').toISO()
-				: now.minusBusiness({ days: 1 }).isBusinessDay()
-				? now.minusBusiness({ days: 1 }).toISO()
-				: now.minusBusiness({ days: 2 }).toISO();
-			const maxDateFilter = maxDate ? maxDate : now.toISO();
+			const fromJSDate = DateTime.fromJSDate(user.dateCreated);
+			const userDayCreated = fromJSDate.startOf('day').toISO();
+			const minDateFilter = minDate ? minDate : userDayCreated;
+			const maxDateFilter = maxDate ? maxDate : DateTime.now().toISO();
 
 			// convert iso to unix timestamp
 			const isoToTimestamp = (date: string) => {

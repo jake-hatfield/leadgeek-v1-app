@@ -27,7 +27,7 @@ export default function (req: Request, res: Response, next: NextFunction) {
 			}
 		});
 	} catch (error) {
-		console.error('something wrong with auth middleware');
+		console.error('Something wrong with auth middleware');
 		res.status(500).send({ message: 'Server Error' });
 	}
 }

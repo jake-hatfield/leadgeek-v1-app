@@ -128,6 +128,7 @@ export const surrogateUser = createAsyncThunk(
 				data.token &&
 				data.user
 			) {
+				localStorage.token = data.token;
 				return {
 					token: data.token,
 					user: data.user,

@@ -45,7 +45,9 @@ router.get(
 			const user = await User.findById(req.body.user.id).select('-password');
 
 			// the notification time in DB is in seconds, so convert to miliseconds for comparision
-			const lastLogin = user.lastLoggedIn;
+			const lastLogin = user.lastLoggedIn
+				? user.lastLoggedIn
+				: user.dateCreated;
 
 			// get new notifications based on time
 			const notifications = await Notification.find({
@@ -199,7 +201,7 @@ router.get(
 				// return the JWT
 				const payload = {
 					user: {
-						surrogateId,
+						id: surrogateId,
 					},
 				};
 				jwt.sign(
