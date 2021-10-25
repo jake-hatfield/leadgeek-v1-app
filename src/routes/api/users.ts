@@ -1,5 +1,5 @@
 // packages
-import { Request, Response, Router } from 'express';
+import { Request, Response, Router, urlencoded } from 'express';
 import mailchimp from '@mailchimp/mailchimp_marketing';
 import md5 from 'md5';
 import { ObjectId } from 'mongoose';
@@ -647,17 +647,23 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 // @route       POST api/users/mailchimp-webhook
 // @description Webhooks for mailchimp
 // @access      Public
-router.post('/mailchimp-webhook', async (req: Request, res: Response) => {
-	try {
-		const { type, data } = req.body;
-		console.log(type);
-		console.log(data);
+router.post(
+	'/mailchimp-webhook',
+	urlencoded(),
+	async (req: Request, res: Response) => {
+		try {
+			const { type, data } = req.body;
 
-		return res.status(200).send('Ping');
-	} catch (error) {
-		console.log(error);
-		return res.status(500);
+			console.log(req.body);
+			console.log(type);
+			console.log(data);
+
+			return res.status(200).send('Ping');
+		} catch (error) {
+			console.log(error);
+			return res.status(500);
+		}
 	}
-});
+);
 
 module.exports = router;

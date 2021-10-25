@@ -13,6 +13,13 @@ const app = express();
 // connect DB
 connectDB();
 
+// app.use((req, res) => {
+// if (req.path.contains('mailchimp-webhook')) {
+//     express.
+// }
+// }
+// )
+
 // init middleware
 app.use(
 	express.json({
