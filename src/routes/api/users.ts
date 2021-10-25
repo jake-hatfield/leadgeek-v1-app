@@ -434,6 +434,92 @@ router.get(
 	}
 );
 
+// handle a qualified waitlist user
+const handleWaitlistUser = async (
+	waitlistUser: IWaitlistUserDocument,
+	subscribedProductName: 'bundle' | 'pro' | 'grow'
+): Promise<any> => {
+	// destructure necessary items
+	const { email, plans } = waitlistUser;
+
+	// capitalize the plan name
+	const planCapitalized =
+		subscribedProductName.charAt(0).toUpperCase() +
+		subscribedProductName.slice(1);
+
+	// see if the subscriber already exists
+	const checkEmail = await mailchimp.searchMembers.search(email);
+
+	// if they do, update the tags
+	if (checkEmail.exact_matches.total_items > 0) {
+		const oldTags = checkEmail.exact_matches.members[0].tags;
+
+		// check if user is supposed to already be in the mailchimp automation
+		if (
+			oldTags.some(
+				(tag: { id: string; name: string }) =>
+					tag.name === 'Active Bundle Plan Waitlist' ||
+					tag.name === 'Active Pro Plan Waitlist' ||
+					tag.name === 'Active Grow Plan Waitlist'
+			)
+		) {
+			console.log('Waitlist user is already in MailChimp automation');
+			// get the next qualified user, if any
+			const nextQualifiedWaitlistUser = await WaitlistUser.findOne({
+				_id: { $ne: waitlistUser._id },
+				plans: {
+					$elemMatch: {
+						type: subscribedProductName,
+						active: true,
+					},
+				},
+			}).sort({ dateCreated: 1 });
+
+			return handleWaitlistUser(
+				nextQualifiedWaitlistUser,
+				subscribedProductName
+			);
+		}
+
+		console.log('Email found...');
+
+		// replace/update the tags
+		const tags = [
+			{
+				name: `${planCapitalized} Plan Waitlist`,
+				status: 'inactive',
+			},
+			{
+				name: `Active ${planCapitalized} Plan Waitlist`,
+				status: 'active',
+			},
+		];
+
+		const subscriberHash = await md5(email);
+
+		// make req to mailchimp api
+		mailchimp.lists.updateListMemberTags(mailchimpAudienceId, subscriberHash, {
+			tags,
+		});
+	}
+
+	// update plan to inactive in DB
+	const planIndex = plans.findIndex(
+		(plan: { type: 'bundle' | 'pro' | 'grow'; active: boolean }) =>
+			plan.type === subscribedProductName
+	);
+
+	plans[planIndex].active = false;
+
+	waitlistUser.plans = plans;
+
+	await waitlistUser.save();
+
+	console.log('Waitlist user updated');
+
+	return;
+};
+
 // @route       POST api/users/stripe-webhook
 // @description Webhooks for stripe
 // @access      Public
@@ -482,96 +568,6 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 							name = null;
 					}
 					return name;
-				};
-
-				// handle a qualified waitlist user
-				const handleWaitlistUser = async (
-					waitlistUser: IWaitlistUserDocument,
-					subscribedProductName: 'bundle' | 'pro' | 'grow'
-				): Promise<any> => {
-					// destructure necessary items
-					const { email, plans } = waitlistUser;
-
-					// capitalize the plan name
-					const planCapitalized =
-						subscribedProductName.charAt(0).toUpperCase() +
-						subscribedProductName.slice(1);
-
-					// see if the subscriber already exists
-					const checkEmail = await mailchimp.searchMembers.search(email);
-
-					// if they do, update the tags
-					if (checkEmail.exact_matches.total_items > 0) {
-						const oldTags = checkEmail.exact_matches.members[0].tags;
-
-						// check if user is supposed to already be in the mailchimp automation
-						if (
-							oldTags.some(
-								(tag: { id: string; name: string }) =>
-									tag.name === 'Active Bundle Plan Waitlist' ||
-									tag.name === 'Active Pro Plan Waitlist' ||
-									tag.name === 'Active Grow Plan Waitlist'
-							)
-						) {
-							console.log('Waitlist user is already in MailChimp automation');
-							// get the next qualified user, if any
-							const nextQualifiedWaitlistUser = await WaitlistUser.findOne({
-								_id: { $ne: waitlistUser._id },
-								plans: {
-									$elemMatch: {
-										type: subscribedProductName,
-										active: true,
-									},
-								},
-							}).sort({ dateCreated: 1 });
-
-							return handleWaitlistUser(
-								nextQualifiedWaitlistUser,
-								subscribedProductName
-							);
-						}
-
-						console.log('Email found...');
-
-						// replace/update the tags
-						const tags = [
-							{
-								name: `${planCapitalized} Plan Waitlist`,
-								status: 'inactive',
-							},
-							{
-								name: `Active ${planCapitalized} Plan Waitlist`,
-								status: 'active',
-							},
-						];
-
-						const subscriberHash = await md5(email);
-
-						// make req to mailchimp api
-						mailchimp.lists.updateListMemberTags(
-							mailchimpAudienceId,
-							subscriberHash,
-							{
-								tags,
-							}
-						);
-					}
-
-					// update plan to inactive in DB
-					const planIndex = plans.findIndex(
-						(plan: { type: 'bundle' | 'pro' | 'grow'; active: boolean }) =>
-							plan.type === subscribedProductName
-					);
-
-					plans[planIndex].active = false;
-
-					waitlistUser.plans = plans;
-
-					await waitlistUser.save();
-
-					console.log('Waitlist user updated');
-
-					return;
 				};
 
 				// sets the name from the id
@@ -652,13 +648,70 @@ router.post(
 	urlencoded(),
 	async (req: Request, res: Response) => {
 		try {
-			const { type, data } = req.body;
+			const {
+				type,
+				data: {
+					email,
+					merges: { LEAD: lead },
+				},
+			} = req.body;
 
-			console.log(req.body);
-			console.log(type);
-			console.log(data);
+			switch (type) {
+				case 'profile':
+					if (
+						lead === 'Inactive Grow Plan Waitlist' ||
+						lead === 'Inactive Pro Plan Waitlist' ||
+						lead === 'Inactive Bundle Plan Waitlist'
+					) {
+						const getPlan = (
+							mergeTag:
+								| 'Inactive Bundle Plan Waitlist'
+								| 'Inactive Pro Plan Waitlist'
+								| 'Inactive Grow Plan Waitlist'
+						) => {
+							let plan: 'bundle' | 'pro' | 'grow';
+							switch (mergeTag) {
+								case 'Inactive Bundle Plan Waitlist':
+									plan = 'bundle';
+									break;
+								case 'Inactive Pro Plan Waitlist':
+									plan = 'pro';
+									break;
+								case 'Inactive Grow Plan Waitlist':
+									plan = 'grow';
+									break;
+								default:
+									plan = null;
+							}
+							return plan;
+						};
+						const subscribedProductName = getPlan(lead);
 
-			return res.status(200).send('Ping');
+						if (subscribedProductName) {
+							const waitlistUser = await WaitlistUser.findOne({
+								email: { $ne: email },
+								plans: {
+									$elemMatch: {
+										type: subscribedProductName,
+										active: true,
+									},
+								},
+							}).sort({ dateCreated: 1 });
+
+							handleWaitlistUser(waitlistUser, subscribedProductName);
+							return;
+						} else {
+							console.log(`Unhandled plan ${subscribedProductName}`);
+						}
+					} else {
+						console.log(`Unhandled merge tag ${lead}`);
+					}
+					break;
+				default:
+					console.log(`Unhandled event type ${type}`);
+			}
+
+			return res.status(200);
 		} catch (error) {
 			console.log(error);
 			return res.status(500);
