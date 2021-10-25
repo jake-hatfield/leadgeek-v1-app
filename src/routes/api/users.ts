@@ -656,8 +656,6 @@ router.post(
 				},
 			} = req.body;
 
-			console.log(req.body);
-
 			switch (type) {
 				case 'profile':
 					if (
@@ -702,6 +700,10 @@ router.post(
 
 							if (waitlistUser) {
 								handleWaitlistUser(waitlistUser, subscribedProductName);
+							} else {
+								console.log(
+									`No qualified users on waitlist for plan: ${subscribedProductName}`
+								);
 							}
 						} else {
 							console.log(`Unhandled plan ${subscribedProductName}`);
