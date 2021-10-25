@@ -649,7 +649,11 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 // @access      Public
 router.post('/mailchimp-webhook', async (req: Request, res: Response) => {
 	try {
-		console.log(req.body);
+		const { type, data } = req.body;
+		console.log(type);
+		console.log(data);
+
+		return res.status(200).send('Ping');
 	} catch (error) {
 		console.log(error);
 		return res.status(500);
