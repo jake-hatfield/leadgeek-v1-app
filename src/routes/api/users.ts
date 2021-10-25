@@ -645,7 +645,7 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 // @access      Public
 router.post(
 	'/mailchimp-webhook',
-	urlencoded(),
+	urlencoded({ extended: true }),
 	async (req: Request, res: Response) => {
 		try {
 			const {
@@ -698,8 +698,9 @@ router.post(
 								},
 							}).sort({ dateCreated: 1 });
 
-							handleWaitlistUser(waitlistUser, subscribedProductName);
-							return;
+							if (waitlistUser) {
+								handleWaitlistUser(waitlistUser, subscribedProductName);
+							}
 						} else {
 							console.log(`Unhandled plan ${subscribedProductName}`);
 						}
