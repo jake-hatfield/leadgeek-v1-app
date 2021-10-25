@@ -475,10 +475,16 @@ const handleWaitlistUser = async (
 				},
 			}).sort({ dateCreated: 1 });
 
-			return handleWaitlistUser(
-				nextQualifiedWaitlistUser,
-				subscribedProductName
-			);
+			if (nextQualifiedWaitlistUser) {
+				return handleWaitlistUser(
+					nextQualifiedWaitlistUser,
+					subscribedProductName
+				);
+			} else {
+				console.log(
+					`No qualified users on waitlist for plan: ${subscribedProductName}`
+				);
+			}
 		}
 
 		console.log('Email found...');
