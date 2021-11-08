@@ -1,4 +1,5 @@
 // packages
+import axios from 'axios';
 import { Request, Response, Router, urlencoded } from 'express';
 import mailchimp from '@mailchimp/mailchimp_marketing';
 import md5 from 'md5';
@@ -633,6 +634,10 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 						`No product matching this ID was found: ${subscribedProductId}`
 					);
 				}
+
+				await axios.post(
+					'https://api.netlify.com/build_hooks/617853cf1b20ba007987f2d7'
+				);
 				break;
 			default:
 				console.log(`Unhandled event type ${event.type}`);
