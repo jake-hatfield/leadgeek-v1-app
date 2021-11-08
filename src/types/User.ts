@@ -2,9 +2,12 @@ import { ObjectId } from 'mongoose';
 
 export type Roles =
 	| 'user'
-	| 'grow'
-	| 'pro'
 	| 'bundle'
+	| 'pro'
+	| 'grow'
+	| 'bundle_2'
+	| 'pro_2'
+	| 'grow_2'
 	| 'affiliate'
 	| 'admin'
 	| 'master';

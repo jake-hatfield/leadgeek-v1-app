@@ -14,6 +14,7 @@ import { surrogateUser } from '@features/auth/authSlice';
 // components
 import AuthLayout from '@components/layout/AuthLayout';
 import LocalPaginationComponent from '@components/layout/navigation/LocalPagination';
+import NullState from '@components/utils/NullState';
 import Spinner from '@components/utils/Spinner';
 import Toggle from '@components/utils/Toggle';
 import { ReactComponent as Check } from '@assets/images/svgs/check.svg';
@@ -203,7 +204,7 @@ const Admin = () => {
 									Admin resources
 								</h2>
 								<p className='mt-2 text-200'>
-									Keep stuff from catching fire, bruh{' '}
+									Keep stuff from catching fire{' '}
 									<span role='img' aria-label='Fire emoji'>
 										🔥
 									</span>
@@ -215,78 +216,94 @@ const Admin = () => {
 										<h2 className='font-bold text-lg text-300'>Users</h2>
 									</header>
 								</div>
-								{usersState.status === 'idle' ? (
-									<table className='w-full table-auto'>
-										<thead className='border-b border-200'>
-											<tr className='cs-bg text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
-												<th className='p-3' />
-												<th className='p-3'>Name</th>
-												<th className='p-3'>Email</th>
-												<th className='p-3'>Plan</th>
-												<th className='p-3'>Created</th>
-												<th className='p-3'>Last login</th>
-											</tr>
-										</thead>
-										<tbody className='text-100'>
-											{usersState.pageByIds.map((lgUser) => (
-												<tr
-													key={lgUser._id}
-													className='text-sm border-b last:border-none border-100 dark:border-darkGray-200 hover:bg-gray-100 dark:hover:bg-darkGray-300'
-												>
-													<td className='p-3 all-center'>
-														{lgUser.subscription.subIds[0] &&
-														lgUser.subscription.subIds[0].active ? (
-															<Check className='inline-block svg-sm text-teal-900 bg-teal-200 rounded-full' />
-														) : (
-															<X className='inline-block svg-sm text-red-500 dark:text-red-600 bg-red-200 dark:bg-red-100 rounded-full' />
-														)}
-													</td>
-													<td className='p-3'>
-														<button
-															onClick={() =>
-																user?.role === 'master' &&
-																dispatch(
-																	surrogateUser({
-																		surrogateId: lgUser._id,
-																	})
-																)
-															}
-															className='link'
-														>
-															{lgUser.name}
-														</button>
-													</td>
-													<td className='p-3'>{lgUser.email}</td>
-													<td className='p-3'>{capitalize(lgUser.role)}</td>
-													<td className='p-3'>
-														{lgUser.lastLoggedIn
-															? DateTime.fromISO(
-																	lgUser.dateCreated.toString()
-															  ).toFormat('LLL dd')
-															: '-'}
-													</td>
-													<td className='p-3'>
-														{lgUser.lastLoggedIn
-															? DateTime.fromISO(
-																	lgUser.lastLoggedIn.toString()
-															  ).toFormat('LLL dd @ t')
-															: '-'}
-													</td>
+								{user.role === 'master' ? (
+									usersState.status === 'idle' ? (
+										<table className='w-full table-auto'>
+											<thead className='border-b border-200'>
+												<tr className='cs-bg text-left font-semibold text-xs text-gray-600 uppercase tracking-widest whitespace-no-wrap'>
+													<th className='p-3' />
+													<th className='p-3'>Name</th>
+													<th className='p-3'>Email</th>
+													<th className='p-3'>Plan</th>
+													<th className='p-3'>Created</th>
+													<th className='p-3'>Last login</th>
 												</tr>
-											))}
-										</tbody>
-									</table>
+											</thead>
+											<tbody className='text-100'>
+												{usersState.pageByIds.map((lgUser) => (
+													<tr
+														key={lgUser._id}
+														className='text-sm border-b last:border-none border-100 dark:border-darkGray-200 hover:bg-gray-100 dark:hover:bg-darkGray-300'
+													>
+														<td className='p-3 all-center'>
+															{lgUser.subscription.subIds[0] &&
+															lgUser.subscription.subIds[0].active ? (
+																<Check className='inline-block svg-sm text-teal-900 bg-teal-200 rounded-full' />
+															) : (
+																<X className='inline-block svg-sm text-red-500 dark:text-red-600 bg-red-200 dark:bg-red-100 rounded-full' />
+															)}
+														</td>
+														<td className='p-3'>
+															<button
+																onClick={() =>
+																	user?.role === 'master' &&
+																	dispatch(
+																		surrogateUser({
+																			surrogateId: lgUser._id,
+																		})
+																	)
+																}
+																className='link'
+															>
+																{lgUser.name}
+															</button>
+														</td>
+														<td className='p-3'>{lgUser.email}</td>
+														<td className='p-3'>{capitalize(lgUser.role)}</td>
+														<td className='p-3'>
+															{lgUser.lastLoggedIn
+																? DateTime.fromISO(
+																		lgUser.dateCreated.toString()
+																  ).toFormat('LLL dd')
+																: '-'}
+														</td>
+														<td className='p-3'>
+															{lgUser.lastLoggedIn
+																? DateTime.fromISO(
+																		lgUser.lastLoggedIn.toString()
+																  ).toFormat('LLL dd @ t')
+																: '-'}
+														</td>
+													</tr>
+												))}
+											</tbody>
+										</table>
+									) : (
+										<Spinner
+											divWidth={null}
+											center={false}
+											spinnerWidth={null}
+											margin={false}
+											text={'Loading users...'}
+										/>
+									)
 								) : (
-									<Spinner
-										divWidth={null}
-										center={false}
-										spinnerWidth={null}
-										margin={false}
-										text={'Loading users...'}
-									/>
+									<div className='container pt-3'>
+										<NullState
+											header={'Access denied'}
+											text={
+												'You need special clearance to view Leadgeek clients'
+											}
+											path={
+												<path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
+											}
+											link={''}
+											linkText={''}
+										/>
+									</div>
 								)}
 							</article>
-							{usersState.totalByIds.length > 0 && (
+							{usersState.totalByIds.length > 0 && user.role === 'master' && (
 								<LocalPaginationComponent
 									items={usersState.totalByIds}
 									pagination={usersState.pagination}

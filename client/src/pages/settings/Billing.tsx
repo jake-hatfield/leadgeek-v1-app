@@ -369,7 +369,7 @@ const BillingPage = () => {
 											</table>
 										</div>
 									) : (
-										<section className='mt-4 card-padding-x'>
+										<section className='mt-4'>
 											<NullState
 												header={'No subscription payments found'}
 												text={'No payments have been found for your account.'}
@@ -382,7 +382,7 @@ const BillingPage = () => {
 								</section>
 							</>
 						) : (
-							<section className='mt-4 card-padding-x'>
+							<section className='mt-4'>
 								<NullState
 									header={'No subscription found'}
 									text={

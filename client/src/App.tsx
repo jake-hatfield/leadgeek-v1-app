@@ -32,7 +32,8 @@ const App: React.FC = () => {
 		});
 	}, []);
 
-	const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY!);
+	const STRIPE_KEY = process.env.REACT_APP_STRIPE_KEY as string;
+	const stripePromise = loadStripe(STRIPE_KEY);
 
 	return (
 		<Elements stripe={stripePromise}>
