@@ -36,7 +36,7 @@ const App: React.FC = () => {
 	const stripePromise = loadStripe(STRIPE_KEY);
 
 	return (
-		<Elements stripe={stripePromise}>
+		<Elements stripe={stripePromise} data-test='component-app'>
 			<Provider store={store}>
 				<Router>
 					<Fragment>
