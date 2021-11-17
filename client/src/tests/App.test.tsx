@@ -1,3 +1,5 @@
+import React from 'react';
+
 // packages
 import { shallow } from 'enzyme';
 
@@ -5,12 +7,11 @@ import { shallow } from 'enzyme';
 import App from '../App';
 
 // utils
-import { findByTestAttribute } from './utils';
+import { findByTestAttribute } from '@utils/testUtils';
 
-const setup = () => {
-	return shallow(<App />);
-};
-test('renders a non-empty component ', () => {
+const setup = () => shallow(<App />);
+
+test('renders a non-empty component', () => {
 	const wrapper = setup();
 	const appComponent = findByTestAttribute(wrapper, 'component-app');
 	expect(appComponent.length).toBe(1);
