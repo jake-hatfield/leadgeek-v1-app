@@ -261,7 +261,7 @@ router.post(
 			// declare admin roles and set admin to true if one exists
 			const administrativeRoles = ['master', 'admin'];
 			if (administrativeRoles.indexOf(user.role) >= 0) {
-				roleFilter.push('bundle');
+				roleFilter.push('bundle', 'bundle_2');
 			}
 
 			// set date filter
@@ -449,7 +449,7 @@ router.post(
 			// declare admin roles and set admin to true if one exists
 			const administrativeRoles = ['master', 'admin'];
 			if (administrativeRoles.indexOf(user.role) >= 0) {
-				roleFilter.push('bundle');
+				roleFilter.push('bundle', 'bundle_2');
 			}
 
 			// set date filter
@@ -1062,7 +1062,7 @@ router.post(
 			// declare admin roles and set admin to true if one exists
 			const administrativeRoles = ['master', 'admin'];
 			if (administrativeRoles.indexOf(user.role) >= 0) {
-				roleFilter.push('bundle');
+				roleFilter.push('bundle', 'bundle_2');
 			}
 
 			// set date filter
