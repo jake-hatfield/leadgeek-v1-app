@@ -120,7 +120,7 @@ const LeadSchema: Schema<ILeadDocument> = new Schema({
 	plan: [
 		{
 			type: String,
-			enum: ['bundle', 'pro', 'grow'],
+			enum: ['bundle', 'pro', 'grow', 'bundle_2', 'pro_2', 'grow_2'],
 			required: true,
 		},
 	],
