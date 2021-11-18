@@ -28,5 +28,5 @@ export interface ILead {
 		img: string;
 		date: Date;
 	};
-	plan: 'bundle' | 'pro' | 'grow'[];
+	plan: 'bundle' | 'pro' | 'grow' | 'bundle_2' | 'pro_2' | 'grow_2'[];
 }
