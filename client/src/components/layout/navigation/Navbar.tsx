@@ -180,7 +180,11 @@ const Navbar: React.FC = () => {
 											<p>
 												Notifications for your account will show up here, but
 												you're all caught up for now!{' '}
-												<span role='img' aria-label='Party emoji'>
+												<span
+													role='img'
+													aria-label='Party emoji'
+													className='font-normal'
+												>
 													🎉
 												</span>
 											</p>
@@ -212,7 +216,7 @@ const Navbar: React.FC = () => {
 														<span
 															role='img'
 															aria-label='Waving emoji'
-															className='mr-1'
+															className='mr-1 font-normal'
 														>
 															👋
 														</span>

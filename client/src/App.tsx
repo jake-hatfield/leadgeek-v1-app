@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React from 'react';
 
 // packages
 import { BrowserRouter as Router, Switch } from 'react-router-dom';
@@ -20,7 +20,7 @@ import Routes from './routes/Routes';
 import setAuthToken from '@utils/authTokens';
 
 const App: React.FC = () => {
-	useEffect(() => {
+	React.useEffect(() => {
 		// check for token in LS
 		if (localStorage.token) {
 			setAuthToken(localStorage.token);
@@ -39,11 +39,9 @@ const App: React.FC = () => {
 		<Elements stripe={stripePromise} data-test='component-app'>
 			<Provider store={store}>
 				<Router>
-					<Fragment>
-						<Switch>
-							<Routes />
-						</Switch>
-					</Fragment>
+					<Switch>
+						<Routes />
+					</Switch>
 				</Router>
 			</Provider>
 		</Elements>
