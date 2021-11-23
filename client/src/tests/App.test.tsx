@@ -16,3 +16,7 @@ test('renders a non-empty component', () => {
 	const appComponent = findByTestAttribute(wrapper, 'component-app');
 	expect(appComponent.length).toBe(1);
 });
+
+test.todo('useEffect for checking local storage token runs once');
+
+test.todo('stripe is initialized');

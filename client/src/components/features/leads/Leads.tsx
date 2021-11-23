@@ -57,9 +57,11 @@ const Leads: React.FC<LeadsProps> = ({
 	const location = useLocation();
 
 	// lead state
-	const leadStatus = useAppSelector((state) => state.leads.status);
-	const currentLead = useAppSelector((state) => state.leads.currentLead);
-	const lastUpdated = useAppSelector((state) => state.leads.lastUpdated);
+	const { leadStatus, currentLead, lastUpdated } = useAppSelector((state) => ({
+		leadStatus: state.leads.status,
+		currentLead: state.leads.currentLead,
+		lastUpdated: state.leads.lastUpdated,
+	}));
 	// filter state
 	const filters = useAppSelector((state) => state.filters);
 

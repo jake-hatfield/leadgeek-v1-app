@@ -205,7 +205,11 @@ const Admin = () => {
 								</h2>
 								<p className='mt-2 text-200'>
 									Keep stuff from catching fire{' '}
-									<span role='img' aria-label='Fire emoji'>
+									<span
+										role='img'
+										aria-label='Fire emoji'
+										className='font-normal'
+									>
 										🔥
 									</span>
 								</p>
