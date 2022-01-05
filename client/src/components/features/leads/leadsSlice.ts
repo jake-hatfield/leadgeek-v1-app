@@ -13,6 +13,36 @@ import { Pagination } from '@utils/interfaces/Pagination';
 import { config, truncate } from '@utils/utils';
 import { setItemLimit } from '@features/filters/filtersSlice';
 
+// csv headers
+export const defaultHeaders = [
+	{ label: 'Source', key: 'data.source' },
+	{ label: 'Title', key: 'data.title' },
+	{ label: 'Brand', key: 'data.brand' },
+	{ label: 'Category', key: 'data.category' },
+	{ label: 'Retailer Source', key: 'data.retailerLink' },
+	{ label: 'Amazon Link', key: 'data.amzLink' },
+	{ label: 'Promo Code', key: 'data.promo' },
+	{ label: 'Buy Price', key: 'data.buyPrice' },
+	{ label: 'Sell Price', key: 'data.sellPrice' },
+	{ label: 'Profit', key: 'data.netProfit' },
+	{ label: 'ROI', key: 'data.roi' },
+	{ label: 'Current BSR', key: 'data.bsrCurrent' },
+	{ label: 'Avg Mo. Sales', key: 'data.monthlySales' },
+	{ label: '30 Day BSR', key: 'data.bsr30' },
+	{ label: '90 Day BSR', key: 'data.bsr90' },
+	{ label: 'Seller competition', key: 'data.competitorType' },
+	{ label: 'Seller count', key: 'data.competitorCount' },
+	{ label: '30 Day Price', key: 'data.price30' },
+	{ label: '90 Day Price', key: 'data.price90' },
+	{ label: 'Variation Suggestions', key: 'data.variations' },
+	{ label: 'Cashback Discounts', key: 'data.cashback' },
+	{ label: 'Item Weight (lb)', key: 'data.weight' },
+	{ label: 'ASIN', key: 'data.asin' },
+	{ label: 'Shipping Notes', key: 'data.shipping' },
+	{ label: 'Seller Notes', key: 'data.notes' },
+	{ label: 'Date', key: 'data.date' },
+];
+
 export const addComment = createAsyncThunk(
 	'leads/addComment',
 	async (options: { comment: string; leadId: string }, { dispatch }) => {
@@ -378,6 +408,9 @@ interface LeadsState {
 	currentLead: Lead | null;
 	currentLeadStatus: 'idle' | 'loading' | 'failed';
 	lastUpdated: string | null;
+	settings: {
+		exportHeaders: { label: string; key: string }[];
+	};
 }
 
 const initialState: LeadsState = {
@@ -447,6 +480,10 @@ const initialState: LeadsState = {
 	currentLead: null,
 	currentLeadStatus: 'loading',
 	lastUpdated: null,
+	settings: {
+		exportHeaders:
+			JSON.parse(localStorage.getItem('exportHeaders')!) || defaultHeaders,
+	},
 };
 
 export const leadsSlice = createSlice({
@@ -458,6 +495,10 @@ export const leadsSlice = createSlice({
 		},
 		clearCurrentLead: (state) => {
 			state.currentLead = null;
+		},
+		setExportHeaders: (state, action) => {
+			state.settings.exportHeaders = action.payload;
+			localStorage.setItem('exportHeaders', JSON.stringify(action.payload));
 		},
 		setLeadIdle: (state) => {
 			state.status = 'idle';
@@ -644,6 +685,7 @@ export const leadsSlice = createSlice({
 export const {
 	setCurrentLead,
 	clearCurrentLead,
+	setExportHeaders,
 	setLeadIdle,
 	setLeadLoading,
 	setPage,

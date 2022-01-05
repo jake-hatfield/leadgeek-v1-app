@@ -57,11 +57,13 @@ const Leads: React.FC<LeadsProps> = ({
 	const location = useLocation();
 
 	// lead state
-	const { leadStatus, currentLead, lastUpdated } = useAppSelector((state) => ({
-		leadStatus: state.leads.status,
-		currentLead: state.leads.currentLead,
-		lastUpdated: state.leads.lastUpdated,
-	}));
+	const { leadStatus, currentLead, lastUpdated, exportHeaders } =
+		useAppSelector((state) => ({
+			leadStatus: state.leads.status,
+			currentLead: state.leads.currentLead,
+			lastUpdated: state.leads.lastUpdated,
+			exportHeaders: state.leads.settings.exportHeaders,
+		}));
 	// filter state
 	const filters = useAppSelector((state) => state.filters);
 
@@ -258,6 +260,7 @@ const Leads: React.FC<LeadsProps> = ({
 										user={user}
 										leads={allLeads}
 										setExportLeads={setExportLeads}
+										headers={exportHeaders}
 									/>
 								) : (
 									<Spinner
