@@ -22,7 +22,17 @@ const Toggle: React.FC<ToggleProps> = ({
 			className='flex items-center cursor-pointer text-sm font-semibold text-100'
 		>
 			{itemLeft && itemLeft}
-			<div className='relative mx-2'>
+			<div
+				className={`${
+					itemLeft && itemRight
+						? 'mx-2'
+						: itemLeft
+						? 'm-2'
+						: itemRight
+						? 'mr-2'
+						: ''
+				} relative`}
+			>
 				<input
 					type='checkbox'
 					defaultChecked={defaultChecked}
@@ -38,7 +48,7 @@ const Toggle: React.FC<ToggleProps> = ({
 					className={`absolute left-0.5 top-0.5 w-5 h-5 rounded-full transition transform ${
 						!checked
 							? 'bg-white dark:bg-gray-200'
-							: 'bg-purple-500 dark:bg-purple-300 translate-x-6'
+							: 'bg-gray-600 dark:bg-purple-300 translate-x-6'
 					} shadow-md`}
 				/>
 			</div>
