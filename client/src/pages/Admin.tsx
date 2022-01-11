@@ -303,6 +303,7 @@ const Admin = () => {
 											}
 											link={''}
 											linkText={''}
+											showButton={false}
 										/>
 									</div>
 								)}

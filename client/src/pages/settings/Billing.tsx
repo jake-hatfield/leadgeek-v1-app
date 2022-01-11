@@ -376,6 +376,7 @@ const BillingPage = () => {
 												path={svgList.payment}
 												link={''}
 												linkText={''}
+												showButton={false}
 											/>
 										</section>
 									)}
@@ -391,6 +392,7 @@ const BillingPage = () => {
 									path={svgList.affiliate}
 									link={''}
 									linkText={''}
+									showButton={false}
 								/>
 							</section>
 						)}

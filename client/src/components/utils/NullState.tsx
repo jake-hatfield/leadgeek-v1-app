@@ -10,6 +10,7 @@ interface NullStateProps {
 	path: JSX.Element;
 	link: string;
 	linkText: string;
+	showButton: boolean;
 }
 
 const NullState: React.FC<NullStateProps> = ({
@@ -18,6 +19,7 @@ const NullState: React.FC<NullStateProps> = ({
 	path,
 	link,
 	linkText,
+	showButton,
 }) => {
 	return (
 		<div className={nullStateClasses.nullStateWrapper}>
@@ -40,7 +42,7 @@ const NullState: React.FC<NullStateProps> = ({
 				>
 					{linkText}
 				</Link>
-			) : (
+			) : showButton ? (
 				<div className='mt-4'>
 					<Button
 						text={'Reload the page'}
@@ -54,6 +56,8 @@ const NullState: React.FC<NullStateProps> = ({
 						conditionalDisplay={null}
 					/>
 				</div>
+			) : (
+				<></>
 			)}
 		</div>
 	);

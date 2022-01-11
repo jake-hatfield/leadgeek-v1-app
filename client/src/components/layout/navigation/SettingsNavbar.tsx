@@ -39,11 +39,11 @@ const SettingsNavbar = () => {
 		// 	link: 'arbitrage',
 		// 	new: true,
 		// },
-		// {
-		// 	title: 'Affiliate',
-		// 	link: 'affiliates',
-		// 	new: false,
-		// },
+		{
+			title: 'Affiliate',
+			link: 'affiliates',
+			new: false,
+		},
 		{
 			title: 'Plan & billing',
 			link: 'billing',

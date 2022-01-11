@@ -125,6 +125,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 					path={svgList.feed}
 					link={''}
 					linkText={''}
+					showButton={true}
 				/>
 			) : type === 'liked' ? (
 				<NullState
@@ -141,6 +142,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 					path={svgList.liked}
 					link={'/'}
 					linkText={'Go to the Feed'}
+					showButton={true}
 				/>
 			) : type === 'archived' ? (
 				<NullState
@@ -157,6 +159,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 					path={svgList.archived}
 					link={'/'}
 					linkText={'Go to the Feed'}
+					showButton={true}
 				/>
 			) : type === 'search' && !currentSearchValue ? (
 				<NullState
@@ -165,6 +168,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 					path={svgList.search}
 					link={'/'}
 					linkText={'Go to the Feed'}
+					showButton={true}
 				/>
 			) : (
 				<NullState
@@ -183,6 +187,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 					path={svgList.search}
 					link={''}
 					linkText={''}
+					showButton={true}
 				/>
 			)}
 		</section>
