@@ -100,6 +100,11 @@ const UserSchema: Schema<IUserDocument> = new Schema({
 				required: true,
 				default: false,
 			},
+			pendingApplication: {
+				type: Boolean,
+				required: false,
+				default: false,
+			},
 			lgid: {
 				type: String,
 				default: null,

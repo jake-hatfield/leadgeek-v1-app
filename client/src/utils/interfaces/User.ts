@@ -36,6 +36,7 @@ export interface User {
 		};
 		referrer: {
 			isReferrer: boolean;
+			pendingApplication: boolean;
 			lgid: string | null;
 			paypalEmail: string | null;
 			dateCreated?: Date;

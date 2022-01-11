@@ -41,6 +41,7 @@ export interface IUser {
 		};
 		referrer: {
 			isReferrer: boolean;
+			pendingApplication: boolean;
 			lgid: string | null;
 			paypalEmail: string | null;
 			dateCreated: Date;
