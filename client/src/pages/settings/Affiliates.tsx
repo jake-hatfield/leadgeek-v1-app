@@ -56,7 +56,7 @@ const AffiliatesPage = () => {
 	const [copiedText, setCopiedText] = useState(false);
 	const [copyText, setCopyText] = useState('Copy LGID');
 	const [isAff, setIsAff] = useState(
-		user?.referrals.referrer.isReferrer || false
+		(user?.role === 'affiliate' && user?.referrals.referrer.isReferrer) || false
 	);
 	const [lastPayout] = useState(calcNextPossiblePayoutDate(-1));
 	const [lgid] = useState(isAuthenticated && user?.referrals.referrer.lgid);
@@ -396,7 +396,7 @@ const AffiliatesPage = () => {
 													}}
 													onMouseEnter={() => setCopiedText(true)}
 													onMouseLeave={() => setCopiedText(false)}
-													className='py-1 px-2 bg-gray-100 dark:bg-gray-900 text-300 rounded-main text-xs font-semibold transition-main ring-gray'
+													className='py-1 px-2 bg-gray-100 dark:bg-gray-900 text-300 rounded-main text-xs font-semibold transition-main ring-gray border border-main'
 												>
 													Leadgeek ID: {lgid}
 												</button>
@@ -491,6 +491,7 @@ const AffiliatesPage = () => {
 											path={svgList.payment}
 											link={''}
 											linkText={''}
+											showButton={false}
 										/>
 									</section>
 								)}
@@ -544,6 +545,19 @@ const AffiliatesPage = () => {
 								</>
 							)}
 						</div>
+					) : user.role === 'affiliate' ? (
+						<section className='mt-4'>
+							<NullState
+								header={'Application under review'}
+								text={
+									"Your affiliate application is currently under review. You'll receive an email notification when a decision has been made."
+								}
+								path={svgList.review}
+								link={''}
+								linkText={''}
+								showButton={false}
+							/>
+						</section>
 					) : (
 						<section className='mt-4'>
 							<NullState
@@ -554,6 +568,7 @@ const AffiliatesPage = () => {
 								path={svgList.affiliate}
 								link={''}
 								linkText={''}
+								showButton={false}
 							/>
 						</section>
 					)}
@@ -687,6 +702,16 @@ const svgList = {
 	),
 	affiliate: (
 		<path d='M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z' />
+	),
+	review: (
+		<g>
+			<path d='M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2h-1.528A6 6 0 004 9.528V4z' />
+			<path
+				fillRule='evenodd'
+				d='M8 10a4 4 0 00-3.446 6.032l-1.261 1.26a1 1 0 101.414 1.415l1.261-1.261A4 4 0 108 10zm-2 4a2 2 0 114 0 2 2 0 01-4 0z'
+				clipRule='evenodd'
+			/>
+		</g>
 	),
 };
 
