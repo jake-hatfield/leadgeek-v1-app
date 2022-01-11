@@ -545,7 +545,8 @@ const AffiliatesPage = () => {
 								</>
 							)}
 						</div>
-					) : user.role === 'affiliate' ? (
+					) : user.role === 'affiliate' ||
+					  user.referrals.referrer.pendingApplication === true ? (
 						<section className='mt-4'>
 							<NullState
 								header={'Application under review'}
