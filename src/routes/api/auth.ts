@@ -324,7 +324,7 @@ router.get(
 						'Hello,\n\n' +
 						`We\'ve received a request to reset the password for the Leadgeek account associated with ${user.email}. No changes have been made to this account yet.\n\n` +
 						'You can reset your password by clicking the link below.\n\n' +
-						`${url}/reset/reset-password?t=${token} \n\n` +
+						`${url}/reset/reset-password/?t=${token} \n\n` +
 						'The link expires in 1 hour. If you did not request a new password or need additional help, please let us know by emailing support@leadgeek.io. \n\n' +
 						'-- Leadgeek Support \n',
 				};

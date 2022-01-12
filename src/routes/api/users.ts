@@ -555,9 +555,37 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 				// destructure necessary items
 				const data = event.data as Stripe.TypedEventData<Stripe.Subscription>;
 
+				const { id: subId, customer: cusId } = data.object;
+
+				try {
+					const canceledCustomer = await User.findOne({
+						'subscription.cusId': cusId,
+					});
+
+					if (canceledCustomer) {
+						canceledCustomer.role = 'user';
+
+						const subIndex = canceledCustomer.subscription.subIds.findIndex(
+							(sub) => sub.id === subId
+						);
+
+						canceledCustomer.subscription.subIds[subIndex] = {
+							id: subId,
+							active: false,
+						};
+
+						console.log("Updating customer's subscription status in DB...");
+
+						await canceledCustomer.save();
+					}
+				} catch (error) {
+					console.log(error.message);
+				}
+
 				// get the productId from the event
 				const subscribedProductId: string = data.object.plan.product;
 
+				// NOTE: DOESN'T ACCOUNT FOR SECOND SET OF LISTS
 				// return plan type in string
 				const getProductName = (id: string) => {
 					let name: 'bundle' | 'pro' | 'grow' | null;
@@ -593,6 +621,7 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 							},
 						}).sort({ dateCreated: 1 });
 
+					// if a valid waitlist user is found, run them through the waitlist automation
 					if (waitlistUser) {
 						handleWaitlistUser(waitlistUser, subscribedProductName);
 					} else if (subscribedProductName === 'bundle') {
@@ -635,9 +664,11 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 					);
 				}
 
-				await axios.post(
-					'https://api.netlify.com/build_hooks/617853cf1b20ba007987f2d7'
-				);
+				if (process.env.NODE_ENV === 'production') {
+					await axios.post(
+						'https://api.netlify.com/build_hooks/617853cf1b20ba007987f2d7'
+					);
+				}
 				break;
 			default:
 				console.log(`Unhandled event type ${event.type}`);
