@@ -527,6 +527,33 @@ const handleWaitlistUser = async (
 	return;
 };
 
+const unsubscribeCustomer = async (cusId: string, subId: string) => {
+	try {
+		const canceledCustomer = await User.findOne({
+			'subscription.cusId': cusId,
+		});
+
+		if (canceledCustomer) {
+			canceledCustomer.role = 'user';
+
+			const subIndex = canceledCustomer.subscription.subIds.findIndex(
+				(sub) => sub.id === subId
+			);
+
+			canceledCustomer.subscription.subIds[subIndex] = {
+				id: subId,
+				active: false,
+			};
+
+			console.log("Updating customer's subscription status in DB...");
+
+			await canceledCustomer.save();
+		}
+	} catch (error) {
+		console.log(error.message);
+	}
+};
+
 // @route       POST api/users/stripe-webhook
 // @description Webhooks for stripe
 // @access      Public
@@ -557,30 +584,7 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 
 				const { id: subId, customer: cusId } = data.object;
 
-				try {
-					const canceledCustomer = await User.findOne({
-						'subscription.cusId': cusId,
-					});
-
-					if (canceledCustomer) {
-						canceledCustomer.role = 'user';
-
-						const subIndex = canceledCustomer.subscription.subIds.findIndex(
-							(sub) => sub.id === subId
-						);
-
-						canceledCustomer.subscription.subIds[subIndex] = {
-							id: subId,
-							active: false,
-						};
-
-						console.log("Updating customer's subscription status in DB...");
-
-						await canceledCustomer.save();
-					}
-				} catch (error) {
-					console.log(error.message);
-				}
+				unsubscribeCustomer(cusId, subId);
 
 				// get the productId from the event
 				const subscribedProductId: string = data.object.plan.product;
@@ -670,6 +674,15 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 					);
 				}
 				break;
+			case 'invoice.payment_failed': {
+				// destructure necessary items
+				const data = event.data as Stripe.TypedEventData<Stripe.Invoice>;
+				const { customer: cusId, id: subId } = data.object;
+
+				unsubscribeCustomer(cusId, subId);
+
+				break;
+			}
 			default:
 				console.log(`Unhandled event type ${event.type}`);
 		}
