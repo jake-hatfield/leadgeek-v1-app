@@ -124,7 +124,7 @@ const Navbar: React.FC = () => {
 					<aside className='flex items-center'>
 						<div className='relative text-gray-400'>
 							<button
-								className='relative p-1 rounded-lg group text-gray-500 hover:text-gray-600 dark:text-gray-700 dark:hover:text-gray-300 transition-main ring-gray'
+								className='relative p-1 rounded-lg group text-gray-500 hover:text-gray-600 dark:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-darkGray-100 transition-main ring-gray'
 								onClick={() => {
 									setUserDropdown(false);
 									setNotificationDropdown(!notificationDropdown ? true : false);
