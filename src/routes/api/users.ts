@@ -343,7 +343,7 @@ router.get(
 				message = 'There are no notifications to show';
 				console.log(message);
 			} else {
-				let message = `Successfully populated notifications.`;
+				let message = `Successfully populated notifications`;
 				console.log(message);
 			}
 			return res.status(200).send({
@@ -466,12 +466,26 @@ router.get(
 );
 
 // @route       GET api/users/payment-methods?cusId=__
-// @description Create a payment method
+// @description Retrieve payment method(s)
 // @access      Private
 router.get(
 	'/payment-methods',
 	auth,
-	async (req: Request<{}, {}, {}, { cusId: string }>, res: Response) => {
+	async (
+		req: Request<{}, {}, {}, { cusId: string }>,
+		res: Response<{
+			message: 'Payment methods found' | 'No payment methods found';
+			paymentMethods: {
+				id: string;
+				brand: string;
+				expMonth: number;
+				expYear: number;
+				last4: string;
+				type: string;
+			}[];
+			defaultPmId: string | Stripe.PaymentMethod | null;
+		}>
+	) => {
 		// destructure necessary items
 		const { cusId } = req.query;
 
@@ -482,11 +496,18 @@ router.get(
 				expMonth: pm.card.exp_month,
 				expYear: pm.card.exp_year,
 				last4: pm.card.last4,
-				type: pm.type,
+				type: pm.card.funding,
 			};
 		};
 
 		try {
+			const customer = await stripe.customers.retrieve(cusId);
+
+			let defaultPmId = null;
+			if (customer.deleted !== true) {
+				defaultPmId = customer.invoice_settings.default_payment_method;
+			}
+
 			const paymentMethods = await stripe.customers.listPaymentMethods(cusId, {
 				type: 'card',
 			});
@@ -500,21 +521,22 @@ router.get(
 					return res.status(200).send({
 						message: 'Payment methods found',
 						paymentMethods: formattedPaymentMethods,
+						defaultPmId,
 					});
 				} else {
 					return res.status(200).send({
 						message: 'No payment methods found',
 						paymentMethods: [],
+						defaultPmId,
 					});
 				}
 			} else {
 				return res.status(200).send({
 					message: 'No payment methods found',
 					paymentMethods: [],
+					defaultPmId,
 				});
 			}
-
-			// TODO: return success and update UI
 		} catch (error) {
 			console.log(error.message);
 		}
@@ -534,9 +556,17 @@ router.post(
 		const { pmId, cusId } = req.body;
 
 		try {
-			await stripe.paymentMethods.attach(pmId, {
+			const paymentMethod = await stripe.paymentMethods.attach(pmId, {
 				customer: cusId,
 			});
+
+			if (paymentMethod) {
+				return res.status(200).send({ message: 'Payment method created' });
+			} else {
+				return res
+					.status(500)
+					.send({ message: 'Payment method could not be created' });
+			}
 
 			// TODO: return success and update UI
 		} catch (error) {
@@ -573,13 +603,65 @@ router.post(
 router.delete(
 	'/payment-method',
 	auth,
-	async (req: Request<{}, {}, {}, { pmId: string }>, res: Response) => {
+	async (
+		req: Request<{}, {}, {}, { pmId: string }>,
+		res: Response<{
+			message: 'Payment method deleted' | 'Payment method could not be deleted';
+		}>
+	) => {
 		try {
 			const { pmId } = req.query;
 
 			const paymentMethod = await stripe.paymentMethods.detach(pmId);
 
-			console.log(paymentMethod);
+			if (paymentMethod) {
+				return res.status(200).send({ message: 'Payment method deleted' });
+			} else {
+				return res
+					.status(500)
+					.send({ message: 'Payment method could not be deleted' });
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+// @route       PUT api/users/payment-method?cusId=__&pmId=__
+// @description Update the customer's default payment method
+// @access      Private
+router.put(
+	'/payment-method/default',
+	auth,
+	async (
+		req: Request<{}, {}, {}, { cusId: string; pmId: string }>,
+		res: Response<{
+			message:
+				| 'Default payment updated'
+				| 'Default payment could not be updated';
+			pmId: string | Stripe.PaymentMethod | null;
+		}>
+	) => {
+		try {
+			const { cusId, pmId } = req.query;
+
+			const customer = await stripe.customers.update(cusId, {
+				invoice_settings: {
+					default_payment_method: pmId,
+				},
+			});
+
+			if (customer) {
+				return res.status(200).send({
+					message: 'Default payment updated',
+					pmId: customer.invoice_settings.default_payment_method,
+				});
+			} else {
+				return res.status(200).send({
+					message: 'Default payment could not be updated',
+					pmId: null,
+				});
+			}
 		} catch (error) {
 			console.log(error);
 		}
@@ -740,7 +822,7 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 				// get the productId from the event
 				const subscribedProductId: string = data.object.plan.product;
 
-				// NOTE: DOESN'T ACCOUNT FOR SECOND SET OF LISTS
+				// NOTE: Add the second set of .env variables to add the second set of lists
 				// return plan type in string
 				const getProductName = (id: string) => {
 					let name: 'bundle' | 'pro' | 'grow' | null;

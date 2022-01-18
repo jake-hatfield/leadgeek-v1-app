@@ -60,6 +60,10 @@ body {
 	@apply text-gray-700 dark:text-gray-400;
 }
 
+.text-100-hover {
+	@apply text-100 hover:text-gray-800 dark:hover:text-gray-300;
+}
+
 .text-200 {
 	@apply text-gray-800 dark:text-gray-200;
 }
