@@ -44,7 +44,7 @@ router.get(
 			// lookup user and strip the password before sending it to the frontend
 			const user = await User.findById(req.body.user.id).select('-password');
 
-			// the notification time in DB is in seconds, so convert to miliseconds for comparision
+			// the notification time in DB is in seconds, so convert to milliseconds for comparision
 			const lastLogin = user.lastLoggedIn
 				? user.lastLoggedIn
 				: user.dateCreated;

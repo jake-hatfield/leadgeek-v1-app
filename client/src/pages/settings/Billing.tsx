@@ -4,9 +4,11 @@ import React, { useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { DateTime } from 'luxon';
 import { useStateIfMounted } from 'use-state-if-mounted';
+import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 
 // redux
-import { useAppSelector } from '@hooks/hooks';
+import { useAppSelector, useAppDispatch } from '@hooks/hooks';
+import { setAlert } from '@components/features/alert/alertSlice';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
@@ -18,10 +20,18 @@ import Spinner from '@components/utils/Spinner';
 // utils
 import {
 	capitalize,
+	config,
 	formatTimestamp,
 	planCheckerByPrice,
 	truncate,
 } from '@utils/utils';
+import { User } from '@utils/interfaces/User';
+
+// assets
+import { ReactComponent as MastercardIcon } from '@assets/images/svgs/mastercard.svg';
+import { ReactComponent as VisaIcon } from '@assets/images/svgs/visa.svg';
+import { ReactComponent as DiscoverIcon } from '@assets/images/svgs/discover.svg';
+import { ReactComponent as AmexIcon } from '@assets/images/svgs/amex.svg';
 
 interface PlanState {
 	status: 'loading' | 'idle';
@@ -43,6 +53,20 @@ interface PaymentState {
 		page: number;
 		itemLimit: 10;
 	};
+}
+
+interface PaymentMethod {
+	id: string;
+	brand: string;
+	expMonth: number;
+	expYear: number;
+	last4: string;
+	type: 'card';
+}
+
+interface PaymentMethodState {
+	status: 'loading' | 'idle';
+	paymentMethods: PaymentMethod[];
 }
 
 const BillingPage = () => {
@@ -73,6 +97,12 @@ const BillingPage = () => {
 			itemLimit: 10,
 		},
 	});
+
+	const [paymentMethodState, setPaymentMethodState] =
+		useStateIfMounted<PaymentMethodState>({
+			status: 'loading',
+			paymentMethods: [],
+		});
 
 	const getActivePlanDetails = useCallback(
 		async (activeSubId: string) => {
@@ -118,12 +148,14 @@ const BillingPage = () => {
 		[planState, setPlanState]
 	);
 
+	const getActiveSub = useCallback(() => {
+		return user?.subscription.subIds.filter((sub) => sub.active === true)[0];
+	}, []);
+
 	// get active plan details
 	useEffect(() => {
 		// get the user's active subscription
-		const activeSub = user?.subscription.subIds.filter(
-			(sub) => sub.active === true
-		)[0];
+		const activeSub = getActiveSub();
 
 		isAuthenticated &&
 			authStatus === 'idle' &&
@@ -131,6 +163,7 @@ const BillingPage = () => {
 			activeSub?.id &&
 			getActivePlanDetails(activeSub.id);
 	}, [
+		getActiveSub,
 		isAuthenticated,
 		authStatus,
 		planState.status,
@@ -141,7 +174,6 @@ const BillingPage = () => {
 	const getSuccessfulPayments = useCallback(
 		async (cusId: string) => {
 			try {
-				console.log(cusId);
 				// POST request to route
 				const { data } = await axios.get(`/api/users/payments?cusId=${cusId}`);
 
@@ -222,15 +254,6 @@ const BillingPage = () => {
 			),
 		},
 		{
-			title: 'Default payment method',
-			value: (
-				<div>
-					{user?.billing.brand && capitalize(user.billing.brand)}{' '}
-					&#8226;&#8226;&#8226;&#8226; {user?.billing.last4}
-				</div>
-			),
-		},
-		{
 			title: 'Update subscription',
 			value: (
 				<div>
@@ -246,6 +269,16 @@ const BillingPage = () => {
 			),
 		},
 	];
+
+	const getPaymentMethods = useCallback(async (cusId: string) => {
+		const res = await axios.get(`/api/users/payment-methods?cusId=${cusId}`);
+
+		setPaymentMethodState(res.data);
+	}, []);
+
+	useEffect(() => {
+		user?.subscription.cusId && getPaymentMethods(user?.subscription.cusId);
+	}, [user, getPaymentMethods]);
 
 	return (
 		authStatus === 'idle' &&
@@ -291,6 +324,68 @@ const BillingPage = () => {
 										</div>
 									)}
 								</section>
+								{/* payment method */}
+								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-5 cs-light-300 card-200'>
+									<div className='pb-4 border-b border-200'>
+										<header className='card-padding-x'>
+											<h2 className='font-bold text-lg text-300'>
+												Payment method
+											</h2>
+										</header>
+									</div>
+									<div className='card-padding-x'>
+										{/* <button onClick={() => handleUpdatePayment()}>REE</button> */}
+										{/* <CardForm user={user} /> */}
+										{paymentMethodState.status === 'loading' ? (
+											<Spinner
+												divWidth={null}
+												center={false}
+												spinnerWidth={null}
+												margin={true}
+												text={'Loading payment methods...'}
+											/>
+										) : (
+											<ul className='grid grid-cols-3 gap-4'>
+												{paymentMethodState.paymentMethods.length > 0 &&
+													paymentMethodState.paymentMethods.map((pm, i) => (
+														<li className='w-64 mt-4 card-100'>
+															<div className='pt-4 pb-1 px-6'>
+																{pm.type === 'card' && (
+																	<div className='text-sm text-100'>
+																		{capitalize(pm.type)}
+																	</div>
+																)}
+																<div className='mt-2 flex items-center justify-between text-200'>
+																	<VisaIcon className='w-14' />
+																	<span>**** **** **** {pm.last4}</span>
+																</div>
+															</div>
+															<div className='flex justify-end py-2 px-6 cs-bg rounded-b-lg border-t border-300'>
+																<button className='link'>Edit</button>
+															</div>
+														</li>
+													))}
+												<li className='all-center w-64 mt-4 p-14 card-100 cs-bg'>
+													{/* TODO: Add hover state with popup for "add new card" */}
+													<button className='text-100'>
+														<svg
+															xmlns='http://www.w3.org/2000/svg'
+															className='h-8 w-8'
+															viewBox='0 0 20 20'
+															fill='currentColor'
+														>
+															<path
+																fillRule='evenodd'
+																d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z'
+																clipRule='evenodd'
+															/>
+														</svg>
+													</button>
+												</li>
+											</ul>
+										)}
+									</div>
+								</section>
 								{/* billing history */}
 								<section className='mt-4 pt-2 md:pt-4 lg:pt-6 pb-4 cs-light-300 card-200'>
 									<header className='pb-4 card-padding-x border-b border-200'>
@@ -304,7 +399,7 @@ const BillingPage = () => {
 											center={false}
 											spinnerWidth={null}
 											margin={true}
-											text={'Loading historical payments...'}
+											text={'Loading billing history...'}
 										/>
 									) : paymentState.payments.length > 0 ? (
 										<div className={classes.tableWrapper}>
@@ -316,9 +411,6 @@ const BillingPage = () => {
 														</th>
 														<th className={classes.tableHeadCell}>Plan</th>
 														<th className={classes.tableHeadCell}>Amount</th>
-														<th className={classes.tableHeadCell}>
-															Payment method
-														</th>
 														<th className='pl-2 pr-4 md:pr-6 lg:pr-8 text-right'>
 															Date
 														</th>
@@ -348,15 +440,6 @@ const BillingPage = () => {
 																	<span className={classes.valueIndicator}>
 																		{payment.currency.toUpperCase()}
 																	</span>
-																</td>
-																{/* payment method */}
-																<td className={classes.defaultCellWrapper}>
-																	{user?.billing.brand &&
-																		capitalize(user.billing.brand)}{' '}
-																	&#8226;&#8226;&#8226;&#8226;{' '}
-																	&#8226;&#8226;&#8226;&#8226;{' '}
-																	&#8226;&#8226;&#8226;&#8226;{' '}
-																	{payment.paymentMethod.last4}
 																</td>
 																{/* date */}
 																<td className='pl-2 pr-4 md:pr-6 lg:pr-8 text-right'>
@@ -400,6 +483,83 @@ const BillingPage = () => {
 				</SettingsLayout>
 			</AuthLayout>
 		)
+	);
+};
+
+interface CardFormProps {
+	user: User;
+}
+
+const CardForm: React.FC<CardFormProps> = ({ user }) => {
+	const dispatch = useAppDispatch();
+	const stripe = useStripe();
+	const elements = useElements();
+
+	const cusId = user.subscription.cusId;
+
+	const handleCardSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!stripe || !elements || !cusId) {
+			return;
+		}
+
+		// get the client secret from the customer ID
+		const {
+			data: { clientSecret },
+		} = await axios.get(`/api/users/secret?cusId=${cusId}`);
+
+		if (clientSecret) {
+			// grab the card details from the UI element
+			const card = elements.getElement(CardElement);
+
+			if (card) {
+				// if there's a card element on the page, confirm the setup intent
+				const res = await stripe.confirmCardSetup(clientSecret, {
+					payment_method: {
+						card,
+						billing_details: {
+							name: user.name,
+						},
+					},
+				});
+
+				if (res.error) {
+					// show error in UI
+					return dispatch(
+						setAlert({
+							title: 'Input error',
+							message: res.error.message
+								? res.error.message
+								: 'There was a problem adding this card',
+							alertType: 'danger',
+						})
+					);
+				} else {
+					console.log(card);
+					const body = JSON.stringify({
+						pmId: res.setupIntent.payment_method,
+						cusId,
+					});
+
+					await axios.post('/api/users/payment-method', body, config);
+				}
+			}
+		} else {
+			dispatch(
+				setAlert({
+					title: 'Something went wrong',
+					message: 'There was a problem adding this card',
+					alertType: 'danger',
+				})
+			);
+		}
+	};
+	return (
+		<form onSubmit={handleCardSubmit}>
+			<CardElement />
+			<button type={'submit'}>HEELO</button>
+		</form>
 	);
 };
 

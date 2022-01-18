@@ -1,8 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 
 // packages
 import axios from 'axios';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 // redux
 import { useAppDispatch, useAppSelector, useDarkMode } from '@hooks/hooks';
@@ -11,16 +10,13 @@ import {
 	getUserData,
 	updatePassword,
 } from '@components/features/auth/authSlice';
-import {
-	defaultHeaders,
-	setExportHeaders,
-} from '@components/features/leads/leadsSlice';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
 import Button from '@components/utils/Button';
 import FormField from '@components/utils/FormField';
 import PasswordFormField from '@components/utils/PasswordFormField';
+import SettingsItem from '@components/utils/SettingsItem';
 import SettingsLayout from '@components/layout/SettingsLayout';
 import Spinner from '@components/utils/Spinner';
 import Toggle from '@components/utils/Toggle';
@@ -31,10 +27,9 @@ import { config, passwordList } from '@utils/utils';
 const AccountPage = () => {
 	const dispatch = useAppDispatch();
 
-	const { status, user, exportHeaders } = useAppSelector((state) => ({
+	const { status, user } = useAppSelector((state) => ({
 		status: state.auth.status,
 		user: state.auth.user,
-		exportHeaders: state.leads.settings.exportHeaders,
 	}));
 
 	// color theme
@@ -46,8 +41,6 @@ const AccountPage = () => {
 		password_1: '',
 		password_2: '',
 	});
-	const [modal, setModal] = useState(false);
-	const [headers, setHeaders] = useState(exportHeaders);
 
 	// destructure necessary items
 	const { password_1, password_2 } = formData;
@@ -192,41 +185,6 @@ const AccountPage = () => {
 		setTheme(colorTheme);
 	};
 
-	const reorder = (
-		list: { label: string; key: string }[],
-		startIndex: number,
-		endIndex: number
-	) => {
-		const result = Array.from(list);
-		const [removed] = result.splice(startIndex, 1);
-		result.splice(endIndex, 0, removed);
-		return result;
-	};
-
-	const onDragEnd = (result: any) => {
-		const { destination, source } = result;
-
-		// dragging outside the droppable area
-		if (!destination) {
-			return;
-		}
-
-		// dropping in the same spot
-		if (
-			destination.droppableId === source.droppableId &&
-			destination.index === source.index
-		) {
-			return;
-		}
-
-		const items = reorder(headers, source.index, destination.index);
-		setHeaders(items);
-	};
-
-	const onModalClose = () => {
-		return dispatch(setExportHeaders(headers));
-	};
-
 	return (
 		user && (
 			<AuthLayout>
@@ -331,170 +289,19 @@ const AccountPage = () => {
 											<h2 className='font-bold text-lg text-300'>Appearance</h2>
 										</header>
 									</div>
-									<div className='mt-4 card-padding-x'>
-										<div className='center-between text-200'>
-											<div>Theme</div>
+									<SettingsItem
+										title={'Dark mode'}
+										description={'Choose your preferred theme'}
+										action={
 											<Toggle
-												itemLeft={
-													<span aria-label='light'>
-														<svg
-															xmlns='http://www.w3.org/2000/svg'
-															className='svg-base'
-															fill='none'
-															viewBox='0 0 24 24'
-															stroke='currentColor'
-														>
-															<path
-																strokeLinecap='round'
-																strokeLinejoin='round'
-																strokeWidth={2}
-																d='M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z'
-															/>
-														</svg>
-													</span>
-												}
-												itemRight={
-													<span aria-label='dark'>
-														<svg
-															xmlns='http://www.w3.org/2000/svg'
-															className='svg-base'
-															viewBox='0 0 20 20'
-															fill='currentColor'
-														>
-															<path d='M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z' />
-														</svg>
-													</span>
-												}
+												itemLeft={null}
+												itemRight={null}
 												onChange={onToggle}
 												defaultChecked={colorTheme === 'dark' ? false : true}
 											/>
-										</div>
-									</div>
+										}
+									/>
 								</article>
-								<article className='mt-4 py-2 md:py-4 lg:py-6 cs-light-300 card-200'>
-									<div className='pb-4 border-b border-200'>
-										<header className='card-padding-x'>
-											<h2 className='font-bold text-lg text-300'>Leads</h2>
-										</header>
-									</div>
-									<div className='mt-4 card-padding-x'>
-										<div className='center-between text-200'>
-											<div>Export preferences</div>
-											<Button
-												text={'Edit'}
-												onClick={() => setModal((prev) => !prev)}
-												width={null}
-												margin={false}
-												size={'sm'}
-												cta={true}
-												path={null}
-												conditional={null}
-												conditionalDisplay={null}
-											/>
-										</div>
-									</div>
-								</article>
-								{modal && (
-									<>
-										<div
-											onClick={() => {
-												onModalClose();
-												setModal((prev) => !prev);
-											}}
-											className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
-										/>
-										<div
-											className={`absolute inset-0 z-20 h-1/2 max-w-2xl m-auto pt-2 md:pt-4 lg:pt-6 pb-8 cs-light-200 card-200`}
-										>
-											<div className='relative pb-1 border-b border-200'>
-												<header className='flex items-end justify-between card-padding-x'>
-													<h3 className='text-xl font-bold text-300'>
-														Column order
-													</h3>
-													{/* <button
-														onClick={() =>
-															dispatch(setExportHeaders(defaultHeaders))
-														}
-														className='ml-4 link'
-													>
-														Reset
-													</button> */}
-												</header>
-
-												<button
-													onClick={() => {
-														onModalClose();
-														setModal((prev) => !prev);
-													}}
-													className='absolute top-0 right-3 md:right-5 lg:right-7 ml-2 p-1 text-100 hover:bg-gray-100 dark:hover:bg-darkGray-100 rounded-md hover:text-gray-700 dark:hover:text-gray-400 ring-gray transition-main'
-												>
-													<svg
-														xmlns='http://www.w3.org/2000/svg'
-														className='svg-base'
-														viewBox='0 0 20 20'
-														fill='currentColor'
-													>
-														<path
-															fillRule='evenodd'
-															d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
-															clipRule='evenodd'
-														/>
-													</svg>
-												</button>
-											</div>
-											<div className='card-padding-x h-full py-6 minimal-scrollbar transform-0 -translate-y-0'>
-												<DragDropContext onDragEnd={onDragEnd}>
-													<Droppable droppableId={'export-headers'}>
-														{(provided: any) => (
-															<ul
-																{...provided.droppableProps}
-																ref={provided.innerRef}
-															>
-																{headers.map(({ key, label }, i: number) => (
-																	<Draggable
-																		key={key}
-																		draggableId={key}
-																		index={i}
-																	>
-																		{(provided, snapshot) => (
-																			<li
-																				{...provided.draggableProps}
-																				{...provided.dragHandleProps}
-																				ref={provided.innerRef}
-																				className={`flex justify-between items-center first:mt-0 mt-2 py-2 px-4 text-200 ${
-																					snapshot.isDragging
-																						? 'bg-gray-200 dark:bg-darkGray-200 card-200'
-																						: 'bg-gray-100 dark:bg-darkGray-100 card-100'
-																				}`}
-																			>
-																				<span>{label}</span>
-																				<span className='text-100'>
-																					<svg
-																						xmlns='http://www.w3.org/2000/svg'
-																						className='h-5 w-5'
-																						viewBox='0 0 20 20'
-																						fill='currentColor'
-																					>
-																						<path
-																							fillRule='evenodd'
-																							d='M3 7a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 13a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z'
-																							clipRule='evenodd'
-																						/>
-																					</svg>
-																				</span>
-																			</li>
-																		)}
-																	</Draggable>
-																))}
-																{provided.placeholder}
-															</ul>
-														)}
-													</Droppable>
-												</DragDropContext>
-											</div>
-										</div>
-									</>
-								)}
 							</>
 						)}
 					</section>

@@ -180,7 +180,8 @@ router.get(
 // @route       POST api/users/affiliate-payments
 // @description Retrieve an affiliates payments
 // @access      Private
-// CHANGE THIS TO A GET REQUEST
+
+// TODO: Change this to a GET request
 router.post(
 	'/affiliate-payments',
 	auth,
@@ -435,6 +436,156 @@ router.get(
 	}
 );
 
+// @route       GET api/users/secret?cusId=__
+// @description Get the client secret for a payment session
+// @access      Private
+router.get(
+	'/secret',
+	auth,
+	async (
+		req: Request<{}, {}, {}, { cusId: string }>,
+		res: Response<{
+			clientSecret: string;
+		}>
+	) => {
+		try {
+			const { cusId } = req.query;
+
+			const setupIntent = await stripe.setupIntents.create({
+				customer: cusId,
+				payment_method_types: ['card'],
+			});
+
+			res.status(200).send({
+				clientSecret: setupIntent.client_secret,
+			});
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+// @route       GET api/users/payment-methods?cusId=__
+// @description Create a payment method
+// @access      Private
+router.get(
+	'/payment-methods',
+	auth,
+	async (req: Request<{}, {}, {}, { cusId: string }>, res: Response) => {
+		// destructure necessary items
+		const { cusId } = req.query;
+
+		const returnPaymentMethod = (pm: Stripe.PaymentMethod) => {
+			return {
+				id: pm.id,
+				brand: pm.card.brand,
+				expMonth: pm.card.exp_month,
+				expYear: pm.card.exp_year,
+				last4: pm.card.last4,
+				type: pm.type,
+			};
+		};
+
+		try {
+			const paymentMethods = await stripe.customers.listPaymentMethods(cusId, {
+				type: 'card',
+			});
+
+			if (paymentMethods.data.length > 0) {
+				const formattedPaymentMethods = paymentMethods.data
+					.filter((pm: Stripe.PaymentMethod) => pm.type === 'card')
+					.map((pm: Stripe.PaymentMethod) => returnPaymentMethod(pm));
+
+				if (formattedPaymentMethods.length > 0) {
+					return res.status(200).send({
+						message: 'Payment methods found',
+						paymentMethods: formattedPaymentMethods,
+					});
+				} else {
+					return res.status(200).send({
+						message: 'No payment methods found',
+						paymentMethods: [],
+					});
+				}
+			} else {
+				return res.status(200).send({
+					message: 'No payment methods found',
+					paymentMethods: [],
+				});
+			}
+
+			// TODO: return success and update UI
+		} catch (error) {
+			console.log(error.message);
+		}
+	}
+);
+
+// @route       POST api/users/payment-method?pmId=__
+// @description Create a payment method
+// @access      Private
+router.post(
+	'/payment-method',
+	auth,
+	async (
+		req: Request<{}, {}, { pmId: string; cusId: string }>,
+		res: Response
+	) => {
+		const { pmId, cusId } = req.body;
+
+		try {
+			await stripe.paymentMethods.attach(pmId, {
+				customer: cusId,
+			});
+
+			// TODO: return success and update UI
+		} catch (error) {
+			console.log(error.message);
+		}
+	}
+);
+
+// @route       PUT api/users/payment-method?pmId=__
+// @description Update a payment method
+// @access      Private
+// router.put(
+// 	'/payment',
+// 	auth,
+// 	async (
+// 		req: Request<{}, {}, {}, { paymentMethodId: string }>,
+// 		res: Response
+// 	) => {
+// 		try {
+// 			const { paymentMethodId } = req.query;
+
+// 			const paymentMethod = await stripe.paymentMethods.detach(paymentMethodId);
+
+// 			console.log(paymentMethod);
+// 		} catch (error) {
+// 			console.log(error);
+// 		}
+// 	}
+// );
+
+// @route       DELETE api/users/payment-method?pmId=__
+// @description Delete a payment method
+// @access      Private
+router.delete(
+	'/payment-method',
+	auth,
+	async (req: Request<{}, {}, {}, { pmId: string }>, res: Response) => {
+		try {
+			const { pmId } = req.query;
+
+			const paymentMethod = await stripe.paymentMethods.detach(pmId);
+
+			console.log(paymentMethod);
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
 // handle a qualified waitlist user
 const handleWaitlistUser = async (
 	waitlistUser: IWaitlistUserDocument,
@@ -658,7 +809,7 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 						}
 					} else {
 						console.log(
-							`No qualified users on waitlist for id: ${subscribedProductId}`
+							`No qualified users on waitlist for ID: ${subscribedProductId}`
 						);
 						return res.status(200).end();
 					}
@@ -668,6 +819,7 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 					);
 				}
 
+				// if event occured in production, trigger a redeploy of the marketing site
 				if (process.env.NODE_ENV === 'production') {
 					await axios.post(
 						'https://api.netlify.com/build_hooks/617853cf1b20ba007987f2d7'
