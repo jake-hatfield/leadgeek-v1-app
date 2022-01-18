@@ -19,6 +19,9 @@ import Routes from './routes/Routes';
 // utils
 import setAuthToken from '@utils/authTokens';
 
+const STRIPE_KEY = process.env.REACT_APP_STRIPE_KEY as string;
+const stripePromise = loadStripe(STRIPE_KEY);
+
 const App: React.FC = () => {
 	React.useEffect(() => {
 		// check for token in LS
@@ -31,9 +34,6 @@ const App: React.FC = () => {
 			if (!localStorage.token) store.dispatch(removeUserData());
 		});
 	}, []);
-
-	const STRIPE_KEY = process.env.REACT_APP_STRIPE_KEY as string;
-	const stripePromise = loadStripe(STRIPE_KEY);
 
 	return (
 		<Elements stripe={stripePromise} data-test='component-app'>
