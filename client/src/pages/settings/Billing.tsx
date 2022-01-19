@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 // packages
 import axios from 'axios';
 import { DateTime } from 'luxon';
 import { useStateIfMounted } from 'use-state-if-mounted';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
+import { animated, useSpring } from 'react-spring';
 
 // redux
 import { useAppSelector, useAppDispatch } from '@hooks/hooks';
@@ -16,7 +17,6 @@ import Badge from '@components/utils/Badge';
 import Button from '@components/utils/Button';
 import DescriptionList from '@components/utils/DescriptionList';
 import NullState from '@components/utils/NullState';
-import SelectComponent from '@components/utils/Select';
 import SettingsLayout from '@components/layout/SettingsLayout';
 import Spinner from '@components/utils/Spinner';
 
@@ -27,6 +27,7 @@ import {
 	formatTimestamp,
 	planCheckerByPrice,
 	truncate,
+	useOutsideMouseup,
 } from '@utils/utils';
 import { User } from '@utils/interfaces/User';
 
@@ -332,6 +333,7 @@ const BillingPage = () => {
 				})
 			);
 		} else {
+			setModal(false);
 			return dispatch(
 				setAlert({
 					title: 'Error',
@@ -374,41 +376,6 @@ const BillingPage = () => {
 	// TODO<Jake>: Cancel subscription
 	// TODO<Jake>: Show trial status
 	// TODO<Jake>: Change MongoDB schema
-
-	const setCardIcon = (
-		cardTitle:
-			| 'amex'
-			| 'diners'
-			| 'discover'
-			| 'jcb'
-			| 'mastercard'
-			| 'unionpay'
-			| 'visa'
-			| 'unknown'
-	) => {
-		const foundIcon = cardIcons.find(
-			(cardIcon) => cardIcon.title === cardTitle
-		);
-		if (foundIcon) {
-			return foundIcon.icon;
-		} else {
-			return (
-				<svg
-					xmlns='http://www.w3.org/2000/svg'
-					className='w-8'
-					viewBox='0 0 20 20'
-					fill='currentColor'
-				>
-					<path d='M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z' />
-					<path
-						fillRule='evenodd'
-						d='M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z'
-						clipRule='evenodd'
-					/>
-				</svg>
-			);
-		}
-	};
 
 	const getSuccessfulPayments = useCallback(
 		async (cusId: string) => {
@@ -575,66 +542,15 @@ const BillingPage = () => {
 											<ul className='grid grid-cols-3 gap-4'>
 												{paymentMethodState.paymentMethods.length > 0 &&
 													paymentMethodState.paymentMethods.map((pm, i) => (
-														<li key={i} className='w-64 mt-4 card-100'>
-															<div className='py-4 px-6'>
-																<div className='center-between'>
-																	<div className='text-200 text-sm'>
-																		{pm.type === 'credit' ||
-																		pm.type === 'debit' ? (
-																			<span>{capitalize(pm.type)} card</span>
-																		) : (
-																			<span>Card</span>
-																		)}
-																	</div>
-																	{pm.id === paymentMethodState.defaultPmId && (
-																		<span className='py-0.5 px-2 cs-teal text-xs font-semibold rounded-main'>
-																			Default
-																		</span>
-																	)}
-																</div>
-																<div className='mt-4 flex items-center justify-between text-200'>
-																	<span className='text-100'>
-																		{setCardIcon(pm.brand)}
-																	</span>
-																	<span>**** **** **** {pm.last4}</span>
-																</div>
-															</div>
-															<div className='flex items-center justify-end py-2 px-6 cs-bg rounded-b-lg border-t border-300'>
-																<CardButton
-																	title={'Remove card'}
-																	onClick={() => {
-																		setPaymentMethodState({
-																			...paymentMethodState,
-																			currentPaymentMethod: pm,
-																			modal: 'delete',
-																		});
-																		setModal(true);
-																	}}
-																	path={
-																		<path
-																			fillRule='evenodd'
-																			d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
-																			clipRule='evenodd'
-																		/>
-																	}
-																/>
-																<span className='ml-2' />
-																<CardButton
-																	title={'Edit card'}
-																	onClick={() => {
-																		setPaymentMethodState({
-																			...paymentMethodState,
-																			currentPaymentMethod: pm,
-																			modal: 'update',
-																		});
-																		setModal(true);
-																	}}
-																	path={
-																		<path d='M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z' />
-																	}
-																/>
-															</div>
-														</li>
+														<CardItem
+															key={i}
+															cusId={user.subscription.cusId!}
+															pm={pm}
+															paymentMethodState={paymentMethodState}
+															setPaymentMethodState={setPaymentMethodState}
+															handleCardUpdate={handleCardUpdate}
+															setModal={setModal}
+														/>
 													))}
 												<li className='all-center w-64 mt-4 p-14 card-100 cs-bg'>
 													<button
@@ -676,11 +592,9 @@ const BillingPage = () => {
 								</section>
 								{modal && (
 									<Modal
-										title={'Add a card'}
 										user={user}
 										type={paymentMethodState.modal}
 										paymentMethodState={paymentMethodState}
-										setPaymentMethodState={setPaymentMethodState}
 										handleCardCreation={handleCardCreation}
 										handleCardUpdate={handleCardUpdate}
 										handleCardDelete={handleCardDelete}
@@ -787,33 +701,150 @@ const BillingPage = () => {
 	);
 };
 
-interface CardButtonProps {
-	title: string;
-	onClick: any;
-	path: any;
+interface CardItemProps {
+	cusId: string;
+	pm: PaymentMethod;
+	paymentMethodState: PaymentMethodState;
+	setPaymentMethodState: any;
+	handleCardUpdate: any;
+	setModal: any;
 }
 
-const CardButton: React.FC<CardButtonProps> = ({ title, onClick, path }) => {
+const CardItem: React.FC<CardItemProps> = ({
+	cusId,
+	pm,
+	paymentMethodState,
+	setPaymentMethodState,
+	handleCardUpdate,
+	setModal,
+}) => {
 	// local state
-	const [hover, setHover] = useState(false);
+	const [actionModal, setActionModal] = useState(false);
+
+	// action modal handlers
+	const actionModalRef = useRef(null);
+	useOutsideMouseup(actionModalRef, setActionModal, null);
+
+	const cardActionMenuStyle = useSpring({
+		x: actionModal ? 1 : 0,
+	});
+
+	// set icon for CC
+	const setCardIcon = (
+		cardTitle:
+			| 'amex'
+			| 'diners'
+			| 'discover'
+			| 'jcb'
+			| 'mastercard'
+			| 'unionpay'
+			| 'visa'
+			| 'unknown'
+	) => {
+		const foundIcon = cardIcons.find(
+			(cardIcon) => cardIcon.title === cardTitle
+		);
+		if (foundIcon) {
+			return foundIcon.icon;
+		} else {
+			return (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					className='w-8'
+					viewBox='0 0 20 20'
+					fill='currentColor'
+				>
+					<path d='M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z' />
+					<path
+						fillRule='evenodd'
+						d='M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z'
+						clipRule='evenodd'
+					/>
+				</svg>
+			);
+		}
+	};
+
+	const isDefaultCard = pm.id === paymentMethodState.defaultPmId;
 
 	return (
-		<button
-			className='relative p-1 hover:bg-gray-200 dark:hover:bg-darkGray-100 rounded-main text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 ring-gray transition-main'
-			onClick={onClick}
-			onMouseEnter={() => setHover(true)}
-			onMouseLeave={() => setHover(false)}
-		>
-			<svg
-				xmlns='http://www.w3.org/2000/svg'
-				className='h-5 w-5'
-				viewBox='0 0 20 20'
-				fill='currentColor'
-			>
-				{path}
-			</svg>
-			{hover && <Badge title={title} edge={null} alignment={'bottom'} />}
-		</button>
+		<li ref={actionModalRef} className='relative w-64 mt-4 card-100'>
+			<div className='py-4 px-6'>
+				<div className='center-between'>
+					<div className='text-200 text-sm'>
+						{pm.type === 'credit' || pm.type === 'debit' ? (
+							<span>{capitalize(pm.type)} card</span>
+						) : (
+							<span>Card</span>
+						)}
+					</div>
+					{isDefaultCard && (
+						<span className='ml-2 py-0.5 px-2 cs-teal text-xs font-semibold rounded-main'>
+							Default
+						</span>
+					)}
+				</div>
+				<div className='mt-4 flex items-center justify-between text-200'>
+					<span className='text-100'>{setCardIcon(pm.brand)}</span>
+					<span>**** **** **** {pm.last4}</span>
+				</div>
+			</div>
+			<div className='flex items-center justify-end py-2 px-6 cs-bg rounded-b-lg border-t border-300'>
+				<button
+					onClick={() => {
+						setActionModal(!actionModal);
+					}}
+					className='link'
+				>
+					Update
+				</button>
+			</div>
+			{actionModal && (
+				<animated.div
+					className={
+						'absolute right-0 z-10 w-48 mt-2 py-2 cs-light-400 card-200 text-sm'
+					}
+					style={{
+						transform: cardActionMenuStyle.x
+							.to({
+								range: [0, 0.35, 0.75, 1],
+								output: [1, 0.98, 1.02, 1],
+							})
+							.to((x) => `scale(${x})`),
+					}}
+				>
+					<button
+						onClick={(e) => {
+							e.stopPropagation();
+							handleCardUpdate(cusId, pm.id);
+						}}
+						disabled={isDefaultCard}
+						className={`py-2 px-3 w-full text-left font-semibold ${
+							isDefaultCard
+								? 'text-gray-300 dark:text-gray-700'
+								: 'text-purple-500 dark:text-purple-300 hover:bg-gray-100 dark:hover:bg-darkGray-100 hover:text-gray-800'
+						} transition-colors-main ring-gray ring-inset`}
+					>
+						<span>Set as default card</span>
+					</button>
+					<button
+						onClick={(e) => {
+							e.stopPropagation();
+							setActionModal(false);
+							setModal(true);
+							setPaymentMethodState({
+								...paymentMethodState,
+								modal: 'delete',
+								currentPaymentMethod: pm,
+							});
+						}}
+						className='py-2 px-3 w-full text-left font-semibold text-purple-500 dark:text-purple-300 hover:bg-gray-100 dark:hover:bg-darkGray-100 hover:text-gray-800 transition-colors-main ring-gray ring-inset'
+					>
+						<span>Remove card</span>
+					</button>
+				</animated.div>
+			)}
+		</li>
 	);
 };
 
@@ -828,11 +859,9 @@ const CardForm: React.FC = () => {
 };
 
 interface ModalProps {
-	title: string;
 	user: User;
 	type: 'create' | 'update' | 'delete' | null;
 	paymentMethodState: PaymentMethodState;
-	setPaymentMethodState: any;
 	handleCardCreation: any;
 	handleCardUpdate: any;
 	handleCardDelete: any;
@@ -840,13 +869,10 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({
-	title,
 	user,
 	type,
 	paymentMethodState,
-	setPaymentMethodState,
 	handleCardCreation,
-	handleCardUpdate,
 	handleCardDelete,
 	setModal,
 }) => {
@@ -855,9 +881,6 @@ const Modal: React.FC<ModalProps> = ({
 
 	// destructure necessary props
 	const { currentPaymentMethod, defaultPmId } = paymentMethodState;
-
-	// local state
-	const [expiryMonthActive, setExpiryMonthActive] = useState(false);
 
 	return (
 		<>
@@ -905,17 +928,6 @@ const Modal: React.FC<ModalProps> = ({
 						<div className='card-padding-x'>
 							{type === 'create' ? (
 								<CardForm />
-							) : type === 'update' ? (
-								<div>
-									<SelectComponent
-										title={'Expiry month'}
-										options={[]}
-										selectedOption={''}
-										openState={expiryMonthActive}
-										setOpenState={setExpiryMonthActive}
-										handleClick={() => console.log('hello')}
-									/>
-								</div>
 							) : (
 								type === 'delete' && (
 									<p>
@@ -923,7 +935,7 @@ const Modal: React.FC<ModalProps> = ({
 										<span className='font-semibold'>
 											{currentPaymentMethod &&
 												currentPaymentMethod.brand !== 'unknown' &&
-												capitalize(currentPaymentMethod.brand)}
+												currentPaymentMethod.brand.toUpperCase()}
 										</span>{' '}
 										{(currentPaymentMethod?.type === 'credit' ||
 											currentPaymentMethod?.type === 'debit') && (
@@ -960,40 +972,6 @@ const Modal: React.FC<ModalProps> = ({
 										conditional={null}
 										conditionalDisplay={null}
 									/>
-								) : type === 'update' ? (
-									<div className='flex items-center'>
-										{currentPaymentMethod &&
-											currentPaymentMethod.id !== defaultPmId && (
-												<button
-													onClick={() =>
-														handleCardUpdate(
-															user.subscription.cusId,
-															currentPaymentMethod.id
-														)
-													}
-													className='link mr-6'
-												>
-													Set as default
-												</button>
-											)}
-										<Button
-											text={'Save'}
-											onClick={() =>
-												handleCardCreation(
-													stripe,
-													elements,
-													user.subscription.cusId
-												)
-											}
-											width={null}
-											margin={false}
-											size={'sm'}
-											cta={true}
-											path={null}
-											conditional={null}
-											conditionalDisplay={null}
-										/>
-									</div>
 								) : (
 									type === 'delete' && (
 										<Button
