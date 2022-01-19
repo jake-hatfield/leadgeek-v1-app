@@ -48,11 +48,11 @@ const SettingsNavbar = () => {
 			link: 'billing',
 			new: false,
 		},
-		{
-			title: 'Arbitrage',
-			link: 'arbitrage',
-			new: true,
-		},
+		// {
+		// 	title: 'Arbitrage',
+		// 	link: 'arbitrage',
+		// 	new: true,
+		// },
 		{
 			title: 'Affiliate',
 			link: 'affiliates',

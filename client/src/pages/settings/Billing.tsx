@@ -8,7 +8,7 @@ import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { animated, useSpring } from 'react-spring';
 
 // redux
-import { useAppSelector, useAppDispatch } from '@hooks/hooks';
+import { useAppSelector, useAppDispatch, useDarkMode } from '@hooks/hooks';
 import { setAlert, removeAlert } from '@components/features/alert/alertSlice';
 
 // components
@@ -370,8 +370,6 @@ const BillingPage = () => {
 		paymentMethodState.paymentMethods,
 	]);
 
-	// TODO<Jake>: Set popup to edit/delete card
-	// TODO<Jake>: Set popup to add new card
 	// TODO<Jake>: Show how many days left in subscription
 	// TODO<Jake>: Cancel subscription
 	// TODO<Jake>: Show trial status
@@ -849,10 +847,35 @@ const CardItem: React.FC<CardItemProps> = ({
 };
 
 const CardForm: React.FC = () => {
+	const [colorTheme] = useDarkMode();
+
+	//   stripe element input styles
+	const cardElementOpts = {
+		style: {
+			base: {
+				fontSize: '15.75px',
+				fontFamily: 'inherit',
+				color: colorTheme === 'light' ? '#fff' : '#243B53',
+				iconColor: colorTheme === 'light' ? '#829AB1' : '#9FB3C8',
+				'::placeholder': {
+					color: colorTheme === 'light' ? '#627D98' : '#829AB1',
+				},
+			},
+			invalid: {
+				iconColor: colorTheme === 'light' ? '#feb2b2' : 'fc8181',
+				color: colorTheme === 'light' ? '#feb2b2' : 'fc8181',
+			},
+			complete: {
+				iconColor: colorTheme === 'light' ? '#8EEDC7' : '#65D6AD',
+			},
+			iconStyle: 'solid',
+		},
+	};
+
 	return (
 		<div className='mt-4'>
-			<form className='py-4'>
-				<CardElement />
+			<form>
+				<CardElement options={cardElementOpts} className='form-field' />
 			</form>
 		</div>
 	);
