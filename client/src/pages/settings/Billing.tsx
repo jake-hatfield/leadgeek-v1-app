@@ -24,9 +24,9 @@ import Spinner from '@components/utils/Spinner';
 import {
 	capitalize,
 	config,
+	formatTimeDiff,
 	formatTimestamp,
 	planCheckerByPrice,
-	truncate,
 	useOutsideMouseup,
 } from '@utils/utils';
 import { User } from '@utils/interfaces/User';
@@ -39,12 +39,19 @@ import { ReactComponent as JCBIcon } from '@assets/images/svgs/jcb.svg';
 import { ReactComponent as MastercardIcon } from '@assets/images/svgs/mastercard.svg';
 import { ReactComponent as VisaIcon } from '@assets/images/svgs/visa.svg';
 
+type ModalType =
+	| 'createCard'
+	| 'deleteCard'
+	| 'deleteSubscription'
+	| 'updateSubscription'
+	| null;
+
 interface PlanState {
 	status: 'loading' | 'idle';
-	id: string | null;
+	subId: string | null;
 	created: string | null;
 	cancelAt: string | null;
-	cancelAtPeriod: boolean | null;
+	cancelAtPeriod: boolean | undefined;
 	currentPeriodEnd: string | null;
 	plan: {
 		id: string | null;
@@ -83,7 +90,7 @@ interface PaymentMethodState {
 	currentPaymentMethod: PaymentMethod | null;
 	paymentMethods: PaymentMethod[];
 	defaultPmId: string | null;
-	modal: 'create' | 'update' | 'delete' | null;
+	modal: 'create' | 'delete' | null;
 }
 
 const BillingPage = () => {
@@ -95,12 +102,19 @@ const BillingPage = () => {
 	const user = useAppSelector((state) => state.auth.user);
 
 	// local state
+	const [modal, setModal] = useState<{
+		type: ModalType;
+		active: boolean;
+	}>({
+		type: null,
+		active: false,
+	});
 	const [planState, setPlanState] = useStateIfMounted<PlanState>({
 		status: 'loading',
-		id: null,
+		subId: null,
 		created: null,
 		cancelAt: null,
-		cancelAtPeriod: null,
+		cancelAtPeriod: undefined,
 		currentPeriodEnd: null,
 		plan: {
 			id: null,
@@ -124,26 +138,31 @@ const BillingPage = () => {
 			modal: null,
 		});
 	const [addNewCard, setAddNewCard] = useState(false);
-	const [modal, setModal] = useState(false);
 
-	const getActivePlanDetails = useCallback(
+	const getActiveSubscriptionDetails = useCallback(
 		async (activeSubId: string) => {
 			try {
 				// GET request to route
 				const {
 					data: { message, subscription },
-				} = await axios.get(`/api/users/plan?subId=${activeSubId}`);
+				} = await axios.get(`/api/users/subscription?subId=${activeSubId}`);
 
 				// if subscription data is found, update state
 				if (message === 'Subscription data found') {
+					console.log(subscription.cancelAt);
 					return setPlanState({
 						...planState,
 						status: 'idle',
-						id: subscription.id,
-						created: subscription.created,
-						cancelAt: subscription.cancelAt,
+						subId: subscription.id,
+						created: formatTimestamp(subscription.created, true),
+						cancelAt: subscription.cancelAt
+							? formatTimeDiff(+subscription.cancelAt)
+							: formatTimeDiff(+subscription.currentPeriodEnd),
 						cancelAtPeriod: subscription.cancelAtPeriod,
-						currentPeriodEnd: subscription.currentPeriodEnd,
+						currentPeriodEnd: formatTimestamp(
+							+subscription.currentPeriodEnd,
+							false
+						),
 						plan: {
 							...planState.plan,
 							id: subscription.plan.id,
@@ -154,7 +173,6 @@ const BillingPage = () => {
 					// update state loading status
 					return setPlanState({
 						...planState,
-
 						status: 'idle',
 					});
 				}
@@ -162,7 +180,6 @@ const BillingPage = () => {
 				console.log(error);
 				return setPlanState({
 					...planState,
-
 					status: 'idle',
 				});
 			}
@@ -172,7 +189,7 @@ const BillingPage = () => {
 
 	const getActiveSub = useCallback(() => {
 		return user?.subscription.subIds.filter((sub) => sub.active === true)[0];
-	}, []);
+	}, [user?.subscription.subIds]);
 
 	// get active plan details
 	useEffect(() => {
@@ -183,15 +200,54 @@ const BillingPage = () => {
 			authStatus === 'idle' &&
 			planState.status === 'loading' &&
 			activeSub?.id &&
-			getActivePlanDetails(activeSub.id);
+			getActiveSubscriptionDetails(activeSub.id);
 	}, [
 		getActiveSub,
 		isAuthenticated,
 		authStatus,
 		planState.status,
 		user?.subscription.subIds,
-		getActivePlanDetails,
+		getActiveSubscriptionDetails,
 	]);
+
+	const handleSubscriptionUpdate = async (
+		subId: string | null,
+		cancel: boolean
+	) => {
+		if (!subId) {
+			return;
+		}
+		try {
+			const res = await axios.put(
+				`/api/users/subscription?subId=${subId}&cancel=${cancel}`
+			);
+
+			if (!cancel) {
+				setModal({
+					...modal,
+					type: null,
+					active: false,
+				});
+			}
+
+			setPlanState({
+				...planState,
+				status: 'loading',
+				cancelAt: null,
+				cancelAtPeriod: res.data.cancelAtPeriod,
+			});
+
+			dispatch(
+				setAlert({
+					title: res.status === 200 ? 'Success' : 'Error',
+					message: res.data.message,
+					alertType: res.status === 200 ? 'success' : 'danger',
+				})
+			);
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
 	const handleCardCreation = async (
 		stripe: any,
@@ -201,6 +257,7 @@ const BillingPage = () => {
 		if (!stripe || !elements || !cusId) {
 			return;
 		}
+
 		dispatch(removeAlert());
 
 		// get the client secret from the customer ID
@@ -242,12 +299,16 @@ const BillingPage = () => {
 
 					await axios.post('/api/users/payment-method', body, config);
 
+					setModal({
+						...modal,
+						type: null,
+						active: false,
+					});
+
 					setPaymentMethodState({
 						...paymentMethodState,
 						status: 'loading',
 					});
-
-					setModal(false);
 
 					return dispatch(
 						setAlert({
@@ -257,6 +318,14 @@ const BillingPage = () => {
 						})
 					);
 				}
+			} else {
+				dispatch(
+					setAlert({
+						title: 'Something went wrong',
+						message: 'There was a problem adding this card',
+						alertType: 'danger',
+					})
+				);
 			}
 		} else {
 			dispatch(
@@ -285,7 +354,12 @@ const BillingPage = () => {
 			status: 'loading',
 		});
 
-		setModal(false);
+		setModal({
+			...modal,
+			type: null,
+			active: false,
+		});
+
 		return dispatch(
 			setAlert({
 				title: 'Success',
@@ -297,6 +371,12 @@ const BillingPage = () => {
 
 	const handleCardDelete = async (pmId: string, defaultPmId: string) => {
 		if (paymentMethodState.paymentMethods.length < 2) {
+			setModal({
+				...modal,
+				type: null,
+				active: false,
+			});
+
 			return dispatch(
 				setAlert({
 					title: 'Error',
@@ -324,7 +404,12 @@ const BillingPage = () => {
 				paymentMethods: newPaymentMethods,
 			});
 
-			setModal(false);
+			setModal({
+				...modal,
+				type: null,
+				active: false,
+			});
+
 			return dispatch(
 				setAlert({
 					title: 'Success',
@@ -333,7 +418,12 @@ const BillingPage = () => {
 				})
 			);
 		} else {
-			setModal(false);
+			setModal({
+				...modal,
+				type: null,
+				active: false,
+			});
+
 			return dispatch(
 				setAlert({
 					title: 'Error',
@@ -370,10 +460,35 @@ const BillingPage = () => {
 		paymentMethodState.paymentMethods,
 	]);
 
-	// TODO<Jake>: Show how many days left in subscription
-	// TODO<Jake>: Cancel subscription
-	// TODO<Jake>: Show trial status
+	const submitSlackFeedback = async () => {
+		const dateCreatedMillis = DateTime.fromISO(
+			user?.dateCreated.toString()!
+		).toMillis();
+
+		const body = JSON.stringify({
+			name: user?.name,
+			email: user?.email,
+			cusId: user?.subscription.cusId,
+			plan: user?.role ? capitalize(user?.role) : 'User',
+			trial: true,
+			cancellation: {
+				timeLeft: planState.cancelAt ? planState.cancelAt : 'UNKNOWN',
+				joinDate: user?.dateCreated
+					? formatTimeDiff(dateCreatedMillis / 1000)
+					: 'UNKNOWN',
+				reason: 'I know how to source better than u, kid',
+				feedback: 'THIS THING SUCKS!',
+			},
+		});
+
+		await axios.post('/api/users/slack-webhook', body, config);
+	};
+
+	// TODO<Jake>: Show trial status in navbar w/ how many days left
 	// TODO<Jake>: Change MongoDB schema
+	// TODO<Jake>: Update .env in Heroku
+	// TODO<Jake>: Resubscribe modal
+	// TODO<Jake>: Cancellation confirmation email
 
 	const getSuccessfulPayments = useCallback(
 		async (cusId: string) => {
@@ -414,7 +529,7 @@ const BillingPage = () => {
 
 	const subscriptionInformation = [
 		{
-			title: 'Leadgeek member since',
+			title: 'Member since',
 			value: (
 				<div>
 					{isAuthenticated &&
@@ -426,52 +541,61 @@ const BillingPage = () => {
 			),
 		},
 		{
-			title: 'Current subscription active since',
-			value: (
-				<div>
-					{planState.created && formatTimestamp(+planState.created, true)}
-				</div>
-			),
+			title: 'Active since',
+			value: <div>{planState.created ? planState.created : '-'}</div>,
 		},
 		{
-			title: 'Current subscription',
+			title: 'Current plan',
 			value: (
-				<div>
-					{planState.plan.amount && planCheckerByPrice(planState.plan.amount)}{' '}
-					plan
-				</div>
-			),
-		},
-		{
-			title: `Est. charge for
-           ${
-							!planState.cancelAtPeriod &&
-							planState.currentPeriodEnd &&
-							formatTimestamp(+planState.currentPeriodEnd, false)
-						}`,
-			value: (
-				<div>
-					{planState.plan.amount && (
-						<div className='font-bold'>${planState.plan.amount / 100}</div>
-					)}
-				</div>
-			),
-		},
-		{
-			title: 'Update subscription',
-			value: (
-				<div>
-					<a
-						href='mailto:support@leadgeek.io'
-						target='_blank'
-						rel='noopener noreferrer'
-						className='link'
+				<div className='flex items-center'>
+					<span>
+						{planState.plan.amount && planCheckerByPrice(planState.plan.amount)}
+					</span>
+					<span
+						className={`ml-2 py-0.5 px-2 ${
+							planState.cancelAtPeriod ? 'cs-red' : 'cs-teal'
+						} text-xs font-semibold rounded-main`}
 					>
-						Contact support
-					</a>
+						{planState.cancelAtPeriod
+							? `Cancelled - ${planState.cancelAt} until expiration`
+							: 'Active'}
+					</span>
 				</div>
 			),
+			action: (
+				<button
+					onClick={() =>
+						planState.cancelAtPeriod
+							? setModal({ ...modal, type: 'updateSubscription', active: true })
+							: setModal({
+									...modal,
+									type: 'deleteSubscription',
+									active: true,
+							  })
+					}
+					className='link'
+				>
+					{planState.cancelAtPeriod ? 'Resubscribe' : 'Unsubscribe'}
+				</button>
+			),
 		},
+		...(!planState.cancelAtPeriod
+			? [
+					{
+						title: `Est. charge for
+           ${planState.currentPeriodEnd && planState.currentPeriodEnd}`,
+						value: (
+							<div>
+								{planState.plan.amount && (
+									<div className='font-bold'>
+										${planState.plan.amount / 100}
+									</div>
+								)}
+							</div>
+						),
+					},
+			  ]
+			: []),
 	];
 
 	return (
@@ -489,9 +613,7 @@ const BillingPage = () => {
 								<section className='pt-2 md:pt-4 lg:pt-6 pb-5 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
 										<header className='card-padding-x'>
-											<h2 className='font-bold text-lg text-300'>
-												Subscription information
-											</h2>
+											<h2 className='font-bold text-lg text-300'>Plan</h2>
 										</header>
 									</div>
 									{planState.status === 'loading' ? (
@@ -509,13 +631,23 @@ const BillingPage = () => {
 													key={i}
 													title={subscriptionItem.title}
 													value={subscriptionItem.value}
+													action={subscriptionItem.action}
 												/>
 											))}
 										</dl>
 									) : (
-										<div className='mt-4 card-padding-x'>
-											No active plans were found.
-										</div>
+										<section className='mt-4 card-padding-x'>
+											<NullState
+												header={'No active plans found'}
+												text={
+													'There are no subscriptions associated with your account'
+												}
+												path={svgList.payment}
+												link={''}
+												linkText={''}
+												showButton={false}
+											/>
+										</section>
 									)}
 								</section>
 								{/* payment method */}
@@ -523,7 +655,7 @@ const BillingPage = () => {
 									<div className='pb-4 border-b border-200'>
 										<header className='card-padding-x'>
 											<h2 className='font-bold text-lg text-300'>
-												Payment method
+												Payment details
 											</h2>
 										</header>
 									</div>
@@ -547,19 +679,20 @@ const BillingPage = () => {
 															paymentMethodState={paymentMethodState}
 															setPaymentMethodState={setPaymentMethodState}
 															handleCardUpdate={handleCardUpdate}
+															modal={modal}
 															setModal={setModal}
 														/>
 													))}
 												<li className='all-center w-64 mt-4 p-14 card-100 cs-bg'>
 													<button
 														className='relative icon-button'
-														onClick={() => {
-															setPaymentMethodState({
-																...paymentMethodState,
-																modal: 'create',
-															});
-															setModal(true);
-														}}
+														onClick={() =>
+															setModal({
+																...modal,
+																type: 'createCard',
+																active: true,
+															})
+														}
 														onMouseEnter={() => setAddNewCard(true)}
 														onMouseLeave={() => setAddNewCard(false)}
 													>
@@ -588,14 +721,16 @@ const BillingPage = () => {
 										)}
 									</div>
 								</section>
-								{modal && (
+								{modal.active && (
 									<Modal
 										user={user}
-										type={paymentMethodState.modal}
+										type={modal.type}
 										paymentMethodState={paymentMethodState}
+										planState={planState}
 										handleCardCreation={handleCardCreation}
 										handleCardUpdate={handleCardUpdate}
 										handleCardDelete={handleCardDelete}
+										handleSubscriptionUpdate={handleSubscriptionUpdate}
 										setModal={setModal}
 									/>
 								)}
@@ -619,33 +754,22 @@ const BillingPage = () => {
 											<table className={classes.table} id='payments'>
 												<thead className={classes.tableHeadWrapper}>
 													<tr className={classes.tableHead}>
-														<th className='pl-4 md:pl-6 lg:pl-8 pr-2'>
-															Invoice ID
-														</th>
-														<th className={classes.tableHeadCell}>Plan</th>
+														<th className='pl-4 md:pl-6 lg:pl-8 pr-2'>Date</th>
+														<th>Plan</th>
 														<th className={classes.tableHeadCell}>Amount</th>
-														<th className='pl-2 pr-4 md:pr-6 lg:pr-8 text-right'>
-															Date
-														</th>
+														<th className={classes.tableHeadCell} />
 													</tr>
 												</thead>
 												<tbody className={classes.tableBody}>
 													{paymentState.payments.map(
 														(payment: any, i: number) => (
 															<tr key={i} className={classes.rowWrapper}>
-																{/* invoice id */}
-																<td className='pl-4 md:pl-6 lg:pl-8 pr-2'>
-																	<a
-																		href={payment.invoice.pdf}
-																		className='link rounded-sm ring-purple'
-																	>
-																		{truncate(payment.invoice.id, 31)}
-																	</a>
+																{/* date */}
+																<td className='pl-4 md:pl-6 lg:pl-8 pr-2 w-2/5'>
+																	{formatTimestamp(payment.created, true)}
 																</td>
 																{/* plan */}
-																<td className={classes.defaultCellWrapper}>
-																	{planCheckerByPrice(payment.amount)}
-																</td>
+																<td>{planCheckerByPrice(payment.amount)}</td>
 																{/* amount */}
 																<td className={classes.defaultCellWrapper}>
 																	<span>$</span>
@@ -654,9 +778,14 @@ const BillingPage = () => {
 																		{payment.currency.toUpperCase()}
 																	</span>
 																</td>
-																{/* date */}
+																{/* download */}
 																<td className='pl-2 pr-4 md:pr-6 lg:pr-8 text-right'>
-																	{formatTimestamp(payment.created, true)}
+																	<a
+																		href={payment.invoice.pdf}
+																		className='link rounded-sm ring-purple'
+																	>
+																		View invoice
+																	</a>
 																</td>
 															</tr>
 														)
@@ -705,6 +834,7 @@ interface CardItemProps {
 	paymentMethodState: PaymentMethodState;
 	setPaymentMethodState: any;
 	handleCardUpdate: any;
+	modal: any;
 	setModal: any;
 }
 
@@ -714,6 +844,7 @@ const CardItem: React.FC<CardItemProps> = ({
 	paymentMethodState,
 	setPaymentMethodState,
 	handleCardUpdate,
+	modal,
 	setModal,
 }) => {
 	// local state
@@ -829,10 +960,13 @@ const CardItem: React.FC<CardItemProps> = ({
 						onClick={(e) => {
 							e.stopPropagation();
 							setActionModal(false);
-							setModal(true);
+							setModal({
+								...modal,
+								type: 'deleteCard',
+								active: true,
+							});
 							setPaymentMethodState({
 								...paymentMethodState,
-								modal: 'delete',
 								currentPaymentMethod: pm,
 							});
 						}}
@@ -883,11 +1017,16 @@ const CardForm: React.FC = () => {
 
 interface ModalProps {
 	user: User;
-	type: 'create' | 'update' | 'delete' | null;
+	type: ModalType;
 	paymentMethodState: PaymentMethodState;
+	planState: PlanState;
 	handleCardCreation: any;
 	handleCardUpdate: any;
 	handleCardDelete: any;
+	handleSubscriptionUpdate: (
+		subId: string | null,
+		cancel: boolean
+	) => Promise<void>;
 	setModal: any;
 }
 
@@ -895,8 +1034,10 @@ const Modal: React.FC<ModalProps> = ({
 	user,
 	type,
 	paymentMethodState,
+	planState,
 	handleCardCreation,
 	handleCardDelete,
+	handleSubscriptionUpdate,
 	setModal,
 }) => {
 	const stripe = useStripe();
@@ -904,12 +1045,143 @@ const Modal: React.FC<ModalProps> = ({
 
 	// destructure necessary props
 	const { currentPaymentMethod, defaultPmId } = paymentMethodState;
+	const { cancelAt, currentPeriodEnd } = planState;
+
+	const modalOptions = [
+		{
+			type: 'createCard',
+			title: 'Add a new card',
+			body: <CardForm />,
+			action: (
+				<Button
+					text={'Save'}
+					onClick={() =>
+						handleCardCreation(stripe, elements, user.subscription.cusId)
+					}
+					width={null}
+					margin={true}
+					size={'sm'}
+					cta={true}
+					path={null}
+					conditional={null}
+					conditionalDisplay={null}
+				/>
+			),
+		},
+		{
+			type: 'deleteCard',
+			title: 'Remove card',
+			body: (
+				<p>
+					Are you sure you want to remove the{' '}
+					<span className='font-semibold'>
+						{currentPaymentMethod &&
+							currentPaymentMethod.brand !== 'unknown' &&
+							currentPaymentMethod.brand.toUpperCase()}
+					</span>{' '}
+					{(currentPaymentMethod?.type === 'credit' ||
+						currentPaymentMethod?.type === 'debit') && (
+						<strong>{currentPaymentMethod.type} card</strong>
+					)}{' '}
+					<strong>
+						{currentPaymentMethod && `ending in ${currentPaymentMethod.last4}`}
+					</strong>
+					? This action is permanent and can't be undone.
+				</p>
+			),
+			action: (
+				<Button
+					text={'Confirm'}
+					onClick={() =>
+						handleCardDelete(
+							currentPaymentMethod && currentPaymentMethod.id,
+							defaultPmId
+						)
+					}
+					width={null}
+					margin={true}
+					size={'sm'}
+					cta={true}
+					path={null}
+					conditional={null}
+					conditionalDisplay={null}
+					type={'danger'}
+				/>
+			),
+		},
+		{
+			type: 'deleteSubscription',
+			title: 'Cancel subscription',
+			body: (
+				<p>
+					We'd be sad to see you go!{' '}
+					<span role='img' aria-label='Sad emoji'>
+						😔
+					</span>{' '}
+					You currently have <strong>{cancelAt}</strong> left on your
+					subscription for no additional charges. You won't be charged for
+					another billing cycle until <strong>{currentPeriodEnd}</strong>. Are
+					you sure you want to unsubscribe now?
+				</p>
+			),
+			action: (
+				<Button
+					text={'Confirm'}
+					onClick={() => handleSubscriptionUpdate(planState.subId, true)}
+					width={null}
+					margin={true}
+					size={'sm'}
+					cta={true}
+					path={null}
+					conditional={null}
+					conditionalDisplay={null}
+					type={'danger'}
+				/>
+			),
+		},
+		{
+			type: 'updateSubscription',
+			title: 'Update subscription',
+			body: (
+				<p>
+					Glad to see you back{' '}
+					<span role='img' aria-label='Happy emoji'>
+						😁
+					</span>{' '}
+					Click "Resubscribe" below to prevent cancelling your plan in{' '}
+					<strong>{cancelAt}</strong>. You'll get another month of awesome leads
+					on <strong>{currentPeriodEnd}</strong>!
+				</p>
+			),
+			action: (
+				<Button
+					text={'Resubscribe'}
+					onClick={() => handleSubscriptionUpdate(planState.subId, false)}
+					width={null}
+					margin={true}
+					size={'sm'}
+					cta={true}
+					path={null}
+					conditional={null}
+					conditionalDisplay={null}
+				/>
+			),
+		},
+	];
+
+	const [content] = useState(
+		modalOptions.find((modalOption) => modalOption.type === type)
+	);
 
 	return (
 		<>
 			<div
-				onClick={() => {
-					setModal((prev: boolean) => !prev);
+				onClick={(prev) => {
+					setModal({
+						...prev,
+						type: null,
+						active: false,
+					});
 				}}
 				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
 			/>
@@ -919,17 +1191,17 @@ const Modal: React.FC<ModalProps> = ({
 				<div className='relative pb-1 border-b border-200'>
 					<header className='card-padding-x'>
 						<h3 className='text-xl font-bold text-300'>
-							{type === 'create'
-								? 'Add a new card'
-								: type === 'update'
-								? 'Edit card'
-								: type === 'delete'
-								? 'Remove card'
-								: 'Update card preferences'}
+							{content?.title ? content?.title : 'Edit'}
 						</h3>
 					</header>
 					<button
-						onClick={() => setModal((prev: boolean) => !prev)}
+						onClick={(prev) => {
+							setModal({
+								...prev,
+								type: null,
+								active: false,
+							});
+						}}
 						className='absolute top-0 right-3 md:right-5 lg:right-7 ml-2 p-1 text-100 hover:bg-gray-100 dark:hover:bg-darkGray-100 rounded-md hover:text-gray-700 dark:hover:text-gray-400 ring-gray transition-main'
 					>
 						<svg
@@ -948,74 +1220,9 @@ const Modal: React.FC<ModalProps> = ({
 				</div>
 				{type && (
 					<div className='mt-4'>
-						<div className='card-padding-x'>
-							{type === 'create' ? (
-								<CardForm />
-							) : (
-								type === 'delete' && (
-									<p>
-										Are you sure you want to remove the{' '}
-										<span className='font-semibold'>
-											{currentPaymentMethod &&
-												currentPaymentMethod.brand !== 'unknown' &&
-												currentPaymentMethod.brand.toUpperCase()}
-										</span>{' '}
-										{(currentPaymentMethod?.type === 'credit' ||
-											currentPaymentMethod?.type === 'debit') && (
-											<span className='font-semibold'>
-												{currentPaymentMethod.type} card
-											</span>
-										)}{' '}
-										ending in{' '}
-										<span className='font-semibold'>
-											{currentPaymentMethod && currentPaymentMethod.last4}
-										</span>
-										? This action is permanent and can't be undone.
-									</p>
-								)
-							)}
-						</div>
+						<div className='card-padding-x'>{content?.body}</div>
 						<div className='flex justify-end mt-4 py-2 card-padding-x cs-bg rounded-b-lg border-t border-300'>
-							<div className='flex items-center'>
-								{type === 'create' ? (
-									<Button
-										text={'Save'}
-										onClick={() =>
-											handleCardCreation(
-												stripe,
-												elements,
-												user.subscription.cusId
-											)
-										}
-										width={null}
-										margin={true}
-										size={'sm'}
-										cta={true}
-										path={null}
-										conditional={null}
-										conditionalDisplay={null}
-									/>
-								) : (
-									type === 'delete' && (
-										<Button
-											text={'Confirm'}
-											onClick={() =>
-												handleCardDelete(
-													currentPaymentMethod && currentPaymentMethod.id,
-													defaultPmId
-												)
-											}
-											width={null}
-											margin={true}
-											size={'sm'}
-											cta={true}
-											path={null}
-											conditional={null}
-											conditionalDisplay={null}
-										/>
-									)
-								)}
-							</div>
+							<div className='flex items-center'>{content?.action}</div>
 						</div>
 					</div>
 				)}
@@ -1025,6 +1232,9 @@ const Modal: React.FC<ModalProps> = ({
 };
 
 const svgList = {
+	subscription: (
+		<path d='M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z' />
+	),
 	payment: (
 		<g>
 			<path d='M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z' />
@@ -1074,7 +1284,7 @@ const classes = {
 	tableHead:
 		'text-left font-semibold text-xs text-100 uppercase tracking-widest whitespace-no-wrap cs-bg',
 	tableHeadCell: 'p-3',
-	tableBody: 'text-sm text-200',
+	tableBody: 'text-200',
 	rowWrapper: 'relative px-1 border-b border-100 last:border-none',
 	defaultCellWrapper: 'p-3',
 	defaultSvg: 'svg-base',

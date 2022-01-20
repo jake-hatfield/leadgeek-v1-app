@@ -55,7 +55,7 @@ const SettingsNavbar = () => {
 		// },
 		{
 			title: 'Affiliate',
-			link: 'affiliates',
+			link: 'affiliate',
 			new: false,
 		},
 	];

@@ -107,9 +107,9 @@ const Login: React.FC = () => {
 						</div>
 					</form>
 					<aside className={classes.signup}>
-						<p className='inline-block'>Need a LeadGeek account?</p>
+						<p className='inline-block'>Need a Leadgeek account?</p>
 						<a
-							href='https://leadgeek.io/pricing/'
+							href='https://leadgeek.io/signup/'
 							className={classes.subheaderLink}
 						>
 							Join now

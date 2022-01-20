@@ -614,7 +614,7 @@ const BasicInformationItem: React.FC<BasicInformationItemProps> = ({
 			}`}
 		>
 			<header className='flex items-center'>
-				<h3 className='align-bottom'>{title}</h3>
+				<h3 className='align-bottom text-100'>{title}</h3>
 				{t && (
 					<div className='relative z-0 flex items-end mt-1 ml-2'>
 						<div

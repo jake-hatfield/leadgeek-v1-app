@@ -32,7 +32,7 @@ const Routes = () => {
 			<PrivateRoute exact path='/search/' component={Search} />
 			<PrivateRoute exact path='/settings/account/' component={Account} />
 			<PrivateRoute exact path='/settings/arbitrage/' component={Arbitrage} />
-			<PrivateRoute exact path='/settings/affiliates/' component={Affiliates} />
+			<PrivateRoute exact path='/settings/affiliate/' component={Affiliates} />
 			<PrivateRoute exact path='/settings/billing/' component={Billing} />
 			<PrivateRoute exact path='/admin/' component={Admin} />
 		</Fragment>

@@ -14,6 +14,7 @@ const mailchimpSecret = process.env.REACT_APP_MAILCHIMP_SECRET;
 const mailchimpServer = process.env.REACT_APP_MAILCHIMP_SERVER;
 // force stripe key to be a string
 const stripeSecret = `${process.env.REACT_APP_STRIPE_SECRET_KEY}`;
+const slackSecret = process.env.REACT_APP_SLACK_SECRET;
 
 // middleware
 import auth from '@middleware/auth';
@@ -97,11 +98,11 @@ router.get(
 	}
 );
 
-// @route       GET api/users/plan?subId=__
+// @route       GET api/users/subscription?subId=__
 // @description Get a user's subscription information for the active plan
 // @access      Private
 router.get(
-	'/plan',
+	'/subscription',
 	auth,
 	async (
 		req: Request<{}, {}, {}, { subId: string }>,
@@ -141,7 +142,7 @@ router.get(
 					return {
 						id: item.id,
 						cancelAt: item.cancel_at,
-						cancelAtPeriodEnd: item.cancel_at_period_end,
+						cancelAtPeriod: item.cancel_at_period_end,
 						created: item.created,
 						currentPeriodEnd: item.current_period_end,
 						plan: {
@@ -152,6 +153,7 @@ router.get(
 				};
 				// get the active subscription from stripe
 				const subscription = await stripe.subscriptions.retrieve(subId);
+
 				// create the subscription info object
 				const subscriptionData = returnSubscriptionInfo(subscription);
 
@@ -173,6 +175,63 @@ router.get(
 		} catch (error) {
 			console.error(error.message);
 			res.status(500).send({ message: 'Server error', subscription: {} });
+		}
+	}
+);
+
+// @route       PUT api/users/subscription?subId=__&cancel=__
+// @description Cancel/uncancel subscription
+// @access      Private
+router.put(
+	'/subscription',
+	auth,
+	async (
+		req: Request<{}, {}, {}, { subId: string; cancel: string }>,
+		res: Response<
+			| {
+					message:
+						| 'Subscription data found'
+						| 'No subscription data found'
+						| 'Server error';
+					subscription: {
+						id: string;
+						cancelAt: number;
+						cancelAtPeriodEnd: boolean;
+						created: number;
+						currentPeriodEnd: number;
+						plan: {
+							id: string | Stripe.Product | Stripe.DeletedProduct;
+							amount: number;
+						};
+					};
+			  }
+			| {}
+		>
+	) => {
+		try {
+			// destructure necessary items
+			const { subId, cancel } = req.query;
+
+			const subscription = await stripe.subscriptions.update(subId, {
+				cancel_at_period_end: JSON.parse(cancel),
+			});
+
+			if (subscription) {
+				const isCancelled = subscription.cancel_at_period_end;
+				return res.status(200).send({
+					message: isCancelled
+						? 'Successfully unsubscribed from this plan'
+						: 'Successfully resubscribed to this plan',
+					cancelAtPeriod: subscription.cancel_at_period_end,
+				});
+			} else {
+				return res.status(500).send({
+					message: 'Subscription could not be cancelled',
+					cancelAtPeriod: null,
+				});
+			}
+		} catch (error) {
+			console.log(error);
 		}
 	}
 );
@@ -543,7 +602,7 @@ router.get(
 	}
 );
 
-// @route       POST api/users/payment-method?pmId=__
+// @route       POST api/users/payment-method
 // @description Create a payment method
 // @access      Private
 router.post(
@@ -567,8 +626,6 @@ router.post(
 					.status(500)
 					.send({ message: 'Payment method could not be created' });
 			}
-
-			// TODO: return success and update UI
 		} catch (error) {
 			console.log(error.message);
 		}
@@ -788,7 +845,7 @@ const unsubscribeCustomer = async (cusId: string, subId: string) => {
 };
 
 // @route       POST api/users/stripe-webhook
-// @description Webhooks for stripe
+// @description Webhooks for Stripe
 // @access      Public
 router.post('/stripe-webhook', async (req: any, res: Response) => {
 	try {
@@ -930,7 +987,7 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 });
 
 // @route       POST api/users/mailchimp-webhook
-// @description Webhooks for mailchimp
+// @description Webhooks for Mailchimp
 // @access      Public
 router.post(
 	'/mailchimp-webhook',
@@ -1012,5 +1069,94 @@ router.post(
 		}
 	}
 );
+
+// @route       POST api/users/slack-webhook
+// @description Webhooks for Slack
+// @access      Public
+router.post('/slack-webhook', async (req: Request, res: Response) => {
+	try {
+		// destructure necessary items
+		const {
+			name,
+			email,
+			cusId,
+			plan,
+			trial,
+			cancellation: { timeLeft, joinDate, reason, feedback },
+		} = req.body;
+
+		const richMessage = {
+			blocks: [
+				{
+					type: 'header',
+					text: {
+						type: 'plain_text',
+						text: '😓 New cancellation',
+						emoji: true,
+					},
+				},
+				{
+					type: 'section',
+					fields: [
+						{
+							type: 'mrkdwn',
+							text: `✨*Plan:*\n\n${plan}${trial && ' - Trial'}`,
+						},
+						{
+							type: 'mrkdwn',
+							text: `🤠 *Client:*\n\n<mailto:${email}|${name}>`,
+						},
+					],
+				},
+				{
+					type: 'section',
+					fields: [
+						{
+							type: 'mrkdwn',
+							text: `⏰ *Time until cancellation:*\n\n${timeLeft}`,
+						},
+						{
+							type: 'mrkdwn',
+							text: `⏱️ *Time since joined:*\n\n${joinDate}`,
+						},
+					],
+				},
+				{
+					type: 'section',
+					fields: [
+						{
+							type: 'mrkdwn',
+							text: `❌ *Cancellation reason:*\n\n${reason}`,
+						},
+						{
+							type: 'mrkdwn',
+							text: `💡 *Feedback:*\n\n${feedback}`,
+						},
+					],
+				},
+				{
+					type: 'section',
+					text: {
+						type: 'mrkdwn',
+						text: `<https://dashboard.stripe.com/${
+							process.env.NODE_ENV !== 'production' && 'test/'
+						}customers/${cusId}|View in Stripe>`,
+					},
+				},
+			],
+		};
+
+		const body = JSON.stringify(richMessage);
+
+		await axios.post(
+			`https://hooks.slack.com/services/T01CVGALACD/B02UQ9A0TK8/${slackSecret}`,
+			body
+		);
+
+		return res.status(200).end();
+	} catch (error) {
+		console.log(error);
+	}
+});
 
 module.exports = router;

@@ -175,6 +175,30 @@ export const planCheckerByPrice = (price: number) => {
 	return plan;
 };
 
+export const calcTimeDiff = (timestamp: number) => {
+	const timeToCancel = DateTime.fromMillis(timestamp * 1000);
+	const now = DateTime.now();
+
+	return timeToCancel.diff(now, ['hours']).hours;
+};
+
+export const formatTimeDiff = (timestamp: number) => {
+	const planHoursRemaining = calcTimeDiff(timestamp);
+	const planDaysRemaining = planHoursRemaining / 24;
+
+	if (planHoursRemaining < 0) {
+		return `${Math.abs(planDaysRemaining).toFixed()} days`;
+	} else if (planHoursRemaining <= 1) {
+		return `${planHoursRemaining.toFixed()} hour`;
+	} else if (planHoursRemaining <= 24) {
+		return `${planHoursRemaining.toFixed()} hours`;
+	} else if (Math.floor(planHoursRemaining) <= 25) {
+		return `${planDaysRemaining.toFixed()} day`;
+	} else {
+		return `${planDaysRemaining.toFixed()} days`;
+	}
+};
+
 export const calcAffCommission = (price: number) => {
 	return (price * 0.25) / 100;
 };
