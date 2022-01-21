@@ -30,7 +30,6 @@ import {
 	planCheckerByPrice,
 	useOutsideMouseup,
 } from '@utils/utils';
-import { User } from '@utils/interfaces/User';
 
 // assets
 import { ReactComponent as AmexIcon } from '@assets/images/svgs/amex.svg';
@@ -811,6 +810,7 @@ const BillingPage = () => {
 	// TODO<Jake>: Change MongoDB schema
 	// TODO<Jake>: Update .env in Heroku
 	// TODO<Jake>: Cancellation confirmation email
+	// TODO<Jake>: Make text box required if user selects "other"
 
 	const getSuccessfulPayments = useCallback(
 		async (cusId: string) => {

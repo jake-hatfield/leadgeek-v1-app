@@ -19,7 +19,7 @@ import Routes from './routes/Routes';
 // utils
 import setAuthToken from '@utils/authTokens';
 
-const stripeKey = process.env.REACT_APP_STRIPE_KEY as string;
+const stripeKey = `${process.env.REACT_APP_STRIPE_KEY}`;
 const stripePromise = loadStripe(stripeKey);
 
 const App: React.FC = () => {
