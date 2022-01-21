@@ -223,11 +223,13 @@ router.put(
 						? 'Successfully unsubscribed from this plan'
 						: 'Successfully resubscribed to this plan',
 					cancelAtPeriod: subscription.cancel_at_period_end,
+					cancelAt: subscription.cancel_at,
 				});
 			} else {
 				return res.status(500).send({
 					message: 'Subscription could not be cancelled',
 					cancelAtPeriod: null,
+					cancelAt: subscription.cancel_at,
 				});
 			}
 		} catch (error) {

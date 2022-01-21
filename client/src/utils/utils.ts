@@ -188,7 +188,9 @@ export const formatTimeDiff = (timestamp: number) => {
 
 	if (planHoursRemaining < 0) {
 		return `${Math.abs(planDaysRemaining).toFixed()} days`;
-	} else if (planHoursRemaining <= 1) {
+	} else if (planHoursRemaining > 0 && planHoursRemaining < 2) {
+		return `${(planHoursRemaining * 60).toFixed()} minutes`;
+	} else if (planHoursRemaining < 2) {
 		return `${planHoursRemaining.toFixed()} hour`;
 	} else if (planHoursRemaining <= 24) {
 		return `${planHoursRemaining.toFixed()} hours`;

@@ -16,6 +16,7 @@ import AuthLayout from '@components/layout/AuthLayout';
 import Badge from '@components/utils/Badge';
 import Button from '@components/utils/Button';
 import DescriptionList from '@components/utils/DescriptionList';
+import TestModal from '@components/layout/Modal';
 import NullState from '@components/utils/NullState';
 import SettingsLayout from '@components/layout/SettingsLayout';
 import Spinner from '@components/utils/Spinner';
@@ -39,12 +40,36 @@ import { ReactComponent as JCBIcon } from '@assets/images/svgs/jcb.svg';
 import { ReactComponent as MastercardIcon } from '@assets/images/svgs/mastercard.svg';
 import { ReactComponent as VisaIcon } from '@assets/images/svgs/visa.svg';
 
+const cancellationReasons = [
+	'Bad user interface',
+	'Found a better service',
+	'Lack of features',
+	'No longer selling on Amazon',
+	'Technical difficulties',
+	'Too expensive',
+	'Too many gated products',
+	'Other',
+] as const;
+
+type CancellationReasons = typeof cancellationReasons[number];
+interface FeedbackState {
+	active: boolean;
+	cancellationReason: CancellationReasons;
+	comment: string;
+}
+
 type ModalType =
 	| 'createCard'
 	| 'deleteCard'
 	| 'deleteSubscription'
 	| 'updateSubscription'
 	| null;
+
+interface ModalState<T> {
+	type: T;
+	active: boolean;
+	step: number;
+}
 
 interface PlanState {
 	status: 'loading' | 'idle';
@@ -95,6 +120,8 @@ interface PaymentMethodState {
 
 const BillingPage = () => {
 	const dispatch = useAppDispatch();
+	const stripe = useStripe();
+	const elements = useElements();
 
 	// auth state
 	const authStatus = useAppSelector((state) => state.auth.status);
@@ -102,12 +129,15 @@ const BillingPage = () => {
 	const user = useAppSelector((state) => state.auth.user);
 
 	// local state
-	const [modal, setModal] = useState<{
-		type: ModalType;
-		active: boolean;
-	}>({
+	const [feedbackState, setFeedbackState] = useState<FeedbackState>({
+		active: false,
+		cancellationReason: cancellationReasons[0],
+		comment: '',
+	});
+	const [modal, setModal] = useState<ModalState<ModalType>>({
 		type: null,
 		active: false,
+		step: 1,
 	});
 	const [planState, setPlanState] = useStateIfMounted<PlanState>({
 		status: 'loading',
@@ -139,6 +169,294 @@ const BillingPage = () => {
 		});
 	const [addNewCard, setAddNewCard] = useState(false);
 
+	const returnContentData = (type: ModalType) => {
+		const activeContent = content.find((c) => c.type === type);
+
+		if (activeContent) {
+			return activeContent.data;
+		} else {
+			return [];
+		}
+	};
+
+	const content = [
+		{
+			type: 'createCard',
+			data: [
+				{
+					title: <span>Add a new card</span>,
+					body: <CardForm />,
+					action: (
+						<Button
+							text={'Save'}
+							onClick={() =>
+								handleCardCreation(stripe, elements, user?.subscription?.cusId)
+							}
+							width={null}
+							margin={true}
+							size={'sm'}
+							cta={true}
+							path={null}
+							conditional={null}
+							conditionalDisplay={null}
+						/>
+					),
+				},
+			],
+		},
+		{
+			type: 'deleteCard',
+			data: [
+				{
+					title: <span>Remove card</span>,
+					body: (
+						<p>
+							Are you sure you want to remove the{' '}
+							<span className='font-semibold'>
+								{paymentMethodState.currentPaymentMethod &&
+									paymentMethodState.currentPaymentMethod.brand !== 'unknown' &&
+									paymentMethodState.currentPaymentMethod.brand.toUpperCase()}
+							</span>{' '}
+							{(paymentMethodState.currentPaymentMethod?.type === 'credit' ||
+								paymentMethodState.currentPaymentMethod?.type === 'debit') && (
+								<strong>
+									{paymentMethodState.currentPaymentMethod.type} card
+								</strong>
+							)}{' '}
+							<strong>
+								{paymentMethodState.currentPaymentMethod &&
+									`ending in ${paymentMethodState.currentPaymentMethod.last4}`}
+							</strong>
+							? This action is permanent and can't be undone.
+						</p>
+					),
+					action: (
+						<Button
+							text={'Confirm'}
+							onClick={() =>
+								handleCardDelete(
+									paymentMethodState.currentPaymentMethod &&
+										paymentMethodState.currentPaymentMethod.id,
+									paymentMethodState.defaultPmId
+								)
+							}
+							width={null}
+							margin={true}
+							size={'sm'}
+							cta={true}
+							path={null}
+							conditional={null}
+							conditionalDisplay={null}
+							type={'danger'}
+						/>
+					),
+				},
+			],
+		},
+		{
+			type: 'updateSubscription',
+			data: [
+				{
+					title: <span>Update subscription</span>,
+					body: (
+						<p>
+							Glad to see you back{' '}
+							<span role='img' aria-label='Happy emoji'>
+								😁
+							</span>{' '}
+							Click "Resubscribe" below to prevent cancelling your plan in{' '}
+							<strong>{planState.cancelAt}</strong>. You'll get another month of
+							awesome leads on <strong>{planState.currentPeriodEnd}</strong>!
+						</p>
+					),
+					action: (
+						<Button
+							text={'Resubscribe'}
+							onClick={() => {
+								handleSubscriptionUpdate(planState.subId, false);
+								setModal((prevState) => ({
+									...prevState,
+									type: null,
+									active: false,
+									step: 1,
+								}));
+							}}
+							width={null}
+							margin={true}
+							size={'sm'}
+							cta={true}
+							path={null}
+							conditional={null}
+							conditionalDisplay={null}
+						/>
+					),
+				},
+			],
+		},
+		{
+			type: 'deleteSubscription',
+			data: [
+				{
+					title: <span>Cancel subscription</span>,
+					body: (
+						<p>
+							We'd be sad to see you go!{' '}
+							<span role='img' aria-label='Sad emoji'>
+								😔
+							</span>{' '}
+							You currently have <strong>{planState.cancelAt}</strong> left on
+							your subscription for no additional charges. You won't be charged
+							for another billing cycle until{' '}
+							<strong>{planState.currentPeriodEnd}</strong>. Are you sure you
+							want to unsubscribe now?
+						</p>
+					),
+					action: (
+						<Button
+							text={'Confirm'}
+							onClick={() => {
+								handleSubscriptionUpdate(planState.subId, true);
+								setModal((prevState) => ({
+									...prevState,
+									step: 2,
+								}));
+							}}
+							width={null}
+							margin={true}
+							size={'sm'}
+							cta={true}
+							path={null}
+							conditional={null}
+							conditionalDisplay={null}
+							type={'danger'}
+						/>
+					),
+				},
+				{
+					title: <span>Submit feedback</span>,
+					body: (
+						<div>
+							<p>
+								You have the floor! Whether you loved or hated Leadgeek, we're
+								always trying to improve. Please share the reason for cancelling
+								your subscription below.{' '}
+								<span role='img' aria-label='Point down emoji'>
+									👇
+								</span>
+							</p>
+							<div className='relative mt-4'>
+								<button
+									type='button'
+									className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 cs-light-500 border-t border-b border-r border-200 rounded-r-lg text-left cursor-default ring-purple ring-inset'
+									aria-haspopup='listbox'
+									aria-expanded='true'
+									aria-labelledby='listbox-label'
+									onClick={() => {
+										setFeedbackState((prevState) => ({
+											...prevState,
+											active: !prevState.active,
+										}));
+									}}
+								>
+									<span className='flex items-center'>
+										<span className='ml-2 block truncate'>
+											{feedbackState.cancellationReason}
+										</span>
+									</span>
+									<span className='ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none border-l border-200 pl-2'>
+										<svg
+											className='h-4 w-4 text-gray-400'
+											xmlns='http://www.w3.org/2000/svg'
+											viewBox='0 0 20 20'
+											fill='currentColor'
+											aria-hidden='true'
+										>
+											<path
+												fillRule='evenodd'
+												d='M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
+												clipRule='evenodd'
+											/>
+										</svg>
+									</span>
+								</button>
+								{feedbackState.active && (
+									<ul
+										className='absolute top-0 right-0 z-10 w-full mt-1 py-1 cs-light-300 card-200 text-sm overflow-auto focus:outline-none transform translate-y-10 minimal-scrollbar'
+										tabIndex={-1}
+										role='listbox'
+										aria-labelledby='listbox-label'
+										aria-activedescendant='listbox-option-3'
+									>
+										{cancellationReasons.map((cancellationReason, i) => (
+											<li
+												key={i}
+												className={`py-2 pl-3 pr-9 cursor-default select-none relative ${
+													feedbackState.cancellationReason ===
+													cancellationReason
+														? 'cs-purple'
+														: 'hover:bg-gray-100 dark:hover:bg-darkGray-100 text-300'
+												}`}
+												id={`listbox-option-${i}`}
+												role='option'
+												aria-selected='true'
+												onClick={() => {
+													setFeedbackState((prevState) => ({
+														...prevState,
+														cancellationReason,
+														active: !prevState.active,
+													}));
+												}}
+											>
+												{cancellationReason}
+											</li>
+										))}
+									</ul>
+								)}
+							</div>
+							<form className='relative mt-4 text-sm'>
+								<textarea
+									id='comment'
+									name='comment'
+									placeholder={'👍 it? 👎 it? Share your thoughts here...'}
+									onChange={(e) => {
+										const { value } = e.target;
+										setFeedbackState((prevState) => ({
+											...prevState,
+											comment: value,
+										}));
+									}}
+									value={feedbackState.comment}
+									className='h-24 w-full input rounded-main border border-300 text-sm placeholder-gray-700 ring-purple resize-none'
+								></textarea>
+							</form>
+						</div>
+					),
+					action: (
+						<Button
+							text={'Submit'}
+							onClick={() => {
+								handleSlackFeedback();
+								setModal((prevState) => ({
+									...prevState,
+									type: null,
+									active: false,
+									step: 1,
+								}));
+							}}
+							width={null}
+							margin={true}
+							size={'sm'}
+							cta={true}
+							path={null}
+							conditional={null}
+							conditionalDisplay={null}
+						/>
+					),
+				},
+			],
+		},
+	];
+
 	const getActiveSubscriptionDetails = useCallback(
 		async (activeSubId: string) => {
 			try {
@@ -149,7 +467,6 @@ const BillingPage = () => {
 
 				// if subscription data is found, update state
 				if (message === 'Subscription data found') {
-					console.log(subscription.cancelAt);
 					return setPlanState({
 						...planState,
 						status: 'idle',
@@ -222,18 +539,10 @@ const BillingPage = () => {
 				`/api/users/subscription?subId=${subId}&cancel=${cancel}`
 			);
 
-			if (!cancel) {
-				setModal({
-					...modal,
-					type: null,
-					active: false,
-				});
-			}
-
 			setPlanState({
 				...planState,
 				status: 'loading',
-				cancelAt: null,
+				cancelAt: res.data.cancelAt,
 				cancelAtPeriod: res.data.cancelAtPeriod,
 			});
 
@@ -252,7 +561,7 @@ const BillingPage = () => {
 	const handleCardCreation = async (
 		stripe: any,
 		elements: any,
-		cusId: string
+		cusId: string | undefined
 	) => {
 		if (!stripe || !elements || !cusId) {
 			return;
@@ -369,7 +678,14 @@ const BillingPage = () => {
 		);
 	};
 
-	const handleCardDelete = async (pmId: string, defaultPmId: string) => {
+	const handleCardDelete = async (
+		pmId: string | null,
+		defaultPmId: string | null
+	) => {
+		if (!pmId || !defaultPmId) {
+			return;
+		}
+
 		if (paymentMethodState.paymentMethods.length < 2) {
 			setModal({
 				...modal,
@@ -434,20 +750,23 @@ const BillingPage = () => {
 		}
 	};
 
-	const getPaymentMethods = useCallback(async (cusId: string) => {
-		const res = await axios.get<{
-			message: 'Payment methods found' | 'No payment methods found';
-			paymentMethods: PaymentMethod[];
-			defaultPmId: string | null;
-		}>(`/api/users/payment-methods?cusId=${cusId}`);
+	const getPaymentMethods = useCallback(
+		async (cusId: string) => {
+			const res = await axios.get<{
+				message: 'Payment methods found' | 'No payment methods found';
+				paymentMethods: PaymentMethod[];
+				defaultPmId: string | null;
+			}>(`/api/users/payment-methods?cusId=${cusId}`);
 
-		setPaymentMethodState({
-			...paymentMethodState,
-			status: 'idle',
-			paymentMethods: res.data.paymentMethods,
-			defaultPmId: res.data.defaultPmId,
-		});
-	}, []);
+			setPaymentMethodState({
+				...paymentMethodState,
+				status: 'idle',
+				paymentMethods: res.data.paymentMethods,
+				defaultPmId: res.data.defaultPmId,
+			});
+		},
+		[paymentMethodState, setPaymentMethodState]
+	);
 
 	useEffect(() => {
 		paymentMethodState.status === 'loading' &&
@@ -460,7 +779,7 @@ const BillingPage = () => {
 		paymentMethodState.paymentMethods,
 	]);
 
-	const submitSlackFeedback = async () => {
+	const handleSlackFeedback = async () => {
 		const dateCreatedMillis = DateTime.fromISO(
 			user?.dateCreated.toString()!
 		).toMillis();
@@ -476,8 +795,12 @@ const BillingPage = () => {
 				joinDate: user?.dateCreated
 					? formatTimeDiff(dateCreatedMillis / 1000)
 					: 'UNKNOWN',
-				reason: 'I know how to source better than u, kid',
-				feedback: 'THIS THING SUCKS!',
+				reason: feedbackState.cancellationReason
+					? feedbackState.cancellationReason
+					: 'UNKNOWN',
+				feedback: feedbackState.comment
+					? feedbackState.comment
+					: 'No comment provided...',
 			},
 		});
 
@@ -487,7 +810,6 @@ const BillingPage = () => {
 	// TODO<Jake>: Show trial status in navbar w/ how many days left
 	// TODO<Jake>: Change MongoDB schema
 	// TODO<Jake>: Update .env in Heroku
-	// TODO<Jake>: Resubscribe modal
 	// TODO<Jake>: Cancellation confirmation email
 
 	const getSuccessfulPayments = useCallback(
@@ -566,7 +888,11 @@ const BillingPage = () => {
 				<button
 					onClick={() =>
 						planState.cancelAtPeriod
-							? setModal({ ...modal, type: 'updateSubscription', active: true })
+							? setModal({
+									...modal,
+									type: 'updateSubscription',
+									active: true,
+							  })
 							: setModal({
 									...modal,
 									type: 'deleteSubscription',
@@ -721,17 +1047,12 @@ const BillingPage = () => {
 										)}
 									</div>
 								</section>
-								{modal.active && (
-									<Modal
-										user={user}
-										type={modal.type}
-										paymentMethodState={paymentMethodState}
-										planState={planState}
-										handleCardCreation={handleCardCreation}
-										handleCardUpdate={handleCardUpdate}
-										handleCardDelete={handleCardDelete}
-										handleSubscriptionUpdate={handleSubscriptionUpdate}
+								{modal.active && modal.type && (
+									<TestModal
+										modal={modal}
 										setModal={setModal}
+										content={returnContentData(modal.type)}
+										isMultiStep={true}
 									/>
 								)}
 								{/* billing history */}
@@ -1012,222 +1333,6 @@ const CardForm: React.FC = () => {
 				<CardElement options={cardElementOpts} className='form-field' />
 			</form>
 		</div>
-	);
-};
-
-interface ModalProps {
-	user: User;
-	type: ModalType;
-	paymentMethodState: PaymentMethodState;
-	planState: PlanState;
-	handleCardCreation: any;
-	handleCardUpdate: any;
-	handleCardDelete: any;
-	handleSubscriptionUpdate: (
-		subId: string | null,
-		cancel: boolean
-	) => Promise<void>;
-	setModal: any;
-}
-
-const Modal: React.FC<ModalProps> = ({
-	user,
-	type,
-	paymentMethodState,
-	planState,
-	handleCardCreation,
-	handleCardDelete,
-	handleSubscriptionUpdate,
-	setModal,
-}) => {
-	const stripe = useStripe();
-	const elements = useElements();
-
-	// destructure necessary props
-	const { currentPaymentMethod, defaultPmId } = paymentMethodState;
-	const { cancelAt, currentPeriodEnd } = planState;
-
-	const modalOptions = [
-		{
-			type: 'createCard',
-			title: 'Add a new card',
-			body: <CardForm />,
-			action: (
-				<Button
-					text={'Save'}
-					onClick={() =>
-						handleCardCreation(stripe, elements, user.subscription.cusId)
-					}
-					width={null}
-					margin={true}
-					size={'sm'}
-					cta={true}
-					path={null}
-					conditional={null}
-					conditionalDisplay={null}
-				/>
-			),
-		},
-		{
-			type: 'deleteCard',
-			title: 'Remove card',
-			body: (
-				<p>
-					Are you sure you want to remove the{' '}
-					<span className='font-semibold'>
-						{currentPaymentMethod &&
-							currentPaymentMethod.brand !== 'unknown' &&
-							currentPaymentMethod.brand.toUpperCase()}
-					</span>{' '}
-					{(currentPaymentMethod?.type === 'credit' ||
-						currentPaymentMethod?.type === 'debit') && (
-						<strong>{currentPaymentMethod.type} card</strong>
-					)}{' '}
-					<strong>
-						{currentPaymentMethod && `ending in ${currentPaymentMethod.last4}`}
-					</strong>
-					? This action is permanent and can't be undone.
-				</p>
-			),
-			action: (
-				<Button
-					text={'Confirm'}
-					onClick={() =>
-						handleCardDelete(
-							currentPaymentMethod && currentPaymentMethod.id,
-							defaultPmId
-						)
-					}
-					width={null}
-					margin={true}
-					size={'sm'}
-					cta={true}
-					path={null}
-					conditional={null}
-					conditionalDisplay={null}
-					type={'danger'}
-				/>
-			),
-		},
-		{
-			type: 'deleteSubscription',
-			title: 'Cancel subscription',
-			body: (
-				<p>
-					We'd be sad to see you go!{' '}
-					<span role='img' aria-label='Sad emoji'>
-						😔
-					</span>{' '}
-					You currently have <strong>{cancelAt}</strong> left on your
-					subscription for no additional charges. You won't be charged for
-					another billing cycle until <strong>{currentPeriodEnd}</strong>. Are
-					you sure you want to unsubscribe now?
-				</p>
-			),
-			action: (
-				<Button
-					text={'Confirm'}
-					onClick={() => handleSubscriptionUpdate(planState.subId, true)}
-					width={null}
-					margin={true}
-					size={'sm'}
-					cta={true}
-					path={null}
-					conditional={null}
-					conditionalDisplay={null}
-					type={'danger'}
-				/>
-			),
-		},
-		{
-			type: 'updateSubscription',
-			title: 'Update subscription',
-			body: (
-				<p>
-					Glad to see you back{' '}
-					<span role='img' aria-label='Happy emoji'>
-						😁
-					</span>{' '}
-					Click "Resubscribe" below to prevent cancelling your plan in{' '}
-					<strong>{cancelAt}</strong>. You'll get another month of awesome leads
-					on <strong>{currentPeriodEnd}</strong>!
-				</p>
-			),
-			action: (
-				<Button
-					text={'Resubscribe'}
-					onClick={() => handleSubscriptionUpdate(planState.subId, false)}
-					width={null}
-					margin={true}
-					size={'sm'}
-					cta={true}
-					path={null}
-					conditional={null}
-					conditionalDisplay={null}
-				/>
-			),
-		},
-	];
-
-	const [content] = useState(
-		modalOptions.find((modalOption) => modalOption.type === type)
-	);
-
-	return (
-		<>
-			<div
-				onClick={(prev) => {
-					setModal({
-						...prev,
-						type: null,
-						active: false,
-					});
-				}}
-				className='absolute inset-0 z-10 h-full w-full bg-gray-900 opacity-25'
-			/>
-			<div
-				className={`absolute top-1/4 inset-x-0 z-20 max-h-screen max-w-lg mx-auto pt-2 md:pt-4 lg:pt-6 cs-light-200 card-200`}
-			>
-				<div className='relative pb-1 border-b border-200'>
-					<header className='card-padding-x'>
-						<h3 className='text-xl font-bold text-300'>
-							{content?.title ? content?.title : 'Edit'}
-						</h3>
-					</header>
-					<button
-						onClick={(prev) => {
-							setModal({
-								...prev,
-								type: null,
-								active: false,
-							});
-						}}
-						className='absolute top-0 right-3 md:right-5 lg:right-7 ml-2 p-1 text-100 hover:bg-gray-100 dark:hover:bg-darkGray-100 rounded-md hover:text-gray-700 dark:hover:text-gray-400 ring-gray transition-main'
-					>
-						<svg
-							xmlns='http://www.w3.org/2000/svg'
-							className='svg-base'
-							viewBox='0 0 20 20'
-							fill='currentColor'
-						>
-							<path
-								fillRule='evenodd'
-								d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
-								clipRule='evenodd'
-							/>
-						</svg>
-					</button>
-				</div>
-				{type && (
-					<div className='mt-4'>
-						<div className='card-padding-x'>{content?.body}</div>
-						<div className='flex justify-end mt-4 py-2 card-padding-x cs-bg rounded-b-lg border-t border-300'>
-							<div className='flex items-center'>{content?.action}</div>
-						</div>
-					</div>
-				)}
-			</div>
-		</>
 	);
 };
 
