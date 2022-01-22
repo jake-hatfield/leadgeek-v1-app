@@ -40,13 +40,12 @@ import { ReactComponent as MastercardIcon } from '@assets/images/svgs/mastercard
 import { ReactComponent as VisaIcon } from '@assets/images/svgs/visa.svg';
 
 const cancellationReasons = [
-	'Bad user interface',
-	'Found a better service',
-	'Lack of features',
-	'No longer selling on Amazon',
-	'Technical difficulties',
-	'Too expensive',
-	'Too many gated products',
+	'I found another sourcing solution',
+	"There's a lack of features",
+	"I'm no longer selling on Amazon",
+	'The software is buggy',
+	'The service is too expensive',
+	'There are too many gated products',
 	'Other',
 ] as const;
 
@@ -178,6 +177,33 @@ const BillingPage = () => {
 		}
 	};
 
+	// close modal handlers
+	const dropdownRef = useRef<any>(null);
+
+	useEffect(() => {
+		function handleClickOutside(e: any) {
+			if (!dropdownRef.current?.contains(e.target)) {
+				setFeedbackState((prevState) => ({
+					...prevState,
+					active: false,
+				}));
+			}
+		}
+		document.addEventListener('mouseup', handleClickOutside);
+		return () => {
+			document.removeEventListener('mouseup', handleClickOutside);
+		};
+	}, [dropdownRef, setFeedbackState]);
+
+	const clearFeedbackState = () => {
+		setFeedbackState((prevState) => ({
+			...prevState,
+			active: false,
+			cancellationReason: cancellationReasons[0],
+			comment: '',
+		}));
+	};
+
 	const content = [
 		{
 			type: 'createCard',
@@ -298,17 +324,21 @@ const BillingPage = () => {
 				{
 					title: <span>Cancel subscription</span>,
 					body: (
-						<p>
-							We'd be sad to see you go!{' '}
-							<span role='img' aria-label='Sad emoji'>
-								😔
-							</span>{' '}
-							You currently have <strong>{planState.cancelAt}</strong> left on
-							your subscription for no additional charges. You won't be charged
-							for another billing cycle until{' '}
-							<strong>{planState.currentPeriodEnd}</strong>. Are you sure you
-							want to unsubscribe now?
-						</p>
+						<div>
+							<p>
+								<span role='img' aria-label='Sad emoji'>
+									😔
+								</span>
+								{''} We'd be sad to see you go, but thanks for giving Leadgeek a
+								try! You currently have <strong>{planState.cancelAt}</strong>{' '}
+								left on your subscription for no additional charges.
+							</p>
+							<p className='mt-4'>
+								You won't be charged for another billing cycle until{' '}
+								<strong>{planState.currentPeriodEnd}</strong>. Are you sure you
+								want to unsubscribe now?
+							</p>
+						</div>
 					),
 					action: (
 						<Button
@@ -319,6 +349,7 @@ const BillingPage = () => {
 									...prevState,
 									step: 2,
 								}));
+								clearFeedbackState();
 							}}
 							width={null}
 							margin={true}
@@ -343,10 +374,10 @@ const BillingPage = () => {
 									👇
 								</span>
 							</p>
-							<div className='relative mt-4'>
+							<div ref={dropdownRef} className='relative mt-4'>
 								<button
 									type='button'
-									className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 cs-light-500 border-t border-b border-r border-200 rounded-r-lg text-left cursor-default ring-purple ring-inset'
+									className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 input border border-300 rounded-lg text-left cursor-default ring-purple ring-inset'
 									aria-haspopup='listbox'
 									aria-expanded='true'
 									aria-labelledby='listbox-label'
@@ -362,7 +393,7 @@ const BillingPage = () => {
 											{feedbackState.cancellationReason}
 										</span>
 									</span>
-									<span className='ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none border-l border-200 pl-2'>
+									<span className='ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none border-l border-300 pl-2'>
 										<svg
 											className='h-4 w-4 text-gray-400'
 											xmlns='http://www.w3.org/2000/svg'
@@ -441,6 +472,13 @@ const BillingPage = () => {
 									active: false,
 									step: 1,
 								}));
+								dispatch(
+									setAlert({
+										title: 'Feedback submitted',
+										message: 'We really value your input, thank you!',
+										alertType: 'success',
+									})
+								);
 							}}
 							width={null}
 							margin={true}
@@ -808,7 +846,6 @@ const BillingPage = () => {
 
 	// TODO<Jake>: Show trial status in navbar w/ how many days left
 	// TODO<Jake>: Change MongoDB schema
-	// TODO<Jake>: Update .env in Heroku
 	// TODO<Jake>: Cancellation confirmation email
 	// TODO<Jake>: Make text box required if user selects "other"
 

@@ -142,8 +142,8 @@ export const useOutsideMousedown = (
 
 export const useOutsideMouseup = (
 	ref: RefObject<HTMLElement>,
-	setState_1: React.Dispatch<boolean>,
-	setState_2: React.Dispatch<boolean> | null
+	setState_1: any,
+	setState_2: any
 ) => {
 	useEffect(() => {
 		function handleClickOutside(e: any) {
