@@ -40,13 +40,13 @@ import { ReactComponent as MastercardIcon } from '@assets/images/svgs/mastercard
 import { ReactComponent as VisaIcon } from '@assets/images/svgs/visa.svg';
 
 const cancellationReasons = [
-	'I found another sourcing solution',
-	"There's a lack of features",
-	"I'm no longer selling on Amazon",
-	'The software is buggy',
-	'The service is too expensive',
-	'There are too many gated products',
-	'Other',
+	`I found another sourcing solution`,
+	`There's a lack of features`,
+	`I'm no longer selling on Amazon`,
+	`The software is buggy`,
+	`The service is too expensive`,
+	`There are too many gated products`,
+	`Other`,
 ] as const;
 
 type CancellationReasons = typeof cancellationReasons[number];
@@ -202,6 +202,47 @@ const BillingPage = () => {
 			cancellationReason: cancellationReasons[0],
 			comment: '',
 		}));
+	};
+
+	const handleEmptyComment = (
+		cancellationReason: CancellationReasons,
+		comment: string
+	) => {
+		if (cancellationReason === 'Other' && !comment)
+			return dispatch(
+				setAlert({
+					title: 'Comment required',
+					message: 'Please share a quick comment for your cancellation reason',
+					alertType: 'warning',
+				})
+			);
+	};
+
+	const handleFeedback = (
+		cancellationReason: CancellationReasons,
+		comment: string
+	) => {
+		if (cancellationReason === 'Other' && !comment) {
+			handleEmptyComment(
+				feedbackState.cancellationReason,
+				feedbackState.comment
+			);
+		} else {
+			handleSlackFeedback(user?.subscription?.cusId);
+			setModal((prevState) => ({
+				...prevState,
+				type: null,
+				active: false,
+				step: 1,
+			}));
+			dispatch(
+				setAlert({
+					title: 'Feedback submitted',
+					message: 'We really value your input, thank you!',
+					alertType: 'success',
+				})
+			);
+		}
 	};
 
 	const content = [
@@ -411,7 +452,7 @@ const BillingPage = () => {
 								</button>
 								{feedbackState.active && (
 									<ul
-										className='absolute top-0 right-0 z-10 w-full mt-1 py-1 cs-light-300 card-200 text-sm overflow-auto focus:outline-none transform translate-y-10 minimal-scrollbar'
+										className='absolute top-0 right-0 z-10 w-full mt-1 py-1.5 cs-light-300 card-200 text-sm overflow-auto focus:outline-none transform translate-y-10 minimal-scrollbar'
 										tabIndex={-1}
 										role='listbox'
 										aria-labelledby='listbox-label'
@@ -464,22 +505,12 @@ const BillingPage = () => {
 					action: (
 						<Button
 							text={'Submit'}
-							onClick={() => {
-								handleSlackFeedback();
-								setModal((prevState) => ({
-									...prevState,
-									type: null,
-									active: false,
-									step: 1,
-								}));
-								dispatch(
-									setAlert({
-										title: 'Feedback submitted',
-										message: 'We really value your input, thank you!',
-										alertType: 'success',
-									})
-								);
-							}}
+							onClick={() =>
+								handleFeedback(
+									feedbackState.cancellationReason,
+									feedbackState.comment
+								)
+							}
 							width={null}
 							margin={true}
 							size={'sm'}
@@ -816,22 +847,28 @@ const BillingPage = () => {
 		paymentMethodState.paymentMethods,
 	]);
 
-	const handleSlackFeedback = async () => {
-		const dateCreatedMillis = DateTime.fromISO(
-			user?.dateCreated.toString()!
-		).toMillis();
+	const handleSlackFeedback = async (cusId: string | undefined) => {
+		let ltv;
+
+		if (cusId) {
+			const res = await axios.get(`/api/users/charges?cusId=${cusId}`);
+
+			if (res.data.charges) {
+				ltv = res.data.charges.reduce((prevValue: any, currValue: any) => {
+					return prevValue + currValue.amount;
+				}, 0);
+			}
+		}
 
 		const body = JSON.stringify({
 			name: user?.name,
 			email: user?.email,
 			cusId: user?.subscription.cusId,
 			plan: user?.role ? capitalize(user?.role) : 'User',
-			trial: true,
+			trial: false,
 			cancellation: {
 				timeLeft: planState.cancelAt ? planState.cancelAt : 'UNKNOWN',
-				joinDate: user?.dateCreated
-					? formatTimeDiff(dateCreatedMillis / 1000)
-					: 'UNKNOWN',
+				ltv: cusId && ltv ? ltv / 100 : 'UNKNOWN',
 				reason: feedbackState.cancellationReason
 					? feedbackState.cancellationReason
 					: 'UNKNOWN',
@@ -847,7 +884,7 @@ const BillingPage = () => {
 	// TODO<Jake>: Show trial status in navbar w/ how many days left
 	// TODO<Jake>: Change MongoDB schema
 	// TODO<Jake>: Cancellation confirmation email
-	// TODO<Jake>: Make text box required if user selects "other"
+	// TODO<Jake>: Stripe "trial_will_end" webhook https://support.stripe.com/questions/2020-visa-trial-subscription-requirement-changes-guide
 
 	const getSuccessfulPayments = useCallback(
 		async (cusId: string) => {

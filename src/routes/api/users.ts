@@ -4,6 +4,7 @@ import { Request, Response, Router, urlencoded } from 'express';
 import mailchimp from '@mailchimp/mailchimp_marketing';
 import md5 from 'md5';
 import { ObjectId } from 'mongoose';
+import nodemailer from 'nodemailer';
 import Stripe from 'stripe';
 
 // env
@@ -134,6 +135,7 @@ router.get(
 				| 'Subscription data found'
 				| 'No subscription data found'
 				| 'Server error';
+
 			if (subId) {
 				// handler to create subscription info object
 				const returnSubscriptionInfo = (
@@ -218,6 +220,85 @@ router.put(
 
 			if (subscription) {
 				const isCancelled = subscription.cancel_at_period_end;
+				// if (isCancelled) {
+				// 	// create nodemailer transport
+				// 	const transporter = nodemailer.createTransport({
+				// 		name: 'improvmx',
+				// 		host: 'smtp.improvmx.com',
+				// 		port: 587,
+				// 		secure: false,
+				// 		auth: {
+				// 			user: process.env.REACT_APP_EMAIL_ADDRESS,
+				// 			pass: process.env.REACT_APP_EMAIL_PASSWORD,
+				// 		},
+				// 		tls: {
+				// 			rejectUnauthorized: false,
+				// 		},
+				// 		debug: true,
+				// 	});
+
+				// 	// set url depending on environment
+				// 	let url;
+				// 	if (process.env.NODE_ENV === 'production') {
+				// 		url = `https://app.leadgeek.io`;
+				// 	} else {
+				// 		url = `http://localhost:3000`;
+				// 	}
+
+				// 	// create email
+				// 	const mailOptions = {
+				// 		from: 'Jake with Leadgeek" <jake@leadgeek.io>',
+				// 		to: `${user.name} <${user.email}>`,
+				// 		subject: 'Your Leadgeek subscription has been cancelled',
+				// 		text:
+				// 			`Hi ${user.name},\n\n` +
+				// 			`Thanks for letting Leadgeek be a part of your Amazon selling journey. We'll miss you around here!\n\n` +
+				// 			`At your request, the Leadgeek subscription will be cancelled on ${subscription.cancel_at}. The good news is that you'll keep receiving the regularly scheduled leads until then.\n\n` +
+				// 			`${url}/reset/reset-password/?t=${token} \n\n` +
+				// 			`The link expires in 1 hour. If you did not request a new password or need additional help, please let us know by emailing support@leadgeek.io. \n\n` +
+				// 			`-- Leadgeek Support \n`,
+				// 	};
+
+				// 	console.log('Attempting to send email...');
+
+				// 	// verify the email was sent
+				// 	transporter.verify(function (error, _) {
+				// 		if (error) {
+				// 			console.error('There was establishing a connection: ', error);
+				// 			return res.status(200).send({
+				// 				message: 'Please contact support if this error persists',
+				// 				token: null,
+				// 			});
+				// 		} else {
+				// 			console.log('Server is ready to take our messages');
+
+				// 			// send email
+				// 			transporter.sendMail(mailOptions, (error, info) => {
+				// 				if (error) {
+				// 					console.error(
+				// 						'There was an error sending the email: ',
+				// 						error
+				// 					);
+				// 					transporter.close();
+				// 					return res.status(200).send({
+				// 						message: 'Please contact support if this error persists',
+				// 						token: null,
+				// 					});
+				// 				} else {
+				// 					console.log(
+				// 						'Email sent successfully. Here are the details:',
+				// 						info
+				// 					);
+				// 					transporter.close();
+				// 					return res.status(200).send({
+				// 						message: 'Password recovery email sent successfully',
+				// 						token,
+				// 					});
+				// 				}
+				// 			});
+				// 		}
+				// 	});
+				// }
 				return res.status(200).send({
 					message: isCancelled
 						? 'Successfully unsubscribed from this plan'
@@ -231,6 +312,57 @@ router.put(
 					cancelAtPeriod: null,
 					cancelAt: subscription.cancel_at,
 				});
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+// @route       GET api/users/charges?cusId=__
+// @description Retrieve a user's charge IDs and amounts
+// @access      Private
+router.get(
+	'/charges',
+	auth,
+	async (req: Request<{}, {}, {}, { cusId: string }>, res: Response) => {
+		// destructure necessary items
+		const { cusId } = req.query;
+		let message;
+
+		try {
+			const charges = await stripe.charges.list({
+				customer: cusId,
+				limit: 50,
+			});
+
+			if (charges.data) {
+				const returnChargeInfo = (items: Stripe.Charge[]) => {
+					let newItems: { id: string; amount: number }[] = [];
+
+					items.map((item) =>
+						newItems.push({ id: item.id, amount: item.amount })
+					);
+					return newItems;
+				};
+
+				// create the charge info object
+				const chargeData = returnChargeInfo(charges.data);
+
+				message = 'Subscription data found';
+				console.log(message);
+
+				// return the subscription data + message
+				return res.status(200).send({
+					message,
+					charges: chargeData,
+				});
+			} else {
+				message = 'No subscription data found';
+				console.log(message);
+
+				// return an empty subscription object + message
+				return res.status(200).send({ message, charges: {} });
 			}
 		} catch (error) {
 			console.log(error);
@@ -1084,7 +1216,7 @@ router.post('/slack-webhook', async (req: Request, res: Response) => {
 			cusId,
 			plan,
 			trial,
-			cancellation: { timeLeft, joinDate, reason, feedback },
+			cancellation: { timeLeft, ltv, reason, feedback },
 		} = req.body;
 
 		const richMessage = {
@@ -1119,7 +1251,7 @@ router.post('/slack-webhook', async (req: Request, res: Response) => {
 						},
 						{
 							type: 'mrkdwn',
-							text: `⏱️ *Time since joined:*\n\n${joinDate}`,
+							text: `🙏 *LTV:*\n\n$${ltv}`,
 						},
 					],
 				},
