@@ -385,6 +385,7 @@ const BillingPage = () => {
 						<Button
 							text={'Confirm'}
 							onClick={() => {
+								dispatch(removeAlert());
 								handleSubscriptionUpdate(planState.subId, true);
 								setModal((prevState) => ({
 									...prevState,
@@ -503,22 +504,41 @@ const BillingPage = () => {
 						</div>
 					),
 					action: (
-						<Button
-							text={'Submit'}
-							onClick={() =>
-								handleFeedback(
-									feedbackState.cancellationReason,
-									feedbackState.comment
-								)
-							}
-							width={null}
-							margin={true}
-							size={'sm'}
-							cta={true}
-							path={null}
-							conditional={null}
-							conditionalDisplay={null}
-						/>
+						<div className='flex items-center'>
+							<Button
+								text={'Cancel'}
+								onClick={() => {
+									setModal((prevState) => ({
+										...prevState,
+										active: false,
+										step: 1,
+									}));
+								}}
+								width={null}
+								margin={false}
+								size={'sm'}
+								cta={false}
+								path={null}
+								conditional={null}
+								conditionalDisplay={null}
+							/>
+							<Button
+								text={'Submit'}
+								onClick={() =>
+									handleFeedback(
+										feedbackState.cancellationReason,
+										feedbackState.comment
+									)
+								}
+								width={null}
+								margin={true}
+								size={'sm'}
+								cta={true}
+								path={null}
+								conditional={null}
+								conditionalDisplay={null}
+							/>
+						</div>
 					),
 				},
 			],
@@ -883,7 +903,6 @@ const BillingPage = () => {
 
 	// TODO<Jake>: Show trial status in navbar w/ how many days left
 	// TODO<Jake>: Change MongoDB schema
-	// TODO<Jake>: Cancellation confirmation email
 	// TODO<Jake>: Stripe "trial_will_end" webhook https://support.stripe.com/questions/2020-visa-trial-subscription-requirement-changes-guide
 
 	const getSuccessfulPayments = useCallback(
