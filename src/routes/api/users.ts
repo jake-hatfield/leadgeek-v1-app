@@ -46,6 +46,20 @@ export const formatTimestamp = (timestamp: number, showYear: boolean) => {
 	}
 };
 
+interface Payment {
+	amount: number;
+	currency: string;
+	paymentMethod: {
+		brand: string;
+		last4: string;
+	};
+	created: number;
+	invoice: {
+		id: string;
+		pdf: string;
+	};
+}
+
 // @route       GET api/users?id=__
 // @description Get all users (ADMIN)
 // @access      Private
@@ -571,20 +585,6 @@ router.post(
 	}
 );
 
-interface Payment {
-	amount: number;
-	currency: string;
-	paymentMethod: {
-		brand: string;
-		last4: string;
-	};
-	created: number;
-	invoice: {
-		id: string;
-		pdf: string;
-	};
-}
-
 // @route       GET api/users/payments?cusId=__
 // @description Get a user's payment history
 // @access      Private
@@ -1069,6 +1069,73 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 					);
 				}
 				break;
+			case 'customer.subscription.trial_will_end': {
+				const data = event.data as Stripe.TypedEventData<Stripe.Subscription>;
+
+				const { customer: cusId } = data.object;
+
+				console.log(data.object);
+
+				const user = await User.findOne({
+					'subscription.cusId': cusId,
+				});
+
+				console.log(user);
+
+				// if (user) {
+				// 	// create nodemailer transport
+				// 	const transporter = nodemailer.createTransport({
+				// 		name: 'improvmx',
+				// 		host: 'smtp.improvmx.com',
+				// 		port: 465,
+				// 		secure: true,
+				// 		auth: {
+				// 			user: nodemailerEmail,
+				// 			pass: nodemailerPassword,
+				// 		},
+				// 		tls: {
+				// 			rejectUnauthorized: false,
+				// 		},
+				// 	});
+
+				// 	// set url depending on environment
+				// 	let url;
+				// 	if (process.env.NODE_ENV === 'production') {
+				// 		url = `https://app.leadgeek.io`;
+				// 	} else {
+				// 		url = `http://localhost:3000`;
+				// 	}
+
+				// 	// create email options
+				// 	const mailOptions = {
+				// 		from: 'Leadgeek Support" <support@leadgeek.io>',
+				// 		to: `${user.name} <${user.email}>`,
+				// 		subject: '❌ Your Leadgeek subscription has been cancelled',
+				// 		text:
+				// 			`Hi ${user.name},\n\n` +
+				// 			`Thanks for letting Leadgeek be a part of your Amazon selling journey. As you requested, your subscription will be successfully canceled on ${formatTimestamp(
+				// 				subscription.cancel_at,
+				// 				false
+				// 			)} and you'll no longer be charged. We'll miss you around here!\n\n` +
+				// 			`When your subscription ends, you'll no longer have access to daily leads or upcoming tools the team is working on 🔨. The good news is that you'll keep receiving the regularly scheduled leads until then.\n\n` +
+				// 			`If there's ever anything we can help with to grow your Amazon business, please just reach out. Thanks again for being a customer!\n\n` +
+				// 			`The Leadgeek crew`,
+				// 	};
+
+				// 	try {
+				// 		console.log(
+				// 			'Attempting to send cancellation confirmation email...'
+				// 		);
+
+				// 		let info = await transporter.sendMail(mailOptions);
+
+				// 		console.log(`Message sent: ${info.messageId}`);
+				// 	} catch (error) {
+				// 		console.log(error);
+				// 	}
+				// }
+				break;
+			}
 			case 'invoice.payment_failed': {
 				// destructure necessary items
 				const data = event.data as Stripe.TypedEventData<Stripe.Invoice>;
