@@ -1,6 +1,7 @@
 // packages
 import axios from 'axios';
 import { Request, Response, Router, urlencoded } from 'express';
+import { DateTime } from 'luxon';
 import mailchimp from '@mailchimp/mailchimp_marketing';
 import md5 from 'md5';
 import { ObjectId } from 'mongoose';
@@ -16,6 +17,8 @@ const mailchimpServer = process.env.REACT_APP_MAILCHIMP_SERVER;
 // force stripe key to be a string
 const stripeSecret = `${process.env.REACT_APP_STRIPE_SECRET_KEY}`;
 const slackSecret = process.env.REACT_APP_SLACK_SECRET;
+const nodemailerEmail = process.env.REACT_APP_EMAIL_ADDRESS;
+const nodemailerPassword = process.env.REACT_APP_EMAIL_PASSWORD;
 
 // middleware
 import auth from '@middleware/auth';
@@ -33,6 +36,15 @@ mailchimp.setConfig({
 	server: mailchimpServer,
 });
 const stripe = new Stripe(stripeSecret, { apiVersion: '2020-08-27' });
+
+export const formatTimestamp = (timestamp: number, showYear: boolean) => {
+	const isoTime = new Date(timestamp * 1000).toJSON();
+	if (showYear) {
+		return DateTime.fromISO(isoTime).toFormat('LLL dd, yyyy');
+	} else {
+		return DateTime.fromISO(isoTime).toFormat('LLLL dd');
+	}
+};
 
 // @route       GET api/users?id=__
 // @description Get all users (ADMIN)
@@ -93,6 +105,135 @@ router.get(
 					users: [],
 				});
 			}
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+// @route       GET api/users/notifications?ids=[]
+// @description Retrieve a user's notifications
+// @access      Private
+router.get(
+	'/notifications',
+	auth,
+	async (
+		req: Request<{}, {}, {}, { ids: string[] }>,
+		res: Response<{
+			message:
+				| 'There are no notifications to show'
+				| 'Successfully populated notifications'
+				| 'Server error';
+			notifications: INotificationDocument[];
+		}>
+	) => {
+		try {
+			// destructure necessary items
+			const { ids } = req.query;
+
+			const notifications = await Notification.find({ _id: { $in: ids } });
+
+			let message:
+				| 'There are no notifications to show'
+				| 'Successfully populated notifications'
+				| 'Server error';
+
+			if (notifications.length === 0) {
+				message = 'There are no notifications to show';
+				console.log(message);
+			} else {
+				let message = 'Successfully populated notifications';
+				console.log(message);
+			}
+			return res.status(200).send({
+				message,
+				notifications,
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).send({ message: 'Server error', notifications: [] });
+		}
+	}
+);
+
+// @route       DELETE api/users/notifications?notificationId=__&userId=__
+// @description Clear a user's notification by ID
+// @access      Private
+router.delete(
+	'/notifications',
+	auth,
+	async (
+		req: Request<{}, {}, {}, { notificationId: string; userId: string }>,
+		res: Response<{
+			message:
+				| 'Required information is missing'
+				| 'Notification was deleted'
+				| 'Server error';
+			notifications: { _id: ObjectId }[];
+		}>
+	) => {
+		try {
+			// destructure necessary items
+			const { notificationId, userId } = req.query;
+
+			// if required information is missing, return
+			if (!notificationId || !userId) {
+				return res.status(400).json({
+					message: 'Required information is missing',
+					notifications: [],
+				});
+			}
+
+			// lookup the user
+			const user = await User.findById(userId);
+
+			// filter notifications for notification id
+			const updatedNotifications = user.notifications.filter(
+				(notification: { _id: ObjectId }) =>
+					notification._id.toString() !== notificationId.toString()
+			);
+
+			// set the user's notifications to the filtered array
+			user.notifications = updatedNotifications;
+
+			// save user document
+			await user.save();
+
+			// return with updated notifications
+			return res.status(200).send({
+				message: 'Notification was deleted',
+				notifications: user.notifications,
+			});
+		} catch (error) {
+			console.log(error);
+			res.status(500).send({ message: 'Server error', notifications: [] });
+		}
+	}
+);
+
+// @route       GET api/users/secret?cusId=__
+// @description Get the client secret for a payment session
+// @access      Private
+router.get(
+	'/secret',
+	auth,
+	async (
+		req: Request<{}, {}, {}, { cusId: string }>,
+		res: Response<{
+			clientSecret: string;
+		}>
+	) => {
+		try {
+			const { cusId } = req.query;
+
+			const setupIntent = await stripe.setupIntents.create({
+				customer: cusId,
+				payment_method_types: ['card'],
+			});
+
+			res.status(200).send({
+				clientSecret: setupIntent.client_secret,
+			});
 		} catch (error) {
 			console.log(error);
 		}
@@ -220,85 +361,65 @@ router.put(
 
 			if (subscription) {
 				const isCancelled = subscription.cancel_at_period_end;
-				// if (isCancelled) {
-				// 	// create nodemailer transport
-				// 	const transporter = nodemailer.createTransport({
-				// 		name: 'improvmx',
-				// 		host: 'smtp.improvmx.com',
-				// 		port: 587,
-				// 		secure: false,
-				// 		auth: {
-				// 			user: process.env.REACT_APP_EMAIL_ADDRESS,
-				// 			pass: process.env.REACT_APP_EMAIL_PASSWORD,
-				// 		},
-				// 		tls: {
-				// 			rejectUnauthorized: false,
-				// 		},
-				// 		debug: true,
-				// 	});
+				if (isCancelled) {
+					const user = await User.findOne({
+						'subscription.cusId': subscription.customer,
+					});
 
-				// 	// set url depending on environment
-				// 	let url;
-				// 	if (process.env.NODE_ENV === 'production') {
-				// 		url = `https://app.leadgeek.io`;
-				// 	} else {
-				// 		url = `http://localhost:3000`;
-				// 	}
+					if (user) {
+						// create nodemailer transport
+						const transporter = nodemailer.createTransport({
+							name: 'improvmx',
+							host: 'smtp.improvmx.com',
+							port: 465,
+							secure: true,
+							auth: {
+								user: nodemailerEmail,
+								pass: nodemailerPassword,
+							},
+							tls: {
+								rejectUnauthorized: false,
+							},
+						});
 
-				// 	// create email
-				// 	const mailOptions = {
-				// 		from: 'Jake with Leadgeek" <jake@leadgeek.io>',
-				// 		to: `${user.name} <${user.email}>`,
-				// 		subject: 'Your Leadgeek subscription has been cancelled',
-				// 		text:
-				// 			`Hi ${user.name},\n\n` +
-				// 			`Thanks for letting Leadgeek be a part of your Amazon selling journey. We'll miss you around here!\n\n` +
-				// 			`At your request, the Leadgeek subscription will be cancelled on ${subscription.cancel_at}. The good news is that you'll keep receiving the regularly scheduled leads until then.\n\n` +
-				// 			`${url}/reset/reset-password/?t=${token} \n\n` +
-				// 			`The link expires in 1 hour. If you did not request a new password or need additional help, please let us know by emailing support@leadgeek.io. \n\n` +
-				// 			`-- Leadgeek Support \n`,
-				// 	};
+						// set url depending on environment
+						let url;
+						if (process.env.NODE_ENV === 'production') {
+							url = `https://app.leadgeek.io`;
+						} else {
+							url = `http://localhost:3000`;
+						}
 
-				// 	console.log('Attempting to send email...');
+						// create email options
+						const mailOptions = {
+							from: 'Leadgeek Support" <support@leadgeek.io>',
+							to: `${user.name} <${user.email}>`,
+							subject: '❌ Your Leadgeek subscription has been cancelled',
+							text:
+								`Hi ${user.name},\n\n` +
+								`Thanks for letting Leadgeek be a part of your Amazon selling journey. As you requested, your subscription will be successfully canceled on ${formatTimestamp(
+									subscription.cancel_at,
+									false
+								)} and you'll no longer be charged. We'll miss you around here!\n\n` +
+								`When your subscription ends, you'll no longer have access to daily leads or upcoming tools the team is working on 🔨. The good news is that you'll keep receiving the regularly scheduled leads until then.\n\n` +
+								`If there's ever anything we can help with to grow your Amazon business, please just reach out. Thanks again for being a customer!\n\n` +
+								`The Leadgeek crew`,
+						};
 
-				// 	// verify the email was sent
-				// 	transporter.verify(function (error, _) {
-				// 		if (error) {
-				// 			console.error('There was establishing a connection: ', error);
-				// 			return res.status(200).send({
-				// 				message: 'Please contact support if this error persists',
-				// 				token: null,
-				// 			});
-				// 		} else {
-				// 			console.log('Server is ready to take our messages');
+						try {
+							console.log(
+								'Attempting to send cancellation confirmation email...'
+							);
 
-				// 			// send email
-				// 			transporter.sendMail(mailOptions, (error, info) => {
-				// 				if (error) {
-				// 					console.error(
-				// 						'There was an error sending the email: ',
-				// 						error
-				// 					);
-				// 					transporter.close();
-				// 					return res.status(200).send({
-				// 						message: 'Please contact support if this error persists',
-				// 						token: null,
-				// 					});
-				// 				} else {
-				// 					console.log(
-				// 						'Email sent successfully. Here are the details:',
-				// 						info
-				// 					);
-				// 					transporter.close();
-				// 					return res.status(200).send({
-				// 						message: 'Password recovery email sent successfully',
-				// 						token,
-				// 					});
-				// 				}
-				// 			});
-				// 		}
-				// 	});
-				// }
+							let info = await transporter.sendMail(mailOptions);
+
+							console.log(`Message sent: ${info.messageId}`);
+						} catch (error) {
+							console.log(error);
+						}
+					}
+				}
+
 				return res.status(200).send({
 					message: isCancelled
 						? 'Successfully unsubscribed from this plan'
@@ -450,106 +571,6 @@ router.post(
 	}
 );
 
-// @route       DELETE api/users/notifications?notificationId=__&userId=__
-// @description Clear a user's notification by ID
-// @access      Private
-router.delete(
-	'/notifications',
-	auth,
-	async (
-		req: Request<{}, {}, {}, { notificationId: string; userId: string }>,
-		res: Response<{
-			message:
-				| 'Required information is missing'
-				| 'Notification was deleted'
-				| 'Server error';
-			notifications: { _id: ObjectId }[];
-		}>
-	) => {
-		try {
-			// destructure necessary items
-			const { notificationId, userId } = req.query;
-
-			// if required information is missing, return
-			if (!notificationId || !userId) {
-				return res.status(400).json({
-					message: 'Required information is missing',
-					notifications: [],
-				});
-			}
-
-			// lookup the user
-			const user = await User.findById(userId);
-
-			// filter notifications for notification id
-			const updatedNotifications = user.notifications.filter(
-				(notification: { _id: ObjectId }) =>
-					notification._id.toString() !== notificationId.toString()
-			);
-
-			// set the user's notifications to the filtered array
-			user.notifications = updatedNotifications;
-
-			// save user document
-			await user.save();
-
-			// return with updated notifications
-			return res.status(200).send({
-				message: 'Notification was deleted',
-				notifications: user.notifications,
-			});
-		} catch (error) {
-			console.log(error);
-			res.status(500).send({ message: 'Server error', notifications: [] });
-		}
-	}
-);
-
-// @route       GET api/users/notifications?ids=[]
-// @description Retrieve a user's notifications
-// @access      Private
-router.get(
-	'/notifications',
-	auth,
-	async (
-		req: Request<{}, {}, {}, { ids: string[] }>,
-		res: Response<{
-			message:
-				| 'There are no notifications to show'
-				| 'Successfully populated notifications'
-				| 'Server error';
-			notifications: INotificationDocument[];
-		}>
-	) => {
-		try {
-			// destructure necessary items
-			const { ids } = req.query;
-
-			const notifications = await Notification.find({ _id: { $in: ids } });
-
-			let message:
-				| 'There are no notifications to show'
-				| 'Successfully populated notifications'
-				| 'Server error';
-
-			if (notifications.length === 0) {
-				message = 'There are no notifications to show';
-				console.log(message);
-			} else {
-				let message = `Successfully populated notifications`;
-				console.log(message);
-			}
-			return res.status(200).send({
-				message,
-				notifications,
-			});
-		} catch (error) {
-			console.log(error);
-			res.status(500).send({ message: 'Server error', notifications: [] });
-		}
-	}
-);
-
 interface Payment {
 	amount: number;
 	currency: string;
@@ -625,35 +646,6 @@ router.get(
 		} catch (error) {
 			console.error(error.message);
 			res.status(500).send({ message: 'Server error', payments: [] });
-		}
-	}
-);
-
-// @route       GET api/users/secret?cusId=__
-// @description Get the client secret for a payment session
-// @access      Private
-router.get(
-	'/secret',
-	auth,
-	async (
-		req: Request<{}, {}, {}, { cusId: string }>,
-		res: Response<{
-			clientSecret: string;
-		}>
-	) => {
-		try {
-			const { cusId } = req.query;
-
-			const setupIntent = await stripe.setupIntents.create({
-				customer: cusId,
-				payment_method_types: ['card'],
-			});
-
-			res.status(200).send({
-				clientSecret: setupIntent.client_secret,
-			});
-		} catch (error) {
-			console.log(error);
 		}
 	}
 );
@@ -766,28 +758,6 @@ router.post(
 	}
 );
 
-// @route       PUT api/users/payment-method?pmId=__
-// @description Update a payment method
-// @access      Private
-// router.put(
-// 	'/payment',
-// 	auth,
-// 	async (
-// 		req: Request<{}, {}, {}, { paymentMethodId: string }>,
-// 		res: Response
-// 	) => {
-// 		try {
-// 			const { paymentMethodId } = req.query;
-
-// 			const paymentMethod = await stripe.paymentMethods.detach(paymentMethodId);
-
-// 			console.log(paymentMethod);
-// 		} catch (error) {
-// 			console.log(error);
-// 		}
-// 	}
-// );
-
 // @route       DELETE api/users/payment-method?pmId=__
 // @description Delete a payment method
 // @access      Private
@@ -818,7 +788,7 @@ router.delete(
 	}
 );
 
-// @route       PUT api/users/payment-method?cusId=__&pmId=__
+// @route       PUT api/users/payment-method/default?cusId=__&pmId=__
 // @description Update the customer's default payment method
 // @access      Private
 router.put(
@@ -1234,7 +1204,7 @@ router.post('/slack-webhook', async (req: Request, res: Response) => {
 					fields: [
 						{
 							type: 'mrkdwn',
-							text: `✨*Plan:*\n\n${plan}${trial && ' - Trial'}`,
+							text: `✨*Plan:*\n\n${plan}${trial ? ' - Trial' : ''}`,
 						},
 						{
 							type: 'mrkdwn',
