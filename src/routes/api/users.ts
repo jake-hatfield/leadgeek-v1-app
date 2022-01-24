@@ -411,12 +411,12 @@ router.put(
 							subject: '❌ Your Leadgeek subscription has been cancelled',
 							text:
 								`Hi ${user.name},\n\n` +
-								`Thanks for letting Leadgeek be a part of your Amazon selling journey. As you requested, your subscription will be successfully canceled on ${formatTimestamp(
+								`Thanks for letting Leadgeek be a part of your Amazon selling journey. As you requested, your subscription will be canceled on ${formatTimestamp(
 									subscription.cancel_at,
 									false
 								)} and you'll no longer be charged. We'll miss you around here!\n\n` +
 								`When your subscription ends, you'll no longer have access to daily leads or upcoming tools the team is working on 🔨. The good news is that you'll keep receiving the regularly scheduled leads until then.\n\n` +
-								`If there's ever anything we can help with to grow your Amazon business, please just reach out. Thanks again for being a customer!\n\n` +
+								`If there's ever anything we can do to help grow your Amazon business, please just reach out. Thanks again for being a customer!\n\n` +
 								`The Leadgeek crew`,
 						};
 
@@ -1253,7 +1253,7 @@ router.post('/slack-webhook', async (req: Request, res: Response) => {
 			cusId,
 			plan,
 			trial,
-			cancellation: { timeLeft, ltv, reason, feedback },
+			cancellation: { timeLeft, ltv, reason, feedback, useful },
 		} = req.body;
 
 		const richMessage = {
@@ -1302,6 +1302,17 @@ router.post('/slack-webhook', async (req: Request, res: Response) => {
 						{
 							type: 'mrkdwn',
 							text: `💡 *Feedback:*\n\n${feedback}`,
+						},
+					],
+				},
+				{
+					type: 'section',
+					fields: [
+						{
+							type: 'mrkdwn',
+							text: `💡 *Exit survey:*\n\n${
+								useful ? '+1 OHH yeah' : 'Ya took an L'
+							}`,
 						},
 					],
 				},

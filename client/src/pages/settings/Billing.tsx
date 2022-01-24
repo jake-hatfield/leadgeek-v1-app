@@ -40,6 +40,7 @@ import { ReactComponent as MastercardIcon } from '@assets/images/svgs/mastercard
 import { ReactComponent as VisaIcon } from '@assets/images/svgs/visa.svg';
 
 const cancellationReasons = [
+	`-- Select an option --`,
 	`I found another sourcing solution`,
 	`There's a lack of features`,
 	`I'm no longer selling on Amazon`,
@@ -54,6 +55,7 @@ interface FeedbackState {
 	active: boolean;
 	cancellationReason: CancellationReasons;
 	comment: string;
+	yesChecked: boolean;
 }
 
 type ModalType =
@@ -131,6 +133,7 @@ const BillingPage = () => {
 		active: false,
 		cancellationReason: cancellationReasons[0],
 		comment: '',
+		yesChecked: true,
 	});
 	const [modal, setModal] = useState<ModalState<ModalType>>({
 		type: null,
@@ -186,6 +189,7 @@ const BillingPage = () => {
 				setFeedbackState((prevState) => ({
 					...prevState,
 					active: false,
+					yesChecked: true,
 				}));
 			}
 		}
@@ -201,6 +205,7 @@ const BillingPage = () => {
 			active: false,
 			cancellationReason: cancellationReasons[0],
 			comment: '',
+			yesChecked: true,
 		}));
 	};
 
@@ -222,6 +227,16 @@ const BillingPage = () => {
 		cancellationReason: CancellationReasons,
 		comment: string
 	) => {
+		if (cancellationReason === '-- Select an option --') {
+			return dispatch(
+				setAlert({
+					title: 'Feedback required',
+					message: 'Please select a cancellation reason from the dropdown',
+					alertType: 'warning',
+				})
+			);
+		}
+
 		if (cancellationReason === 'Other' && !comment) {
 			handleEmptyComment(
 				feedbackState.cancellationReason,
@@ -484,23 +499,75 @@ const BillingPage = () => {
 										))}
 									</ul>
 								)}
+								<form className='relative mt-4 text-sm'>
+									<textarea
+										id='comment'
+										name='comment'
+										placeholder={'💭 Share your thoughts here...'}
+										onChange={(e) => {
+											const { value } = e.target;
+											setFeedbackState((prevState) => ({
+												...prevState,
+												comment: value,
+											}));
+										}}
+										value={feedbackState.comment}
+										className='h-24 w-full input rounded-main border border-300 text-sm placeholder-gray-700 ring-purple resize-none'
+									></textarea>
+								</form>
+								<div className='mt-4'>
+									<p>
+										Did Leadgeek help you find more things to sell on Amazon?
+									</p>
+									<div className='mt-4'>
+										<div className='form-check'>
+											<input
+												name='yes'
+												id='yes'
+												type='checkbox'
+												className='mr-2 h-4 w-4 leading-tight rounded-sm text-purple-500 ring-purple transition-main'
+												checked={feedbackState.yesChecked}
+												onClick={() =>
+													setFeedbackState((prevState) => ({
+														...prevState,
+														yesChecked: true,
+													}))
+												}
+											/>
+											<label className='inline-block text-300' htmlFor='yes'>
+												<span role='img' aria-label='Pary face emoji'>
+													🥳
+												</span>{' '}
+												Yes
+											</label>
+										</div>
+										<div className='htmlForm-check'>
+											<input
+												name='no'
+												id='no'
+												type='checkbox'
+												className='mr-2 h-4 w-4 leading-tight rounded-sm text-purple-500 ring-purple transition-main'
+												checked={!feedbackState.yesChecked}
+												onClick={() =>
+													setFeedbackState((prevState) => ({
+														...prevState,
+														yesChecked: false,
+													}))
+												}
+											/>
+											<label
+												className='inline-block text-300'
+												htmlFor='no_checkbox'
+											>
+												<span role='img' aria-label='Sad emoji'>
+													😔
+												</span>{' '}
+												No
+											</label>
+										</div>
+									</div>
+								</div>
 							</div>
-							<form className='relative mt-4 text-sm'>
-								<textarea
-									id='comment'
-									name='comment'
-									placeholder={'👍 it? 👎 it? Share your thoughts here...'}
-									onChange={(e) => {
-										const { value } = e.target;
-										setFeedbackState((prevState) => ({
-											...prevState,
-											comment: value,
-										}));
-									}}
-									value={feedbackState.comment}
-									className='h-24 w-full input rounded-main border border-300 text-sm placeholder-gray-700 ring-purple resize-none'
-								></textarea>
-							</form>
 						</div>
 					),
 					action: (
@@ -895,6 +962,7 @@ const BillingPage = () => {
 				feedback: feedbackState.comment
 					? feedbackState.comment
 					: 'No comment provided...',
+				useful: feedbackState.yesChecked,
 			},
 		});
 
