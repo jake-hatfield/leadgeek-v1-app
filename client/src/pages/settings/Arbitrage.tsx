@@ -150,7 +150,7 @@ const ArbitragePage = () => {
 							/>
 						) : (
 							<Fragment>
-								<article className='pt-2 md:pt-4 lg:pt-6 cs-light-300 card-200'>
+								{/* <article className='pt-2 md:pt-4 lg:pt-6 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
 										<header className='center-between card-padding-x'>
 											<h2 className='font-bold text-lg text-300'>Prep fees</h2>
@@ -211,7 +211,7 @@ const ArbitragePage = () => {
 											conditionalDisplay={null}
 										/>
 									</div>
-								</article>
+								</article> */}
 								<article className='mt-4 py-2 md:py-4 lg:py-6 cs-light-300 card-200'>
 									<div className='pb-4 border-b border-200'>
 										<header className='card-padding-x'>
