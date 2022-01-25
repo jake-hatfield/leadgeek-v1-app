@@ -12,6 +12,9 @@ const jwtSecret = process.env.REACT_APP_JWT_SECRET;
 // middleware
 import auth from '@middleware/auth';
 
+// utils
+import { sendEmail } from '../../utils';
+
 // models
 import Notification from '@models/Notification';
 import User, { IUserDocument } from '@models/User';
@@ -329,42 +332,13 @@ router.get(
 						'-- Leadgeek Support \n',
 				};
 
-				console.log('Attempting to send email...');
+				try {
+					console.log('Attempting to send password reset email...');
 
-				// verify the email was sent
-				transporter.verify(function (error, _) {
-					if (error) {
-						console.error('There was establishing a connection: ', error);
-						return res.status(200).send({
-							message: 'Please contact support if this error persists',
-							token: null,
-						});
-					} else {
-						console.log('Server is ready to take our messages');
-
-						// send email
-						transporter.sendMail(mailOptions, (error, info) => {
-							if (error) {
-								console.error('There was an error sending the email: ', error);
-								transporter.close();
-								return res.status(200).send({
-									message: 'Please contact support if this error persists',
-									token: null,
-								});
-							} else {
-								console.log(
-									'Email sent successfully. Here are the details:',
-									info
-								);
-								transporter.close();
-								return res.status(200).send({
-									message: 'Password recovery email sent successfully',
-									token,
-								});
-							}
-						});
-					}
-				});
+					await sendEmail(mailOptions);
+				} catch (error) {
+					console.log(error);
+				}
 			}
 		} catch (error) {
 			console.error(error.message);

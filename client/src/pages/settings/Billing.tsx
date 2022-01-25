@@ -955,7 +955,7 @@ const BillingPage = () => {
 			trial: false,
 			cancellation: {
 				timeLeft: planState.cancelAt ? planState.cancelAt : 'UNKNOWN',
-				ltv: cusId && ltv ? ltv / 100 : 'UNKNOWN',
+				ltv: cusId && ltv ? ltv / 100 : 'Trial',
 				reason: feedbackState.cancellationReason
 					? feedbackState.cancellationReason
 					: 'UNKNOWN',

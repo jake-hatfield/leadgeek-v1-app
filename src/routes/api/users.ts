@@ -5,7 +5,6 @@ import { DateTime } from 'luxon';
 import mailchimp from '@mailchimp/mailchimp_marketing';
 import md5 from 'md5';
 import { ObjectId } from 'mongoose';
-import nodemailer from 'nodemailer';
 import Stripe from 'stripe';
 
 // env
@@ -17,11 +16,12 @@ const mailchimpServer = process.env.REACT_APP_MAILCHIMP_SERVER;
 // force stripe key to be a string
 const stripeSecret = `${process.env.REACT_APP_STRIPE_SECRET_KEY}`;
 const slackSecret = process.env.REACT_APP_SLACK_SECRET;
-const nodemailerEmail = process.env.REACT_APP_EMAIL_ADDRESS;
-const nodemailerPassword = process.env.REACT_APP_EMAIL_PASSWORD;
 
 // middleware
 import auth from '@middleware/auth';
+
+// utils
+import { sendEmail } from '../../utils';
 
 // models
 import User, { IUserDocument } from '@models/User';
@@ -381,29 +381,6 @@ router.put(
 					});
 
 					if (user) {
-						// create nodemailer transport
-						const transporter = nodemailer.createTransport({
-							name: 'improvmx',
-							host: 'smtp.improvmx.com',
-							port: 465,
-							secure: true,
-							auth: {
-								user: nodemailerEmail,
-								pass: nodemailerPassword,
-							},
-							tls: {
-								rejectUnauthorized: false,
-							},
-						});
-
-						// set url depending on environment
-						let url;
-						if (process.env.NODE_ENV === 'production') {
-							url = `https://app.leadgeek.io`;
-						} else {
-							url = `http://localhost:3000`;
-						}
-
 						// create email options
 						const mailOptions = {
 							from: 'Leadgeek Support" <support@leadgeek.io>',
@@ -425,9 +402,7 @@ router.put(
 								'Attempting to send cancellation confirmation email...'
 							);
 
-							let info = await transporter.sendMail(mailOptions);
-
-							console.log(`Message sent: ${info.messageId}`);
+							await sendEmail(mailOptions);
 						} catch (error) {
 							console.log(error);
 						}
@@ -1072,68 +1047,41 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 			case 'customer.subscription.trial_will_end': {
 				const data = event.data as Stripe.TypedEventData<Stripe.Subscription>;
 
-				const { customer: cusId } = data.object;
-
-				console.log(data.object);
+				const {
+					customer: cusId,
+					current_period_end,
+					plan: { amount },
+				} = data.object;
 
 				const user = await User.findOne({
 					'subscription.cusId': cusId,
 				});
 
-				console.log(user);
+				if (user) {
+					// create email options
+					const mailOptions = {
+						from: 'Leadgeek Support" <support@leadgeek.io>',
+						to: `${user.name} <${user.email}>`,
+						subject: '⌛ Your Leadgeek trial ends in 3 days',
+						text:
+							`Hi ${user.name},\n\n` +
+							`Jake here, founder of Leadgeek. I hope you've gotten some good use out of the free trial so far! Right now, it's set to expire in 3 days, and after that you'll lose access to some pretty sweet daily FBA leads.\n\n` +
+							`If you're enjoying the service and want to continue on with a paid plan, you don't need to lift a finger. Payment will automatically be collected on ${formatTimestamp(
+								current_period_end,
+								false
+							)} for $${amount / 100} and you'll be set!\n\n` +
+							`But if don't think Leadgeek is a good fit for you, it's super easy to cancel auto-billing in the software under "Settings." No harm done (this is what trials are for 😀), and thanks for giving us an honest shot to help grow your Amazon business.\n\n` +
+							`Sometimes life gets in the way of stuff, and a trial doesn't count for much if you don't actually get to try anything. If you'd like more free time with Leadgeek, please let me know - I'd be happy to extend it a few more days.\n\n` +
+							`Jake from Leadgeek`,
+					};
 
-				// if (user) {
-				// 	// create nodemailer transport
-				// 	const transporter = nodemailer.createTransport({
-				// 		name: 'improvmx',
-				// 		host: 'smtp.improvmx.com',
-				// 		port: 465,
-				// 		secure: true,
-				// 		auth: {
-				// 			user: nodemailerEmail,
-				// 			pass: nodemailerPassword,
-				// 		},
-				// 		tls: {
-				// 			rejectUnauthorized: false,
-				// 		},
-				// 	});
-
-				// 	// set url depending on environment
-				// 	let url;
-				// 	if (process.env.NODE_ENV === 'production') {
-				// 		url = `https://app.leadgeek.io`;
-				// 	} else {
-				// 		url = `http://localhost:3000`;
-				// 	}
-
-				// 	// create email options
-				// 	const mailOptions = {
-				// 		from: 'Leadgeek Support" <support@leadgeek.io>',
-				// 		to: `${user.name} <${user.email}>`,
-				// 		subject: '❌ Your Leadgeek subscription has been cancelled',
-				// 		text:
-				// 			`Hi ${user.name},\n\n` +
-				// 			`Thanks for letting Leadgeek be a part of your Amazon selling journey. As you requested, your subscription will be successfully canceled on ${formatTimestamp(
-				// 				subscription.cancel_at,
-				// 				false
-				// 			)} and you'll no longer be charged. We'll miss you around here!\n\n` +
-				// 			`When your subscription ends, you'll no longer have access to daily leads or upcoming tools the team is working on 🔨. The good news is that you'll keep receiving the regularly scheduled leads until then.\n\n` +
-				// 			`If there's ever anything we can help with to grow your Amazon business, please just reach out. Thanks again for being a customer!\n\n` +
-				// 			`The Leadgeek crew`,
-				// 	};
-
-				// 	try {
-				// 		console.log(
-				// 			'Attempting to send cancellation confirmation email...'
-				// 		);
-
-				// 		let info = await transporter.sendMail(mailOptions);
-
-				// 		console.log(`Message sent: ${info.messageId}`);
-				// 	} catch (error) {
-				// 		console.log(error);
-				// 	}
-				// }
+					try {
+						console.log('Attempting to send trial notice email...');
+						await sendEmail(mailOptions);
+					} catch (error) {
+						console.log(error);
+					}
+				}
 				break;
 			}
 			case 'invoice.payment_failed': {
@@ -1310,9 +1258,7 @@ router.post('/slack-webhook', async (req: Request, res: Response) => {
 					fields: [
 						{
 							type: 'mrkdwn',
-							text: `💡 *Exit survey:*\n\n${
-								useful ? '+1 OHH yeah' : 'Ya took an L'
-							}`,
+							text: `☁️ *Was Leadgeek useful?*\n\n${useful ? 'Yah' : 'Nah'}`,
 						},
 					],
 				},
