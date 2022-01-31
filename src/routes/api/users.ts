@@ -1051,7 +1051,12 @@ router.post('/stripe-webhook', async (req: any, res: Response) => {
 					customer: cusId,
 					current_period_end,
 					plan: { amount },
+					cancel_at_period_end,
 				} = data.object;
+
+				if (cancel_at_period_end) {
+					break;
+				}
 
 				const user = await User.findOne({
 					'subscription.cusId': cusId,

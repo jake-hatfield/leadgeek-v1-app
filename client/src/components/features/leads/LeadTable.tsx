@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 // packages
 import { DateTime } from 'luxon';
@@ -29,8 +29,16 @@ interface LeadTableProps {
 	currentSearchValue: string | null;
 }
 
+enum SortingDirection {
+	ASCENDING = 'ASCENDING',
+	DESCENDING = 'DESCENDING',
+	UNSORTED = 'UNSORTED',
+}
+
+type SortKey = 'title' | 'category' | 'roi' | 'bsrCurrent' | 'monthlySales';
+
 const LeadTable: React.FC<LeadTableProps> = ({
-	leads,
+	leads: rawLeads,
 	user,
 	liked,
 	archived,
@@ -40,6 +48,24 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	currentSearchValue,
 }) => {
 	const [colorTheme] = useDarkMode();
+
+	// local state
+	const [leads, setLeads] = useState<Lead[]>([]);
+	const [sortingDirections, setSortingDirections] = useState<{
+		title: any;
+		category: any;
+		netProfit: any;
+		roi: any;
+		bsrCurrent: any;
+		monthlySales: any;
+	}>({
+		title: SortingDirection.UNSORTED,
+		category: SortingDirection.UNSORTED,
+		netProfit: SortingDirection.UNSORTED,
+		roi: SortingDirection.UNSORTED,
+		bsrCurrent: SortingDirection.UNSORTED,
+		monthlySales: SortingDirection.UNSORTED,
+	});
 
 	// filter state
 	const filters = useAppSelector((state) => state.filters);
@@ -51,6 +77,82 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	const maxDate =
 		filters.dateLimits.max &&
 		DateTime.fromISO(filters.dateLimits.max).endOf('day');
+
+	const compare = (
+		a: any,
+		b: any,
+		sortingDirection: 'ASCENDING' | 'DESCENDING'
+	) => {
+		if (sortingDirection === 'ASCENDING') {
+			if (a < b) return -1;
+			if (a > b) return 1;
+			return 0;
+		} else {
+			if (a > b) return -1;
+			if (a < b) return 1;
+			return 0;
+		}
+	};
+
+	// TODO: Flatten data
+
+	const sortData = (
+		data: any,
+		sortKey: SortKey,
+		sortingDirection: SortingDirection
+	) => {
+		console.log(data);
+		data.sort((a: any, b: any) => {
+			const relevantValueA = a[sortKey];
+			const relevantValueB = b[sortKey];
+
+			if (
+				sortingDirection === SortingDirection.UNSORTED ||
+				sortingDirection === SortingDirection.ASCENDING
+			) {
+				const res = compare(relevantValueA, relevantValueB, 'ASCENDING');
+				console.log(res);
+				return res;
+			} else {
+				return compare(relevantValueA, relevantValueB, 'DESCENDING');
+			}
+		});
+	};
+
+	const getNextSortingDirection = (sortingDirection: SortingDirection) => {
+		if (
+			sortingDirection === SortingDirection.UNSORTED ||
+			sortingDirection === SortingDirection.ASCENDING
+		) {
+			return SortingDirection.DESCENDING;
+		}
+		return SortingDirection.ASCENDING;
+	};
+
+	const sortColumn = (sortKey: SortKey) => {
+		const newLeads = [...leads];
+
+		const currentSortingDirection = sortingDirections[sortKey];
+
+		sortData(newLeads, sortKey, currentSortingDirection);
+
+		const nextSortingDirection = getNextSortingDirection(
+			currentSortingDirection
+		);
+
+		const newSortingDirections = { ...sortingDirections };
+
+		newSortingDirections[sortKey] = nextSortingDirection;
+
+		setLeads(newLeads);
+		setSortingDirections(newSortingDirections);
+	};
+
+	useEffect(() => {
+		if (status !== 'idle') return;
+		rawLeads.map((rawLead) => console.log(rawLead.data));
+		setLeads(rawLeads);
+	}, [status, rawLeads, setLeads]);
 
 	return (
 		<section className={classes.sectionWrapper}>
@@ -81,7 +183,10 @@ const LeadTable: React.FC<LeadTableProps> = ({
 						<thead className={classes.tableHeadWrapper}>
 							<tr className={classes.tableHead}>
 								<th className='p-2 rounded-tl-lg' />
-								<th className={classes.tableHeadCell}>Title</th>
+								<th className={classes.tableHeadCell}>
+									{/* Title <SortButton title={'title'} sortColumn={sortColumn} /> */}
+									Title
+								</th>
 								<th className={classes.tableHeadCell}>Category</th>
 								<th className={'p-2 hidden xl:table-cell'}>Details</th>
 								<th className={classes.tableHeadCell}>Profit</th>
@@ -319,6 +424,24 @@ const LeadRowLoader: React.FC<LeadRowLoaderProps> = ({
 			{/* hover menu */}
 			<td className='px-2' />
 		</tr>
+	);
+};
+
+const SortButton: React.FC<{ title: any; sortColumn: any }> = ({
+	title,
+	sortColumn,
+}) => {
+	return (
+		<button onClick={() => sortColumn(title)}>
+			<svg
+				xmlns='http://www.w3.org/2000/svg'
+				className='inline-block ml-2 svg-sm'
+				viewBox='0 0 20 20'
+				fill='currentColor'
+			>
+				<path d='M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h7a1 1 0 100-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z' />
+			</svg>
+		</button>
 	);
 };
 
