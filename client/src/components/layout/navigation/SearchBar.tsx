@@ -9,6 +9,7 @@ import { removeAlert, setAlert } from '@features/alert/alertSlice';
 import {
 	setLeadLoading,
 	setSearchValue,
+	hideDetails,
 } from '@components/features/leads/leadsSlice';
 
 interface SearchBarProps {
@@ -64,6 +65,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
 		dispatch(removeAlert());
 		dispatch(setLeadLoading());
 
+		dispatch(hideDetails());
 		return dispatch(setSearchValue(query));
 	};
 

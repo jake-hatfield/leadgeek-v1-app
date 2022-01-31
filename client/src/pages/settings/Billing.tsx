@@ -971,7 +971,6 @@ const BillingPage = () => {
 
 	// TODO<Jake>: Show trial status in navbar w/ how many days left
 	// TODO<Jake>: Change MongoDB schema
-	// TODO<Jake>: Stripe "trial_will_end" webhook https://support.stripe.com/questions/2020-visa-trial-subscription-requirement-changes-guide
 	// TODO<Jake>: Change 2-step email to reflect trials
 
 	const getSuccessfulPayments = useCallback(

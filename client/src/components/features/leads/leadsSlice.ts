@@ -58,12 +58,31 @@ export const addComment = createAsyncThunk(
 				message:
 					| 'Required information is missing'
 					| 'Comment was added'
+					| 'Comment was deleted'
 					| 'No user found'
 					| 'Server error';
 				comments: { leadId: string; comment: string; date: Date }[];
 			}>(`/api/leads/comment/${leadId}`, body, config);
 
 			if (data.message === 'Comment was added') {
+				// dispatch success alert
+				dispatch(
+					setAlert({
+						title: 'Success',
+						message: 'Your comment was added',
+						alertType: 'success',
+					})
+				);
+				return data.comments;
+			} else if (data.message === 'Comment was deleted') {
+				// dispatch success alert
+				dispatch(
+					setAlert({
+						title: 'Success',
+						message: 'Your comment was deleted',
+						alertType: 'success',
+					})
+				);
 				return data.comments;
 			} else {
 				// dispatch danger alert
@@ -405,6 +424,7 @@ interface LeadsState {
 		searchValue: string | null;
 		newSearch: boolean;
 	};
+	details: boolean;
 	currentLead: Lead | null;
 	currentLeadStatus: 'idle' | 'loading' | 'failed';
 	lastUpdated: string | null;
@@ -477,6 +497,7 @@ const initialState: LeadsState = {
 		searchValue: null,
 		newSearch: false,
 	},
+	details: false,
 	currentLead: null,
 	currentLeadStatus: 'loading',
 	lastUpdated: null,
@@ -521,6 +542,12 @@ export const leadsSlice = createSlice({
 		setSearchValue: (state, action) => {
 			state.search.newSearch = true;
 			state.search.searchValue = action.payload;
+		},
+		showDetails: (state) => {
+			state.details = true;
+		},
+		hideDetails: (state) => {
+			state.details = false;
 		},
 	},
 	extraReducers: (builder) => {
@@ -690,6 +717,8 @@ export const {
 	setLeadLoading,
 	setPage,
 	setSearchValue,
+	showDetails,
+	hideDetails,
 } = leadsSlice.actions;
 
 export default leadsSlice.reducer;

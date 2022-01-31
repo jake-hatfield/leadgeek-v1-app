@@ -31,6 +31,7 @@ export const setItemLimit = createAsyncThunk(
 const initialState: FilterState = {
 	count: lsFilters.length || 0,
 	filters: lsFilters,
+	sortBy: {},
 	prep: {
 		unit: +localStorage.getItem('unitFee')! || null,
 		lb: +localStorage.getItem('lbFee')! || null,
@@ -203,6 +204,9 @@ export const filtersSlice = createSlice({
 			localStorage.setItem('itemLimit', action.payload.itemLimit.toString());
 			state.itemLimit = +action.payload.itemLimit;
 		},
+		setSortColumn: (state, action) => {
+			state.sortBy = { ...action.payload };
+		},
 	},
 
 	extraReducers: (builder) => {
@@ -213,7 +217,12 @@ export const filtersSlice = createSlice({
 	},
 });
 
-export const { clearFilter, clearFilters, createFilter, setDateLimit } =
-	filtersSlice.actions;
+export const {
+	clearFilter,
+	clearFilters,
+	createFilter,
+	setDateLimit,
+	setSortColumn,
+} = filtersSlice.actions;
 
 export default filtersSlice.reducer;

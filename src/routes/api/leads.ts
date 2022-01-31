@@ -21,6 +21,75 @@ const router = Router();
 // global value
 const ITEMS_PER_PAGE = 15;
 
+const flattenData = (rawData: any[]) => {
+	const flattenedData = [];
+	for (const {
+		_id,
+		data: {
+			amzLink,
+			asin,
+			brand,
+			bsr30,
+			bsr90,
+			bsrCurrent,
+			buyPrice,
+			cashback,
+			category,
+			competitorCount,
+			competitorType,
+			date,
+			img,
+			monthlySales,
+			netProfit,
+			notes,
+			price30,
+			price90,
+			promo,
+			retailerLink,
+			roi,
+			sellPrice,
+			shipping,
+			source,
+			title,
+			variations,
+			weight,
+		},
+	} of rawData) {
+		flattenedData.push({
+			_id,
+			amzLink,
+			asin,
+			brand,
+			bsr30,
+			bsr90,
+			bsrCurrent,
+			buyPrice,
+			cashback,
+			category,
+			competitorCount,
+			competitorType,
+			date,
+			img,
+			monthlySales,
+			netProfit,
+			notes,
+			price30,
+			price90,
+			promo,
+			retailerLink,
+			roi,
+			sellPrice,
+			shipping,
+			source,
+			title,
+			variations,
+			weight,
+		});
+	}
+
+	return flattenedData;
+};
+
 // @route       POST api/leads/export
 // @description Create new leads
 // @access      Private
@@ -163,6 +232,7 @@ router.post(
 				page: number;
 				filters: {
 					filters: Filter[];
+					sortBy: any[];
 					dateLimits: {
 						min: string;
 						max: string;
@@ -177,7 +247,7 @@ router.post(
 				| 'There are no leads to show'
 				| 'Successfully queried feed leads'
 				| 'Server error';
-			feed: mongoose.LeanDocument<ILeadDocument>[];
+			feed: any[];
 			page: number;
 			hasNextPage: boolean;
 			hasPreviousPage: boolean;
@@ -196,6 +266,7 @@ router.post(
 				page,
 				filters: {
 					filters: itemFilters,
+					sortBy,
 					dateLimits: { min: minDate, max: maxDate },
 					itemLimit,
 				},
@@ -287,6 +358,16 @@ router.post(
 				$and: [...baselineQueryParams],
 			};
 
+			console.log(sortBy);
+
+			const baselineSortQuery: any = {
+				'data.date': -1,
+			};
+
+			const sortQuery =
+				Object.keys(sortBy).length > 0 ? sortBy : baselineSortQuery;
+			console.log(sortQuery);
+
 			// build feed query
 			const feedQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
 
@@ -294,7 +375,7 @@ router.post(
 				.lean()
 				.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
 				.limit(itemLimit || ITEMS_PER_PAGE)
-				.sort({ 'data.date': -1 });
+				.sort(sortQuery);
 
 			if (feed.length === 0) {
 				message = 'There are no leads to show';
@@ -335,7 +416,7 @@ router.post(
 				);
 				return res.status(200).send({
 					message,
-					feed,
+					feed: flattenData(feed),
 					page,
 					hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < filteredItems,
 					hasPreviousPage: page > 1,
@@ -397,7 +478,7 @@ router.post(
 				| 'There are no leads to show'
 				| 'Successfully queried leads'
 				| 'Server error';
-			totalByIds: ILeadDocument[];
+			totalByIds: any[];
 		}>
 	) => {
 		try {
@@ -504,7 +585,7 @@ router.post(
 				// return with data
 				return res.status(200).send({
 					message,
-					totalByIds: allLeads,
+					totalByIds: flattenData(allLeads),
 				});
 			}
 		} catch (error) {
@@ -538,7 +619,7 @@ router.post(
 				| 'You have not liked any leads'
 				| 'Successfully queried liked leads'
 				| 'Server error';
-			likedLeads: ILeadDocument[];
+			likedLeads: any[];
 			page: number;
 			hasNextPage: boolean;
 			hasPreviousPage: boolean;
@@ -589,7 +670,7 @@ router.post(
 			}
 			return res.status(200).send({
 				message,
-				likedLeads,
+				likedLeads: flattenData(likedLeads),
 				page,
 				hasNextPage: totalItems
 					? (itemLimit || ITEMS_PER_PAGE) * page < totalItems
@@ -643,7 +724,7 @@ router.post(
 				| 'You have not archived any leads'
 				| 'Successfully queried archived leads'
 				| 'Server error';
-			archivedLeads: ILeadDocument[];
+			archivedLeads: any[];
 			page: number;
 			hasNextPage: boolean;
 			hasPreviousPage: boolean;
@@ -693,7 +774,7 @@ router.post(
 			}
 			return res.status(200).send({
 				message,
-				archivedLeads,
+				archivedLeads: flattenData(archivedLeads),
 				page,
 				hasNextPage: totalItems
 					? (itemLimit || ITEMS_PER_PAGE) * page < totalItems
@@ -927,6 +1008,7 @@ router.post(
 			message:
 				| 'Required information is missing'
 				| 'Comment was added'
+				| 'Comment was deleted'
 				| 'No user found'
 				| 'Server error';
 			comments: { leadId: string; comment: string; date: Date }[];
@@ -942,14 +1024,17 @@ router.post(
 			const { leadId } = req.params;
 
 			// if required information is missing, return
-			if (!comment || !userId || !leadId) {
+			if (!userId || !leadId) {
 				return res
 					.status(401)
 					.send({ message: 'Required information is missing', comments: [] });
 			}
 
 			// declare global variables
-			let message: 'Comment was added' | 'No user found';
+			let message:
+				| 'Comment was added'
+				| 'Comment was deleted'
+				| 'No user found';
 
 			// query lead
 			const lead = await Lead.findById(leadId);
@@ -971,6 +1056,19 @@ router.post(
 
 					// if it already has a comment, update it
 					if (alreadyCommented) {
+						if (!comment) {
+							console.log('Deleting comment...');
+							const newComments = user.comments.filter(
+								(comment) => comment.leadId.toString() !== leadId.toString()
+							);
+
+							user.comments = newComments;
+							await user.save();
+							message = 'Comment was deleted';
+							// return successful
+							return res.status(201).send({ message, comments: user.comments });
+						}
+
 						console.log('Overwriting comment...');
 
 						// find the index of it
@@ -990,6 +1088,7 @@ router.post(
 					// save the user document
 					await user.save();
 					console.log('Comment saved!');
+					message = 'Comment was added';
 
 					// return successful
 					return res.status(201).send({ message, comments: user.comments });
@@ -1127,7 +1226,7 @@ router.post(
 
 			return res.status(200).send({
 				message,
-				leads: searchMatches,
+				leads: flattenData(searchMatches),
 				page,
 				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
 				hasPreviousPage: page > 1,

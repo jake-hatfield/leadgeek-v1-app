@@ -7,7 +7,7 @@ import { useSpring } from 'react-spring';
 
 // redux
 import { useAppDispatch, useAppSelector } from '@hooks/hooks';
-import { setAlert } from '@features/alert/alertSlice';
+import { setAlert, removeAlert } from '@features/alert/alertSlice';
 import {
 	clearCurrentLead,
 	getAllLeads,
@@ -17,11 +17,13 @@ import {
 
 // components
 import Button from '@components/utils/Button';
-import DatePicker from '../filters/DatePicker';
+import DatePicker from '@components/features/filters/DatePicker';
 import Details from './Details';
 import ExportButton from './ExportButton';
-import Filter from '../filters/Filter';
+import Sort from '@components/features/filters/Sort';
+import Filter from '@components/features/filters/Filter';
 import LeadTable from './LeadTable';
+import NullState from '@components/utils/NullState';
 import PaginationComponent from '@components/layout/navigation/Pagination';
 import Spinner from '@components/utils/Spinner';
 
@@ -32,7 +34,7 @@ import { Pagination } from '@utils/interfaces/Pagination';
 import { User } from '@utils/interfaces/User';
 
 interface LeadsProps {
-	leads: Lead[];
+	leads: any;
 	allLeads: Lead[];
 	pagination: Pagination;
 	type: 'feed' | 'liked' | 'archived' | 'search';
@@ -57,9 +59,10 @@ const Leads: React.FC<LeadsProps> = ({
 	const location = useLocation();
 
 	// lead state
-	const { leadStatus, currentLead, lastUpdated, exportHeaders } =
+	const { leadStatus, details, currentLead, lastUpdated, exportHeaders } =
 		useAppSelector((state) => ({
 			leadStatus: state.leads.status,
+			details: state.leads.details,
 			currentLead: state.leads.currentLead,
 			lastUpdated: state.leads.lastUpdated,
 			exportHeaders: state.leads.settings.exportHeaders,
@@ -71,7 +74,7 @@ const Leads: React.FC<LeadsProps> = ({
 	const [date, setDate] = useState(false);
 	const [exportLeads, setExportLeads] = useState(false);
 	const [filter, setFilter] = useState(false);
-	const [showDetails, setShowDetails] = useState(false);
+	const [sort, setSort] = useState(false);
 
 	// destructure necessary items
 	const { likedLeads, archivedLeads } = user;
@@ -105,6 +108,17 @@ const Leads: React.FC<LeadsProps> = ({
 
 	// tools in header
 	const tools = [
+		{
+			text: 'Sort',
+			path: svgList.sort,
+			onClick: () => setSort((prev) => !prev),
+			conditional: filterCount! > 0,
+			conditionalDisplay: (
+				<span className='svg-sm absolute top-0 right-0 all-center py-2.5 px-3 rounded-full cs-purple transform -translate-y-2 translate-x-3'>
+					{filterCount}
+				</span>
+			),
+		},
 		{
 			text: 'Filters',
 			path: svgList.filters,
@@ -167,7 +181,7 @@ const Leads: React.FC<LeadsProps> = ({
 
 	// details animation style
 	const animationStyle = useSpring({
-		transform: showDetails ? 'translateX(0%)' : 'translateX(100%)',
+		transform: details ? 'translateX(0%)' : 'translateX(100%)',
 		config: { duration: 250 },
 	});
 
@@ -185,6 +199,7 @@ const Leads: React.FC<LeadsProps> = ({
 									onClick={() => {
 										location.pathname !== '/' && dispatch(setLeadLoading());
 										currentLead && dispatch(clearCurrentLead());
+										dispatch(removeAlert());
 									}}
 									className={classes.navLink}
 									activeClassName={classes.navLinkActive}
@@ -254,6 +269,9 @@ const Leads: React.FC<LeadsProps> = ({
 							{filter && (
 								<Filter filterActive={filter} setFilterActive={setFilter} />
 							)}
+							{sort && (
+								<Sort filterActive={filter} setFilterActive={setFilter} />
+							)}
 							{exportLeads &&
 								(allLeads.length > 0 ? (
 									<ExportButton
@@ -277,17 +295,16 @@ const Leads: React.FC<LeadsProps> = ({
 				<div className='container'>
 					{leadStatus === 'failed' ? (
 						<div className='mt-6 text-200'>
-							There was an error making that request. If this issue persists,
-							please{' '}
-							<a
-								href='mailto:support@leadgeek.io'
-								target='_blank'
-								rel='noopener noreferrer'
-								className='link rounded-main transition-main ring-gray'
-							>
-								contact Leadgeek support
-							</a>
-							.
+							<NullState
+								header={'Server error'}
+								text={
+									'There was an error making that request. If this issue persists, please contact Leadgeek support'
+								}
+								path={svgList.error}
+								link={''}
+								linkText={''}
+								showButton={true}
+							/>
 						</div>
 					) : (
 						<LeadTable
@@ -296,8 +313,6 @@ const Leads: React.FC<LeadsProps> = ({
 							liked={likedLeads}
 							archived={archivedLeads}
 							status={leadStatus}
-							showDetails={showDetails}
-							setShowDetails={setShowDetails}
 							type={type}
 							currentSearchValue={currentSearchValue}
 						/>
@@ -318,8 +333,6 @@ const Leads: React.FC<LeadsProps> = ({
 					type={type}
 					user={user}
 					currentLead={currentLead}
-					showDetails={showDetails}
-					setShowDetails={setShowDetails}
 					animationStyle={animationStyle}
 				/>
 			)}
@@ -334,16 +347,16 @@ const Leads: React.FC<LeadsProps> = ({
 		/>
 	) : (
 		<div className='mt-6 container text-200'>
-			There was an error making that request. If this issue persists, please{' '}
-			<a
-				href='mailto:support@leadgeek.io'
-				target='_blank'
-				rel='noopener noreferrer'
-				className='link rounded-main transition-main ring-gray'
-			>
-				contact Leadgeek support
-			</a>
-			.
+			<NullState
+				header={'Server error'}
+				text={
+					'There was an error making that request. If this issue persists, please contact Leadgeek support'
+				}
+				path={svgList.error}
+				link={''}
+				linkText={''}
+				showButton={true}
+			/>
 		</div>
 	);
 };
@@ -364,6 +377,9 @@ const svgList = {
 			clipRule='evenodd'
 		/>
 	),
+	sort: (
+		<path d='M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z' />
+	),
 	prep: (
 		<path
 			fillRule='evenodd'
@@ -375,6 +391,13 @@ const svgList = {
 		<path
 			fillRule='evenodd'
 			d='M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
+			clipRule='evenodd'
+		/>
+	),
+	error: (
+		<path
+			fillRule='evenodd'
+			d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
 			clipRule='evenodd'
 		/>
 	),

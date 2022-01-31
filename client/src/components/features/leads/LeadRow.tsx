@@ -10,6 +10,8 @@ import {
 	handleArchiveLead,
 	handleLikeLead,
 	setCurrentLead,
+	showDetails,
+	hideDetails,
 } from '@features/leads/leadsSlice';
 
 // utils
@@ -20,24 +22,16 @@ import {
 	truncate,
 	useOutsideMousedown,
 } from '@utils/utils';
-import { Lead } from '@utils/interfaces/Lead';
 import { User } from '@utils/interfaces/User';
 
 interface LeadRowProps {
-	lead: Lead;
+	lead: any;
 	user: User;
 	liked: { _id: string }[];
 	archived: { _id: string }[];
-	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const LeadRow: React.FC<LeadRowProps> = ({
-	lead,
-	user,
-	liked,
-	archived,
-	setShowDetails,
-}) => {
+const LeadRow: React.FC<LeadRowProps> = ({ lead, user, liked, archived }) => {
 	const dispatch = useAppDispatch();
 
 	// lead state
@@ -53,7 +47,21 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	const [viewImage, setViewImage] = useState(false);
 
 	// destructure necessary items
-	const { data } = lead;
+	const {
+		amzLink,
+		bsrCurrent,
+		buyPrice,
+		category,
+		competitorCount,
+		competitorType,
+		date,
+		img,
+		monthlySales,
+		netProfit,
+		retailerLink,
+		roi,
+		title,
+	} = lead;
 
 	// disable active states on mousedown
 	const wrapperRef = useRef(null);
@@ -92,15 +100,15 @@ const LeadRow: React.FC<LeadRowProps> = ({
 	}, [archived, lead._id]);
 
 	// set date
-	const datePosted = DateTime.fromISO(data.date).toFormat('LLL dd');
+	const datePosted = DateTime.fromISO(date).toFormat('LLL dd');
 
 	// handle details on view
 	const viewDetailsHandler = () => {
 		if (currentLead) {
-			setShowDetails(true);
+			dispatch(showDetails());
 			dispatch(setCurrentLead(lead));
 		} else {
-			setShowDetails((prev) => !prev);
+			dispatch(hideDetails());
 			dispatch(setCurrentLead(lead));
 		}
 		setQuickView(false);
@@ -237,12 +245,10 @@ const LeadRow: React.FC<LeadRowProps> = ({
 			</td>
 			{/* title */}
 			<td className={classes.titleCellWrapper}>
-				<div>{truncate(data.title, 60)}</div>
+				<div>{truncate(title, 60)}</div>
 			</td>
 			{/* category */}
-			<td className={classes.categoryCellWrapper}>
-				{truncate(data.category, 28)}
-			</td>
+			<td className={classes.categoryCellWrapper}>{truncate(category, 28)}</td>
 			{/* details */}
 			<td className={classes.detailsCellWrapper}>
 				{/* image */}
@@ -288,26 +294,20 @@ const LeadRow: React.FC<LeadRowProps> = ({
 						className={classes.detailsCellImageWrapper}
 						style={imageAnimationStyle}
 					>
-						<img
-							src={data.img}
-							alt={data.title}
-							className={classes.detailsCellImage}
-						/>
+						<img src={img} alt={title} className={classes.detailsCellImage} />
 					</animated.div>
 				)}
 				{viewCompetition && (
 					<div className={classes.competitionWrapper}>
 						<div className={classes.competitionRow}>
 							<span>Buy box</span>
-							<span className={classes.competitorType}>
-								{data.competitorType}
-							</span>
+							<span className={classes.competitorType}>{competitorType}</span>
 						</div>
-						{data.competitorCount > 0 && (
+						{competitorCount > 0 && (
 							<div className={classes.competitionRow}>
 								<span># Competitors</span>
 								<span className={classes.competitorCount}>
-									{data.competitorCount}
+									{competitorCount}
 								</span>
 							</div>
 						)}
@@ -317,28 +317,25 @@ const LeadRow: React.FC<LeadRowProps> = ({
 			{/* profit */}
 			<td className={classes.profitCellWrapper}>
 				<span>$</span>
-				{data.netProfit.toFixed(2)}
+				{netProfit.toFixed(2)}
 				<span className={classes.valueIndicator}>USD</span>
 			</td>
 			{/* roi */}
 			<td className={classes.roiCellWrapper}>
-				{(
-					(+data.netProfit?.toFixed(2) / +data.buyPrice?.toFixed(2)) *
-					100
-				).toFixed(0)}
+				{((+netProfit?.toFixed(2) / +buyPrice?.toFixed(2)) * 100).toFixed(0)}
 				<span className={classes.valueIndicator}>%</span>
 			</td>
 			{/* bsr */}
 			<td className={classes.bsrCellWrapper}>
-				{numberWithCommas(data.bsrCurrent)}
+				{numberWithCommas(bsrCurrent)}
 				<span className={classes.valueIndicator}>
-					({calculateBSR(data.bsrCurrent, data.category)})
+					({calculateBSR(bsrCurrent, category)})
 					<span className={classes.valueIndicator}>%</span>
 				</span>
 			</td>
 			{/* monthly sales */}
 			<td className={classes.monthlySalesCellWrapper}>
-				{numberWithCommas(data.monthlySales)}
+				{numberWithCommas(monthlySales)}
 			</td>
 			{/* date */}
 			<td className={classes.dateCellWrapper}>{datePosted}</td>
@@ -403,7 +400,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 										<button
 											onClick={(e) => {
 												e.stopPropagation();
-												openLinkHandler(data.retailerLink, data.amzLink);
+												openLinkHandler(retailerLink, amzLink);
 												setExpandedView(false);
 											}}
 											onMouseEnter={() => setLinkDesc(true)}
@@ -462,7 +459,7 @@ const LeadRow: React.FC<LeadRowProps> = ({
 								{!archive ? 'Archive lead' : 'Unarchive lead'}
 							</button>
 							<button
-								onClick={() => openLinkHandler(data.retailerLink, data.amzLink)}
+								onClick={() => openLinkHandler(retailerLink, amzLink)}
 								className={classes.expandedViewMenuButtonSvg()}
 							>
 								<span>Open links</span>

@@ -1,22 +1,25 @@
 import React, { Fragment, useState } from 'react';
 
 // packages
-import { animated, useSpring } from 'react-spring';
+// import { animated, useSpring } from 'react-spring';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 // redux
 import { useAppSelector, useAppDispatch } from '@hooks/hooks';
-import { setExportHeaders } from '@components/features/leads/leadsSlice';
+import {
+	defaultHeaders,
+	setExportHeaders,
+} from '@components/features/leads/leadsSlice';
 // import { removeAlert, setAlert } from '@features/alert/alertSlice';
 
 // components
 import AuthLayout from '@components/layout/AuthLayout';
 import Button from '@components/utils/Button';
-import FormField from '@components/utils/FormField';
+// import FormField from '@components/utils/FormField';
 import SettingsItem from '@components/utils/SettingsItem';
 import SettingsLayout from '@components/layout/SettingsLayout';
 import Spinner from '@components/utils/Spinner';
-import Toggle from '@components/utils/Toggle';
+// import Toggle from '@components/utils/Toggle';
 
 const ArbitragePage = () => {
 	const dispatch = useAppDispatch();
@@ -33,14 +36,14 @@ const ArbitragePage = () => {
 	const [headers, setHeaders] = useState(exportHeaders);
 
 	// local state
-	const [formData, setFormData] = useState({
-		unitFee: '',
-		stdInventoryFee: '',
-		labelingFee: '',
-		inspectionFee: '',
-		marketingInsertFee: '',
-	});
-	const [advancedPrepView, setAdvancedPrepView] = useState(false);
+	// const [formData, setFormData] = useState({
+	// 	unitFee: '',
+	// 	stdInventoryFee: '',
+	// 	labelingFee: '',
+	// 	inspectionFee: '',
+	// 	marketingInsertFee: '',
+	// });
+	// const [advancedPrepView, setAdvancedPrepView] = useState(false);
 
 	// destructure necessary items
 	// const {
@@ -52,45 +55,45 @@ const ArbitragePage = () => {
 	// } = formData;
 
 	// handle form input change
-	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ ...formData, [e.target.name]: e.target.value });
-	};
+	// const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	// 	setFormData({ ...formData, [e.target.name]: e.target.value });
+	// };
 
-	const onToggle = () => {
-		setAdvancedPrepView((prev) => !prev);
-	};
+	// const onToggle = () => {
+	// 	setAdvancedPrepView((prev) => !prev);
+	// };
 
-	const advancedPrepItems: {
-		label: string;
-		name: keyof typeof formData;
-		placeholder: string;
-		value: string | undefined;
-	}[] = [
-		{
-			label: 'Standard inventory fee',
-			name: 'stdInventoryFee',
-			placeholder: user?.name ? user.name : 'Eg. 0.50',
-			value: formData.stdInventoryFee || user?.name,
-		},
-		{
-			label: 'Labeling fee',
-			name: 'labelingFee',
-			placeholder: 'Eg. 0.20',
-			value: formData.labelingFee,
-		},
-		{
-			label: 'Inspection fee',
-			name: 'inspectionFee',
-			placeholder: user?.name ? user.name : 'Eg. 0.20',
-			value: formData.inspectionFee || user?.name,
-		},
-		{
-			label: 'Marketing insert fee',
-			name: 'marketingInsertFee',
-			placeholder: user?.name ? user.name : 'Eg. 0.05',
-			value: formData.inspectionFee || user?.name,
-		},
-	];
+	// const advancedPrepItems: {
+	// 	label: string;
+	// 	name: keyof typeof formData;
+	// 	placeholder: string;
+	// 	value: string | undefined;
+	// }[] = [
+	// 	{
+	// 		label: 'Standard inventory fee',
+	// 		name: 'stdInventoryFee',
+	// 		placeholder: user?.name ? user.name : 'Eg. 0.50',
+	// 		value: formData.stdInventoryFee || user?.name,
+	// 	},
+	// 	{
+	// 		label: 'Labeling fee',
+	// 		name: 'labelingFee',
+	// 		placeholder: 'Eg. 0.20',
+	// 		value: formData.labelingFee,
+	// 	},
+	// 	{
+	// 		label: 'Inspection fee',
+	// 		name: 'inspectionFee',
+	// 		placeholder: user?.name ? user.name : 'Eg. 0.20',
+	// 		value: formData.inspectionFee || user?.name,
+	// 	},
+	// 	{
+	// 		label: 'Marketing insert fee',
+	// 		name: 'marketingInsertFee',
+	// 		placeholder: user?.name ? user.name : 'Eg. 0.05',
+	// 		value: formData.inspectionFee || user?.name,
+	// 	},
+	// ];
 
 	const reorder = (
 		list: { label: string; key: string }[],
@@ -127,10 +130,10 @@ const ArbitragePage = () => {
 		return dispatch(setExportHeaders(headers));
 	};
 
-	const cardAnimationStyle = useSpring({
-		height: advancedPrepView ? '10.25rem' : '5.125rem',
-		config: { duration: 75 },
-	});
+	// const cardAnimationStyle = useSpring({
+	// 	height: advancedPrepView ? '10.25rem' : '5.125rem',
+	// 	config: { duration: 75 },
+	// });
 
 	return (
 		user && (
@@ -248,32 +251,42 @@ const ArbitragePage = () => {
 										<div
 											className={`absolute inset-0 z-20 h-1/2 max-w-2xl m-auto pt-2 md:pt-4 lg:pt-6 pb-8 cs-light-200 card-200`}
 										>
-											<div className='relative pb-1 border-b border-200'>
-												<header className='flex items-end justify-between card-padding-x'>
+											<div className='center-between pb-1  card-padding-x border-b border-200'>
+												<header className='flex items-end'>
 													<h3 className='text-xl font-bold text-300'>
 														Column order
 													</h3>
 												</header>
-												<button
-													onClick={() => {
-														onModalClose();
-														setModal((prev) => !prev);
-													}}
-													className='absolute top-0 right-3 md:right-5 lg:right-7 ml-2 p-1 text-100 hover:bg-gray-100 dark:hover:bg-darkGray-100 rounded-md hover:text-gray-700 dark:hover:text-gray-400 ring-gray transition-main'
-												>
-													<svg
-														xmlns='http://www.w3.org/2000/svg'
-														className='svg-base'
-														viewBox='0 0 20 20'
-														fill='currentColor'
+												<div className='flex items-center'>
+													<button
+														onClick={() => {
+															setHeaders(defaultHeaders);
+														}}
+														className='mr-4 link'
 													>
-														<path
-															fillRule='evenodd'
-															d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
-															clipRule='evenodd'
-														/>
-													</svg>
-												</button>
+														Reset columns
+													</button>
+													<button
+														onClick={() => {
+															onModalClose();
+															setModal((prev) => !prev);
+														}}
+														className='p-1 text-100 hover:bg-gray-100 dark:hover:bg-darkGray-100 rounded-md hover:text-gray-700 dark:hover:text-gray-400 ring-gray transition-main'
+													>
+														<svg
+															xmlns='http://www.w3.org/2000/svg'
+															className='svg-base'
+															viewBox='0 0 20 20'
+															fill='currentColor'
+														>
+															<path
+																fillRule='evenodd'
+																d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+																clipRule='evenodd'
+															/>
+														</svg>
+													</button>
+												</div>
 											</div>
 											<div className='card-padding-x h-full py-6 minimal-scrollbar transform-0 -translate-y-0'>
 												<DragDropContext onDragEnd={onDragEnd}>

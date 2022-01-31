@@ -32,7 +32,6 @@ interface UsersState {
 	pagination: Pagination;
 }
 
-// TODO!!
 // setPage crashes app in pagination component
 
 const Admin = () => {

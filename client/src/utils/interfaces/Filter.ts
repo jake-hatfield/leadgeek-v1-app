@@ -34,6 +34,7 @@ export interface Filter {
 export interface FilterState {
 	count: number;
 	filters: Filter[];
+	sortBy: {};
 	prep: {
 		unit: number | null;
 		lb: number | null;

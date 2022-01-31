@@ -22,6 +22,8 @@ import {
 	handleArchiveLead,
 	setCurrentLead,
 	setPage,
+	showDetails,
+	hideDetails,
 } from '@features/leads/leadsSlice';
 
 // components
@@ -38,15 +40,12 @@ import {
 	truncate,
 	useOutsideMousedown,
 } from '@utils/utils';
-import { Lead } from '@utils/interfaces/Lead';
 import { User } from '@utils/interfaces/User';
 
 interface DetailsProps {
 	user: User;
 	type: 'feed' | 'liked' | 'archived' | 'search';
-	currentLead: Lead;
-	showDetails: boolean;
-	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
+	currentLead: any;
 	animationStyle: any;
 }
 
@@ -54,8 +53,6 @@ const Details: React.FC<DetailsProps> = ({
 	user,
 	type,
 	currentLead,
-	showDetails,
-	setShowDetails,
 	animationStyle,
 }) => {
 	const dispatch = useAppDispatch();
@@ -65,6 +62,7 @@ const Details: React.FC<DetailsProps> = ({
 	const currentLeadStatus = useAppSelector(
 		(state) => state.leads.currentLeadStatus
 	);
+	const details = useAppSelector((state) => state.leads.details);
 	// filter state
 	const itemLimit = useAppSelector((state) => state.filters.itemLimit);
 	const unitFee = useAppSelector((state) => state.filters.prep.unit);
@@ -80,26 +78,84 @@ const Details: React.FC<DetailsProps> = ({
 	const [fullTitle, toggleFullTitle] = useState(false);
 	const [identifyingText, setIdentifyingText] = useState('');
 	const [lastItemLastPage, setLastItemLastPage] = useState(false);
+	const [newComment, setNewComment] = useState('');
 	const [noteCount, setNoteCount] = useState(0);
 	const [showComment, setShowComment] = useState(false);
 
 	useEffect(() => {
 		if (currentLead) {
-			setShowDetails(true);
+			dispatch(showDetails());
 		} else {
-			setShowDetails(false);
+			dispatch(hideDetails());
 		}
-	}, [currentLead, setShowDetails]);
+	}, [currentLead, dispatch]);
 
 	// destructure necessary items
-	const { data } = currentLead;
+	const {
+		_id,
+		amzLink,
+		asin,
+		brand,
+		bsr30,
+		bsr90,
+		bsrCurrent,
+		buyPrice,
+		cashback,
+		category,
+		competitorCount,
+		competitorType,
+		date,
+		img,
+		monthlySales,
+		netProfit,
+		notes,
+		price30,
+		price90,
+		promo,
+		retailerLink,
+		roi,
+		sellPrice,
+		shipping,
+		source,
+		title,
+		variations,
+		weight,
+	} = currentLead;
 
 	// set date
-	const date = DateTime.fromISO(data.date).toFormat('LLL dd @ H:mm');
+	const formattedDate = DateTime.fromISO(date).toFormat('LLL dd @ H:mm');
 
 	// close comment box on click outside
-	const commentRef = useRef(null);
-	useOutsideMousedown(commentRef, setShowComment, null);
+	const commentRef = useRef<any>(null);
+
+	useEffect(() => {
+		const handleClickOutside = (e: any) => {
+			if (newComment === comment) {
+				return;
+			}
+
+			if (!commentRef.current.contains(e.target as Node)) {
+				dispatch(
+					addComment({
+						comment: newComment,
+						leadId: currentLead._id,
+					})
+				);
+				setShowComment(false);
+			}
+		};
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [
+		commentRef,
+		setShowComment,
+		dispatch,
+		newComment,
+		comment,
+		currentLead._id,
+	]);
 
 	// like/archive/comment handlers
 	const [like, setLike] = useState(
@@ -128,12 +184,16 @@ const Details: React.FC<DetailsProps> = ({
 		const hasComment = user.comments.filter(
 			(comment) => comment.leadId === currentLead._id
 		);
+
 		if (hasComment.length > 0) {
-			setComment(hasComment[0].comment);
+			const comment = hasComment[0].comment;
+			setNewComment(comment);
+			setComment(comment);
 		} else {
+			setNewComment('');
 			setComment('');
 		}
-	}, [user?.comments, currentLead]);
+	}, [user?.comments, currentLead, comment]);
 
 	// prev/next navigation
 	const getLead = (val: number) => {
@@ -166,7 +226,7 @@ const Details: React.FC<DetailsProps> = ({
 	useHotkeys(
 		'Escape',
 		() => {
-			showDetails && removeDetails();
+			details && removeDetails();
 		},
 		{ keyup: true }
 	);
@@ -192,7 +252,7 @@ const Details: React.FC<DetailsProps> = ({
 	useHotkeys(
 		't',
 		() => {
-			openLinkHandler(data.retailerLink, data.amzLink);
+			openLinkHandler(retailerLink, amzLink);
 		},
 		{ keyup: true },
 		[currentLead]
@@ -220,7 +280,7 @@ const Details: React.FC<DetailsProps> = ({
 
 	// close details handler
 	const removeDetails = () => {
-		setShowDetails(false);
+		dispatch(hideDetails());
 		return setTimeout(() => {
 			dispatch(clearCurrentLead());
 		}, animationTimeout + 1);
@@ -333,7 +393,7 @@ const Details: React.FC<DetailsProps> = ({
 			),
 			disabled: false,
 			inactivePath: null,
-			onClick: () => openLinkHandler(data.retailerLink, data.amzLink),
+			onClick: () => openLinkHandler(retailerLink, amzLink),
 			state: null,
 			title: 'Open links',
 			description: 'T',
@@ -364,28 +424,27 @@ const Details: React.FC<DetailsProps> = ({
 		{
 			title: 'Net profit',
 			value: `$${(
-				data.netProfit - (unitFee || (lbFee ? lbFee * data.weight : 0))
+				netProfit - (unitFee || (lbFee ? lbFee * weight : 0))
 			).toFixed(2)}`,
 		},
 		{
 			title: 'Return on investment',
 			value: `${(
-				((+data.netProfit.toFixed(2) -
-					(unitFee || (lbFee ? lbFee * data.weight : 0))) /
-					+data.buyPrice.toFixed(2)) *
+				((+netProfit.toFixed(2) - (unitFee || (lbFee ? lbFee * weight : 0))) /
+					+buyPrice.toFixed(2)) *
 				100
 			).toFixed(0)}%`,
 		},
 		{
 			title: 'Estimated sales / mo.',
-			value: `${numberWithCommas(data.monthlySales)}`,
+			value: `${numberWithCommas(monthlySales)}`,
 		},
 	];
 
 	// source utilities
 	const sourceUtilities = [
 		{
-			text: data.cashback,
+			text: cashback,
 			path: (
 				<path
 					fillRule='evenodd'
@@ -393,12 +452,12 @@ const Details: React.FC<DetailsProps> = ({
 					clipRule='evenodd'
 				/>
 			),
-			link: `https://www.rakuten.com/${returnDomainFromUrl(data.retailerLink)}`,
+			link: `https://www.rakuten.com/${returnDomainFromUrl(retailerLink)}`,
 			handleClick: null,
-			disabled: data.cashback ? false : true,
+			disabled: cashback ? false : true,
 		},
 		{
-			text: `Copy promo code: ${data.promo}`,
+			text: `Copy promo code: ${promo}`,
 			path: (
 				<path
 					fillRule='evenodd'
@@ -408,7 +467,7 @@ const Details: React.FC<DetailsProps> = ({
 			),
 			link: null,
 			handleClick: () => {
-				navigator.clipboard.writeText(data.promo);
+				navigator.clipboard.writeText(promo);
 				dispatch(
 					setAlert({
 						title: 'Success',
@@ -417,7 +476,7 @@ const Details: React.FC<DetailsProps> = ({
 					})
 				);
 			},
-			disabled: data.promo ? false : true,
+			disabled: promo ? false : true,
 		},
 	];
 
@@ -433,7 +492,14 @@ const Details: React.FC<DetailsProps> = ({
 			),
 			link: null,
 			handleClick: () => {
-				navigator.clipboard.writeText(data.asin);
+				navigator.clipboard.writeText(asin);
+				dispatch(
+					setAlert({
+						title: 'Success',
+						message: `${identifyingText} copied to your clipboard`,
+						alertType: 'success',
+					})
+				);
 			},
 			disabled: false,
 		},
@@ -445,7 +511,7 @@ const Details: React.FC<DetailsProps> = ({
 					<path d='M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z' />
 				</g>
 			),
-			link: `https://sellercentral.amazon.com/product-search/search?q=${data.asin}`,
+			link: `https://sellercentral.amazon.com/product-search/search?q=${asin}`,
 			handleClick: null,
 			disabled: false,
 		},
@@ -457,12 +523,12 @@ const Details: React.FC<DetailsProps> = ({
 			title: 'Source',
 			value: (
 				<a
-					href={data.retailerLink}
+					href={retailerLink}
 					target='_blank'
 					rel='noopener noreferrer'
 					className='link'
 				>
-					{data.source || '-'}
+					{source || '-'}
 				</a>
 			),
 			utility: (
@@ -484,12 +550,12 @@ const Details: React.FC<DetailsProps> = ({
 			title: identifyingText,
 			value: (
 				<a
-					href={`https://amazon.com/gp/product/${data.asin}`}
+					href={`https://amazon.com/gp/product/${asin}`}
 					target='_blank'
 					rel='noopener noreferrer'
 					className='link'
 				>
-					{data.asin}
+					{asin}
 				</a>
 			),
 			utility: (
@@ -509,17 +575,17 @@ const Details: React.FC<DetailsProps> = ({
 		},
 		{
 			title: 'Buy price',
-			value: <div>{`$${data.buyPrice.toFixed(2) || '-'}`}</div>,
+			value: <div>{`$${buyPrice.toFixed(2) || '-'}`}</div>,
 		},
 		{
 			title: 'Sell price',
-			value: <div>{`$${data.sellPrice.toFixed(2) || '-'}`}</div>,
+			value: <div>{`$${sellPrice.toFixed(2) || '-'}`}</div>,
 			utility: (
 				<Trends
-					currentValue={data.sellPrice}
+					currentValue={sellPrice}
 					compareData={[
-						{ value: data.price30, scale: '30' },
-						{ value: data.price90, scale: '90' },
+						{ value: price30, scale: '30' },
+						{ value: price90, scale: '90' },
 					]}
 					lowerIsBetter={false}
 					type={'recommended'}
@@ -529,13 +595,13 @@ const Details: React.FC<DetailsProps> = ({
 		},
 		{
 			title: 'Current BSR',
-			value: <div>{numberWithCommas(data.bsrCurrent) || '-'}</div>,
+			value: <div>{numberWithCommas(bsrCurrent) || '-'}</div>,
 			utility: (
 				<Trends
-					currentValue={data.bsrCurrent}
+					currentValue={bsrCurrent}
 					compareData={[
-						{ value: data.bsr30, scale: '30' },
-						{ value: data.bsr90, scale: '90' },
+						{ value: bsr30, scale: '30' },
+						{ value: bsr90, scale: '90' },
 					]}
 					lowerIsBetter={true}
 					type={'current'}
@@ -547,8 +613,8 @@ const Details: React.FC<DetailsProps> = ({
 			title: 'BSR %',
 			value: (
 				<div>
-					{data.bsrCurrent && data.category && (
-						<span>{calculateBSR(data.bsrCurrent, data.category)}%</span>
+					{bsrCurrent && category && (
+						<span>{calculateBSR(bsrCurrent, category)}%</span>
 					)}
 				</div>
 			),
@@ -557,11 +623,11 @@ const Details: React.FC<DetailsProps> = ({
 			title: 'Competition',
 			value: (
 				<div>
-					{data.competitorCount > 0 && (
-						<span className='text-100'>{`(${data.competitorCount})`}</span>
+					{competitorCount > 0 && (
+						<span className='text-100'>{`(${competitorCount})`}</span>
 					)}
-					<span className={data.competitorCount > 0 ? 'ml-1' : ''}>
-						{data.competitorType || '-'}
+					<span className={competitorCount > 0 ? 'ml-1' : ''}>
+						{competitorType || '-'}
 					</span>
 				</div>
 			),
@@ -570,9 +636,9 @@ const Details: React.FC<DetailsProps> = ({
 			title: 'Weight',
 			value: (
 				<div>
-					{data.weight ? (
+					{weight ? (
 						<span>
-							{data.weight.toFixed(2)}
+							{weight.toFixed(2)}
 							<span className='ml-1 text-100'>lb</span>
 						</span>
 					) : (
@@ -587,27 +653,23 @@ const Details: React.FC<DetailsProps> = ({
 	const notesInformation = [
 		{
 			title: 'Shipping notes',
-			value: <div>{data.shipping ? data.shipping : 'None'}</div>,
+			value: <div>{shipping ? shipping : 'None'}</div>,
 		},
 		{
 			title: 'Seller notes',
-			value: <div>{data.notes ? data.notes : 'None'}</div>,
+			value: <div>{notes ? notes : 'None'}</div>,
 		},
 		{
 			title: 'Variation notes',
-			value: <div>{data.variations ? data.variations : 'None'}</div>,
+			value: <div>{variations ? variations : 'None'}</div>,
 		},
 	];
 
 	// set notes & handlers
 	const checkNotes = useCallback(() => {
-		const notes: (string | null)[] = [
-			data.variations,
-			data.notes,
-			data.shipping,
-		];
-		setNoteCount(notes.filter((note) => note !== '').length);
-	}, [data.variations, data.notes, data.shipping]);
+		const formattedNotes: (string | null)[] = [variations, notes, shipping];
+		setNoteCount(formattedNotes.filter((note) => note !== '').length);
+	}, [variations, notes, shipping]);
 	useEffect(() => {
 		if (currentLead) {
 			checkNotes();
@@ -616,24 +678,20 @@ const Details: React.FC<DetailsProps> = ({
 
 	// set ASIN/ISBN identifying text
 	useEffect(() => {
-		if (data.asin.startsWith('B', 0)) {
+		if (asin.startsWith('B', 0)) {
 			setIdentifyingText('ASIN');
 		} else {
 			setIdentifyingText('ISBN');
 		}
-	}, [data.asin]);
+	}, [asin]);
 
 	// change handler for comments
 	const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setComment(e.target.value);
+		setNewComment(e.target.value);
 	};
 
 	const commentAnimationStyle = useSpring({
 		height: showComment ? '8rem' : '4rem',
-	});
-
-	const buttonAnimationStyle = useSpring({
-		opacity: showComment ? 1 : 0,
 	});
 
 	return (
@@ -686,15 +744,15 @@ const Details: React.FC<DetailsProps> = ({
 									<ReactImageMagnify
 										{...{
 											smallImage: {
-												alt: data.title,
+												alt: title,
 												isFluidWidth: false,
-												src: data.img,
+												src: img,
 												width: 225,
 												height: 225,
 											},
 											largeImage: {
-												alt: data.title,
-												src: data.img,
+												alt: title,
+												src: img,
 												width: 600,
 												height: 600,
 											},
@@ -713,17 +771,17 @@ const Details: React.FC<DetailsProps> = ({
 										onMouseLeave={() => toggleFullTitle(false)}
 										className='inline-block font-bold text-lg text-gray-900 dark:text-white'
 									>
-										{truncate(data.title, 35)}
+										{truncate(title, 35)}
 									</h3>
 									{fullTitle && (
 										<div className='absolute top-0 mt-2 mr-6 p-2 rounded-md shadow-md cs-darkGray text-xs transform translate-y-6'>
-											{data.title}
+											{title}
 										</div>
 									)}
 									<aside className='flex items-center mt-2 text-sm text-200'>
-										<div>{date}</div>
+										<div>{formattedDate}</div>
 										<span className='h-1 w-1 ml-2 rounded-full bg-gray-400 dark:bg-gray-700' />
-										<div className='ml-2'>{data.category}</div>
+										<div className='ml-2'>{category}</div>
 									</aside>
 									<article className='mt-6'>
 										<header className='mt-4 pb-2 border-b border-200'>
@@ -787,38 +845,10 @@ const Details: React.FC<DetailsProps> = ({
 										onClick={() =>
 											!showComment && setShowComment((prev) => !prev)
 										}
-										value={comment}
+										value={newComment}
 										className='w-full input rounded-main border border-300 text-sm placeholder-gray-700 ring-purple resize-none'
 										style={commentAnimationStyle}
 									/>
-									{showComment && (
-										<animated.div
-											className='absolute bottom-0 right-0 transform -translate-y-4 -translate-x-4'
-											style={buttonAnimationStyle}
-										>
-											<Button
-												text={comment ? 'Save comment' : 'Add comment'}
-												onClick={(e) => {
-													e.preventDefault();
-													comment &&
-														dispatch(
-															addComment({
-																comment,
-																leadId: currentLead._id,
-															})
-														);
-													setShowComment(false);
-												}}
-												width={null}
-												margin={false}
-												size={null}
-												cta={true}
-												path={null}
-												conditional={null}
-												conditionalDisplay={null}
-											/>
-										</animated.div>
-									)}
 								</form>
 							</div>
 						</article>
@@ -1064,7 +1094,7 @@ const Trend: React.FC<TrendProps> = ({
 		<div
 			onMouseEnter={() => setShowPopup(true)}
 			onMouseLeave={() => setShowPopup(false)}
-			className={`relative flex items-center ml-2 py-0.5 pl-2 pr-1 ${
+			className={`relative flex items-center w-24 ml-2 py-0.5 pl-2 pr-1 ${
 				isGood ? 'cs-teal' : 'bg-gray-100 dark:bg-gray-900 text-200'
 			} text-xs font-semibold rounded-main`}
 		>

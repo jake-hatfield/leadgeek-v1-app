@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 // packages
 import { DateTime } from 'luxon';
 import ContentLoader from 'react-content-loader';
 
 // redux
-import { useAppSelector } from '@hooks/hooks';
+import { useAppDispatch, useAppSelector } from '@hooks/hooks';
+import { setSortColumn } from '@features/filters/filtersSlice';
 
 // components
 import LeadRow from './LeadRow';
@@ -23,19 +24,24 @@ interface LeadTableProps {
 	liked: { _id: string }[];
 	archived: { _id: string }[];
 	status: 'idle' | 'loading' | 'failed';
-	showDetails: boolean;
-	setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
 	type: string;
 	currentSearchValue: string | null;
 }
 
 enum SortingDirection {
-	ASCENDING = 'ASCENDING',
-	DESCENDING = 'DESCENDING',
-	UNSORTED = 'UNSORTED',
+	ASCENDING = 1,
+	DESCENDING = -1,
+	UNSORTED = 0,
 }
 
-type SortKey = 'title' | 'category' | 'roi' | 'bsrCurrent' | 'monthlySales';
+type SortKey =
+	| 'title'
+	| 'category'
+	| 'netProfit'
+	| 'roi'
+	| 'bsrCurrent'
+	| 'monthlySales'
+	| 'date';
 
 const LeadTable: React.FC<LeadTableProps> = ({
 	leads: rawLeads,
@@ -43,28 +49,36 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	liked,
 	archived,
 	status,
-	setShowDetails,
 	type,
 	currentSearchValue,
 }) => {
+	const dispatch = useAppDispatch();
 	const [colorTheme] = useDarkMode();
 
 	// local state
-	const [leads, setLeads] = useState<Lead[]>([]);
-	const [sortingDirections, setSortingDirections] = useState<{
-		title: any;
-		category: any;
-		netProfit: any;
-		roi: any;
-		bsrCurrent: any;
-		monthlySales: any;
+	const [leads, setLeads] = useState<any>([]);
+	const [sortingConfig, setSortingConfig] = useState<{
+		active: SortKey | null;
+		keys: {
+			title: SortingDirection;
+			category: SortingDirection;
+			netProfit: SortingDirection;
+			roi: SortingDirection;
+			bsrCurrent: SortingDirection;
+			monthlySales: SortingDirection;
+			date: SortingDirection;
+		};
 	}>({
-		title: SortingDirection.UNSORTED,
-		category: SortingDirection.UNSORTED,
-		netProfit: SortingDirection.UNSORTED,
-		roi: SortingDirection.UNSORTED,
-		bsrCurrent: SortingDirection.UNSORTED,
-		monthlySales: SortingDirection.UNSORTED,
+		active: null,
+		keys: {
+			title: SortingDirection.UNSORTED,
+			category: SortingDirection.UNSORTED,
+			netProfit: SortingDirection.UNSORTED,
+			roi: SortingDirection.UNSORTED,
+			bsrCurrent: SortingDirection.UNSORTED,
+			monthlySales: SortingDirection.UNSORTED,
+			date: SortingDirection.UNSORTED,
+		},
 	});
 
 	// filter state
@@ -78,79 +92,44 @@ const LeadTable: React.FC<LeadTableProps> = ({
 		filters.dateLimits.max &&
 		DateTime.fromISO(filters.dateLimits.max).endOf('day');
 
-	const compare = (
-		a: any,
-		b: any,
-		sortingDirection: 'ASCENDING' | 'DESCENDING'
-	) => {
-		if (sortingDirection === 'ASCENDING') {
-			if (a < b) return -1;
-			if (a > b) return 1;
-			return 0;
-		} else {
-			if (a > b) return -1;
-			if (a < b) return 1;
-			return 0;
-		}
-	};
-
-	// TODO: Flatten data
-
-	const sortData = (
-		data: any,
-		sortKey: SortKey,
-		sortingDirection: SortingDirection
-	) => {
-		console.log(data);
-		data.sort((a: any, b: any) => {
-			const relevantValueA = a[sortKey];
-			const relevantValueB = b[sortKey];
-
-			if (
-				sortingDirection === SortingDirection.UNSORTED ||
-				sortingDirection === SortingDirection.ASCENDING
-			) {
-				const res = compare(relevantValueA, relevantValueB, 'ASCENDING');
-				console.log(res);
-				return res;
-			} else {
-				return compare(relevantValueA, relevantValueB, 'DESCENDING');
-			}
-		});
-	};
-
 	const getNextSortingDirection = (sortingDirection: SortingDirection) => {
 		if (
 			sortingDirection === SortingDirection.UNSORTED ||
-			sortingDirection === SortingDirection.ASCENDING
+			sortingDirection === SortingDirection.DESCENDING
 		) {
-			return SortingDirection.DESCENDING;
+			return SortingDirection.ASCENDING;
 		}
-		return SortingDirection.ASCENDING;
+		return SortingDirection.DESCENDING;
 	};
 
-	const sortColumn = (sortKey: SortKey) => {
-		const newLeads = [...leads];
+	const sortColumn = useCallback(
+		(sortKey: SortKey) => {
+			const currentSortingDirection = sortingConfig.keys[sortKey];
 
-		const currentSortingDirection = sortingDirections[sortKey];
+			const nextSortingDirection = getNextSortingDirection(
+				currentSortingDirection
+			);
 
-		sortData(newLeads, sortKey, currentSortingDirection);
+			const newSortingDirections = { ...sortingConfig.keys };
 
-		const nextSortingDirection = getNextSortingDirection(
-			currentSortingDirection
-		);
+			newSortingDirections[sortKey] = nextSortingDirection;
 
-		const newSortingDirections = { ...sortingDirections };
+			console.log(newSortingDirections[sortKey]);
 
-		newSortingDirections[sortKey] = nextSortingDirection;
-
-		setLeads(newLeads);
-		setSortingDirections(newSortingDirections);
-	};
+			dispatch(
+				setSortColumn({ [`data.${sortKey}`]: newSortingDirections[sortKey] })
+			);
+			return setSortingConfig({
+				...sortingConfig,
+				active: sortKey,
+				keys: newSortingDirections,
+			});
+		},
+		[leads, sortingConfig]
+	);
 
 	useEffect(() => {
 		if (status !== 'idle') return;
-		rawLeads.map((rawLead) => console.log(rawLead.data));
 		setLeads(rawLeads);
 	}, [status, rawLeads, setLeads]);
 
@@ -184,16 +163,62 @@ const LeadTable: React.FC<LeadTableProps> = ({
 							<tr className={classes.tableHead}>
 								<th className='p-2 rounded-tl-lg' />
 								<th className={classes.tableHeadCell}>
-									{/* Title <SortButton title={'title'} sortColumn={sortColumn} /> */}
-									Title
+									Title{' '}
+									<SortButton
+										sortKey={'title'}
+										sortingConfig={sortingConfig}
+										sortColumn={sortColumn}
+									/>
 								</th>
-								<th className={classes.tableHeadCell}>Category</th>
+								<th className={classes.tableHeadCell}>
+									Category{' '}
+									<SortButton
+										sortKey={'category'}
+										sortingConfig={sortingConfig}
+										sortColumn={sortColumn}
+									/>
+								</th>
 								<th className={'p-2 hidden xl:table-cell'}>Details</th>
-								<th className={classes.tableHeadCell}>Profit</th>
-								<th className={classes.tableHeadCell}>ROI</th>
-								<th className={classes.tableHeadCell}>BSR</th>
-								<th className={classes.tableHeadCell}>Sales</th>
-								<th className={classes.tableHeadCell}>Date</th>
+								<th className={classes.tableHeadCell}>
+									Profit
+									<SortButton
+										sortKey={'netProfit'}
+										sortingConfig={sortingConfig}
+										sortColumn={sortColumn}
+									/>
+								</th>
+								<th className={classes.tableHeadCell}>
+									ROI
+									<SortButton
+										sortKey={'roi'}
+										sortingConfig={sortingConfig}
+										sortColumn={sortColumn}
+									/>
+								</th>
+								<th className={classes.tableHeadCell}>
+									BSR
+									<SortButton
+										sortKey={'bsrCurrent'}
+										sortingConfig={sortingConfig}
+										sortColumn={sortColumn}
+									/>
+								</th>
+								<th className={classes.tableHeadCell}>
+									Sales
+									<SortButton
+										sortKey={'monthlySales'}
+										sortingConfig={sortingConfig}
+										sortColumn={sortColumn}
+									/>
+								</th>
+								<th className={classes.tableHeadCell}>
+									Date
+									<SortButton
+										sortKey={'date'}
+										sortingConfig={sortingConfig}
+										sortColumn={sortColumn}
+									/>
+								</th>
 								<th className='p-2 rounded-tr-lg' />
 							</tr>
 						</thead>
@@ -202,14 +227,13 @@ const LeadTable: React.FC<LeadTableProps> = ({
 								? [...Array(filters.itemLimit)].map((_, i) => (
 										<LeadRowLoader key={i} colorTheme={colorTheme} />
 								  ))
-								: leads.map((lead) => (
+								: leads.map((lead: any) => (
 										<LeadRow
 											key={lead._id}
 											lead={lead}
 											user={user}
 											liked={liked}
 											archived={archived}
-											setShowDetails={setShowDetails}
 										/>
 								  ))}
 						</tbody>
@@ -427,19 +451,32 @@ const LeadRowLoader: React.FC<LeadRowLoaderProps> = ({
 	);
 };
 
-const SortButton: React.FC<{ title: any; sortColumn: any }> = ({
-	title,
-	sortColumn,
-}) => {
+const SortButton: React.FC<{
+	sortKey: SortKey;
+	sortingConfig: any;
+	sortColumn: (sortKey: SortKey) => void;
+}> = ({ sortKey, sortingConfig, sortColumn }) => {
+	const sortDirection = sortingConfig.keys[sortKey];
 	return (
-		<button onClick={() => sortColumn(title)}>
+		<button
+			onClick={() => sortColumn(sortKey)}
+			className={
+				sortingConfig.active === sortKey
+					? 'text-purple-500 dark:text-purple-300'
+					: 'text-gray-500 dark:text-gray-700'
+			}
+		>
 			<svg
 				xmlns='http://www.w3.org/2000/svg'
 				className='inline-block ml-2 svg-sm'
 				viewBox='0 0 20 20'
 				fill='currentColor'
 			>
-				<path d='M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h7a1 1 0 100-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z' />
+				{sortDirection === SortingDirection.DESCENDING ? (
+					<path d='M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z' />
+				) : (
+					<path d='M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h7a1 1 0 100-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z' />
+				)}
 			</svg>
 		</button>
 	);
