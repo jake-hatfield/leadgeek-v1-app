@@ -34,7 +34,7 @@ import { Pagination } from '@utils/interfaces/Pagination';
 import { User } from '@utils/interfaces/User';
 
 interface LeadsProps {
-	leads: any;
+	leads: Lead[];
 	allLeads: Lead[];
 	pagination: Pagination;
 	type: 'feed' | 'liked' | 'archived' | 'search';
@@ -80,6 +80,7 @@ const Leads: React.FC<LeadsProps> = ({
 	const { likedLeads, archivedLeads } = user;
 	const {
 		count: filterCount,
+		sortCriteria,
 		dateLimits: { selected: dateSelected },
 	} = filters;
 
@@ -112,10 +113,10 @@ const Leads: React.FC<LeadsProps> = ({
 			text: 'Sort',
 			path: svgList.sort,
 			onClick: () => setSort((prev) => !prev),
-			conditional: filterCount! > 0,
+			conditional: sortCriteria.length! > 0,
 			conditionalDisplay: (
 				<span className='svg-sm absolute top-0 right-0 all-center py-2.5 px-3 rounded-full cs-purple transform -translate-y-2 translate-x-3'>
-					{filterCount}
+					{sortCriteria.length}
 				</span>
 			),
 		},
@@ -269,9 +270,7 @@ const Leads: React.FC<LeadsProps> = ({
 							{filter && (
 								<Filter filterActive={filter} setFilterActive={setFilter} />
 							)}
-							{sort && (
-								<Sort filterActive={filter} setFilterActive={setFilter} />
-							)}
+							{sort && <Sort sortActive={sort} setSortActive={setSort} />}
 							{exportLeads &&
 								(allLeads.length > 0 ? (
 									<ExportButton

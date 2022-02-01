@@ -30,3 +30,27 @@ export interface Filter {
 	operator: FilterOperators;
 	value: string | number;
 }
+
+export type SortTypes =
+	| 'title'
+	| 'category'
+	| 'netProfit'
+	| 'roi'
+	| 'bsrCurrent'
+	| 'monthlySales'
+	| 'date';
+
+export type SortTitles =
+	| 'Title'
+	| 'Category'
+	| 'Profit'
+	| 'Return on investment'
+	| "Best seller's rank"
+	| 'Monthly sales'
+	| 'Date';
+
+export type SortValues = 1 | -1 | 0;
+export interface SortCriterion {
+	type: SortTypes;
+	value: SortValues;
+}

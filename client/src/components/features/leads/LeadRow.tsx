@@ -22,10 +22,11 @@ import {
 	truncate,
 	useOutsideMousedown,
 } from '@utils/utils';
+import { Lead } from '@utils/interfaces/Lead';
 import { User } from '@utils/interfaces/User';
 
 interface LeadRowProps {
-	lead: any;
+	lead: Lead;
 	user: User;
 	liked: { _id: string }[];
 	archived: { _id: string }[];
@@ -61,7 +62,7 @@ const LeadRow: React.FC<LeadRowProps> = ({ lead, user, liked, archived }) => {
 		retailerLink,
 		roi,
 		title,
-	} = lead;
+	} = lead.data;
 
 	// disable active states on mousedown
 	const wrapperRef = useRef(null);

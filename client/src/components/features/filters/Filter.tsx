@@ -131,8 +131,8 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 			);
 		return dispatch(
 			setAlert({
-				title: 'All filters were removed',
-				message: 'Unfiltered leads are now showing.',
+				title: 'Success',
+				message: 'All filters were removed',
 				alertType: 'success',
 			})
 		);
@@ -241,8 +241,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 			filters,
 		});
 	};
-
-	// console.log(filter.typeIs, filter.valueIs, filter.value);
 
 	return user ? (
 		<article

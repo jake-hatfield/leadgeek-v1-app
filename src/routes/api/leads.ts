@@ -12,7 +12,7 @@ import Lead, { ILeadDocument } from '@models/Lead';
 import User, { IUserDocument } from '@models/User';
 
 // types
-import { Filter } from 'types/Filter';
+import { Filter, SortCriterion } from 'types/Filter';
 import { ILead } from 'types/Lead';
 
 // router
@@ -21,73 +21,17 @@ const router = Router();
 // global value
 const ITEMS_PER_PAGE = 15;
 
-const flattenData = (rawData: any[]) => {
-	const flattenedData = [];
-	for (const {
-		_id,
-		data: {
-			amzLink,
-			asin,
-			brand,
-			bsr30,
-			bsr90,
-			bsrCurrent,
-			buyPrice,
-			cashback,
-			category,
-			competitorCount,
-			competitorType,
-			date,
-			img,
-			monthlySales,
-			netProfit,
-			notes,
-			price30,
-			price90,
-			promo,
-			retailerLink,
-			roi,
-			sellPrice,
-			shipping,
-			source,
-			title,
-			variations,
-			weight,
-		},
-	} of rawData) {
-		flattenedData.push({
-			_id,
-			amzLink,
-			asin,
-			brand,
-			bsr30,
-			bsr90,
-			bsrCurrent,
-			buyPrice,
-			cashback,
-			category,
-			competitorCount,
-			competitorType,
-			date,
-			img,
-			monthlySales,
-			netProfit,
-			notes,
-			price30,
-			price90,
-			promo,
-			retailerLink,
-			roi,
-			sellPrice,
-			shipping,
-			source,
-			title,
-			variations,
-			weight,
-		});
-	}
-
-	return flattenedData;
+const formatSortCriteria = (sortCriteria: SortCriterion[]) => {
+	const sortCriteriaArray = sortCriteria
+		.map((sortCriterion) => ({
+			type: sortCriterion.type,
+			value: sortCriterion.value,
+		}))
+		.map((sortCriterion) => Object.values(sortCriterion));
+	return sortCriteriaArray.map(([sortCriterion, ...rest]) => [
+		`data.${sortCriterion}`,
+		...rest,
+	]);
 };
 
 // @route       POST api/leads/export
@@ -232,7 +176,7 @@ router.post(
 				page: number;
 				filters: {
 					filters: Filter[];
-					sortBy: any[];
+					sortCriteria: SortCriterion[];
 					dateLimits: {
 						min: string;
 						max: string;
@@ -266,7 +210,7 @@ router.post(
 				page,
 				filters: {
 					filters: itemFilters,
-					sortBy,
+					sortCriteria,
 					dateLimits: { min: minDate, max: maxDate },
 					itemLimit,
 				},
@@ -358,15 +302,12 @@ router.post(
 				$and: [...baselineQueryParams],
 			};
 
-			console.log(sortBy);
-
-			const baselineSortQuery: any = {
-				'data.date': -1,
-			};
+			const baselineSortQuery: any = [['data.date', -1]];
 
 			const sortQuery =
-				Object.keys(sortBy).length > 0 ? sortBy : baselineSortQuery;
-			console.log(sortQuery);
+				sortCriteria.length > 0
+					? formatSortCriteria(sortCriteria)
+					: baselineSortQuery;
 
 			// build feed query
 			const feedQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
@@ -416,7 +357,7 @@ router.post(
 				);
 				return res.status(200).send({
 					message,
-					feed: flattenData(feed),
+					feed,
 					page,
 					hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < filteredItems,
 					hasPreviousPage: page > 1,
@@ -463,6 +404,7 @@ router.post(
 				};
 				filters: {
 					filters: Filter[];
+					sortCriteria: SortCriterion[];
 					dateLimits: {
 						min: string;
 						max: string;
@@ -487,6 +429,7 @@ router.post(
 				user: { id: userId },
 				filters: {
 					filters: itemFilters,
+					sortCriteria,
 					dateLimits: { min: minDate, max: maxDate },
 				},
 				type,
@@ -559,6 +502,15 @@ router.post(
 			// build all leads query
 			const allLeadsQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
 
+			const baselineSortQuery: any = {
+				'data.date': -1,
+			};
+
+			const sortQuery =
+				sortCriteria.length > 0
+					? formatSortCriteria(sortCriteria)
+					: baselineSortQuery;
+
 			// query leads
 			if (type === 'search' && query) {
 				allLeads = await Lead.fuzzySearch(
@@ -570,9 +522,7 @@ router.post(
 					baselineQueryParams
 				).lean();
 			} else {
-				allLeads = await Lead.find(allLeadsQuery)
-					.lean()
-					.sort({ 'data.date': -1 });
+				allLeads = await Lead.find(allLeadsQuery).lean().sort(sortQuery);
 			}
 
 			// if the query is an empty array, return
@@ -585,7 +535,7 @@ router.post(
 				// return with data
 				return res.status(200).send({
 					message,
-					totalByIds: flattenData(allLeads),
+					totalByIds: allLeads,
 				});
 			}
 		} catch (error) {
@@ -610,6 +560,7 @@ router.post(
 				page: number;
 				filters: {
 					filters: Filter[];
+					sortCriteria: SortCriterion[];
 					itemLimit: number;
 				};
 			}
@@ -634,7 +585,7 @@ router.post(
 			const {
 				leads,
 				page,
-				filters: { filters: itemFilters, itemLimit },
+				filters: { filters: itemFilters, sortCriteria, itemLimit },
 			} = req.body;
 
 			// declare global variables
@@ -642,6 +593,15 @@ router.post(
 
 			// set baseline params
 			const baselineQueryParams = [{ _id: { $in: leads } }];
+
+			const baselineSortQuery: any = {
+				'data.date': -1,
+			};
+
+			const sortQuery =
+				sortCriteria.length > 0
+					? formatSortCriteria(sortCriteria)
+					: baselineSortQuery;
 
 			// build liked query
 			const likedQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
@@ -654,7 +614,7 @@ router.post(
 					return Lead.find(likedQuery)
 						.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
 						.limit(itemLimit || ITEMS_PER_PAGE)
-						.sort({ 'data.date': -1 });
+						.sort(sortQuery);
 				});
 
 			let message:
@@ -670,7 +630,7 @@ router.post(
 			}
 			return res.status(200).send({
 				message,
-				likedLeads: flattenData(likedLeads),
+				likedLeads,
 				page,
 				hasNextPage: totalItems
 					? (itemLimit || ITEMS_PER_PAGE) * page < totalItems
@@ -715,6 +675,7 @@ router.post(
 				page: number;
 				filters: {
 					filters: Filter[];
+					sortCriteria: SortCriterion[];
 					itemLimit: number;
 				};
 			}
@@ -739,7 +700,7 @@ router.post(
 			const {
 				leads,
 				page,
-				filters: { filters: itemFilters, itemLimit },
+				filters: { filters: itemFilters, sortCriteria, itemLimit },
 			} = req.body;
 
 			// declare global variables
@@ -747,6 +708,15 @@ router.post(
 
 			// set baseline params
 			const baselineQueryParams = [{ _id: { $in: leads } }];
+
+			const baselineSortQuery: any = {
+				'data.date': -1,
+			};
+
+			const sortQuery =
+				sortCriteria.length > 0
+					? formatSortCriteria(sortCriteria)
+					: baselineSortQuery;
 
 			// build liked query
 			const archivedQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
@@ -758,7 +728,7 @@ router.post(
 					return Lead.find(archivedQuery)
 						.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
 						.limit(itemLimit || ITEMS_PER_PAGE)
-						.sort({ 'data.date': -1 });
+						.sort(sortQuery);
 				});
 
 			let message:
@@ -774,7 +744,7 @@ router.post(
 			}
 			return res.status(200).send({
 				message,
-				archivedLeads: flattenData(archivedLeads),
+				archivedLeads,
 				page,
 				hasNextPage: totalItems
 					? (itemLimit || ITEMS_PER_PAGE) * page < totalItems
@@ -1120,6 +1090,7 @@ router.post(
 				page: number;
 				filters: {
 					filters: Filter[];
+					sortCriteria: SortCriterion[];
 					dateLimits: {
 						min: string;
 						max: string;
@@ -1138,6 +1109,7 @@ router.post(
 				page,
 				filters: {
 					filters: itemFilters,
+					sortCriteria,
 					dateLimits: { min: minDate, max: maxDate },
 					itemLimit,
 				},
@@ -1182,6 +1154,9 @@ router.post(
 				{ 'data.date': { $lte: isoToTimestamp(maxDateFilter) } },
 			];
 
+			const sortQuery =
+				sortCriteria.length > 0 ? formatSortCriteria(sortCriteria) : [];
+
 			const searchQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
 
 			const searchMatches: ILeadDocument[] = await Lead.fuzzySearch(
@@ -1195,7 +1170,9 @@ router.post(
 				.lean()
 				.select('-plan')
 				.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
-				.limit(itemLimit || ITEMS_PER_PAGE);
+				.limit(itemLimit || ITEMS_PER_PAGE)
+				.sort(sortQuery)
+				.exec();
 
 			// declare global variables
 			let message, totalItems;
@@ -1226,7 +1203,7 @@ router.post(
 
 			return res.status(200).send({
 				message,
-				leads: flattenData(searchMatches),
+				leads: searchMatches,
 				page,
 				hasNextPage: (itemLimit || ITEMS_PER_PAGE) * page < totalItems,
 				hasPreviousPage: page > 1,

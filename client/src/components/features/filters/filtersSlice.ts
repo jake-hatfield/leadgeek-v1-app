@@ -11,6 +11,10 @@ import {
 	FilterState,
 	FilterTitles,
 	FilterTypes,
+	SortCriterion,
+	SortTitles,
+	SortTypes,
+	SortValues,
 } from '@utils/interfaces/Filter';
 import { LeadTypes } from '@utils/interfaces/Lead';
 
@@ -19,7 +23,13 @@ const getLSFilters = () => {
 	return lsFilters ? JSON.parse(lsFilters) : [];
 };
 
+const getLSSortCriteria = () => {
+	const lsSortCriteria = localStorage.getItem('sortCriteria');
+	return lsSortCriteria ? JSON.parse(lsSortCriteria) : [];
+};
+
 const lsFilters = getLSFilters();
+const lsSortCriteria = getLSSortCriteria();
 
 export const setItemLimit = createAsyncThunk(
 	'filters/setItemLimit',
@@ -31,7 +41,7 @@ export const setItemLimit = createAsyncThunk(
 const initialState: FilterState = {
 	count: lsFilters.length || 0,
 	filters: lsFilters,
-	sortBy: {},
+	sortCriteria: lsSortCriteria,
 	prep: {
 		unit: +localStorage.getItem('unitFee')! || null,
 		lb: +localStorage.getItem('lbFee')! || null,
@@ -81,6 +91,43 @@ export const filtersSlice = createSlice({
 
 			// local storage
 			localStorage.removeItem('filters');
+		},
+		clearSortCriterion: (
+			state,
+			action: PayloadAction<{
+				type: SortTypes;
+			}>
+		) => {
+			// state
+			state.sortCriteria = state.sortCriteria.filter(
+				(sortCriterion) => sortCriterion.type !== action.payload.type
+			);
+
+			// local storage
+
+			// get any existing sort criteria
+			const existingSortCriteria = getLSSortCriteria();
+			// if they exist, filter out all that aren't being deleted
+			if (existingSortCriteria.length > 0) {
+				const newCriteria = existingSortCriteria.filter(
+					(sortCriterion: SortCriterion) =>
+						sortCriterion.type !== action.payload.type
+				);
+				// if there are remaining sort criteria, add them
+				if (newCriteria.length > 0) {
+					localStorage.setItem('sortCriteria', JSON.stringify(newCriteria));
+				} else {
+					// otherwise get rid of the item in local storage
+					localStorage.removeItem('sortCriteria');
+				}
+			}
+		},
+		clearSortCriteria: (state) => {
+			// state
+			state.sortCriteria = [];
+
+			// local storage
+			localStorage.removeItem('sortCriteria');
 		},
 		createFilter: {
 			reducer: (
@@ -185,6 +232,42 @@ export const filtersSlice = createSlice({
 				};
 			},
 		},
+		createSortCriterion: (state, action) => {
+			// destructure necessary items
+			const { title, type, value } = action.payload;
+
+			// create a new sorting criteria
+			const newSortCriterion: SortCriterion = {
+				title,
+				type,
+				value,
+			};
+
+			const existingSortCriteria = getLSSortCriteria();
+
+			// see if a filter already exists and return the index if it does
+			const index = existingSortCriteria.findIndex(
+				(sortCriterion: SortCriterion) =>
+					sortCriterion.type === newSortCriterion.type
+			);
+
+			if (index < 0) {
+				// create a new filter
+				localStorage.setItem(
+					'sortCriteria',
+					JSON.stringify([...existingSortCriteria, newSortCriterion])
+				);
+				state.sortCriteria.push(newSortCriterion);
+			} else {
+				// update already existing filter
+				existingSortCriteria[index] = newSortCriterion;
+				localStorage.setItem(
+					'sortCriteria',
+					JSON.stringify(existingSortCriteria)
+				);
+				state.sortCriteria[index] = newSortCriterion;
+			}
+		},
 		setDateLimit: (
 			state,
 			action: PayloadAction<{
@@ -204,11 +287,58 @@ export const filtersSlice = createSlice({
 			localStorage.setItem('itemLimit', action.payload.itemLimit.toString());
 			state.itemLimit = +action.payload.itemLimit;
 		},
-		setSortColumn: (state, action) => {
-			state.sortBy = { ...action.payload };
+		setSortColumn: (
+			state,
+			action: PayloadAction<{
+				type: SortTypes;
+				value: SortValues;
+			}>
+		) => {
+			// destructure necessary items
+			const { type, value } = action.payload;
+
+			const getSortCriterionTitle = (type: SortTypes) => {
+				const data: { title: SortTitles; type: SortTypes }[] = [
+					{ title: 'Title', type: 'title' },
+					{ title: 'Category', type: 'category' },
+					{ title: 'Profit', type: 'netProfit' },
+					{ title: 'Return on investment', type: 'roi' },
+					{ title: "Best seller's rank", type: 'bsrCurrent' },
+					{ title: 'Monthly sales', type: 'monthlySales' },
+					{ title: 'Date', type: 'date' },
+				];
+				return data.find((d) => d.type === type)?.title;
+			};
+
+			const title = getSortCriterionTitle(type);
+
+			if (title) {
+				// create a new sorting criterion
+				const newSortCriterion: SortCriterion = {
+					title,
+					type,
+					value,
+				};
+				// remove old items in LS
+				localStorage.removeItem('sortCriteria');
+
+				// create only one new item in LS
+				localStorage.setItem(
+					'sortCriteria',
+					JSON.stringify([newSortCriterion])
+				);
+
+				// update state
+				state.sortCriteria = [newSortCriterion];
+			}
+		},
+		setReorderedSortCriteria: (
+			state,
+			action: PayloadAction<SortCriterion[]>
+		) => {
+			state.sortCriteria = action.payload;
 		},
 	},
-
 	extraReducers: (builder) => {
 		builder.addCase(setItemLimit.fulfilled, (state, action) => {
 			localStorage.setItem('itemLimit', action.payload.itemLimit.toString());
@@ -221,8 +351,12 @@ export const {
 	clearFilter,
 	clearFilters,
 	createFilter,
+	clearSortCriterion,
+	clearSortCriteria,
+	createSortCriterion,
 	setDateLimit,
 	setSortColumn,
+	setReorderedSortCriteria,
 } = filtersSlice.actions;
 
 export default filtersSlice.reducer;

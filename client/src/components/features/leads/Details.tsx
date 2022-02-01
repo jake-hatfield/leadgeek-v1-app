@@ -28,7 +28,6 @@ import {
 
 // components
 import Badge from '@components/utils/Badge';
-import Button from '@components/utils/Button';
 import DescriptionList from '@components/utils/DescriptionList';
 
 // utils
@@ -38,14 +37,14 @@ import {
 	openLinkHandler,
 	returnDomainFromUrl,
 	truncate,
-	useOutsideMousedown,
 } from '@utils/utils';
+import { Lead } from '@utils/interfaces/Lead';
 import { User } from '@utils/interfaces/User';
 
 interface DetailsProps {
 	user: User;
 	type: 'feed' | 'liked' | 'archived' | 'search';
-	currentLead: any;
+	currentLead: Lead;
 	animationStyle: any;
 }
 
@@ -93,33 +92,35 @@ const Details: React.FC<DetailsProps> = ({
 	// destructure necessary items
 	const {
 		_id,
-		amzLink,
-		asin,
-		brand,
-		bsr30,
-		bsr90,
-		bsrCurrent,
-		buyPrice,
-		cashback,
-		category,
-		competitorCount,
-		competitorType,
-		date,
-		img,
-		monthlySales,
-		netProfit,
-		notes,
-		price30,
-		price90,
-		promo,
-		retailerLink,
-		roi,
-		sellPrice,
-		shipping,
-		source,
-		title,
-		variations,
-		weight,
+		data: {
+			amzLink,
+			asin,
+			brand,
+			bsr30,
+			bsr90,
+			bsrCurrent,
+			buyPrice,
+			cashback,
+			category,
+			competitorCount,
+			competitorType,
+			date,
+			img,
+			monthlySales,
+			netProfit,
+			notes,
+			price30,
+			price90,
+			promo,
+			retailerLink,
+			roi,
+			sellPrice,
+			shipping,
+			source,
+			title,
+			variations,
+			weight,
+		},
 	} = currentLead;
 
 	// set date
@@ -1094,14 +1095,14 @@ const Trend: React.FC<TrendProps> = ({
 		<div
 			onMouseEnter={() => setShowPopup(true)}
 			onMouseLeave={() => setShowPopup(false)}
-			className={`relative flex items-center w-24 ml-2 py-0.5 pl-2 pr-1 ${
+			className={`relative flex items-center min-w-min ml-2 py-0.5 pl-2 pr-1 ${
 				isGood ? 'cs-teal' : 'bg-gray-100 dark:bg-gray-900 text-200'
 			} text-xs font-semibold rounded-main`}
 		>
-			<span>{scale} day</span>
+			<span className='whitespace-nowrap'>{scale} day</span>
 			<svg
 				xmlns='http://www.w3.org/2000/svg'
-				className='h-4 w-4 ml-0.5'
+				className='h-4 w-4 ml-0.5 flex-none'
 				viewBox='0 0 20 20'
 				fill='currentColor'
 			>

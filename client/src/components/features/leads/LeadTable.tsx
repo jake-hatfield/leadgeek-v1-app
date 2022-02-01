@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 
 // packages
 import { DateTime } from 'luxon';
@@ -16,6 +16,7 @@ import Spinner from '@components/utils/Spinner';
 // utils
 import { Lead } from '@utils/interfaces/Lead';
 import { User } from '@utils/interfaces/User';
+import { SortTypes } from '@utils/interfaces/Filter';
 import { useDarkMode } from '@hooks/hooks';
 
 interface LeadTableProps {
@@ -34,17 +35,8 @@ enum SortingDirection {
 	UNSORTED = 0,
 }
 
-type SortKey =
-	| 'title'
-	| 'category'
-	| 'netProfit'
-	| 'roi'
-	| 'bsrCurrent'
-	| 'monthlySales'
-	| 'date';
-
 const LeadTable: React.FC<LeadTableProps> = ({
-	leads: rawLeads,
+	leads,
 	user,
 	liked,
 	archived,
@@ -56,9 +48,8 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	const [colorTheme] = useDarkMode();
 
 	// local state
-	const [leads, setLeads] = useState<any>([]);
 	const [sortingConfig, setSortingConfig] = useState<{
-		active: SortKey | null;
+		active: SortTypes | null;
 		keys: {
 			title: SortingDirection;
 			category: SortingDirection;
@@ -103,7 +94,7 @@ const LeadTable: React.FC<LeadTableProps> = ({
 	};
 
 	const sortColumn = useCallback(
-		(sortKey: SortKey) => {
+		(sortKey: SortTypes) => {
 			const currentSortingDirection = sortingConfig.keys[sortKey];
 
 			const nextSortingDirection = getNextSortingDirection(
@@ -114,10 +105,8 @@ const LeadTable: React.FC<LeadTableProps> = ({
 
 			newSortingDirections[sortKey] = nextSortingDirection;
 
-			console.log(newSortingDirections[sortKey]);
-
 			dispatch(
-				setSortColumn({ [`data.${sortKey}`]: newSortingDirections[sortKey] })
+				setSortColumn({ type: sortKey, value: newSortingDirections[sortKey] })
 			);
 			return setSortingConfig({
 				...sortingConfig,
@@ -125,13 +114,8 @@ const LeadTable: React.FC<LeadTableProps> = ({
 				keys: newSortingDirections,
 			});
 		},
-		[leads, sortingConfig]
+		[sortingConfig, dispatch]
 	);
-
-	useEffect(() => {
-		if (status !== 'idle') return;
-		setLeads(rawLeads);
-	}, [status, rawLeads, setLeads]);
 
 	return (
 		<section className={classes.sectionWrapper}>
@@ -452,9 +436,9 @@ const LeadRowLoader: React.FC<LeadRowLoaderProps> = ({
 };
 
 const SortButton: React.FC<{
-	sortKey: SortKey;
+	sortKey: SortTypes;
 	sortingConfig: any;
-	sortColumn: (sortKey: SortKey) => void;
+	sortColumn: (sortKey: SortTypes) => void;
 }> = ({ sortKey, sortingConfig, sortColumn }) => {
 	const sortDirection = sortingConfig.keys[sortKey];
 	return (
