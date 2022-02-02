@@ -83,6 +83,14 @@ const SortComponent: React.FC<SortComponentProps> = ({
 		{ keyup: true }
 	);
 
+	useHotkeys(
+		'Enter',
+		() => {
+			handleSortCriteriaSubmit();
+		},
+		{ keyup: true }
+	);
+
 	const handleClearFilters = () => {
 		const keysToRemove = [
 			'titleSortCriteria',

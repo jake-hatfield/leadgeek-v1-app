@@ -97,6 +97,14 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 		{ keyup: true }
 	);
 
+	useHotkeys(
+		'Enter',
+		() => {
+			handleFilterSubmit();
+		},
+		{ keyup: true }
+	);
+
 	const handleClearFilters = () => {
 		let keysToRemove = [
 			'netProfitMin',
