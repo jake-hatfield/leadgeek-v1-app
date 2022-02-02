@@ -1109,7 +1109,6 @@ router.post(
 				page,
 				filters: {
 					filters: itemFilters,
-					sortCriteria,
 					dateLimits: { min: minDate, max: maxDate },
 					itemLimit,
 				},
@@ -1154,8 +1153,13 @@ router.post(
 				{ 'data.date': { $lte: isoToTimestamp(maxDateFilter) } },
 			];
 
-			const sortQuery =
-				sortCriteria.length > 0 ? formatSortCriteria(sortCriteria) : [];
+			const formatSearchSortCriteria = (sortCriteria: SortCriterion[]) => {
+				return sortCriteria.reduce(
+					(obj, item) =>
+						Object.assign(obj, { [`data.${item.type}`]: item.value }),
+					{}
+				);
+			};
 
 			const searchQuery = Lead.buildQuery(baselineQueryParams, itemFilters);
 
@@ -1170,12 +1174,10 @@ router.post(
 				.lean()
 				.select('-plan')
 				.skip((page - 1) * (itemLimit || ITEMS_PER_PAGE))
-				.limit(itemLimit || ITEMS_PER_PAGE)
-				.sort(sortQuery)
-				.exec();
+				.limit(itemLimit || ITEMS_PER_PAGE);
 
 			// declare global variables
-			let message, totalItems;
+			let message, totalItems, sortedSearchMatches;
 
 			// set total items + message relevant to whether or not there are search matches
 			if (searchMatches.length === 0) {
