@@ -14,23 +14,11 @@ interface ModalProps<T> {
 		body: JSX.Element;
 		action: JSX.Element;
 	}[];
-	isMultiStep: boolean;
 }
 
-const Modal: React.FC<ModalProps<any>> = ({
-	modal,
-	setModal,
-	content,
-	isMultiStep,
-}) => {
-	const displayMultiStepContent = (step: number, contentArr: any[]) => {
-		return contentArr[step - 1];
-	};
-
+const Modal: React.FC<ModalProps<any>> = ({ modal, setModal, content }) => {
 	const displayContent = (type: 'title' | 'body' | 'action'): JSX.Element => {
-		return isMultiStep
-			? displayMultiStepContent(modal.step, content)[type]
-			: content;
+		return content[modal.step - 1][type];
 	};
 
 	return (

@@ -77,9 +77,11 @@ const Details: React.FC<DetailsProps> = ({
 	const [fullTitle, toggleFullTitle] = useState(false);
 	const [identifyingText, setIdentifyingText] = useState('');
 	const [lastItemLastPage, setLastItemLastPage] = useState(false);
+	const [feedbackModal, setFeedbackModal] = useState(false);
 	const [newComment, setNewComment] = useState('');
 	const [noteCount, setNoteCount] = useState(0);
 	const [showComment, setShowComment] = useState(false);
+	const [showFeedback, setShowFeedback] = useState(false);
 
 	useEffect(() => {
 		if (currentLead) {
@@ -91,11 +93,9 @@ const Details: React.FC<DetailsProps> = ({
 
 	// destructure necessary items
 	const {
-		_id,
 		data: {
 			amzLink,
 			asin,
-			brand,
 			bsr30,
 			bsr90,
 			bsrCurrent,
@@ -231,6 +231,24 @@ const Details: React.FC<DetailsProps> = ({
 		},
 		{ keyup: true }
 	);
+	// open both links on o key
+	useHotkeys(
+		'v',
+		() => {
+			setFeedbackModal(true);
+		},
+		{ keyup: true },
+		[currentLead]
+	);
+	// open both links on o key
+	useHotkeys(
+		't',
+		() => {
+			openLinkHandler(retailerLink, amzLink);
+		},
+		{ keyup: true },
+		[currentLead]
+	);
 	// like on l key
 	useHotkeys(
 		's',
@@ -245,15 +263,6 @@ const Details: React.FC<DetailsProps> = ({
 		'a',
 		() => {
 			dispatch(handleArchiveLead({ leadId: currentLead._id }));
-		},
-		{ keyup: true },
-		[currentLead]
-	);
-	// open both links on o key
-	useHotkeys(
-		't',
-		() => {
-			openLinkHandler(retailerLink, amzLink);
 		},
 		{ keyup: true },
 		[currentLead]
@@ -399,6 +408,31 @@ const Details: React.FC<DetailsProps> = ({
 			title: 'Open links',
 			description: 'T',
 			edge: null,
+		},
+		{
+			activePath: (
+				<g>
+					<path d='M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z' />
+					<path d='M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z' />
+				</g>
+			),
+			disabled: false,
+			inactivePath: (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
+					clipRule='evenodd'
+				/>
+			),
+			onClick: () => {
+				setFeedbackModal((prev) => !prev);
+			},
+			state: null,
+			title: 'Submit feedback',
+			description: 'V',
+			edge: 'right',
 		},
 		{
 			activePath: (
@@ -738,6 +772,25 @@ const Details: React.FC<DetailsProps> = ({
 							</div>
 						</div>
 					</header>
+					{feedbackModal && (
+						<div className='absolute top-0 right-0 z-30 w-full max-w-sm mt-16 mr-16 py-2 px-4 card-300 cs-light-100 text-sm'>
+							<header>
+								<h5>Submit feedback</h5>
+								<p>REEEE</p>
+							</header>
+							<animated.textarea
+								name='feedback'
+								placeholder='Have some feedback for this lead? Good or bad, we want to hear it!'
+								onChange={onChange}
+								onClick={() =>
+									!showFeedback && setShowFeedback((prev) => !prev)
+								}
+								value={newComment}
+								className='w-full input rounded-main border border-300 text-sm placeholder-gray-700 ring-purple resize-none'
+								style={commentAnimationStyle}
+							/>
+						</div>
+					)}
 					<div className='h-screen overflow-x-hidden overflow-y-scroll minimal-scrollbar'>
 						<section className='mb-48 pl-6 pr-8'>
 							<article className='flex justify-between mt-4 py-4 card-padding-x cs-light-300 card-200'>

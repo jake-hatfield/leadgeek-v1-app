@@ -16,7 +16,7 @@ import AuthLayout from '@components/layout/AuthLayout';
 import Badge from '@components/utils/Badge';
 import Button from '@components/utils/Button';
 import DescriptionList from '@components/utils/DescriptionList';
-import TestModal from '@components/layout/Modal';
+import Modal from '@components/layout/Modal';
 import NullState from '@components/utils/NullState';
 import SettingsLayout from '@components/layout/SettingsLayout';
 import Spinner from '@components/utils/Spinner';
@@ -65,7 +65,7 @@ type ModalType =
 	| 'updateSubscription'
 	| null;
 
-interface ModalState<T> {
+export interface ModalState<T> {
 	type: T;
 	active: boolean;
 	step: number;
@@ -1209,11 +1209,10 @@ const BillingPage = () => {
 									</div>
 								</section>
 								{modal.active && modal.type && (
-									<TestModal
+									<Modal
 										modal={modal}
 										setModal={setModal}
 										content={returnContentData(modal.type)}
-										isMultiStep={true}
 									/>
 								)}
 								{/* billing history */}
