@@ -23,7 +23,7 @@ const getLSFilters = () => {
 	return lsFilters ? JSON.parse(lsFilters) : [];
 };
 
-const getLSSortCriteria = () => {
+const getLSSortCriteria = (): SortCriterion[] | [] => {
 	const lsSortCriteria = localStorage.getItem('sortCriteria');
 	return lsSortCriteria ? JSON.parse(lsSortCriteria) : [];
 };
@@ -245,21 +245,21 @@ export const filtersSlice = createSlice({
 
 			const existingSortCriteria = getLSSortCriteria();
 
-			// see if a filter already exists and return the index if it does
+			// see if a sort criterion already exists and return the index if it does
 			const index = existingSortCriteria.findIndex(
 				(sortCriterion: SortCriterion) =>
 					sortCriterion.type === newSortCriterion.type
 			);
 
 			if (index < 0) {
-				// create a new filter
+				// create a new sort criterion
 				localStorage.setItem(
 					'sortCriteria',
 					JSON.stringify([...existingSortCriteria, newSortCriterion])
 				);
 				state.sortCriteria.push(newSortCriterion);
 			} else {
-				// update already existing filter
+				// update already existing sort criterion
 				existingSortCriteria[index] = newSortCriterion;
 				localStorage.setItem(
 					'sortCriteria',
@@ -319,17 +319,35 @@ export const filtersSlice = createSlice({
 					type,
 					value,
 				};
-				// remove old items in LS
-				localStorage.removeItem('sortCriteria');
 
-				// create only one new item in LS
-				localStorage.setItem(
-					'sortCriteria',
-					JSON.stringify([newSortCriterion])
+				const existingSortCriteria = getLSSortCriteria();
+
+				// see if a sort criterion already exists and return the index if it does
+				const index = existingSortCriteria.findIndex(
+					(sortCriterion: SortCriterion) => sortCriterion.type === type
 				);
 
-				// update state
-				state.sortCriteria = [newSortCriterion];
+				if (index < 0) {
+					// create a new sort criterion
+					localStorage.setItem(
+						'sortCriteria',
+						JSON.stringify([newSortCriterion, ...existingSortCriteria])
+					);
+
+					state.sortCriteria = [newSortCriterion, ...existingSortCriteria];
+				} else {
+					// update already existing sort criterion
+					const filteredCriteria = existingSortCriteria.filter(
+						(sortCriteria) => sortCriteria.type !== type
+					);
+
+					localStorage.setItem(
+						'sortCriteria',
+						JSON.stringify([newSortCriterion, ...filteredCriteria])
+					);
+
+					state.sortCriteria = [newSortCriterion, ...filteredCriteria];
+				}
 			}
 		},
 		setReorderedSortCriteria: (

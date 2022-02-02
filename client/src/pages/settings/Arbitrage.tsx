@@ -288,7 +288,7 @@ const ArbitragePage = () => {
 													</button>
 												</div>
 											</div>
-											<div className='card-padding-x h-full py-6 minimal-scrollbar transform-0 -translate-y-0'>
+											<div className='card-padding-x h-full py-6 minimal-scrollbar transform-none -translate-y-0'>
 												<DragDropContext onDragEnd={onDragEnd}>
 													<Droppable droppableId={'export-headers'}>
 														{(provided: any) => (

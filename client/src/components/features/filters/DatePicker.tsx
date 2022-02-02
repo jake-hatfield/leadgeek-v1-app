@@ -196,7 +196,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 	return (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-10 w-64 pt-4 pb-2 cs-light-400 card-200 text-300 transform translate-y-12 -translate-x-80'
+			className='absolute top-0 right-0 z-10 w-64 pt-4 pb-2 cs-light-400 card-200 text-300 mt-12 mr-80'
 		>
 			<div className='relative'>
 				<header className='pb-2 px-4 center-between border-b border-200'>

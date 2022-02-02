@@ -245,7 +245,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	return user ? (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-30 w-80 pt-4 pb-1 cs-light-400 card-200 text-300 transform translate-y-12 -translate-x-32'
+			className='absolute top-0 right-0 z-30 w-80 pt-4 pb-1 cs-light-400 card-200 text-300 mt-12 mr-32'
 		>
 			<div className='relative'>
 				<header className='pb-2 px-4 center-between border-b border-200'>
@@ -464,8 +464,8 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 					</div>
 				) : (
 					<div className='py-6 px-4 font-semibold text-sm text-gray-700 dark:text-gray-400'>
-						You haven't added any filters. Click the "+" in the top right corner
-						to get started.
+						You haven't added any filters yet. Click the + in the top right
+						corner to get started.
 					</div>
 				)}
 			</div>
@@ -522,7 +522,7 @@ const ActiveFilter: React.FC<ActiveFilterProps> = ({ filter }) => {
 	};
 
 	return (
-		<li className='first:mt-0 mt-2 w-full py-2 pl-4 pr-3 center-between cs-bg-light border border-200 shadow-sm rounded-main text-200 transition-colors-main focus:outline-none'>
+		<li className='first:mt-0 mt-2 w-full py-2 pl-4 pr-3 center-between bg-gray-100 dark:bg-darkGray-100 card-100 text-200 transition-colors-main focus:outline-none'>
 			<div className='flex items-center truncate mr-2'>
 				<span className='flex-none'>{filter.title}</span>
 				<span className='ml-1'>

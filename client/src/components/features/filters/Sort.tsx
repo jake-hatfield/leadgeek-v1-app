@@ -65,7 +65,7 @@ const SortComponent: React.FC<SortComponentProps> = ({
 			value: valueOptions[0].value,
 		},
 	});
-	const [filterDescription, setFilterDescription] = useState(false);
+	const [sortDescription, setSortDescription] = useState(false);
 	const [typeActive, setTypeActive] = useState(false);
 	const [valueActive, setValueActive] = useState(false);
 
@@ -189,9 +189,9 @@ const SortComponent: React.FC<SortComponentProps> = ({
 	return user ? (
 		<article
 			ref={wrapperRef}
-			className='absolute top-0 right-0 z-30 w-80 pt-4 pb-1 cs-light-400 card-200 text-300 transform translate-y-12 -translate-x-56'
+			className='absolute top-0 right-0 z-30 w-80 pt-4 pb-1 cs-light-400 card-200 text-300 mt-12 mr-56'
 		>
-			<div className='relative'>
+			<div className='relative transform-none'>
 				<header className='pb-2 px-4 center-between border-b border-200'>
 					<div className='flex items-center'>
 						<h5 className='inline-block font-bold text-lg'>Sort</h5>
@@ -207,8 +207,8 @@ const SortComponent: React.FC<SortComponentProps> = ({
 							e.stopPropagation();
 							setAddSortCriteria(true);
 						}}
-						onMouseEnter={() => setFilterDescription(true)}
-						onMouseLeave={() => setFilterDescription(false)}
+						onMouseEnter={() => setSortDescription(true)}
+						onMouseLeave={() => setSortDescription(false)}
 						className='relative icon-button'
 					>
 						<svg
@@ -223,7 +223,7 @@ const SortComponent: React.FC<SortComponentProps> = ({
 								clipRule='evenodd'
 							/>
 						</svg>
-						{filterDescription && (
+						{sortDescription && (
 							<div className='absolute top-0 right-0 z-10 min-w-max p-2 transform -translate-y-1.5 -translate-x-8 rounded-md shadow-md bg-gray-900 text-left text-white text-xs'>
 								Add sort criterion
 							</div>
@@ -313,9 +313,9 @@ const SortComponent: React.FC<SortComponentProps> = ({
 							</div>
 						)}
 						{filters.sortCriteria.length > 0 && (
-							<div className='font-semibold text-sm text-gray-700'>
+							<div className='font-semibold text-sm text-gray-700 transform-none'>
 								<DragDropContext onDragEnd={onDragEnd}>
-									<Droppable droppableId={'export-headers'}>
+									<Droppable droppableId={'sort-criteria'}>
 										{(provided: any) => (
 											<ul
 												{...provided.droppableProps}
@@ -331,9 +331,7 @@ const SortComponent: React.FC<SortComponentProps> = ({
 														/>
 													)
 												)}
-												<span className='bg-gray-100'>
-													{provided.placeholder}
-												</span>
+												{provided.placeholder}
 											</ul>
 										)}
 									</Droppable>
@@ -355,9 +353,9 @@ const SortComponent: React.FC<SortComponentProps> = ({
 					</div>
 				) : (
 					<div className='py-6 px-4 font-semibold text-sm text-gray-700 dark:text-gray-400'>
-						You haven't added any sort criteria. Click the "+" in the top right
-						corner to get started. You can sort the criteria by changing their
-						order in this list.
+						You haven't added any sort criteria yet. Click the + in the top
+						right corner to get started. You can sort the criteria by changing
+						their order in this list.
 					</div>
 				)}
 			</div>
@@ -378,22 +376,22 @@ interface ActiveSortCriterionProps {
 	index: number;
 }
 
+// return appropriate value
+const valueProcessor = (value: SortValues) => {
+	if (value === 1) {
+		return 'low to high ';
+	} else {
+		return 'high to low';
+	}
+};
+
 const ActiveSortCriterion: React.FC<ActiveSortCriterionProps> = ({
 	sortCriterion,
 	index,
 }) => {
 	const dispatch = useAppDispatch();
 	// local state
-	const [filterDescription, setFilterDescription] = useState(false);
-
-	// return appropriate value
-	const valueProcessor = (value: SortValues) => {
-		if (value === 1) {
-			return 'low to high ';
-		} else {
-			return 'high to low';
-		}
-	};
+	const [sortDescription, setSortDescription] = useState(false);
 
 	return (
 		<Draggable
@@ -406,7 +404,11 @@ const ActiveSortCriterion: React.FC<ActiveSortCriterionProps> = ({
 					{...provided.draggableProps}
 					{...provided.dragHandleProps}
 					ref={provided.innerRef}
-					className='first:mt-0 mt-2 w-full py-2 pl-4 pr-3 center-between cs-bg-light border border-200 shadow-sm rounded-main text-200 transition-colors-main focus:outline-none'
+					className={`first:mt-0 mt-2 w-full py-2 pl-4 pr-3 center-between ${
+						snapshot.isDragging
+							? 'bg-gray-200 dark:bg-darkGray-200 card-200'
+							: 'bg-gray-100 dark:bg-darkGray-100 card-100'
+					} text-200 focus:outline-none`}
 				>
 					<div className='flex items-center truncate mr-2'>
 						<span className='flex-none'>
@@ -418,8 +420,8 @@ const ActiveSortCriterion: React.FC<ActiveSortCriterionProps> = ({
 							e.stopPropagation();
 							dispatch(clearSortCriterion({ type: sortCriterion.type }));
 						}}
-						onMouseEnter={() => setFilterDescription(true)}
-						onMouseLeave={() => setFilterDescription(false)}
+						onMouseEnter={() => setSortDescription(true)}
+						onMouseLeave={() => setSortDescription(false)}
 						className='relative icon-button'
 					>
 						<svg
@@ -434,7 +436,7 @@ const ActiveSortCriterion: React.FC<ActiveSortCriterionProps> = ({
 								clipRule='evenodd'
 							/>
 						</svg>
-						{filterDescription && (
+						{sortDescription && (
 							<div className='absolute top-0 right-0 z-10 min-w-max p-2 rounded-md shadow-md bg-gray-900 text-left text-white text-xs transform -translate-y-1 -translate-x-8'>
 								Clear sort criterion
 							</div>
