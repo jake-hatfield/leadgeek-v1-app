@@ -1198,97 +1198,167 @@ router.post(
 // @description Webhooks for Slack
 // @access      Public
 router.post('/slack-webhook', async (req: Request, res: Response) => {
-	try {
-		// destructure necessary items
-		const {
-			name,
-			email,
-			cusId,
-			plan,
-			trial,
-			cancellation: { timeLeft, ltv, reason, feedback, useful },
-		} = req.body;
+	const { event } = req.body;
 
-		const richMessage = {
-			blocks: [
-				{
-					type: 'header',
-					text: {
-						type: 'plain_text',
-						text: '😓 New cancellation',
-						emoji: true,
-					},
-				},
-				{
-					type: 'section',
-					fields: [
+	switch (event.type) {
+		case 'cancellation': {
+			try {
+				// destructure necessary items
+				const {
+					name,
+					email,
+					cusId,
+					plan,
+					trial,
+					message: { timeLeft, ltv, reason, comment, useful },
+				} = event.data;
+
+				const richMessage = {
+					blocks: [
 						{
-							type: 'mrkdwn',
-							text: `✨*Plan:*\n\n${plan}${trial ? ' - Trial' : ''}`,
+							type: 'header',
+							text: {
+								type: 'plain_text',
+								text: '😓 New cancellation',
+								emoji: true,
+							},
 						},
 						{
-							type: 'mrkdwn',
-							text: `🤠 *Client:*\n\n<mailto:${email}|${name}>`,
+							type: 'section',
+							fields: [
+								{
+									type: 'mrkdwn',
+									text: `✨*Plan:*\n\n${plan}${trial ? ' - Trial' : ''}`,
+								},
+								{
+									type: 'mrkdwn',
+									text: `🤠 *Client:*\n\n<mailto:${email}|${name}>`,
+								},
+							],
+						},
+						{
+							type: 'section',
+							fields: [
+								{
+									type: 'mrkdwn',
+									text: `⏰ *Time until cancellation:*\n\n${timeLeft}`,
+								},
+								{
+									type: 'mrkdwn',
+									text: `🙏 *LTV:*\n\n${ltv === 'Trial' ? ltv : `$${ltv}`}`,
+								},
+							],
+						},
+						{
+							type: 'section',
+							fields: [
+								{
+									type: 'mrkdwn',
+									text: `❌ *Cancellation reason:*\n\n${reason}`,
+								},
+								{
+									type: 'mrkdwn',
+									text: `💡 *Feedback:*\n\n${comment}`,
+								},
+							],
+						},
+						{
+							type: 'section',
+							fields: [
+								{
+									type: 'mrkdwn',
+									text: `☁️ *Was Leadgeek useful?*\n\n${useful ? 'Yes' : 'No'}`,
+								},
+							],
+						},
+						{
+							type: 'section',
+							text: {
+								type: 'mrkdwn',
+								text: `<https://dashboard.stripe.com/${
+									process.env.NODE_ENV !== 'production' && 'test/'
+								}customers/${cusId}|View in Stripe>`,
+							},
 						},
 					],
-				},
-				{
-					type: 'section',
-					fields: [
+				};
+
+				const body = JSON.stringify(richMessage);
+
+				await axios.post(
+					`https://hooks.slack.com/services/T01CVGALACD/B02UQ9A0TK8/${slackSecret}`,
+					body
+				);
+
+				break;
+			} catch (error) {
+				console.log(error);
+			}
+		}
+		case 'feedback': {
+			try {
+				const {
+					name,
+					email,
+					asin,
+					message: { reason, comment },
+				} = event.data;
+
+				const richMessage = {
+					blocks: [
 						{
-							type: 'mrkdwn',
-							text: `⏰ *Time until cancellation:*\n\n${timeLeft}`,
+							type: 'header',
+							text: {
+								type: 'plain_text',
+								text: '🤔 New feedback',
+								emoji: true,
+							},
 						},
 						{
-							type: 'mrkdwn',
-							text: `🙏 *LTV:*\n\n$${ltv}`,
+							type: 'section',
+							fields: [
+								{
+									type: 'mrkdwn',
+									text: `📋*ASIN:*\n\n${asin}`,
+								},
+								{
+									type: 'mrkdwn',
+									text: `🤠 *Client:*\n\n<mailto:${email}|${name}>`,
+								},
+							],
+						},
+						{
+							type: 'section',
+							fields: [
+								{
+									type: 'mrkdwn',
+									text: `⚠️ *Report reason:*\n\n${reason}`,
+								},
+								{
+									type: 'mrkdwn',
+									text: `💡 *Feedback:*\n\n${comment}`,
+								},
+							],
 						},
 					],
-				},
-				{
-					type: 'section',
-					fields: [
-						{
-							type: 'mrkdwn',
-							text: `❌ *Cancellation reason:*\n\n${reason}`,
-						},
-						{
-							type: 'mrkdwn',
-							text: `💡 *Feedback:*\n\n${feedback}`,
-						},
-					],
-				},
-				{
-					type: 'section',
-					fields: [
-						{
-							type: 'mrkdwn',
-							text: `☁️ *Was Leadgeek useful?*\n\n${useful ? 'Yah' : 'Nah'}`,
-						},
-					],
-				},
-				{
-					type: 'section',
-					text: {
-						type: 'mrkdwn',
-						text: `<https://dashboard.stripe.com/${
-							process.env.NODE_ENV !== 'production' && 'test/'
-						}customers/${cusId}|View in Stripe>`,
-					},
-				},
-			],
-		};
+				};
+				const body = JSON.stringify(richMessage);
 
-		const body = JSON.stringify(richMessage);
+				await axios.post(
+					`https://hooks.slack.com/services/***REMOVED***`,
+					body
+				);
 
-		await axios.post(
-			`https://hooks.slack.com/services/T01CVGALACD/B02UQ9A0TK8/${slackSecret}`,
-			body
-		);
+				break;
+			} catch (error) {
+				console.log(error);
+			}
+		}
+		default:
+			console.log(`Unhandled event type ${event.type}`);
 
-		return res.status(200).end();
-	} catch (error) {
-		console.log(error);
+			// Return a 200 response to acknowledge receipt of the event
+			return res.status(200).end();
 	}
 });
 

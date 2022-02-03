@@ -948,21 +948,26 @@ const BillingPage = () => {
 		}
 
 		const body = JSON.stringify({
-			name: user?.name,
-			email: user?.email,
-			cusId: user?.subscription.cusId,
-			plan: user?.role ? capitalize(user?.role) : 'User',
-			trial: false,
-			cancellation: {
-				timeLeft: planState.cancelAt ? planState.cancelAt : 'UNKNOWN',
-				ltv: cusId && ltv ? ltv / 100 : 'Trial',
-				reason: feedbackState.cancellationReason
-					? feedbackState.cancellationReason
-					: 'UNKNOWN',
-				feedback: feedbackState.comment
-					? feedbackState.comment
-					: 'No comment provided...',
-				useful: feedbackState.yesChecked,
+			event: {
+				type: 'cancellation',
+				data: {
+					name: user?.name,
+					email: user?.email,
+					cusId: user?.subscription.cusId,
+					plan: user?.role ? capitalize(user?.role) : 'User',
+					trial: false,
+					message: {
+						timeLeft: planState.cancelAt ? planState.cancelAt : 'UNKNOWN',
+						ltv: cusId && ltv ? ltv / 100 : 'Trial',
+						reason: feedbackState.cancellationReason
+							? feedbackState.cancellationReason
+							: 'UNKNOWN',
+						comment: feedbackState.comment
+							? feedbackState.comment
+							: 'No comment provided...',
+						useful: feedbackState.yesChecked,
+					},
+				},
 			},
 		});
 

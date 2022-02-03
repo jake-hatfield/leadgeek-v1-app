@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 
 // packages
+import axios from 'axios';
 import { DateTime } from 'luxon';
 import ReactImageMagnify from 'react-image-magnify';
 import { animated, useSpring } from 'react-spring';
@@ -28,18 +29,45 @@ import {
 
 // components
 import Badge from '@components/utils/Badge';
+import Button from '@components/utils/Button';
 import DescriptionList from '@components/utils/DescriptionList';
 
 // utils
 import {
 	calculateBSR,
+	config,
 	numberWithCommas,
 	openLinkHandler,
 	returnDomainFromUrl,
+	useOutsideMousedown,
 	truncate,
 } from '@utils/utils';
 import { Lead } from '@utils/interfaces/Lead';
 import { User } from '@utils/interfaces/User';
+
+const feedbackReasons = [
+	`-- Select an option --`,
+	`Buy price not as stated`,
+	`Sell price not as stated`,
+	`Promo expired/invalid`,
+	`Source is out of stock`,
+	`Items do not match`,
+	`Low profit margin`,
+	`Low ROI`,
+	`Low monthly sales`,
+	`Too many competitors`,
+	`# of competitors not as stated`,
+	`Shipping costs too high`,
+	`Other`,
+] as const;
+
+type FeedbackReasons = typeof feedbackReasons[number];
+interface FeedbackState {
+	modalActive: boolean;
+	optionsActive: boolean;
+	reason: FeedbackReasons;
+	comment: string;
+}
 
 interface DetailsProps {
 	user: User;
@@ -73,15 +101,19 @@ const Details: React.FC<DetailsProps> = ({
 
 	// local state
 	const [comment, setComment] = useState('');
+	const [feedbackState, setFeedbackState] = useState<FeedbackState>({
+		modalActive: false,
+		optionsActive: false,
+		reason: feedbackReasons[0],
+		comment: '',
+	});
 	const [firstItemFirstPage, setFirstItemFirstPage] = useState(false);
 	const [fullTitle, toggleFullTitle] = useState(false);
 	const [identifyingText, setIdentifyingText] = useState('');
 	const [lastItemLastPage, setLastItemLastPage] = useState(false);
-	const [feedbackModal, setFeedbackModal] = useState(false);
 	const [newComment, setNewComment] = useState('');
 	const [noteCount, setNoteCount] = useState(0);
 	const [showComment, setShowComment] = useState(false);
-	const [showFeedback, setShowFeedback] = useState(false);
 
 	useEffect(() => {
 		if (currentLead) {
@@ -158,6 +190,11 @@ const Details: React.FC<DetailsProps> = ({
 		currentLead._id,
 	]);
 
+	// close feedback box on click outside
+	const feedbackRef = useRef<any>(null);
+
+	// useOutsideMousedown(feedbackRef, setShowFeedback, null);
+
 	// like/archive/comment handlers
 	const [like, setLike] = useState(
 		user.likedLeads.some((lead) => lead._id === currentLead._id) ? true : false
@@ -204,7 +241,13 @@ const Details: React.FC<DetailsProps> = ({
 		if (nextIndex === itemLimit || nextIndex === -1) {
 			return dispatch(setPage({ page: page + val, type }));
 		}
-
+		setFeedbackState((prevState) => ({
+			...prevState,
+			modalActive: false,
+			optionsActive: false,
+			reason: feedbackReasons[0],
+			comment: '',
+		}));
 		return dispatch(setCurrentLead(leads[nextIndex]));
 	};
 
@@ -234,9 +277,12 @@ const Details: React.FC<DetailsProps> = ({
 	// open both links on o key
 	useHotkeys(
 		'v',
-		() => {
-			setFeedbackModal(true);
-		},
+		() =>
+			setFeedbackState((prevState) => ({
+				...prevState,
+				modalActive: !prevState.modalActive,
+				optionsActive: !prevState.optionsActive,
+			})),
 		{ keyup: true },
 		[currentLead]
 	);
@@ -296,7 +342,108 @@ const Details: React.FC<DetailsProps> = ({
 		}, animationTimeout + 1);
 	};
 
+	const feedbackModalRef = useRef<any>(null);
+
+	useEffect(() => {
+		function handleClickOutside(e: any) {
+			if (!feedbackModalRef.current?.contains(e.target)) {
+				setFeedbackState((prevState) => ({
+					...prevState,
+					modalActive: false,
+					optionsActive: false,
+				}));
+			}
+		}
+		document.addEventListener('mouseup', handleClickOutside);
+		return () => {
+			document.removeEventListener('mouseup', handleClickOutside);
+		};
+	}, [feedbackModalRef, setFeedbackState]);
+
+	// close modal handlers
+	const dropdownRef = useRef<any>(null);
+
+	useEffect(() => {
+		function handleClickOutside(e: any) {
+			if (!dropdownRef.current?.contains(e.target)) {
+				setFeedbackState((prevState) => ({
+					...prevState,
+					optionsActive: false,
+				}));
+			}
+		}
+		document.addEventListener('mouseup', handleClickOutside);
+		return () => {
+			document.removeEventListener('mouseup', handleClickOutside);
+		};
+	}, [dropdownRef, setFeedbackState]);
+
+	const handleEmptyComment = (reason: FeedbackReasons, comment: string) => {
+		if (reason === 'Other' && !comment)
+			return dispatch(
+				setAlert({
+					title: 'Comment required',
+					message: 'Please share a quick comment for your feedback reason',
+					alertType: 'warning',
+				})
+			);
+	};
+
+	const handleFeedback = (reason: FeedbackReasons, comment: string) => {
+		if (reason === '-- Select an option --') {
+			return dispatch(
+				setAlert({
+					title: 'Feedback required',
+					message: 'Please select a feedback option from the dropdown',
+					alertType: 'warning',
+				})
+			);
+		}
+
+		if (reason === 'Other' && !comment) {
+			handleEmptyComment(feedbackState.reason, feedbackState.comment);
+		} else {
+			handleSlackFeedback();
+			setFeedbackState((prevState) => ({
+				...prevState,
+				modalActive: false,
+				optionsActive: false,
+				reason: feedbackReasons[0],
+				comment: '',
+			}));
+			dispatch(
+				setAlert({
+					title: 'Feedback submitted',
+					message: 'We really value your input, thank you!',
+					alertType: 'success',
+				})
+			);
+		}
+	};
+
+	const handleSlackFeedback = async () => {
+		const body = JSON.stringify({
+			event: {
+				type: 'feedback',
+				data: {
+					name: user?.name,
+					email: user?.email,
+					asin,
+					message: {
+						reason: feedbackState.reason ? feedbackState.reason : 'UNKNOWN',
+						comment: feedbackState.comment
+							? feedbackState.comment
+							: 'No comment provided...',
+					},
+				},
+			},
+		});
+
+		await axios.post('/api/users/slack-webhook', body, config);
+	};
+
 	// header buttons
+
 	// navigation
 	const navigationButtons = [
 		{
@@ -427,7 +574,10 @@ const Details: React.FC<DetailsProps> = ({
 				/>
 			),
 			onClick: () => {
-				setFeedbackModal((prev) => !prev);
+				setFeedbackState((prevState) => ({
+					...prevState,
+					modalActive: !prevState.modalActive,
+				}));
 			},
 			state: null,
 			title: 'Submit feedback',
@@ -721,7 +871,7 @@ const Details: React.FC<DetailsProps> = ({
 	}, [asin]);
 
 	// change handler for comments
-	const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+	const onCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setNewComment(e.target.value);
 	};
 
@@ -772,23 +922,114 @@ const Details: React.FC<DetailsProps> = ({
 							</div>
 						</div>
 					</header>
-					{feedbackModal && (
-						<div className='absolute top-0 right-0 z-30 w-full max-w-sm mt-16 mr-16 py-2 px-4 card-300 cs-light-100 text-sm'>
-							<header>
-								<h5>Submit feedback</h5>
-								<p>REEEE</p>
-							</header>
-							<animated.textarea
-								name='feedback'
-								placeholder='Have some feedback for this lead? Good or bad, we want to hear it!'
-								onChange={onChange}
-								onClick={() =>
-									!showFeedback && setShowFeedback((prev) => !prev)
-								}
-								value={newComment}
-								className='w-full input rounded-main border border-300 text-sm placeholder-gray-700 ring-purple resize-none'
-								style={commentAnimationStyle}
-							/>
+					{/* feedback modal */}
+					{feedbackState.modalActive && (
+						<div
+							ref={feedbackModalRef}
+							className='absolute top-0 right-0 z-30 pt-4 w-full max-w-sm mt-16 mr-16 card-300 cs-light-100 text-sm'
+						>
+							<div className='relative mx-4'>
+								<button
+									type='button'
+									className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 input border border-300 rounded-lg text-left cursor-default ring-purple ring-inset'
+									aria-haspopup='listbox'
+									aria-expanded='true'
+									aria-labelledby='listbox-label'
+									onClick={() => {
+										setFeedbackState((prevState) => ({
+											...prevState,
+											optionsActive: !prevState.optionsActive,
+										}));
+									}}
+								>
+									<span className='flex items-center'>
+										<span className='ml-2 block truncate'>
+											{feedbackState.reason}
+										</span>
+									</span>
+									<span className='ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none border-l border-300 pl-2'>
+										<svg
+											className='h-4 w-4 text-gray-400'
+											xmlns='http://www.w3.org/2000/svg'
+											viewBox='0 0 20 20'
+											fill='currentColor'
+											aria-hidden='true'
+										>
+											<path
+												fillRule='evenodd'
+												d='M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z'
+												clipRule='evenodd'
+											/>
+										</svg>
+									</span>
+								</button>
+								{feedbackState.optionsActive && (
+									<ul
+										ref={dropdownRef}
+										className='absolute top-0 right-0 z-10 w-full mt-1 py-1.5 cs-light-300 card-200 text-sm overflow-auto focus:outline-none transform translate-y-10 minimal-scrollbar'
+										tabIndex={-1}
+										role='listbox'
+										aria-labelledby='listbox-label'
+										aria-activedescendant='listbox-option-3'
+									>
+										{feedbackReasons.map((feedbackReason, i) => (
+											<li
+												key={i}
+												className={`py-2 pl-3 pr-9 cursor-default select-none relative ${
+													feedbackState.reason === feedbackReason
+														? 'cs-purple'
+														: 'hover:bg-gray-100 dark:hover:bg-darkGray-100 text-300'
+												}`}
+												id={`listbox-option-${i}`}
+												role='option'
+												aria-selected='true'
+												onClick={() => {
+													setFeedbackState((prevState) => ({
+														...prevState,
+														reason: feedbackReason,
+														optionsActive: !prevState.optionsActive,
+													}));
+												}}
+											>
+												{feedbackReason}
+											</li>
+										))}
+									</ul>
+								)}
+								<textarea
+									name='feedback'
+									placeholder={`Have some input on this lead? Share your thoughts, and our team will review your feedback... 🔍`}
+									onChange={(e) => {
+										const { value } = e.target;
+										setFeedbackState((prevState) => ({
+											...prevState,
+											comment: value,
+										}));
+									}}
+									value={feedbackState.comment}
+									className='h-20 w-full input mt-4 rounded-main border border-300 text-sm placeholder-gray-700 ring-purple resize-none'
+								/>
+							</div>
+							<div className='flex justify-end mt-2 py-2 px-4 cs-bg rounded-b-lg border-t border-300'>
+								<div className='flex items-center'>
+									<Button
+										text={'Submit'}
+										onClick={() => {
+											handleFeedback(
+												feedbackState.reason,
+												feedbackState.comment
+											);
+										}}
+										width={null}
+										margin={true}
+										size={'sm'}
+										cta={true}
+										path={null}
+										conditional={null}
+										conditionalDisplay={null}
+									/>
+								</div>
+							</div>
 						</div>
 					)}
 					<div className='h-screen overflow-x-hidden overflow-y-scroll minimal-scrollbar'>
@@ -895,7 +1136,7 @@ const Details: React.FC<DetailsProps> = ({
 									<animated.textarea
 										name='comment'
 										placeholder='Add a comment to this lead...'
-										onChange={onChange}
+										onChange={onCommentChange}
 										onClick={() =>
 											!showComment && setShowComment((prev) => !prev)
 										}
