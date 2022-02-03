@@ -39,7 +39,6 @@ import {
 	numberWithCommas,
 	openLinkHandler,
 	returnDomainFromUrl,
-	useOutsideMousedown,
 	truncate,
 } from '@utils/utils';
 import { Lead } from '@utils/interfaces/Lead';
@@ -190,11 +189,6 @@ const Details: React.FC<DetailsProps> = ({
 		currentLead._id,
 	]);
 
-	// close feedback box on click outside
-	const feedbackRef = useRef<any>(null);
-
-	// useOutsideMousedown(feedbackRef, setShowFeedback, null);
-
 	// like/archive/comment handlers
 	const [like, setLike] = useState(
 		user.likedLeads.some((lead) => lead._id === currentLead._id) ? true : false
@@ -281,7 +275,7 @@ const Details: React.FC<DetailsProps> = ({
 			setFeedbackState((prevState) => ({
 				...prevState,
 				modalActive: !prevState.modalActive,
-				optionsActive: !prevState.optionsActive,
+				optionsActive: false,
 			})),
 		{ keyup: true },
 		[currentLead]
@@ -447,14 +441,7 @@ const Details: React.FC<DetailsProps> = ({
 	// navigation
 	const navigationButtons = [
 		{
-			activePath: (
-				<path
-					fillRule='evenodd'
-					d='M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z'
-					clipRule='evenodd'
-				/>
-			),
-			inactivePath: null,
+			type: 'navLeft',
 			disabled:
 				(page === 1 && leads.indexOf(currentLead) === 0) ||
 				currentLeadStatus === 'loading'
@@ -467,14 +454,7 @@ const Details: React.FC<DetailsProps> = ({
 			edge: 'left',
 		},
 		{
-			activePath: (
-				<path
-					fillRule='evenodd'
-					d='M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z'
-					clipRule='evenodd'
-				/>
-			),
-			inactivePath: null,
+			type: 'navRight',
 			disabled:
 				(page === lastPage &&
 					leads.indexOf(currentLead) === leads.length - 1) ||
@@ -492,23 +472,7 @@ const Details: React.FC<DetailsProps> = ({
 	// utility
 	const utilityButtons = [
 		{
-			activePath: (
-				<path
-					fillRule='evenodd'
-					d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
-					clipRule='evenodd'
-				/>
-			),
-			inactivePath: (
-				<path
-					strokeLinecap='round'
-					strokeLinejoin='round'
-					strokeWidth={2}
-					fillRule='evenodd'
-					d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
-					clipRule='evenodd'
-				/>
-			),
+			type: 'like',
 			disabled: false,
 			onClick: () => dispatch(handleLikeLead({ leadId: currentLead._id })),
 			state: like,
@@ -517,22 +481,7 @@ const Details: React.FC<DetailsProps> = ({
 			edge: null,
 		},
 		{
-			activePath: (
-				<path
-					fillRule='evenodd'
-					d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
-					clipRule='evenodd'
-				/>
-			),
-			inactivePath: (
-				<path
-					strokeLinecap='round'
-					strokeLinejoin='round'
-					strokeWidth={2}
-					d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
-					clipRule='evenodd'
-				/>
-			),
+			type: 'archive',
 			disabled: false,
 			onClick: () => dispatch(handleArchiveLead({ leadId: currentLead._id })),
 			state: archive,
@@ -541,15 +490,8 @@ const Details: React.FC<DetailsProps> = ({
 			edge: null,
 		},
 		{
-			activePath: (
-				<path
-					fillRule='evenodd'
-					d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z'
-					clipRule='evenodd'
-				/>
-			),
+			type: 'links',
 			disabled: false,
-			inactivePath: null,
 			onClick: () => openLinkHandler(retailerLink, amzLink),
 			state: null,
 			title: 'Open links',
@@ -557,22 +499,8 @@ const Details: React.FC<DetailsProps> = ({
 			edge: null,
 		},
 		{
-			activePath: (
-				<g>
-					<path d='M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z' />
-					<path d='M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z' />
-				</g>
-			),
+			type: 'feedback',
 			disabled: false,
-			inactivePath: (
-				<path
-					strokeLinecap='round'
-					strokeLinejoin='round'
-					strokeWidth={2}
-					d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
-					clipRule='evenodd'
-				/>
-			),
 			onClick: () => {
 				setFeedbackState((prevState) => ({
 					...prevState,
@@ -585,18 +513,11 @@ const Details: React.FC<DetailsProps> = ({
 			edge: 'right',
 		},
 		{
-			activePath: (
-				<path
-					fillRule='evenodd'
-					d='M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z'
-					clipRule='evenodd'
-				/>
-			),
-			inactivePath: null,
+			type: 'close',
+			disabled: false,
 			onClick: () => {
 				removeDetails();
 			},
-			disabled: false,
 			state: null,
 			title: 'Close details',
 			description: 'Esc',
@@ -893,11 +814,10 @@ const Details: React.FC<DetailsProps> = ({
 								{navigationButtons.map((button, i) => (
 									<HeaderButton
 										key={i}
-										activePath={button.activePath}
-										inactivePath={button.inactivePath}
 										disabled={button.disabled}
 										onClick={button.onClick}
 										state={button.state}
+										type={button.type}
 										title={button.title}
 										description={button.description}
 										edge={button.edge}
@@ -909,11 +829,10 @@ const Details: React.FC<DetailsProps> = ({
 								{utilityButtons.map((button, i) => (
 									<HeaderButton
 										key={i}
-										activePath={button.activePath}
-										inactivePath={button.inactivePath}
 										disabled={button.disabled}
 										onClick={button.onClick}
 										state={button.state}
+										type={button.type}
 										title={button.title}
 										description={button.description}
 										edge={button.edge}
@@ -1155,28 +1074,200 @@ const Details: React.FC<DetailsProps> = ({
 };
 
 interface HeaderButtonProps {
-	activePath: JSX.Element;
-	inactivePath: JSX.Element | null;
 	disabled: boolean;
 	onClick: () => void;
 	state: boolean | null;
+	type: string;
 	title: string;
 	description: string;
 	edge: any;
 }
 
 const HeaderButton: React.FC<HeaderButtonProps> = ({
-	activePath,
-	inactivePath,
 	disabled,
 	onClick,
 	state,
+	type,
 	title,
 	description,
 	edge,
 }) => {
 	// local state
 	const [hover, setHover] = useState(false);
+
+	const svgs = [
+		{
+			type: 'navLeft',
+			active: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='0 0 20 20'
+					fill='currentColor'
+					stroke={state ? 'currentColor' : ''}
+					className='svg-base'
+				>
+					<path
+						fillRule='evenodd'
+						d='M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z'
+						clipRule='evenodd'
+					/>
+				</svg>
+			),
+			inactive: null,
+		},
+		{
+			type: 'navRight',
+			active: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='0 0 20 20'
+					fill='currentColor'
+					stroke={state ? 'currentColor' : ''}
+					className='svg-base'
+				>
+					<path
+						fillRule='evenodd'
+						d='M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z'
+						clipRule='evenodd'
+					/>
+				</svg>
+			),
+			inactive: null,
+		},
+		{
+			type: 'like',
+			active: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='0 0 20 20'
+					fill='currentColor'
+					stroke={state ? 'currentColor' : ''}
+					className='svg-base'
+				>
+					<path
+						fillRule='evenodd'
+						d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
+						clipRule='evenodd'
+					/>
+				</svg>
+			),
+			inactive: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					fill='none'
+					viewBox='0 0 20 20'
+					stroke='currentColor'
+					className='svg-base'
+				>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						strokeWidth={2}
+						fillRule='evenodd'
+						d='M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z'
+						clipRule='evenodd'
+					/>
+				</svg>
+			),
+		},
+		{
+			type: 'archive',
+			active: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='0 -1 20 20'
+					fill='currentColor'
+					stroke={state ? 'currentColor' : ''}
+					className='svg-base'
+				>
+					<path
+						fillRule='evenodd'
+						d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
+						clipRule='evenodd'
+					/>
+				</svg>
+			),
+			inactive: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					fill='none'
+					viewBox='-1 -2 22 22'
+					stroke='currentColor'
+					className='h-4 w-4'
+				>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						strokeWidth={2}
+						d='M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z'
+						clipRule='evenodd'
+					/>
+				</svg>
+			),
+		},
+		{
+			type: 'links',
+			active: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					viewBox='-1 -1 22 22'
+					fill='currentColor'
+					className='svg-base'
+				>
+					<path
+						fillRule='evenodd'
+						d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z'
+						clipRule='evenodd'
+					/>
+				</svg>
+			),
+			inactive: null,
+		},
+		{
+			type: 'feedback',
+			active: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					className='svg-base'
+					fill='none'
+					viewBox='0 0 24 24'
+					stroke='currentColor'
+				>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						strokeWidth={2}
+						d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
+					/>
+				</svg>
+			),
+			inactive: null,
+		},
+		{
+			type: 'close',
+			active: (
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					className='svg-base'
+					viewBox='0 0 20 20'
+					fill='currentColor'
+				>
+					<path
+						fillRule='evenodd'
+						d='M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z'
+						clipRule='evenodd'
+					/>
+				</svg>
+			),
+			inactive: null,
+		},
+	];
+
+	const getData = (type: string) => {
+		return svgs.find((svg) => svg.type === type);
+	};
+
+	const data = getData(type)!;
 
 	return (
 		<button
@@ -1192,18 +1283,8 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 					: ''
 			} text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 ring-gray transition-main`}
 		>
-			{state || !inactivePath ? (
-				<div className='flex items-center justify-center'>
-					<svg
-						xmlns='http://www.w3.org/2000/svg'
-						viewBox='0 0 20 20'
-						fill='currentColor'
-						stroke={state ? 'currentColor' : ''}
-						className='svg-base'
-					>
-						{activePath}
-					</svg>
-				</div>
+			{state || !data.inactive ? (
+				<div className='flex items-center justify-center'>{data.active}</div>
 			) : (
 				<div className='flex items-center justify-center'>
 					<svg
@@ -1213,7 +1294,7 @@ const HeaderButton: React.FC<HeaderButtonProps> = ({
 						stroke='currentColor'
 						className='svg-base'
 					>
-						{inactivePath}
+						{data.inactive}
 					</svg>
 				</div>
 			)}
