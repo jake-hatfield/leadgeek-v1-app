@@ -147,61 +147,75 @@ const LeadTable: React.FC<LeadTableProps> = ({
 							<tr className={classes.tableHead}>
 								<th className='p-2 rounded-tl-lg' />
 								<th className={classes.tableHeadCell}>
-									Title{' '}
-									<SortButton
-										sortKey={'title'}
-										sortingConfig={sortingConfig}
-										sortColumn={sortColumn}
-									/>
+									<div className='flex items-center'>
+										<span>Title</span>
+										<SortButton
+											sortKey={'title'}
+											sortingConfig={sortingConfig}
+											sortColumn={sortColumn}
+										/>
+									</div>
 								</th>
 								<th className={classes.tableHeadCell}>
-									Category{' '}
-									<SortButton
-										sortKey={'category'}
-										sortingConfig={sortingConfig}
-										sortColumn={sortColumn}
-									/>
+									<div className='flex items-center'>
+										<span>Category</span>
+										<SortButton
+											sortKey={'category'}
+											sortingConfig={sortingConfig}
+											sortColumn={sortColumn}
+										/>
+									</div>
 								</th>
 								<th className={'p-2 hidden xl:table-cell'}>Details</th>
 								<th className={classes.tableHeadCell}>
-									Profit
-									<SortButton
-										sortKey={'netProfit'}
-										sortingConfig={sortingConfig}
-										sortColumn={sortColumn}
-									/>
+									<div className='flex items-center'>
+										<span>Profit</span>
+										<SortButton
+											sortKey={'netProfit'}
+											sortingConfig={sortingConfig}
+											sortColumn={sortColumn}
+										/>
+									</div>
 								</th>
 								<th className={classes.tableHeadCell}>
-									ROI
-									<SortButton
-										sortKey={'roi'}
-										sortingConfig={sortingConfig}
-										sortColumn={sortColumn}
-									/>
+									<div className='flex items-center'>
+										<span>ROI</span>
+										<SortButton
+											sortKey={'roi'}
+											sortingConfig={sortingConfig}
+											sortColumn={sortColumn}
+										/>
+									</div>
 								</th>
 								<th className={classes.tableHeadCell}>
-									BSR
-									<SortButton
-										sortKey={'bsrCurrent'}
-										sortingConfig={sortingConfig}
-										sortColumn={sortColumn}
-									/>
+									<div className='flex items-center'>
+										<span>BSR</span>
+										<SortButton
+											sortKey={'bsrCurrent'}
+											sortingConfig={sortingConfig}
+											sortColumn={sortColumn}
+										/>
+									</div>
 								</th>
 								<th className={classes.tableHeadCell}>
-									Sales
-									<SortButton
-										sortKey={'monthlySales'}
-										sortingConfig={sortingConfig}
-										sortColumn={sortColumn}
-									/>
+									<div className='flex items-center'>
+										<span>Sales</span>
+										<SortButton
+											sortKey={'monthlySales'}
+											sortingConfig={sortingConfig}
+											sortColumn={sortColumn}
+										/>
+									</div>
 								</th>
 								<th className={classes.tableHeadCell}>
-									Date
-									<SortButton
-										sortKey={'date'}
-										sortingConfig={sortingConfig}
-										sortColumn={sortColumn}
-									/>
+									<div className='flex items-center'>
+										<span>Date</span>
+										<SortButton
+											sortKey={'date'}
+											sortingConfig={sortingConfig}
+											sortColumn={sortColumn}
+										/>
+									</div>
 								</th>
 								<th className='p-2 rounded-tr-lg' />
 							</tr>
@@ -444,11 +458,11 @@ const SortButton: React.FC<{
 	return (
 		<button
 			onClick={() => sortColumn(sortKey)}
-			className={
+			className={`${
 				sortingConfig.active === sortKey
 					? 'text-purple-500 dark:text-purple-300'
 					: 'text-gray-500 dark:text-gray-700'
-			}
+			} inline-block`}
 		>
 			<svg
 				xmlns='http://www.w3.org/2000/svg'

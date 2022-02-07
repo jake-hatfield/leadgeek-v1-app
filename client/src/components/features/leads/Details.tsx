@@ -117,6 +117,10 @@ const Details: React.FC<DetailsProps> = ({
 	useEffect(() => {
 		if (currentLead) {
 			dispatch(showDetails());
+			setFeedbackState((prevState) => ({
+				...prevState,
+				comment: '',
+			}));
 		} else {
 			dispatch(hideDetails());
 		}
@@ -266,7 +270,8 @@ const Details: React.FC<DetailsProps> = ({
 		() => {
 			details && removeDetails();
 		},
-		{ keyup: true }
+		{ keyup: true },
+		[currentLead, details]
 	);
 	// open both links on o key
 	useHotkeys(
@@ -356,25 +361,33 @@ const Details: React.FC<DetailsProps> = ({
 
 	// close modal handlers
 	const dropdownRef = useRef<any>(null);
-	const dropdownButtonRef = useRef<any>(null);
+
+	const handleClick = (e: any) => {
+		if (!dropdownRef.current?.contains(e.target)) {
+			return setFeedbackState((prevState) => ({
+				...prevState,
+				optionsActive: false,
+			}));
+		}
+
+		setFeedbackState((prevState) => ({
+			...prevState,
+			optionsActive: !prevState.optionsActive,
+		}));
+	};
 
 	useEffect(() => {
-		function handleClickOutside(e: any) {
+		const handleClick = (e: any) => {
 			if (!dropdownRef.current?.contains(e.target)) {
-				setFeedbackState((prevState) => ({
+				return setFeedbackState((prevState) => ({
 					...prevState,
 					optionsActive: false,
 				}));
-			} else {
-				setFeedbackState((prevState) => ({
-					...prevState,
-					optionsActive: !prevState.optionsActive,
-				}));
 			}
-		}
-		document.addEventListener('mouseup', handleClickOutside);
+		};
+		document.addEventListener('click', handleClick);
 		return () => {
-			document.removeEventListener('mouseup', handleClickOutside);
+			document.removeEventListener('click', handleClick);
 		};
 	}, [dropdownRef, setFeedbackState]);
 
@@ -853,19 +866,15 @@ const Details: React.FC<DetailsProps> = ({
 							ref={feedbackModalRef}
 							className='absolute top-0 right-0 z-30 pt-4 w-full max-w-sm mt-16 mr-16 card-300 cs-light-100 text-sm'
 						>
-							<div className='relative mx-4'>
+							<div ref={dropdownRef} className='relative mx-4'>
 								<button
-									ref={dropdownButtonRef}
 									type='button'
 									className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 input border border-300 rounded-lg text-left cursor-default ring-purple ring-inset'
 									aria-haspopup='listbox'
 									aria-expanded='true'
 									aria-labelledby='listbox-label'
-									onClick={() => {
-										setFeedbackState((prevState) => ({
-											...prevState,
-											optionsActive: true,
-										}));
+									onClick={(e) => {
+										handleClick(e);
 									}}
 								>
 									<span className='flex items-center'>
@@ -891,7 +900,6 @@ const Details: React.FC<DetailsProps> = ({
 								</button>
 								{feedbackState.optionsActive && (
 									<ul
-										ref={dropdownRef}
 										className='absolute top-0 right-0 z-10 w-full mt-1 py-1.5 cs-light-300 card-200 text-sm overflow-auto focus:outline-none transform translate-y-10 minimal-scrollbar'
 										tabIndex={-1}
 										role='listbox'
@@ -913,7 +921,7 @@ const Details: React.FC<DetailsProps> = ({
 													setFeedbackState((prevState) => ({
 														...prevState,
 														reason: feedbackReason,
-														optionsActive: !prevState.optionsActive,
+														optionsActive: false,
 													}));
 												}}
 											>
@@ -933,6 +941,7 @@ const Details: React.FC<DetailsProps> = ({
 										}));
 									}}
 									value={feedbackState.comment}
+									maxLength={1800}
 									className='h-20 w-full input mt-4 rounded-main border border-300 text-sm placeholder-gray-700 ring-purple resize-none'
 								/>
 							</div>

@@ -150,7 +150,7 @@ const LeadRow: React.FC<LeadRowProps> = ({ lead, user, liked, archived }) => {
 		competitionWrapper:
 			'w-36 absolute bottom-0 z-10 p-2 rounded-md shadow-md bg-gray-900 dark:bg-darkGray-100 text-white text-sm transform -translate-y-12 translate-x-8',
 		dateCellWrapper: 'p-2 w-24 whitespace-nowrap',
-		defaultCellWrapper: 'p-2',
+		defaultCellWrapper: 'p-2 whitespace-nowrap',
 		defaultSvg: 'svg-base',
 		detailsCellButton:
 			'p-1 rounded-md text-gray-500 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 transition-main ring-gray',
@@ -176,7 +176,7 @@ const LeadRow: React.FC<LeadRowProps> = ({ lead, user, liked, archived }) => {
 		likeCellWrapper: 'pl-6 pr-2 w-9 text-center text-gray-400',
 		linkIconWrapper: 'relative p-2 border-r border-200 ring-gray ring-inset',
 		monthlySalesCellWrapper: 'p-2 w-24',
-		profitCellWrapper: 'w-36 p-2 uppercase',
+		profitCellWrapper: 'w-56 p-2 uppercase',
 		quickViewCellWrapper: quickView
 			? 'w-12 py-4 pl-5 pr-12'
 			: 'w-12 py-2 pl-2 pr-10',
@@ -190,11 +190,11 @@ const LeadRow: React.FC<LeadRowProps> = ({ lead, user, liked, archived }) => {
 		quickViewNull: 'p-2 svg-base',
 		quickViewWrapper:
 			'all-center rounded-r-lg text-100 hover:text-gray-700 dark:hover-text-gray-200',
-		roiCellWrapper: 'p-2 w-24',
+		roiCellWrapper: 'p-2 w-28',
 		rowWrapper:
 			'relative px-1 border-b last:border-none border-100 dark:border-darkGray-200 hover:bg-gray-100 dark:hover:bg-darkGray-300 cursor-pointer',
 		titleCellWrapper:
-			'p-2 pr-12 w-32 md:w-48 lg:w-64 xl:w-112 font-semibold truncate',
+			'p-2 pr-12 w-28 md:w-40 lg:w-56 xl:w-112 font-semibold truncate',
 		titleHover:
 			'absolute z-10 left-0 p-2 transform -translate-y-10 lg:translate-x-12 rounded-md shadow-md bg-gray-900 text-white text-sm',
 		valueIndicator: 'ml-1 text-100',
