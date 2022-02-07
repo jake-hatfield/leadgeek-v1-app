@@ -264,7 +264,7 @@ const ArbitragePage = () => {
 														}}
 														className='mr-4 link'
 													>
-														Reset columns
+														Reset to default
 													</button>
 													<button
 														onClick={() => {

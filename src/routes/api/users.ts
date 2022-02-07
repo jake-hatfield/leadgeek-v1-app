@@ -15,7 +15,8 @@ const mailchimpSecret = process.env.REACT_APP_MAILCHIMP_SECRET;
 const mailchimpServer = process.env.REACT_APP_MAILCHIMP_SERVER;
 // force stripe key to be a string
 const stripeSecret = `${process.env.REACT_APP_STRIPE_SECRET_KEY}`;
-const slackSecret = process.env.REACT_APP_SLACK_SECRET;
+const slackCancellationSecret = process.env.REACT_APP_SLACK_CANCELLATION_SECRET;
+const slackFeedbackSecret = process.env.REACT_APP_SLACK_FEEDBACK_SECRET;
 
 // middleware
 import auth from '@middleware/auth';
@@ -1286,7 +1287,7 @@ router.post('/slack-webhook', async (req: Request, res: Response) => {
 				const body = JSON.stringify(richMessage);
 
 				await axios.post(
-					`https://hooks.slack.com/services/T01CVGALACD/B02UQ9A0TK8/${slackSecret}`,
+					`https://hooks.slack.com/services/T01CVGALACD/B02UQ9A0TK8/${slackCancellationSecret}`,
 					body
 				);
 
@@ -1345,7 +1346,7 @@ router.post('/slack-webhook', async (req: Request, res: Response) => {
 				const body = JSON.stringify(richMessage);
 
 				await axios.post(
-					`https://hooks.slack.com/services/***REMOVED***`,
+					`https://hooks.slack.com/services/T01CVGALACD/B031GS4LMUM/${slackFeedbackSecret}`,
 					body
 				);
 

@@ -348,14 +348,15 @@ const Details: React.FC<DetailsProps> = ({
 				}));
 			}
 		}
-		document.addEventListener('mouseup', handleClickOutside);
+		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
-			document.removeEventListener('mouseup', handleClickOutside);
+			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [feedbackModalRef, setFeedbackState]);
 
 	// close modal handlers
 	const dropdownRef = useRef<any>(null);
+	const dropdownButtonRef = useRef<any>(null);
 
 	useEffect(() => {
 		function handleClickOutside(e: any) {
@@ -363,6 +364,11 @@ const Details: React.FC<DetailsProps> = ({
 				setFeedbackState((prevState) => ({
 					...prevState,
 					optionsActive: false,
+				}));
+			} else {
+				setFeedbackState((prevState) => ({
+					...prevState,
+					optionsActive: !prevState.optionsActive,
 				}));
 			}
 		}
@@ -849,6 +855,7 @@ const Details: React.FC<DetailsProps> = ({
 						>
 							<div className='relative mx-4'>
 								<button
+									ref={dropdownButtonRef}
 									type='button'
 									className='overflow-x-hidden relative w-full pl-2 pr-10 py-2 input border border-300 rounded-lg text-left cursor-default ring-purple ring-inset'
 									aria-haspopup='listbox'
@@ -857,7 +864,7 @@ const Details: React.FC<DetailsProps> = ({
 									onClick={() => {
 										setFeedbackState((prevState) => ({
 											...prevState,
-											optionsActive: !prevState.optionsActive,
+											optionsActive: true,
 										}));
 									}}
 								>
