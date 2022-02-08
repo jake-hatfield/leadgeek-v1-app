@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 
 // packages
+import axios from 'axios';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // redux
@@ -10,6 +11,7 @@ import {
 	clearFilter,
 	clearFilters,
 	createFilter,
+	setFilters,
 } from '@features/filters/filtersSlice';
 import { getFeedLeads } from '@features/leads/leadsSlice';
 
@@ -19,7 +21,7 @@ import SelectComponent from '@components/utils/Select';
 import Spinner from '@components/utils/Spinner';
 
 // utils
-import { numberWithCommas, useOutsideMousedown } from '@utils/utils';
+import { config, numberWithCommas, useOutsideMousedown } from '@utils/utils';
 import {
 	Filter,
 	FilterOperators,
@@ -47,7 +49,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	// local state
 	const [addFilter, setAddFilter] = useState(false);
 	const [categoryActive, setCategoryActive] = useState(false);
-	const [sourceActive, setSourceActive] = useState(false);
+
 	const [filter, setFilter] = useState<{
 		typeIs: {
 			type: 'numeric' | 'text';
@@ -80,6 +82,18 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 		value: '',
 	});
 	const [filterDescription, setFilterDescription] = useState(false);
+	const [filterPreset, setFilterPreset] = useState<{
+		title: string;
+		filters: Filter[];
+	}>({
+		title: '',
+		filters: [],
+	});
+	const [importDescription, setImportDescription] = useState(false);
+	const [importFilter, setImportFilter] = useState(false);
+	const [importFilterDropdown, setImportFilterDropdown] = useState(false);
+	const [saveFilter, setSaveFilter] = useState(false);
+	const [sourceActive, setSourceActive] = useState(false);
 	const [typeActive, setTypeActive] = useState(false);
 	const [valueActive, setValueActive] = useState(false);
 
@@ -141,6 +155,50 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 			setAlert({
 				title: 'Success',
 				message: 'All filters were removed',
+				alertType: 'success',
+			})
+		);
+	};
+
+	const handleSaveFilters = async () => {
+		setSaveFilter(true);
+		setImportFilter(false);
+		setAddFilter(false);
+		dispatch(removeAlert());
+
+		if (!filterPreset.title) {
+			return dispatch(
+				setAlert({
+					title: 'Error',
+					message: 'Please enter a name for this filter preset',
+					alertType: 'danger',
+				})
+			);
+		}
+
+		// TODO: Logic for checking duplicate presets
+
+		const body = JSON.stringify({
+			name: filterPreset.title,
+			filters: filters.filters,
+		});
+
+		await axios.post('/api/users/settings/filters', body, config);
+
+		setSaveFilter(false);
+	};
+
+	const handleDeleteFilter = async () => {
+		dispatch(removeAlert());
+
+		await axios.delete(
+			`/api/users/settings/filter?title=${filterPreset.title}`
+		);
+
+		dispatch(
+			setAlert({
+				title: 'Success',
+				message: 'Filter preset was successfully deleted',
 				alertType: 'success',
 			})
 		);
@@ -266,38 +324,220 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 							</div>
 						)}
 					</div>
-					<button
-						onClick={(e) => {
-							e.stopPropagation();
-							setAddFilter(true);
-						}}
-						onMouseEnter={() => setFilterDescription(true)}
-						onMouseLeave={() => setFilterDescription(false)}
-						className='relative icon-button'
-					>
-						<svg
-							xmlns='http://www.w3.org/2000/svg'
-							viewBox='0 0 20 20'
-							fill='currentColor'
-							className='h-4 w-4'
+					<div>
+						<button
+							onClick={() => {
+								if (importFilter) return;
+								setImportFilter(true);
+								setImportDescription(false);
+								setAddFilter(false);
+								setSaveFilter(false);
+							}}
+							onMouseEnter={() => !importFilter && setImportDescription(true)}
+							onMouseLeave={() => setImportDescription(false)}
+							className={`relative ${
+								importFilter ? 'icon-button-disabled' : 'icon-button'
+							}`}
 						>
-							<path
-								fillRule='evenodd'
-								d='M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z'
-								clipRule='evenodd'
-							/>
-						</svg>
-						{filterDescription && (
-							<div className='absolute top-0 right-0 z-10 min-w-max p-2 transform -translate-y-1.5 -translate-x-8 rounded-md shadow-md bg-gray-900 text-left text-white text-xs'>
-								Add filter
+							<svg
+								xmlns='http://www.w3.org/2000/svg'
+								className='svg-sm'
+								viewBox='0 0 20 20'
+								fill='currentColor'
+							>
+								<path d='M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z' />
+							</svg>
+							{importDescription && (
+								<div className='absolute top-0 right-0 z-10 min-w-max p-2 transform -translate-y-1.5 -translate-x-8 rounded-md shadow-md bg-gray-900 text-left text-white text-xs'>
+									Apply preset
+								</div>
+							)}
+						</button>
+
+						<button
+							onClick={() => {
+								if (addFilter) return;
+								setAddFilter(true);
+								setFilterDescription(false);
+								setImportFilter(false);
+								setSaveFilter(false);
+							}}
+							onMouseEnter={() => !addFilter && setFilterDescription(true)}
+							onMouseLeave={() => setFilterDescription(false)}
+							className={`ml-2 relative ${
+								addFilter ? 'icon-button-disabled' : 'icon-button'
+							}`}
+						>
+							<svg
+								xmlns='http://www.w3.org/2000/svg'
+								viewBox='0 0 20 20'
+								fill='currentColor'
+								className='svg-sm'
+							>
+								<path
+									fillRule='evenodd'
+									d='M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z'
+									clipRule='evenodd'
+								/>
+							</svg>
+							{filterDescription && (
+								<div className='absolute top-0 right-0 z-10 min-w-max p-2 transform -translate-y-1.5 -translate-x-8 rounded-md shadow-md bg-gray-900 text-left text-white text-xs'>
+									Add filter
+								</div>
+							)}
+						</button>
+					</div>
+				</header>
+				{/* filter information */}
+				<div>
+					<div className='p-4'>
+						{filters.count === 0 &&
+							!addFilter &&
+							!importFilter &&
+							!saveFilter && (
+								<div className='font-semibold text-sm text-gray-700 dark:text-gray-400'>
+									You haven't added any filters yet. Click the + in the top
+									right corner to get started. You can also create or apply a
+									filter preset.
+								</div>
+							)}
+						{saveFilter && (
+							<div className='p-4'>
+								<input
+									type='text'
+									className='mt-2 form-field input'
+									onChange={(e) =>
+										setFilterPreset({
+											...filterPreset,
+											title: e.target.value,
+										})
+									}
+									value={filterPreset.title}
+									placeholder='Enter a name for this preset...'
+								/>
+								<div className='flex items-center justify-end'>
+									<div className='mt-2'>
+										<Button
+											text={'Cancel'}
+											onClick={() => {
+												setImportFilter(false);
+											}}
+											width={'w-20'}
+											margin={false}
+											path={null}
+											conditional={null}
+											conditionalDisplay={null}
+											size={'xs'}
+											cta={false}
+										/>
+									</div>
+									<div className='mt-2 ml-4'>
+										<Button
+											text={'Apply'}
+											onClick={() => {
+												dispatch(
+													setFilters(
+														user.settings.filterPresets.filter(
+															(f) =>
+																f.title === user.settings.filterPresets[0].title
+														)[0].filters
+													)
+												);
+											}}
+											width={'w-20'}
+											margin={false}
+											path={null}
+											conditional={null}
+											conditionalDisplay={null}
+											size={'xs'}
+											cta={true}
+										/>
+									</div>
+								</div>
 							</div>
 						)}
-					</button>
-				</header>
-				{filters.filters.length > 0 || addFilter ? (
-					<div>
+						{importFilter && (
+							<div>
+								<SelectComponent
+									title={'Preset'}
+									options={user.settings.filterPresets}
+									selectedOption={
+										filterPreset.title || user.settings.filterPresets[0].title
+									}
+									openState={importFilterDropdown}
+									setOpenState={setImportFilterDropdown}
+									handleClick={(option: {
+										title: string;
+										filters: Filter[];
+									}) => {
+										setFilterPreset((prevState) => ({
+											...prevState,
+											title: option.title,
+											filters: option.filters,
+										}));
+									}}
+								/>
+								<div
+									className={`flex items-center justify-end ${
+										filterPreset.filters.length > 0 ? 'pb-4' : ''
+									}`}
+								>
+									<div className='mt-2'>
+										<Button
+											text={'Cancel'}
+											onClick={() => {
+												setImportFilter(false);
+												setFilterPreset((prevState) => ({
+													...prevState,
+													title: '',
+													filters: [],
+												}));
+											}}
+											width={'w-20'}
+											margin={false}
+											path={null}
+											conditional={null}
+											conditionalDisplay={null}
+											size={'xs'}
+											cta={false}
+										/>
+									</div>
+									<div className='mt-2 ml-4'>
+										<Button
+											text={'Apply'}
+											onClick={() => {
+												dispatch(
+													setFilters(
+														user.settings.filterPresets.filter(
+															(preset) => preset.title === filterPreset.title
+														)[0].filters
+													)
+												);
+											}}
+											width={'w-20'}
+											margin={false}
+											path={null}
+											conditional={null}
+											conditionalDisplay={null}
+											size={'xs'}
+											cta={true}
+										/>
+									</div>
+								</div>
+								{filterPreset.filters.length > 0 && (
+									<div className='font-semibold text-sm text-100'>
+										<h6>Filters to be applied</h6>
+										<ul className='py-2'>
+											{filterPreset.filters.map((f, i) => (
+												<ActiveFilter key={i} filter={f} clearable={false} />
+											))}
+										</ul>
+									</div>
+								)}
+							</div>
+						)}
 						{addFilter && (
-							<div className='pt-6 pb-2 px-4'>
+							<div className={filters.count > 0 ? 'pb-4' : ''}>
 								<div>
 									<SelectComponent
 										title={'Type'}
@@ -412,7 +652,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 										placeholder='Enter an amount...'
 									/>
 								)}
-
 								<div className='flex items-center justify-end'>
 									<div className='mt-2'>
 										<Button
@@ -429,7 +668,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 											cta={false}
 										/>
 									</div>
-
 									<div className='mt-2 ml-4'>
 										<Button
 											text={'Apply'}
@@ -448,34 +686,64 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 								</div>
 							</div>
 						)}
-						{filters.filters.length > 0 && (
-							<div className='font-semibold text-sm text-gray-700'>
-								<ul className='py-2 px-4'>
-									{filters.filters.map((filter: Filter, i: number) => (
-										<ActiveFilter key={i} filter={filter} />
-									))}
-								</ul>
+						{filters.count > 0 && !importFilter && (
+							<div>
+								{/* list active filters */}
+								{filters.count > 0 && (
+									<div className='font-semibold text-sm text-100'>
+										{(saveFilter || addFilter) && (
+											<h5>
+												{saveFilter ? 'Filters to be saved' : 'Active filters'}
+											</h5>
+										)}
+										<ul className='py-2'>
+											{filters.filters.map((filter: Filter, i: number) => (
+												<ActiveFilter
+													key={i}
+													filter={filter}
+													clearable={true}
+												/>
+											))}
+										</ul>
+									</div>
+								)}
 							</div>
 						)}
-						<div className='border-t border-200'>
-							<div className='flex justify-end py-2 px-4'>
-								<button
-									onClick={() => {
-										handleClearFilters();
-									}}
-									className='py-1 px-2 font-semibold text-sm hover:bg-red-100 dark:hover:bg-red-400 text-red-500 dark:text-red-300 hover:text-red-600 dark:hover:text-white rounded-main transition-main ring-red'
-								>
-									Clear all
-								</button>
-							</div>
-						</div>
 					</div>
-				) : (
-					<div className='py-6 px-4 font-semibold text-sm text-gray-700 dark:text-gray-400'>
-						You haven't added any filters yet. Click the + in the top right
-						corner to get started.
+					{/* save/clear filters */}
+					<div className='center-between py-2 px-3 border-t border-200'>
+						<button
+							onClick={() => {
+								handleSaveFilters();
+							}}
+							disabled={!importFilter || !filters.count}
+							className={`py-1 px-2 font-semibold text-sm ${
+								importFilter || filters.count > 0
+									? 'link'
+									: 'text-gray-200 cursor-default'
+							}`}
+						>
+							{importFilter
+								? 'Edit preset'
+								: filterPreset.title
+								? 'Save changes'
+								: 'Create preset'}
+						</button>
+						<button
+							onClick={() => {
+								importFilter ? handleDeleteFilter() : handleClearFilters();
+							}}
+							disabled={!importFilter || !filters.count}
+							className={`py-1 px-2 font-semibold text-sm ${
+								importFilter || filters.count > 0
+									? 'hover:bg-red-100 dark:hover:bg-red-400 text-red-500 dark:text-red-300 hover:text-red-600 dark:hover:text-white rounded-main transition-main ring-red'
+									: 'text-gray-200 cursor-default'
+							}`}
+						>
+							{importFilter ? 'Delete preset' : 'Clear all'}
+						</button>
 					</div>
-				)}
+				</div>
 			</div>
 		</article>
 	) : (
@@ -491,9 +759,10 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 
 interface ActiveFilterProps {
 	filter: Filter;
+	clearable: boolean;
 }
 
-const ActiveFilter: React.FC<ActiveFilterProps> = ({ filter }) => {
+const ActiveFilter: React.FC<ActiveFilterProps> = ({ filter, clearable }) => {
 	const dispatch = useAppDispatch();
 	// local state
 	const [filterDescription, setFilterDescription] = useState(false);
@@ -549,30 +818,32 @@ const ActiveFilter: React.FC<ActiveFilterProps> = ({ filter }) => {
 					)}${valuePostproccesor(filter.type)}`}
 				</span>
 			</div>
-			<button
-				onClick={() => dispatch(clearFilter({ id: filter.id }))}
-				onMouseEnter={() => setFilterDescription(true)}
-				onMouseLeave={() => setFilterDescription(false)}
-				className='relative icon-button'
-			>
-				<svg
-					xmlns='http://www.w3.org/2000/svg'
-					viewBox='0 0 20 20'
-					fill='currentColor'
-					className='svg-sm'
+			{clearable && (
+				<button
+					onClick={() => dispatch(clearFilter({ id: filter.id }))}
+					onMouseEnter={() => setFilterDescription(true)}
+					onMouseLeave={() => setFilterDescription(false)}
+					className='relative icon-button'
 				>
-					<path
-						fillRule='evenodd'
-						d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
-						clipRule='evenodd'
-					/>
-				</svg>
-				{filterDescription && (
-					<div className='absolute top-0 right-0 z-10 min-w-max p-2 rounded-md shadow-md bg-gray-900 text-left text-white text-xs transform -translate-y-1 -translate-x-8'>
-						Clear filter
-					</div>
-				)}
-			</button>
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						viewBox='0 0 20 20'
+						fill='currentColor'
+						className='svg-sm'
+					>
+						<path
+							fillRule='evenodd'
+							d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+							clipRule='evenodd'
+						/>
+					</svg>
+					{filterDescription && (
+						<div className='absolute top-0 right-0 z-10 min-w-max p-2 rounded-md shadow-md bg-gray-900 text-left text-white text-xs transform -translate-y-1 -translate-x-8'>
+							Clear filter
+						</div>
+					)}
+				</button>
+			)}
 		</li>
 	);
 };

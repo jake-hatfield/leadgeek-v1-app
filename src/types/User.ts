@@ -1,5 +1,7 @@
 import { ObjectId } from 'mongoose';
 
+import { Filter } from './Filter';
+
 export type Roles =
 	| 'user'
 	| 'bundle'
@@ -58,4 +60,10 @@ export interface IUser {
 	notifications: {
 		_id: ObjectId;
 	}[];
+	settings: {
+		filterPresets: {
+			title: string;
+			filters: Filter[];
+		}[];
+	};
 }

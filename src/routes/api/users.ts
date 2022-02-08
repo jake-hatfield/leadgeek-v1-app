@@ -28,6 +28,7 @@ import { sendEmail } from '../../utils';
 import User, { IUserDocument } from '@models/User';
 import Notification, { INotificationDocument } from '@models/Notification';
 import WaitlistUser, { IWaitlistUserDocument } from '@models/WaitlistUser';
+import { Filter } from '../../types/Filter';
 
 // router
 const router = Router();
@@ -125,6 +126,35 @@ router.get(
 		}
 	}
 );
+
+// @route       POST api/users/settings/filters
+// @description Create a new filter preset
+// @access      Private
+router.post('/settings/filters', auth, async (req: Request, res: Response) => {
+	try {
+		// destructure necessary items
+		const {
+			user: { id },
+			name,
+			filters,
+		} = req.body;
+
+		const user = await User.findOne({ _id: id });
+
+		const filterPreset: { title: string; filters: Filter[] } = {
+			title: name,
+			filters,
+		};
+
+		const newFilterPresets = [...user.settings.filterPresets, filterPreset];
+
+		user.settings.filterPresets = newFilterPresets;
+
+		await user.save();
+	} catch (error) {
+		console.log(error);
+	}
+});
 
 // @route       GET api/users/notifications?ids=[]
 // @description Retrieve a user's notifications

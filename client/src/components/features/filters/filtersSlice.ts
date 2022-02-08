@@ -280,6 +280,10 @@ export const filtersSlice = createSlice({
 			state.dateLimits.max = action.payload.max;
 			state.dateLimits.selected = action.payload.selected;
 		},
+		setFilters: (state, action) => {
+			localStorage.setItem('filters', JSON.stringify(action.payload));
+			state.filters = action.payload;
+		},
 		setItemLimit: (
 			state,
 			action: PayloadAction<{ type: string; itemLimit: number }>
@@ -373,6 +377,7 @@ export const {
 	clearSortCriteria,
 	createSortCriterion,
 	setDateLimit,
+	setFilters,
 	setSortColumn,
 	setReorderedSortCriteria,
 } = filtersSlice.actions;

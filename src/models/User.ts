@@ -151,6 +151,50 @@ const UserSchema: Schema<IUserDocument> = new Schema({
 			notificationId: { type: Schema.Types.ObjectId, ref: 'Notification' },
 		},
 	],
+	settings: {
+		filterPresets: [
+			{
+				title: { type: String },
+				filters: [
+					{
+						format: { type: String, enum: ['numeric', 'text'] },
+						type: {
+							type: String,
+							enum: [
+								'netProfit',
+								'buyPrice',
+								'sellPrice',
+								'roi',
+								'bsrCurrent',
+								'monthlySales',
+								'weight',
+								'category',
+								'source',
+							],
+						},
+						title: {
+							type: String,
+							enum: [
+								'Profit',
+								'Buy price',
+								'Sell price',
+								'Return on investment',
+								"Best seller's rank",
+								'Monthly sales',
+								'Weight',
+								'Category',
+								'Source',
+							],
+						},
+						operator: { type: String, enum: ['gte', 'lte', 'eq'] },
+						value: {
+							type: Schema.Types.Mixed,
+						},
+					},
+				],
+			},
+		],
+	},
 });
 
 const User = model<IUserDocument, IUserModel>('User', UserSchema);

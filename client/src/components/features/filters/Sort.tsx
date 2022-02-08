@@ -241,7 +241,7 @@ const SortComponent: React.FC<SortComponentProps> = ({
 				{filters.sortCriteria.length > 0 || addSortCriteria ? (
 					<div>
 						{addSortCriteria && (
-							<div className='pt-6 pb-2 px-4'>
+							<div className='p-4'>
 								<div>
 									<SelectComponent
 										title={'Type'}
@@ -360,10 +360,10 @@ const SortComponent: React.FC<SortComponentProps> = ({
 						</div>
 					</div>
 				) : (
-					<div className='py-6 px-4 font-semibold text-sm text-gray-700 dark:text-gray-400'>
+					<div className='p-4 font-semibold text-sm text-gray-700 dark:text-gray-400'>
 						You haven't added any sort criteria yet. Click the + in the top
-						right corner to get started. You can sort the criteria by changing
-						their order in this list.
+						right corner to get started. You can also sort the criteria by
+						changing their order in this list.
 					</div>
 				)}
 			</div>

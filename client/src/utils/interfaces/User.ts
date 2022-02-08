@@ -1,4 +1,4 @@
-import { Lead } from './Lead';
+import { Filter } from './Filter';
 
 export type Role =
 	| 'user'
@@ -47,4 +47,12 @@ export interface User {
 	archivedLeads: { _id: string }[];
 	comments: { date: Date; leadId: string; comment: string }[];
 	notifications: { _id: string }[];
+	settings: {
+		filterPresets: [
+			{
+				title: string;
+				filters: Filter[];
+			}
+		];
+	};
 }
