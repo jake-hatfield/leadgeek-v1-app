@@ -134,7 +134,10 @@ const ForgotPassword: React.FC = () => {
 								Don't worry, it happens to the best of us.
 							</p>
 							<p className='mt-2 inline-block'>
-								Receive password reset instructions to the email below.
+								Receive password reset instructions to the email below.{' '}
+								<span role='img' aria-label='Point down emoji'>
+									👇
+								</span>
 							</p>
 						</div>
 						<form onSubmit={(e) => onSubmit(e)}>
@@ -146,7 +149,7 @@ const ForgotPassword: React.FC = () => {
 								value={email}
 								onChange={onChange}
 								required={true}
-								styles={null}
+								styles={'pt-4'}
 								lightOnly={true}
 							/>
 							<div className='mt-4'>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 // packages
 import axios from 'axios';
@@ -7,7 +7,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 // redux
 import { useAppSelector, useAppDispatch } from '@hooks/hooks';
 import { removeAlert, setAlert } from '@features/alert/alertSlice';
-import {
+import filtersSlice, {
 	clearFilter,
 	clearFilters,
 	createFilter,
@@ -17,6 +17,7 @@ import { getFeedLeads } from '@features/leads/leadsSlice';
 
 // components
 import Button from '@components/utils/Button';
+import FormField from '@components/utils/FormField';
 import SelectComponent from '@components/utils/Select';
 import Spinner from '@components/utils/Spinner';
 
@@ -97,6 +98,22 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	const [typeActive, setTypeActive] = useState(false);
 	const [valueActive, setValueActive] = useState(false);
 
+	useEffect(() => {
+		user &&
+			user?.settings.filterPresets.length > 0 &&
+			setFilterPreset((prevState) => ({
+				...prevState,
+				title: user?.settings.filterPresets[0].title,
+				filters: user?.settings.filterPresets[0].filters,
+			}));
+	}, [user]);
+
+	useEffect(() => {
+		if (filters.count === 0) {
+			return setSaveFilter(false);
+		}
+	}, [filters.count]);
+
 	// close modal handlers
 	const wrapperRef = useRef(null);
 	useOutsideMousedown(wrapperRef, setFilterActive, null);
@@ -161,9 +178,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	};
 
 	const handleSaveFilters = async () => {
-		setSaveFilter(true);
-		setImportFilter(false);
-		setAddFilter(false);
 		dispatch(removeAlert());
 
 		if (!filterPreset.title) {
@@ -183,7 +197,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 			filters: filters.filters,
 		});
 
-		await axios.post('/api/users/settings/filters', body, config);
+		await axios.post('/api/users/settings/filter', body, config);
 
 		setSaveFilter(false);
 	};
@@ -191,11 +205,26 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	const handleDeleteFilter = async () => {
 		dispatch(removeAlert());
 
-		await axios.delete(
-			`/api/users/settings/filter?title=${filterPreset.title}`
-		);
+		const { data } = await axios.delete<{
+			message:
+				| 'Required information is missing'
+				| 'No user data found'
+				| 'Filter preset was deleted';
+		}>(`/api/users/settings/filter?title=${filterPreset.title}`);
 
-		dispatch(
+		console.log(data);
+
+		if (data.message === 'No user data found') {
+			return dispatch(
+				setAlert({
+					title: 'Something went wrong',
+					message: "Filter preset couldn't be deleted",
+					alertType: 'danger',
+				})
+			);
+		}
+
+		return dispatch(
 			setAlert({
 				title: 'Success',
 				message: 'Filter preset was successfully deleted',
@@ -308,6 +337,18 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 		});
 	};
 
+	const vaildateFilter = async () => {
+		await axios.get(`/api/users/settings/filter?`);
+
+		setFilterPreset((prevState) => ({
+			...prevState,
+			title: '',
+		}));
+	};
+
+	// TODO: Update create/delete filter
+	// validate new filters not duplicate on click
+
 	return user ? (
 		<article
 			ref={wrapperRef}
@@ -335,8 +376,11 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 							}}
 							onMouseEnter={() => !importFilter && setImportDescription(true)}
 							onMouseLeave={() => setImportDescription(false)}
+							disabled={user.settings.filterPresets.length < 1}
 							className={`relative ${
-								importFilter ? 'icon-button-disabled' : 'icon-button'
+								importFilter || user.settings.filterPresets.length < 1
+									? 'icon-button-disabled'
+									: 'icon-button'
 							}`}
 						>
 							<svg
@@ -349,11 +393,10 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 							</svg>
 							{importDescription && (
 								<div className='absolute top-0 right-0 z-10 min-w-max p-2 transform -translate-y-1.5 -translate-x-8 rounded-md shadow-md bg-gray-900 text-left text-white text-xs'>
-									Apply preset
+									Apply filter group
 								</div>
 							)}
 						</button>
-
 						<button
 							onClick={() => {
 								if (addFilter) return;
@@ -390,359 +433,422 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 				</header>
 				{/* filter information */}
 				<div>
-					<div className='p-4'>
-						{filters.count === 0 &&
-							!addFilter &&
-							!importFilter &&
-							!saveFilter && (
-								<div className='font-semibold text-sm text-gray-700 dark:text-gray-400'>
+					<div>
+						{filters.count === 0 && !addFilter && !importFilter && !saveFilter && (
+							<div className='font-semibold text-sm text-gray-700 dark:text-gray-400'>
+								<p className='p-4'>
 									You haven't added any filters yet. Click the + in the top
 									right corner to get started. You can also create or apply a
-									filter preset.
-								</div>
-							)}
-						{saveFilter && (
-							<div className='p-4'>
-								<input
-									type='text'
-									className='mt-2 form-field input'
-									onChange={(e) =>
-										setFilterPreset({
-											...filterPreset,
-											title: e.target.value,
-										})
-									}
-									value={filterPreset.title}
-									placeholder='Enter a name for this preset...'
-								/>
-								<div className='flex items-center justify-end'>
-									<div className='mt-2'>
-										<Button
-											text={'Cancel'}
-											onClick={() => {
-												setImportFilter(false);
-											}}
-											width={'w-20'}
-											margin={false}
-											path={null}
-											conditional={null}
-											conditionalDisplay={null}
-											size={'xs'}
-											cta={false}
-										/>
-									</div>
-									<div className='mt-2 ml-4'>
-										<Button
-											text={'Apply'}
-											onClick={() => {
-												dispatch(
-													setFilters(
-														user.settings.filterPresets.filter(
-															(f) =>
-																f.title === user.settings.filterPresets[0].title
-														)[0].filters
-													)
-												);
-											}}
-											width={'w-20'}
-											margin={false}
-											path={null}
-											conditional={null}
-											conditionalDisplay={null}
-											size={'xs'}
-											cta={true}
-										/>
-									</div>
-								</div>
-							</div>
-						)}
-						{importFilter && (
-							<div>
-								<SelectComponent
-									title={'Preset'}
-									options={user.settings.filterPresets}
-									selectedOption={
-										filterPreset.title || user.settings.filterPresets[0].title
-									}
-									openState={importFilterDropdown}
-									setOpenState={setImportFilterDropdown}
-									handleClick={(option: {
-										title: string;
-										filters: Filter[];
-									}) => {
-										setFilterPreset((prevState) => ({
-											...prevState,
-											title: option.title,
-											filters: option.filters,
-										}));
+									filter group.
+								</p>
+								<Actions
+									buttonOne={{
+										title: 'Create group',
+										onClick: () => {
+											vaildateFilter();
+										},
+										disabled: filters.count === 0,
+									}}
+									buttonTwo={{
+										title: 'Clear all',
+										onClick: () => dispatch(clearFilters()),
+										disabled: filters.count === 0,
 									}}
 								/>
+							</div>
+						)}
+						{/* add filter */}
+						{addFilter && (
+							<div>
 								<div
-									className={`flex items-center justify-end ${
-										filterPreset.filters.length > 0 ? 'pb-4' : ''
+									className={`p-4 ${
+										filters.count > 0 ? 'border-b border-200' : ''
 									}`}
 								>
-									<div className='mt-2'>
-										<Button
-											text={'Cancel'}
-											onClick={() => {
-												setImportFilter(false);
-												setFilterPreset((prevState) => ({
-													...prevState,
-													title: '',
-													filters: [],
-												}));
-											}}
-											width={'w-20'}
-											margin={false}
-											path={null}
-											conditional={null}
-											conditionalDisplay={null}
-											size={'xs'}
-											cta={false}
+									<div>
+										<SelectComponent
+											title={'Type'}
+											options={typeOptions}
+											selectedOption={filter.typeIs.title}
+											openState={typeActive}
+											setOpenState={setTypeActive}
+											handleClick={(option: {
+												type: string;
+												title: string;
+												value: string;
+											}) =>
+												setFilter({
+													...filter,
+													typeIs: {
+														type: option.type as NumericOrTextStrings,
+														title: option.title as FilterTitles,
+														value: option.value as FilterTypes,
+													},
+													valueIs: {
+														type: option.type,
+														title:
+															option.type === 'numeric'
+																? numericValueOptions[0].title
+																: textValueOptions[0].title,
+														value:
+															option.type === 'numeric'
+																? numericValueOptions[0].value
+																: textValueOptions[0].value,
+													},
+													value:
+														option.value === 'category'
+															? 'Appliances'
+															: option.value === 'source'
+															? '511 Tactical'
+															: typeof filter.value === 'number'
+															? filter.value
+															: '',
+												})
+											}
 										/>
 									</div>
-									<div className='mt-2 ml-4'>
-										<Button
-											text={'Apply'}
-											onClick={() => {
-												dispatch(
-													setFilters(
-														user.settings.filterPresets.filter(
-															(preset) => preset.title === filterPreset.title
-														)[0].filters
-													)
-												);
-											}}
-											width={'w-20'}
-											margin={false}
-											path={null}
-											conditional={null}
-											conditionalDisplay={null}
-											size={'xs'}
-											cta={true}
+									<div className='mt-2'>
+										<SelectComponent
+											title={'Value'}
+											options={
+												filter.typeIs.type === 'numeric'
+													? numericValueOptions
+													: textValueOptions
+											}
+											selectedOption={filter.valueIs.title}
+											openState={valueActive}
+											setOpenState={setValueActive}
+											handleClick={(option: {
+												type: string;
+												title: string;
+												value: string;
+											}) =>
+												setFilter({
+													...filter,
+													valueIs: {
+														type: option.type,
+														title: option.title,
+														value: option.value as FilterOperators,
+													},
+												})
+											}
 										/>
+									</div>
+									{filter.typeIs.value === 'category' ? (
+										<div className='mt-2'>
+											<SelectComponent
+												title={'Item'}
+												options={categoryOptions}
+												selectedOption={filter.value}
+												openState={categoryActive}
+												setOpenState={setCategoryActive}
+												handleClick={(option: { title: string }) =>
+													setFilter({
+														...filter,
+														value: option.title,
+													})
+												}
+											/>
+										</div>
+									) : filter.typeIs.value === 'source' ? (
+										<div className='mt-2'>
+											<SelectComponent
+												title={'Item'}
+												options={sourceOptions}
+												selectedOption={filter.value}
+												openState={sourceActive}
+												setOpenState={setSourceActive}
+												handleClick={(option: { title: string }) =>
+													setFilter({
+														...filter,
+														value: option.title,
+													})
+												}
+											/>
+										</div>
+									) : (
+										<input
+											type='text'
+											className='mt-2 form-field input'
+											onChange={(e) =>
+												setFilter({
+													...filter,
+													value: +e.target.value,
+												})
+											}
+											placeholder='Enter an amount...'
+										/>
+									)}
+									<div className='flex items-center justify-end'>
+										<div className='mt-2'>
+											<Button
+												text={'Cancel'}
+												onClick={() => {
+													setAddFilter(false);
+												}}
+												width={'w-20'}
+												margin={false}
+												path={null}
+												conditional={null}
+												conditionalDisplay={null}
+												size={'xs'}
+												cta={false}
+											/>
+										</div>
+										<div className='mt-2 ml-4'>
+											<Button
+												text={'Add'}
+												onClick={() => {
+													handleFilterSubmit();
+												}}
+												width={'w-20'}
+												margin={false}
+												path={null}
+												conditional={null}
+												conditionalDisplay={null}
+												size={'xs'}
+												cta={true}
+											/>
+										</div>
+									</div>
+								</div>
+								{filters.count > 0 && (
+									<div className='pt-2 pb-2'>
+										<FilterList
+											title='Active filters'
+											filters={filters.filters}
+											clearable={true}
+										/>
+									</div>
+								)}
+								<Actions
+									buttonOne={{
+										title: 'Create group',
+										onClick: () => {
+											vaildateFilter();
+										},
+										disabled: filters.count === 0,
+									}}
+									buttonTwo={{
+										title: 'Clear all',
+										onClick: () => dispatch(clearFilters()),
+										disabled: filters.count === 0,
+									}}
+								/>
+							</div>
+						)}
+						{/* save filter */}
+						{saveFilter && (
+							<div>
+								<div
+									className={`${
+										filterPreset.filters.length > 0
+											? 'py-4 border-b border-200'
+											: ''
+									} px-4`}
+								>
+									<div>
+										<FormField
+											label={'Filter group name'}
+											type={'text'}
+											name={'filterGroup'}
+											placeholder={'e.g. "Standard criteria"'}
+											value={filterPreset.title}
+											onChange={(e) =>
+												setFilterPreset({
+													...filterPreset,
+													title: e.target.value,
+												})
+											}
+											required={true}
+											styles={'pt-0'}
+											lightOnly={false}
+										/>
+										<div className='flex items-center justify-end'>
+											<div className='mt-2'>
+												<Button
+													text={'Cancel'}
+													onClick={() => {
+														setSaveFilter(false);
+														// setFilterPreset((prevState) => ({
+														// 	...prevState,
+														// 	title: '',
+														// }));
+													}}
+													width={'w-20'}
+													margin={false}
+													path={null}
+													conditional={null}
+													conditionalDisplay={null}
+													size={'xs'}
+													cta={false}
+												/>
+											</div>
+											<div className='mt-2 ml-4'>
+												<Button
+													text={'Save'}
+													onClick={() => {
+														handleSaveFilters();
+													}}
+													width={'w-20'}
+													margin={false}
+													path={null}
+													conditional={null}
+													conditionalDisplay={null}
+													size={'xs'}
+													cta={true}
+												/>
+											</div>
+										</div>
 									</div>
 								</div>
 								{filterPreset.filters.length > 0 && (
-									<div className='font-semibold text-sm text-100'>
-										<h6>Filters to be applied</h6>
-										<ul className='py-2'>
-											{filterPreset.filters.map((f, i) => (
-												<ActiveFilter key={i} filter={f} clearable={false} />
-											))}
-										</ul>
-									</div>
+									<FilterList
+										title='Filters to be grouped'
+										filters={filterPreset.filters}
+										clearable={false}
+									/>
 								)}
 							</div>
 						)}
-						{addFilter && (
-							<div className={filters.count > 0 ? 'pb-4' : ''}>
-								<div>
-									<SelectComponent
-										title={'Type'}
-										options={typeOptions}
-										selectedOption={filter.typeIs.title}
-										openState={typeActive}
-										setOpenState={setTypeActive}
-										handleClick={(option: {
-											type: string;
-											title: string;
-											value: string;
-										}) =>
-											setFilter({
-												...filter,
-												typeIs: {
-													type: option.type as NumericOrTextStrings,
-													title: option.title as FilterTitles,
-													value: option.value as FilterTypes,
-												},
-												valueIs: {
-													type: option.type,
-													title:
-														option.type === 'numeric'
-															? numericValueOptions[0].title
-															: textValueOptions[0].title,
-													value:
-														option.type === 'numeric'
-															? numericValueOptions[0].value
-															: textValueOptions[0].value,
-												},
-												value:
-													option.value === 'category'
-														? 'Appliances'
-														: option.value === 'source'
-														? '511 Tactical'
-														: typeof filter.value === 'number'
-														? filter.value
-														: '',
-											})
-										}
-									/>
-								</div>
-								<div className='mt-2'>
-									<SelectComponent
-										title={'Value'}
-										options={
-											filter.typeIs.type === 'numeric'
-												? numericValueOptions
-												: textValueOptions
-										}
-										selectedOption={filter.valueIs.title}
-										openState={valueActive}
-										setOpenState={setValueActive}
-										handleClick={(option: {
-											type: string;
-											title: string;
-											value: string;
-										}) =>
-											setFilter({
-												...filter,
-												valueIs: {
-													type: option.type,
-													title: option.title,
-													value: option.value as FilterOperators,
-												},
-											})
-										}
-									/>
-								</div>
-								{filter.typeIs.value === 'category' ? (
-									<div className='mt-2'>
-										<SelectComponent
-											title={'Item'}
-											options={categoryOptions}
-											selectedOption={filter.value}
-											openState={categoryActive}
-											setOpenState={setCategoryActive}
-											handleClick={(option: { title: string }) =>
-												setFilter({
-													...filter,
-													value: option.title,
-												})
-											}
-										/>
-									</div>
-								) : filter.typeIs.value === 'source' ? (
-									<div className='mt-2'>
-										<SelectComponent
-											title={'Item'}
-											options={sourceOptions}
-											selectedOption={filter.value}
-											openState={sourceActive}
-											setOpenState={setSourceActive}
-											handleClick={(option: { title: string }) =>
-												setFilter({
-													...filter,
-													value: option.title,
-												})
-											}
-										/>
-									</div>
-								) : (
-									<input
-										type='text'
-										className='mt-2 form-field input'
-										onChange={(e) =>
-											setFilter({
-												...filter,
-												value: +e.target.value,
-											})
-										}
-										placeholder='Enter an amount...'
-									/>
-								)}
-								<div className='flex items-center justify-end'>
-									<div className='mt-2'>
-										<Button
-											text={'Cancel'}
-											onClick={() => {
-												setAddFilter(false);
-											}}
-											width={'w-20'}
-											margin={false}
-											path={null}
-											conditional={null}
-											conditionalDisplay={null}
-											size={'xs'}
-											cta={false}
-										/>
-									</div>
-									<div className='mt-2 ml-4'>
-										<Button
-											text={'Apply'}
-											onClick={() => {
-												handleFilterSubmit();
-											}}
-											width={'w-20'}
-											margin={false}
-											path={null}
-											conditional={null}
-											conditionalDisplay={null}
-											size={'xs'}
-											cta={true}
-										/>
-									</div>
-								</div>
-							</div>
-						)}
-						{filters.count > 0 && !importFilter && (
+						{/* import filter */}
+						{importFilter && (
 							<div>
-								{/* list active filters */}
-								{filters.count > 0 && (
-									<div className='font-semibold text-sm text-100'>
-										{(saveFilter || addFilter) && (
-											<h5>
-												{saveFilter ? 'Filters to be saved' : 'Active filters'}
-											</h5>
-										)}
-										<ul className='py-2'>
-											{filters.filters.map((filter: Filter, i: number) => (
-												<ActiveFilter
-													key={i}
-													filter={filter}
-													clearable={true}
-												/>
-											))}
-										</ul>
+								<div
+									className={`${
+										filterPreset.filters.length > 0
+											? 'py-4 border-b border-200'
+											: ''
+									} px-4`}
+								>
+									<SelectComponent
+										title={'Group'}
+										options={user.settings.filterPresets}
+										selectedOption={filterPreset.title || 'None'}
+										openState={importFilterDropdown}
+										setOpenState={setImportFilterDropdown}
+										handleClick={(option: {
+											title: string;
+											filters: Filter[];
+										}) => {
+											setFilterPreset((prevState) => ({
+												...prevState,
+												title: option.title,
+												filters: option.filters,
+											}));
+										}}
+									/>
+									<div className='flex items-center justify-end'>
+										<div className='mt-2'>
+											<Button
+												text={'Cancel'}
+												onClick={() => {
+													setImportFilter(false);
+													// setFilterPreset((prevState) => ({
+													// 	...prevState,
+													// 	title: '',
+													// 	filters: [],
+													// }));
+												}}
+												width={'w-20'}
+												margin={false}
+												path={null}
+												conditional={null}
+												conditionalDisplay={null}
+												size={'xs'}
+												cta={false}
+											/>
+										</div>
+										<div className='mt-2 ml-4'>
+											<Button
+												text={'Apply'}
+												onClick={() => {
+													dispatch(
+														setFilters(
+															user.settings.filterPresets.filter(
+																(preset) => preset.title === filterPreset.title
+															)[0].filters
+														)
+													);
+												}}
+												width={'w-20'}
+												margin={false}
+												path={null}
+												conditional={null}
+												conditionalDisplay={null}
+												size={'xs'}
+												cta={true}
+											/>
+										</div>
+									</div>
+								</div>
+								{filterPreset.filters.length > 0 && (
+									<div className='pt-2 pb-2'>
+										<FilterList
+											title='Filters to be applied'
+											filters={filterPreset.filters}
+											clearable={false}
+										/>
 									</div>
 								)}
+								<Actions
+									buttonOne={{
+										title: 'Edit group',
+										onClick: () => {
+											if (importFilter) {
+												setAddFilter(false);
+												setImportFilter(false);
+												setSaveFilter(true);
+											}
+											if (filters.count === 0) return;
+											setAddFilter(false);
+											setImportFilter(false);
+											setSaveFilter(true);
+										},
+										disabled: false,
+									}}
+									buttonTwo={{
+										title: 'Delete group',
+										onClick: () => console.log('ree'),
+										disabled: false,
+									}}
+								/>
+							</div>
+						)}
+						{/* filters list */}
+						{filters.count > 0 && !addFilter && !importFilter && !saveFilter && (
+							<div>
+								<FilterList
+									title={null}
+									filters={filters.filters}
+									clearable={true}
+								/>
+								<Actions
+									buttonOne={{
+										title: 'Create group',
+										onClick: () => {
+											if (importFilter) {
+												setAddFilter(false);
+												setImportFilter(false);
+												setSaveFilter(true);
+											}
+											if (filters.count === 0) return;
+											setAddFilter(false);
+											setImportFilter(false);
+											setSaveFilter(true);
+										},
+										disabled: false,
+									}}
+									buttonTwo={{
+										title: 'Clear all',
+										onClick: () => dispatch(clearFilters()),
+										disabled: filters.count === 0,
+									}}
+								/>
 							</div>
 						)}
 					</div>
-					{/* save/clear filters */}
-					<div className='center-between py-2 px-3 border-t border-200'>
-						<button
-							onClick={() => {
-								handleSaveFilters();
-							}}
-							disabled={!importFilter || !filters.count}
-							className={`py-1 px-2 font-semibold text-sm ${
-								importFilter || filters.count > 0
-									? 'link'
-									: 'text-gray-200 cursor-default'
-							}`}
-						>
-							{importFilter
-								? 'Edit preset'
-								: filterPreset.title
-								? 'Save changes'
-								: 'Create preset'}
-						</button>
-						<button
-							onClick={() => {
-								importFilter ? handleDeleteFilter() : handleClearFilters();
-							}}
-							disabled={!importFilter || !filters.count}
-							className={`py-1 px-2 font-semibold text-sm ${
-								importFilter || filters.count > 0
-									? 'hover:bg-red-100 dark:hover:bg-red-400 text-red-500 dark:text-red-300 hover:text-red-600 dark:hover:text-white rounded-main transition-main ring-red'
-									: 'text-gray-200 cursor-default'
-							}`}
-						>
-							{importFilter ? 'Delete preset' : 'Clear all'}
-						</button>
-					</div>
+					{/* modal actions */}
 				</div>
 			</div>
 		</article>
@@ -754,6 +860,102 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 			margin={false}
 			text={''}
 		/>
+	);
+};
+
+{
+	/* <button
+onClick={() => {
+    if (importFilter) {
+        setAddFilter(false);
+        setImportFilter(false);
+        setSaveFilter(true);
+    }
+    if (filters.count === 0) return;
+    setAddFilter(false);
+    setImportFilter(false);
+    setSaveFilter(true);
+}}
+className={`py-1 px-2 font-semibold text-sm ${
+    !saveFilter && (importFilter || filters.count > 0)
+        ? 'link'
+        : 'text-gray-200 cursor-default'
+}`}
+>
+{importFilter ? 'Edit group' : 'Create group'}
+</button>
+<button
+onClick={() => {
+    importFilter ? handleDeleteFilter() : handleClearFilters();
+}}
+className={`py-1 px-2 font-semibold text-sm ${
+    importFilter || filters.count > 0
+        ? 'hover:bg-red-100 dark:hover:bg-red-400 text-red-500 dark:text-red-300 hover:text-red-600 dark:hover:text-white rounded-main transition-main ring-red'
+        : 'text-gray-200 cursor-default'
+}`}
+>
+{importFilter ? 'Delete group' : 'Clear all'}
+</button> */
+}
+
+interface FilterListProps {
+	title: string | null;
+	filters: Filter[];
+	clearable: boolean;
+}
+
+const FilterList: React.FC<FilterListProps> = ({
+	title,
+	filters,
+	clearable,
+}) => {
+	return (
+		<div className='pt-2 px-4 font-semibold text-sm text-100'>
+			{title && <h5>{title}</h5>}
+			<ul className='py-2'>
+				{filters.map((filter: Filter, i: number) => (
+					<ActiveFilter key={i} filter={filter} clearable={clearable} />
+				))}
+			</ul>
+		</div>
+	);
+};
+
+interface ActionButton {
+	title: string;
+	onClick: () => void;
+	disabled: boolean;
+}
+
+interface ActionsProps {
+	buttonOne: ActionButton;
+	buttonTwo: ActionButton;
+}
+
+const Actions: React.FC<ActionsProps> = ({ buttonOne, buttonTwo }) => {
+	return (
+		<div className='center-between py-2 px-3 border-t border-200'>
+			<button
+				onClick={buttonOne.onClick}
+				disabled={buttonOne.disabled}
+				className={`py-1 px-2 font-semibold text-sm ${
+					buttonOne.disabled ? 'text-gray-200 cursor-default' : 'link-bubble'
+				}`}
+			>
+				{buttonOne.title}
+			</button>
+			<button
+				onClick={buttonTwo.onClick}
+				disabled={buttonTwo.disabled}
+				className={`py-1 px-2 font-semibold text-sm ${
+					buttonTwo.disabled
+						? 'text-gray-200 cursor-default'
+						: 'hover:bg-red-100 dark:hover:bg-red-400 text-red-500 dark:text-red-300 hover:text-red-600 dark:hover:text-white rounded-main transition-main ring-red'
+				}`}
+			>
+				{buttonTwo.title}
+			</button>
+		</div>
 	);
 };
 

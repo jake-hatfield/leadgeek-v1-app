@@ -73,7 +73,7 @@ const Login: React.FC = () => {
 							value={email}
 							onChange={onChange}
 							required={true}
-							styles={null}
+							styles={'pt-4'}
 							lightOnly={true}
 						/>
 						<PasswordFormField

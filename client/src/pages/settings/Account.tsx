@@ -218,7 +218,7 @@ const AccountPage = () => {
 											value={formData.name || user.name}
 											onChange={(e) => onChange(e)}
 											required={true}
-											styles={'w-1/2'}
+											styles={'w-1/2 pt-4'}
 										/>
 										<div className='w-1/2 ml-16' />
 									</div>

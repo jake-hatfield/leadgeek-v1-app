@@ -40,6 +40,10 @@ body {
 	@apply link-light dark:text-purple-300 dark:hover:text-purple-400;
 }
 
+.link-bubble {
+	@apply link-light hover:bg-purple-100 border border-opacity-0 hover:border-opacity-100 hover:border-purple-200 rounded-main ring-purple;
+}
+
 .rounded-main {
 	@apply rounded-lg;
 }

@@ -25,7 +25,7 @@ const FormField: React.FC<FormFieldProps> = ({
 	lightOnly,
 }) => {
 	return (
-		<div className={`pt-4 ${styles ? styles : ''} flex-col items-center`}>
+		<div className={`${styles ? styles : ''} flex-col items-center`}>
 			<label
 				htmlFor={name}
 				className={lightOnly ? 'form-field-label-light' : 'form-field-label'}

@@ -127,10 +127,10 @@ router.get(
 	}
 );
 
-// @route       POST api/users/settings/filters
+// @route       POST api/users/settings/filter
 // @description Create a new filter preset
 // @access      Private
-router.post('/settings/filters', auth, async (req: Request, res: Response) => {
+router.post('/settings/filter', auth, async (req: Request, res: Response) => {
 	try {
 		// destructure necessary items
 		const {
@@ -155,6 +155,77 @@ router.post('/settings/filters', auth, async (req: Request, res: Response) => {
 		console.log(error);
 	}
 });
+
+// @route       DELETE api/users/settings/filter
+// @description Create a new filter preset
+// @access      Private
+router.delete(
+	'/settings/filter',
+	auth,
+	async (
+		req: Request<
+			{},
+			{},
+			{
+				user: { id: string };
+			},
+			{ title: string }
+		>,
+		res: Response<{
+			message:
+				| 'Required information is missing'
+				| 'No user data found'
+				| 'Filter preset was deleted';
+		}>
+	) => {
+		try {
+			// destructure necessary items
+			const {
+				user: { id },
+			} = req.body;
+
+			const { title } = req.query;
+
+			let message:
+				| 'Required information is missing'
+				| 'No user data found'
+				| 'Filter preset was deleted';
+
+			if (!id || !title) {
+				message = 'Required information is missing';
+				return res.status(401).send({
+					message,
+				});
+			}
+
+			const user = await User.findOne({ _id: id });
+
+			if (!user) {
+				message = 'No user data found';
+
+				return res.status(200).send({
+					message,
+				});
+			}
+
+			const newFilterPresets = user.settings.filterPresets.filter(
+				(f) => f.title !== title
+			);
+
+			user.settings.filterPresets = newFilterPresets;
+
+			await user.save();
+
+			message = 'Filter preset was deleted';
+
+			return res.status(200).send({
+				message,
+			});
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
 
 // @route       GET api/users/notifications?ids=[]
 // @description Retrieve a user's notifications
