@@ -61,7 +61,7 @@ export interface IUser {
 		_id: ObjectId;
 	}[];
 	settings: {
-		filterPresets: {
+		filterGroups: {
 			title: string;
 			filters: Filter[];
 		}[];

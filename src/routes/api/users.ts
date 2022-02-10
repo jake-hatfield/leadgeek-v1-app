@@ -128,36 +128,86 @@ router.get(
 );
 
 // @route       POST api/users/settings/filter
-// @description Create a new filter preset
+// @description Create a new filter group
 // @access      Private
-router.post('/settings/filter', auth, async (req: Request, res: Response) => {
-	try {
-		// destructure necessary items
-		const {
-			user: { id },
-			name,
-			filters,
-		} = req.body;
+router.post(
+	'/settings/filter',
+	auth,
+	async (
+		req: Request<
+			{},
+			{},
+			{ user: { id: string }; name: string; filters: Filter[] }
+		>,
+		res: Response<{
+			message:
+				| 'Required information is missing'
+				| 'No user data found'
+				| 'Filter group name taken'
+				| 'Filter group was created';
+		}>
+	) => {
+		try {
+			// destructure necessary items
+			const {
+				user: { id },
+				title,
+				filters,
+			} = req.body;
 
-		const user = await User.findOne({ _id: id });
+			let message:
+				| 'Required information is missing'
+				| 'No user data found'
+				| 'Filter group name taken'
+				| 'Filter group was created';
 
-		const filterPreset: { title: string; filters: Filter[] } = {
-			title: name,
-			filters,
-		};
+			if (!id || !title || !filters) {
+				message = 'Required information is missing';
+				return res.status(401).send({ message });
+			}
 
-		const newFilterPresets = [...user.settings.filterPresets, filterPreset];
+			const user = await User.findOne({ _id: id });
 
-		user.settings.filterPresets = newFilterPresets;
+			if (!user) {
+				message = 'No user data found';
 
-		await user.save();
-	} catch (error) {
-		console.log(error);
+				return res.status(200).send({
+					message,
+				});
+			}
+
+			const filterNameExists = user.settings.filterGroups.some(
+				(filter) => filter.title === title
+			);
+
+			if (filterNameExists) {
+				return res.status(200).send({ message: 'Filter group name taken' });
+			}
+
+			const filterGroup: { title: string; filters: Filter[] } = {
+				title,
+				filters,
+			};
+
+			const newFilterGroups = [...user.settings.filterGroups, filterGroup];
+
+			user.settings.filterGroups = newFilterGroups;
+
+			await user.save();
+
+			message = 'Filter group was created';
+
+			return res.status(201).send({
+				message,
+			});
+		} catch (error) {
+			console.log(error);
+		}
 	}
-});
+);
 
 // @route       DELETE api/users/settings/filter
-// @description Create a new filter preset
+// @description Create a new filter group
 // @access      Private
 router.delete(
 	'/settings/filter',
@@ -175,7 +225,7 @@ router.delete(
 			message:
 				| 'Required information is missing'
 				| 'No user data found'
-				| 'Filter preset was deleted';
+				| 'Filter group was deleted';
 		}>
 	) => {
 		try {
@@ -189,7 +239,7 @@ router.delete(
 			let message:
 				| 'Required information is missing'
 				| 'No user data found'
-				| 'Filter preset was deleted';
+				| 'Filter group was deleted';
 
 			if (!id || !title) {
 				message = 'Required information is missing';
@@ -208,15 +258,15 @@ router.delete(
 				});
 			}
 
-			const newFilterPresets = user.settings.filterPresets.filter(
+			const newFilterGroups = user.settings.filterGroups.filter(
 				(f) => f.title !== title
 			);
 
-			user.settings.filterPresets = newFilterPresets;
+			user.settings.filterGroups = newFilterGroups;
 
 			await user.save();
 
-			message = 'Filter preset was deleted';
+			message = 'Filter group was deleted';
 
 			return res.status(200).send({
 				message,

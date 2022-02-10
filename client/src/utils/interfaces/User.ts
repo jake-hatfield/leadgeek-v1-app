@@ -48,11 +48,10 @@ export interface User {
 	comments: { date: Date; leadId: string; comment: string }[];
 	notifications: { _id: string }[];
 	settings: {
-		filterPresets: [
-			{
-				title: string;
-				filters: Filter[];
-			}
-		];
+		filterGroups: {
+			_id: string;
+			title: string;
+			filters: Filter[];
+		}[];
 	};
 }

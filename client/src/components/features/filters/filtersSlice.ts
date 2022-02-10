@@ -60,6 +60,7 @@ export const filtersSlice = createSlice({
 				id: string;
 			}>
 		) => {
+			if (!action.payload.id) return;
 			// state
 			state.filters = state.filters.filter(
 				(filter) => filter.id !== action.payload.id
@@ -282,6 +283,7 @@ export const filtersSlice = createSlice({
 		},
 		setFilters: (state, action) => {
 			localStorage.setItem('filters', JSON.stringify(action.payload));
+			state.count = action.payload.length;
 			state.filters = action.payload;
 		},
 		setItemLimit: (

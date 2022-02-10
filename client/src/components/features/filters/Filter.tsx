@@ -7,7 +7,8 @@ import { useHotkeys } from 'react-hotkeys-hook';
 // redux
 import { useAppSelector, useAppDispatch } from '@hooks/hooks';
 import { removeAlert, setAlert } from '@features/alert/alertSlice';
-import filtersSlice, {
+import { setUserFilterGroup } from '@features/auth/authSlice';
+import {
 	clearFilter,
 	clearFilters,
 	createFilter,
@@ -50,7 +51,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	// local state
 	const [addFilter, setAddFilter] = useState(false);
 	const [categoryActive, setCategoryActive] = useState(false);
-
+	const [editFilter, setEditFilter] = useState(false);
 	const [filter, setFilter] = useState<{
 		typeIs: {
 			type: 'numeric' | 'text';
@@ -83,12 +84,18 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 		value: '',
 	});
 	const [filterDescription, setFilterDescription] = useState(false);
-	const [filterPreset, setFilterPreset] = useState<{
+	const [filterGroup, setFilterGroup] = useState<{
+		id: string;
 		title: string;
 		filters: Filter[];
+		count: number;
+		options: { title: string; filters: Filter[] }[];
 	}>({
+		id: '',
 		title: '',
 		filters: [],
+		count: 0,
+		options: [],
 	});
 	const [importDescription, setImportDescription] = useState(false);
 	const [importFilter, setImportFilter] = useState(false);
@@ -97,22 +104,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	const [sourceActive, setSourceActive] = useState(false);
 	const [typeActive, setTypeActive] = useState(false);
 	const [valueActive, setValueActive] = useState(false);
-
-	useEffect(() => {
-		user &&
-			user?.settings.filterPresets.length > 0 &&
-			setFilterPreset((prevState) => ({
-				...prevState,
-				title: user?.settings.filterPresets[0].title,
-				filters: user?.settings.filterPresets[0].filters,
-			}));
-	}, [user]);
-
-	useEffect(() => {
-		if (filters.count === 0) {
-			return setSaveFilter(false);
-		}
-	}, [filters.count]);
 
 	// close modal handlers
 	const wrapperRef = useRef(null);
@@ -180,26 +171,68 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 	const handleSaveFilters = async () => {
 		dispatch(removeAlert());
 
-		if (!filterPreset.title) {
+		if (!filterGroup.title) {
 			return dispatch(
 				setAlert({
-					title: 'Error',
-					message: 'Please enter a name for this filter preset',
+					title: 'Input error',
+					message: 'Please enter a name for this filter group',
 					alertType: 'danger',
 				})
 			);
 		}
 
-		// TODO: Logic for checking duplicate presets
+		validateFilter(filterGroup.options, filters.filters);
 
 		const body = JSON.stringify({
-			name: filterPreset.title,
+			title: filterGroup.title,
 			filters: filters.filters,
 		});
 
-		await axios.post('/api/users/settings/filter', body, config);
+		const { data } = await axios.post<{
+			message:
+				| 'Required information is missing'
+				| 'No user data found'
+				| 'Filter group name taken'
+				| 'Filter group was created';
+		}>('/api/users/settings/filter', body, config);
 
-		setSaveFilter(false);
+		if (data.message === 'Filter group name taken') {
+			return dispatch(
+				setAlert({
+					title: 'Error',
+					message: `Filter group with the name "${filterGroup.title}" already exists`,
+					alertType: 'danger',
+				})
+			);
+		}
+
+		if (data.message === 'Filter group was created') {
+			setSaveFilter(false);
+			dispatch(
+				setUserFilterGroup([
+					...filterGroup.options,
+					{ title: filterGroup.title, filters: filterGroup.filters },
+				])
+			);
+			setFilterGroup((prevState) => ({
+				...prevState,
+				options: [
+					...prevState.options,
+					{
+						title: filterGroup.title,
+						filters: filterGroup.filters,
+					},
+				],
+				count: prevState.count++,
+			}));
+			dispatch(
+				setAlert({
+					title: 'Success',
+					message: 'Filter group was created',
+					alertType: 'success',
+				})
+			);
+		}
 	};
 
 	const handleDeleteFilter = async () => {
@@ -209,27 +242,51 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 			message:
 				| 'Required information is missing'
 				| 'No user data found'
-				| 'Filter preset was deleted';
-		}>(`/api/users/settings/filter?title=${filterPreset.title}`);
-
-		console.log(data);
+				| 'Filter group was deleted';
+		}>(`/api/users/settings/filter?title=${filterGroup.title}`);
 
 		if (data.message === 'No user data found') {
 			return dispatch(
 				setAlert({
-					title: 'Something went wrong',
-					message: "Filter preset couldn't be deleted",
+					title: 'Error',
+					message: "Filter group couldn't be deleted",
 					alertType: 'danger',
 				})
 			);
 		}
 
+		const newFilterGroupOptions: any = filterGroup.options.filter(
+			(f) => f.title !== filterGroup.title
+		);
+
+		setFilterGroup((prevState) => ({
+			...prevState,
+			options: newFilterGroupOptions,
+			count: prevState.count--,
+		}));
+
+		if (filterGroup.options.length === 0) {
+			setImportFilter(false);
+			setSaveFilter(false);
+			setAddFilter(true);
+		}
+
+		dispatch(setUserFilterGroup(newFilterGroupOptions));
+
 		return dispatch(
 			setAlert({
 				title: 'Success',
-				message: 'Filter preset was successfully deleted',
+				message: 'Filter group was deleted',
 				alertType: 'success',
 			})
+		);
+	};
+
+	const handleEditFilter = async (id: string) => {
+		dispatch(removeAlert());
+
+		const { data } = await axios.put(
+			`/api/users/settings/filter?id=${filterGroup.id}`
 		);
 	};
 
@@ -238,7 +295,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 		if (!filter.value) {
 			return dispatch(
 				setAlert({
-					title: 'Error creating filter',
+					title: 'Validation error',
 					message: 'Please enter a valid number',
 					alertType: 'danger',
 				})
@@ -268,7 +325,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 				if (minFilter && minFilter >= filter.value) {
 					return dispatch(
 						setAlert({
-							title: 'Error creating filter',
+							title: 'Validation error',
 							message: 'The max value must be larger than the min value',
 							alertType: 'danger',
 						})
@@ -282,7 +339,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 				if (maxFilter && maxFilter <= filter.value) {
 					return dispatch(
 						setAlert({
-							title: 'Error creating filter',
+							title: 'Validation error',
 							message:
 								"The minimum filter can't be larger than the current maximum filter",
 							alertType: 'danger',
@@ -337,17 +394,108 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 		});
 	};
 
-	const vaildateFilter = async () => {
-		await axios.get(`/api/users/settings/filter?`);
+	const validateFilter = (
+		existingFilterGroups:
+			| {
+					title: string;
+					filters: Filter[];
+			  }[]
+			| undefined,
+		newFilterGroup: Filter[]
+	) => {
+		console.log(existingFilterGroups);
+		console.log(newFilterGroup);
+		const evaluateArrays = (
+			existingFilterGroups:
+				| {
+						title: string;
+						filters: Filter[];
+				  }[]
+				| undefined,
+			newFilterGroup: Filter[]
+		) => {
+			// if there are no filter groups return false
+			if (!existingFilterGroups)
+				return {
+					title: '',
+					isDuplicate: false,
+				};
 
-		setFilterPreset((prevState) => ({
-			...prevState,
-			title: '',
-		}));
+			const lengthMatches = existingFilterGroups.filter(
+				(group) => group.filters.length === newFilterGroup.length
+			);
+
+			let isDuplicate: boolean = false;
+			let title;
+
+			for (let i = 0; i < lengthMatches.length; i++) {
+				if (!isDuplicate) {
+					const currentFilter = lengthMatches[i];
+					for (let i = 0; i < currentFilter.filters.length; i++) {
+						if (
+							currentFilter.filters[i].title === newFilterGroup[i].title &&
+							currentFilter.filters[i].operator ===
+								newFilterGroup[i].operator &&
+							currentFilter.filters[i].value === newFilterGroup[i].value
+						) {
+							isDuplicate = true;
+							title = currentFilter.title;
+						}
+					}
+				}
+			}
+
+			return {
+				title,
+				isDuplicate,
+			};
+		};
+
+		const result = evaluateArrays(existingFilterGroups, newFilterGroup);
+
+		if (result.isDuplicate) {
+			return dispatch(
+				setAlert({
+					title: 'Validation error',
+					message: `Duplicate filter "${result.title}" has these exact criteria already`,
+					alertType: 'danger',
+				})
+			);
+		}
+
+		setEditFilter(false);
+		setImportFilter(false);
+		setAddFilter(false);
+		setSaveFilter(true);
 	};
 
-	// TODO: Update create/delete filter
-	// validate new filters not duplicate on click
+	useEffect(() => {
+		user &&
+			user?.settings.filterGroups.length > 0 &&
+			setFilterGroup((prevState) => ({
+				...prevState,
+				title: user?.settings.filterGroups[0].title,
+				filters: user?.settings.filterGroups[0].filters,
+				count: user.settings.filterGroups[0].filters.length,
+				options: user?.settings.filterGroups,
+			}));
+	}, [user, setFilterGroup]);
+
+	useEffect(() => {
+		if (filters.count === 0) {
+			return setSaveFilter(false);
+		}
+	}, [filters.count]);
+
+	useEffect(() => {
+		if (filterGroup.options.length === 0) {
+			return setImportFilter(false);
+		}
+	}, [filterGroup.options]);
+
+	// TODO: Edit filter
+	// TODO: Update new/deleted filters in state
+	// TODO: Double validate on new filter creation
 
 	return user ? (
 		<article
@@ -369,16 +517,24 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 						<button
 							onClick={() => {
 								if (importFilter) return;
+								setFilterGroup((prevState) => ({
+									...prevState,
+									title:
+										user.settings.filterGroups.length > 0
+											? user.settings.filterGroups[0].title
+											: prevState.title,
+								}));
 								setImportFilter(true);
 								setImportDescription(false);
 								setAddFilter(false);
+								setEditFilter(false);
 								setSaveFilter(false);
 							}}
 							onMouseEnter={() => !importFilter && setImportDescription(true)}
 							onMouseLeave={() => setImportDescription(false)}
-							disabled={user.settings.filterPresets.length < 1}
+							disabled={filterGroup.options.length === 0}
 							className={`relative ${
-								importFilter || user.settings.filterPresets.length < 1
+								importFilter || filterGroup.options.length === 0
 									? 'icon-button-disabled'
 									: 'icon-button'
 							}`}
@@ -404,6 +560,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 								setFilterDescription(false);
 								setImportFilter(false);
 								setSaveFilter(false);
+								setEditFilter(false);
 							}}
 							onMouseEnter={() => !addFilter && setFilterDescription(true)}
 							onMouseLeave={() => setFilterDescription(false)}
@@ -445,13 +602,17 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 									buttonOne={{
 										title: 'Create group',
 										onClick: () => {
-											vaildateFilter();
+											setFilterGroup((prevState) => ({
+												...prevState,
+												title: '',
+											}));
+											validateFilter(filterGroup.options, filters.filters);
 										},
 										disabled: filters.count === 0,
 									}}
 									buttonTwo={{
 										title: 'Clear all',
-										onClick: () => dispatch(clearFilters()),
+										onClick: () => handleClearFilters(),
 										disabled: filters.count === 0,
 									}}
 								/>
@@ -613,7 +774,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 									</div>
 								</div>
 								{filters.count > 0 && (
-									<div className='pt-2 pb-2'>
+									<div className='py-2'>
 										<FilterList
 											title='Active filters'
 											filters={filters.filters}
@@ -625,13 +786,17 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 									buttonOne={{
 										title: 'Create group',
 										onClick: () => {
-											vaildateFilter();
+											setFilterGroup((prevState) => ({
+												...prevState,
+												title: '',
+											}));
+											validateFilter(filterGroup.options, filters.filters);
 										},
 										disabled: filters.count === 0,
 									}}
 									buttonTwo={{
 										title: 'Clear all',
-										onClick: () => dispatch(clearFilters()),
+										onClick: () => handleClearFilters(),
 										disabled: filters.count === 0,
 									}}
 								/>
@@ -642,10 +807,8 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 							<div>
 								<div
 									className={`${
-										filterPreset.filters.length > 0
-											? 'py-4 border-b border-200'
-											: ''
-									} px-4`}
+										filters.count > 0 ? 'border-b border-200' : ''
+									} p-4`}
 								>
 									<div>
 										<FormField
@@ -653,10 +816,10 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 											type={'text'}
 											name={'filterGroup'}
 											placeholder={'e.g. "Standard criteria"'}
-											value={filterPreset.title}
+											value={filterGroup.title}
 											onChange={(e) =>
-												setFilterPreset({
-													...filterPreset,
+												setFilterGroup({
+													...filterGroup,
 													title: e.target.value,
 												})
 											}
@@ -670,10 +833,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 													text={'Cancel'}
 													onClick={() => {
 														setSaveFilter(false);
-														// setFilterPreset((prevState) => ({
-														// 	...prevState,
-														// 	title: '',
-														// }));
 													}}
 													width={'w-20'}
 													margin={false}
@@ -702,13 +861,109 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 										</div>
 									</div>
 								</div>
-								{filterPreset.filters.length > 0 && (
-									<FilterList
-										title='Filters to be grouped'
-										filters={filterPreset.filters}
-										clearable={false}
-									/>
+								{filters.count > 0 && (
+									<div className='py-2'>
+										<FilterList
+											title='Filters to be grouped'
+											filters={filters.filters}
+											clearable={true}
+										/>
+									</div>
 								)}
+								<Actions
+									buttonOne={{
+										title: 'Create group',
+										onClick: () => {},
+										disabled: true,
+									}}
+									buttonTwo={{
+										title: 'Clear all',
+										onClick: () => handleClearFilters(),
+										disabled: filters.count === 0,
+									}}
+								/>
+							</div>
+						)}
+						{/* edit filter */}
+						{editFilter && (
+							<div>
+								<div
+									className={`${
+										filterGroup.count > 0 ? 'border-b border-200' : ''
+									} p-4`}
+								>
+									<div>
+										<FormField
+											label={'Filter group name'}
+											type={'text'}
+											name={'filterGroup'}
+											placeholder={'e.g. "Standard criteria"'}
+											value={filterGroup.title}
+											onChange={(e) =>
+												setFilterGroup({
+													...filterGroup,
+													title: e.target.value,
+												})
+											}
+											required={true}
+											styles={'pt-0'}
+											lightOnly={false}
+										/>
+										<div className='flex items-center justify-end'>
+											<div className='mt-2'>
+												<Button
+													text={'Cancel'}
+													onClick={() => {
+														setEditFilter(false);
+													}}
+													width={'w-20'}
+													margin={false}
+													path={null}
+													conditional={null}
+													conditionalDisplay={null}
+													size={'xs'}
+													cta={false}
+												/>
+											</div>
+											<div className='mt-2 ml-4'>
+												<Button
+													text={'Save'}
+													onClick={() => {
+														handleEditFilter(filterGroup.id);
+													}}
+													width={'w-20'}
+													margin={false}
+													path={null}
+													conditional={null}
+													conditionalDisplay={null}
+													size={'xs'}
+													cta={true}
+												/>
+											</div>
+										</div>
+									</div>
+								</div>
+								{filterGroup.count > 0 && (
+									<div className='py-2'>
+										<FilterList
+											title='Filters to be grouped'
+											filters={filterGroup.filters}
+											clearable={true}
+										/>
+									</div>
+								)}
+								<Actions
+									buttonOne={{
+										title: 'Create group',
+										onClick: () => {},
+										disabled: true,
+									}}
+									buttonTwo={{
+										title: 'Clear all',
+										onClick: () => handleClearFilters(),
+										disabled: filters.count === 0,
+									}}
+								/>
 							</div>
 						)}
 						{/* import filter */}
@@ -716,25 +971,26 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 							<div>
 								<div
 									className={`${
-										filterPreset.filters.length > 0
-											? 'py-4 border-b border-200'
-											: ''
-									} px-4`}
+										filterGroup.count > 0 ? 'border-b border-200' : ''
+									} p-4`}
 								>
 									<SelectComponent
 										title={'Group'}
-										options={user.settings.filterPresets}
-										selectedOption={filterPreset.title || 'None'}
+										options={filterGroup.options}
+										selectedOption={filterGroup.title}
 										openState={importFilterDropdown}
 										setOpenState={setImportFilterDropdown}
 										handleClick={(option: {
+											id: string;
 											title: string;
 											filters: Filter[];
 										}) => {
-											setFilterPreset((prevState) => ({
+											setFilterGroup((prevState) => ({
 												...prevState,
+												id: option.id,
 												title: option.title,
 												filters: option.filters,
+												count: option.filters.length,
 											}));
 										}}
 									/>
@@ -744,11 +1000,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 												text={'Cancel'}
 												onClick={() => {
 													setImportFilter(false);
-													// setFilterPreset((prevState) => ({
-													// 	...prevState,
-													// 	title: '',
-													// 	filters: [],
-													// }));
 												}}
 												width={'w-20'}
 												margin={false}
@@ -763,13 +1014,8 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 											<Button
 												text={'Apply'}
 												onClick={() => {
-													dispatch(
-														setFilters(
-															user.settings.filterPresets.filter(
-																(preset) => preset.title === filterPreset.title
-															)[0].filters
-														)
-													);
+													dispatch(setFilters(filterGroup.filters));
+													setImportFilter(false);
 												}}
 												width={'w-20'}
 												margin={false}
@@ -782,11 +1028,11 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 										</div>
 									</div>
 								</div>
-								{filterPreset.filters.length > 0 && (
-									<div className='pt-2 pb-2'>
+								{filterGroup.filters.length > 0 && filterGroup.filters && (
+									<div className='py-2'>
 										<FilterList
 											title='Filters to be applied'
-											filters={filterPreset.filters}
+											filters={filterGroup.filters}
 											clearable={false}
 										/>
 									</div>
@@ -798,55 +1044,58 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 											if (importFilter) {
 												setAddFilter(false);
 												setImportFilter(false);
-												setSaveFilter(true);
+												setSaveFilter(false);
+												setEditFilter(true);
+												setFilterGroup((prevState) => ({
+													...prevState,
+													filters: filterGroup.filters,
+												}));
 											}
-											if (filters.count === 0) return;
-											setAddFilter(false);
-											setImportFilter(false);
-											setSaveFilter(true);
 										},
 										disabled: false,
 									}}
 									buttonTwo={{
 										title: 'Delete group',
-										onClick: () => console.log('ree'),
+										onClick: () => handleDeleteFilter(),
 										disabled: false,
 									}}
 								/>
 							</div>
 						)}
 						{/* filters list */}
-						{filters.count > 0 && !addFilter && !importFilter && !saveFilter && (
-							<div>
-								<FilterList
-									title={null}
-									filters={filters.filters}
-									clearable={true}
-								/>
-								<Actions
-									buttonOne={{
-										title: 'Create group',
-										onClick: () => {
-											if (importFilter) {
-												setAddFilter(false);
-												setImportFilter(false);
-												setSaveFilter(true);
-											}
-											if (filters.count === 0) return;
-											setAddFilter(false);
-											setImportFilter(false);
-											setSaveFilter(true);
-										},
-										disabled: false,
-									}}
-									buttonTwo={{
-										title: 'Clear all',
-										onClick: () => dispatch(clearFilters()),
-										disabled: filters.count === 0,
-									}}
-								/>
-							</div>
-						)}
+						{filters.count > 0 &&
+							!addFilter &&
+							!importFilter &&
+							!saveFilter &&
+							!editFilter && (
+								<div>
+									<div className='pb-2'>
+										<FilterList
+											title={null}
+											filters={filters.filters}
+											clearable={true}
+										/>
+									</div>
+									<Actions
+										buttonOne={{
+											title: 'Create group',
+											onClick: () => {
+												setFilterGroup((prevState) => ({
+													...prevState,
+													title: '',
+												}));
+												validateFilter(filterGroup.options, filters.filters);
+											},
+											disabled: false,
+										}}
+										buttonTwo={{
+											title: 'Clear all',
+											onClick: () => handleClearFilters(),
+											disabled: filters.count === 0,
+										}}
+									/>
+								</div>
+							)}
 					</div>
 					{/* modal actions */}
 				</div>
@@ -862,41 +1111,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 		/>
 	);
 };
-
-{
-	/* <button
-onClick={() => {
-    if (importFilter) {
-        setAddFilter(false);
-        setImportFilter(false);
-        setSaveFilter(true);
-    }
-    if (filters.count === 0) return;
-    setAddFilter(false);
-    setImportFilter(false);
-    setSaveFilter(true);
-}}
-className={`py-1 px-2 font-semibold text-sm ${
-    !saveFilter && (importFilter || filters.count > 0)
-        ? 'link'
-        : 'text-gray-200 cursor-default'
-}`}
->
-{importFilter ? 'Edit group' : 'Create group'}
-</button>
-<button
-onClick={() => {
-    importFilter ? handleDeleteFilter() : handleClearFilters();
-}}
-className={`py-1 px-2 font-semibold text-sm ${
-    importFilter || filters.count > 0
-        ? 'hover:bg-red-100 dark:hover:bg-red-400 text-red-500 dark:text-red-300 hover:text-red-600 dark:hover:text-white rounded-main transition-main ring-red'
-        : 'text-gray-200 cursor-default'
-}`}
->
-{importFilter ? 'Delete group' : 'Clear all'}
-</button> */
-}
 
 interface FilterListProps {
 	title: string | null;
@@ -1022,7 +1236,9 @@ const ActiveFilter: React.FC<ActiveFilterProps> = ({ filter, clearable }) => {
 			</div>
 			{clearable && (
 				<button
-					onClick={() => dispatch(clearFilter({ id: filter.id }))}
+					onClick={() => {
+						dispatch(clearFilter({ id: filter.id }));
+					}}
 					onMouseEnter={() => setFilterDescription(true)}
 					onMouseLeave={() => setFilterDescription(false)}
 					className='relative icon-button'

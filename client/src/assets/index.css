@@ -173,7 +173,7 @@ body {
 }
 
 .icon-button-disabled {
-	@apply p-1 rounded-md text-gray-200 dark:text-gray-800 cursor-default;
+	@apply p-1 rounded-md text-gray-200 dark:text-gray-800 cursor-default ring-gray;
 }
 
 .card-padding-y {

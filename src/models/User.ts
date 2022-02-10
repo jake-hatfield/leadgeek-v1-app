@@ -152,11 +152,13 @@ const UserSchema: Schema<IUserDocument> = new Schema({
 		},
 	],
 	settings: {
-		filterPresets: [
+		filterGroups: [
 			{
+				id: { type: String },
 				title: { type: String },
 				filters: [
 					{
+						id: { type: String },
 						format: { type: String, enum: ['numeric', 'text'] },
 						type: {
 							type: String,

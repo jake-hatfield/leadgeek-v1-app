@@ -270,6 +270,11 @@ export const authSlice = createSlice({
 			state.user = null;
 			state.validatedResetPwToken = false;
 		},
+		setUserFilterGroup: (state, action) => {
+			if (state.user && action.payload) {
+				state.user.settings.filterGroups = action.payload;
+			}
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -348,6 +353,6 @@ export const authSlice = createSlice({
 	},
 });
 
-export const { removeUserData } = authSlice.actions;
+export const { removeUserData, setUserFilterGroup } = authSlice.actions;
 
 export default authSlice.reducer;
