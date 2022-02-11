@@ -7,7 +7,10 @@ import { useHotkeys } from 'react-hotkeys-hook';
 // redux
 import { useAppSelector, useAppDispatch } from '@hooks/hooks';
 import { removeAlert, setAlert } from '@features/alert/alertSlice';
-import { setUserFilterGroup } from '@features/auth/authSlice';
+import {
+	setUserFilterGroup,
+	updateUserFilterGroup,
+} from '@features/auth/authSlice';
 import {
 	clearFilter,
 	clearFilters,
@@ -208,23 +211,24 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 
 		if (data.message === 'Filter group was created') {
 			setSaveFilter(false);
+
+			const newFilterGroup = {
+				title: filterGroup.title,
+				filters: filterGroup.filters,
+			};
+
+			setFilterGroup((prevState) => ({
+				...prevState,
+				filters: newFilterGroup.filters,
+				count: prevState.count++,
+				options: [...prevState.options, newFilterGroup],
+			}));
 			dispatch(
 				setUserFilterGroup([
 					...filterGroup.options,
 					{ title: filterGroup.title, filters: filterGroup.filters },
 				])
 			);
-			setFilterGroup((prevState) => ({
-				...prevState,
-				options: [
-					...prevState.options,
-					{
-						title: filterGroup.title,
-						filters: filterGroup.filters,
-					},
-				],
-				count: prevState.count++,
-			}));
 			dispatch(
 				setAlert({
 					title: 'Success',
@@ -282,12 +286,68 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 		);
 	};
 
-	const handleEditFilter = async (id: string) => {
+	const handleEditFilter = async () => {
 		dispatch(removeAlert());
 
-		const { data } = await axios.put(
-			`/api/users/settings/filter?id=${filterGroup.id}`
+		if (!filterGroup.title) {
+			return dispatch(
+				setAlert({
+					title: 'Input error',
+					message: 'Please enter a name for this filter group',
+					alertType: 'danger',
+				})
+			);
+		}
+
+		validateFilter(filterGroup.options, filters.filters);
+
+		const body = JSON.stringify({
+			id: filterGroup.id,
+			title: filterGroup.title,
+			filters: filters.filters,
+		});
+
+		const { data } = await axios.put<{
+			message:
+				| 'Required information is missing'
+				| 'No user data found'
+				| 'Filter group does not exist'
+				| 'Filter group was updated';
+		}>(`/api/users/settings/filter`, body, config);
+
+		if (data.message === 'Filter group does not exist') {
+			return dispatch(
+				setAlert({
+					title: 'Error',
+					message: 'There was a problem updating this filter',
+					alertType: 'danger',
+				})
+			);
+		}
+
+		dispatch(
+			setAlert({
+				title: 'Success',
+				message: 'Filter group was updated',
+				alertType: 'success',
+			})
 		);
+
+		const newFilterGroup = {
+			title: filterGroup.title,
+			filters: filters.filters,
+		};
+
+		setFilterGroup((prevState) => ({
+			...prevState,
+			filters: newFilterGroup.filters,
+			count: prevState.count++,
+			options: [...prevState.options, newFilterGroup],
+		}));
+
+		setEditFilter(false);
+
+		return dispatch(updateUserFilterGroup(newFilterGroup));
 	};
 
 	const handleFilterSubmit = () => {
@@ -474,6 +534,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 			user?.settings.filterGroups.length > 0 &&
 			setFilterGroup((prevState) => ({
 				...prevState,
+				id: user.settings.filterGroups[0]._id,
 				title: user?.settings.filterGroups[0].title,
 				filters: user?.settings.filterGroups[0].filters,
 				count: user.settings.filterGroups[0].filters.length,
@@ -492,10 +553,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 			return setImportFilter(false);
 		}
 	}, [filterGroup.options]);
-
-	// TODO: Edit filter
-	// TODO: Update new/deleted filters in state
-	// TODO: Double validate on new filter creation
 
 	return user ? (
 		<article
@@ -523,6 +580,10 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 										user.settings.filterGroups.length > 0
 											? user.settings.filterGroups[0].title
 											: prevState.title,
+									filters:
+										user.settings.filterGroups.length > 0
+											? user.settings.filterGroups[0].filters
+											: prevState.filters,
 								}));
 								setImportFilter(true);
 								setImportDescription(false);
@@ -602,11 +663,11 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 									buttonOne={{
 										title: 'Create group',
 										onClick: () => {
+											validateFilter(filterGroup.options, filters.filters);
 											setFilterGroup((prevState) => ({
 												...prevState,
 												title: '',
 											}));
-											validateFilter(filterGroup.options, filters.filters);
 										},
 										disabled: filters.count === 0,
 									}}
@@ -786,11 +847,11 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 									buttonOne={{
 										title: 'Create group',
 										onClick: () => {
+											validateFilter(filterGroup.options, filters.filters);
 											setFilterGroup((prevState) => ({
 												...prevState,
 												title: '',
 											}));
-											validateFilter(filterGroup.options, filters.filters);
 										},
 										disabled: filters.count === 0,
 									}}
@@ -927,9 +988,9 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 											</div>
 											<div className='mt-2 ml-4'>
 												<Button
-													text={'Save'}
+													text={'Update'}
 													onClick={() => {
-														handleEditFilter(filterGroup.id);
+														handleEditFilter();
 													}}
 													width={'w-20'}
 													margin={false}
@@ -1080,11 +1141,11 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
 										buttonOne={{
 											title: 'Create group',
 											onClick: () => {
+												validateFilter(filterGroup.options, filters.filters);
 												setFilterGroup((prevState) => ({
 													...prevState,
 													title: '',
 												}));
-												validateFilter(filterGroup.options, filters.filters);
 											},
 											disabled: false,
 										}}

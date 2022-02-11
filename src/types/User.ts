@@ -62,6 +62,7 @@ export interface IUser {
 	}[];
 	settings: {
 		filterGroups: {
+			_id: any;
 			title: string;
 			filters: Filter[];
 		}[];

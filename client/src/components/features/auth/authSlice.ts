@@ -275,6 +275,19 @@ export const authSlice = createSlice({
 				state.user.settings.filterGroups = action.payload;
 			}
 		},
+		updateUserFilterGroup: (state, action) => {
+			if (state.user && action.payload) {
+				const userFilterGroupIndex = state.user.settings.filterGroups.findIndex(
+					(g) => g.title === action.payload.title
+				);
+
+				if (!userFilterGroupIndex || userFilterGroupIndex < 0) {
+					return;
+				}
+
+				state.user.settings.filterGroups[userFilterGroupIndex] = action.payload;
+			}
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -353,6 +366,7 @@ export const authSlice = createSlice({
 	},
 });
 
-export const { removeUserData, setUserFilterGroup } = authSlice.actions;
+export const { removeUserData, setUserFilterGroup, updateUserFilterGroup } =
+	authSlice.actions;
 
 export default authSlice.reducer;

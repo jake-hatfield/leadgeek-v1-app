@@ -4,7 +4,7 @@ import { Request, Response, Router, urlencoded } from 'express';
 import { DateTime } from 'luxon';
 import mailchimp from '@mailchimp/mailchimp_marketing';
 import md5 from 'md5';
-import { ObjectId } from 'mongoose';
+import mongoose, { ObjectId, Schema } from 'mongoose';
 import Stripe from 'stripe';
 
 // env
@@ -137,7 +137,7 @@ router.post(
 		req: Request<
 			{},
 			{},
-			{ user: { id: string }; name: string; filters: Filter[] }
+			{ user: { id: string }; title: string; filters: Filter[] }
 		>,
 		res: Response<{
 			message:
@@ -184,7 +184,10 @@ router.post(
 				return res.status(200).send({ message: 'Filter group name taken' });
 			}
 
-			const filterGroup: { title: string; filters: Filter[] } = {
+			const newId = new mongoose.Types.ObjectId();
+
+			const filterGroup: { _id: any; title: string; filters: Filter[] } = {
+				_id: newId,
 				title,
 				filters,
 			};
@@ -196,6 +199,89 @@ router.post(
 			await user.save();
 
 			message = 'Filter group was created';
+
+			return res.status(201).send({
+				message,
+			});
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+// @route       PUT api/users/settings/filter
+// @description Update a filter group
+// @access      Private
+router.put(
+	'/settings/filter',
+	auth,
+	async (
+		req: Request<
+			{},
+			{},
+			{ user: { id: string }; id: string; title: string; filters: Filter[] }
+		>,
+		res: Response<{
+			message:
+				| 'Required information is missing'
+				| 'No user data found'
+				| 'Filter group does not exist'
+				| 'Filter group was updated';
+		}>
+	) => {
+		try {
+			// destructure necessary items
+			const {
+				user: { id },
+				id: filterId,
+				title,
+				filters,
+			} = req.body;
+
+			let message:
+				| 'Required information is missing'
+				| 'No user data found'
+				| 'Filter group does not exist'
+				| 'Filter group was updated';
+
+			if (!id || !filterId || !title || !filters) {
+				message = 'Required information is missing';
+				return res.status(401).send({ message });
+			}
+
+			const user = await User.findOne({ _id: id });
+
+			if (!user) {
+				message = 'No user data found';
+
+				return res.status(200).send({
+					message,
+				});
+			}
+
+			const filterGroupIndex = user.settings.filterGroups.findIndex(
+				(filter) => filter._id.toString() === filterId
+			);
+
+			console.log(filterGroupIndex);
+
+			if (filterGroupIndex < 0) {
+				message = 'Filter group does not exist';
+				return res.status(200).send({ message });
+			}
+
+			const updatedFilterGroup: { _id: any; title: string; filters: Filter[] } =
+				{
+					_id: filterId,
+					title,
+					filters,
+				};
+
+			user.settings.filterGroups[filterGroupIndex] = updatedFilterGroup;
+
+			await user.save();
+
+			message = 'Filter group was updated';
 
 			return res.status(201).send({
 				message,
