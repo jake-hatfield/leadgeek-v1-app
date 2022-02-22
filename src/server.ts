@@ -2,6 +2,7 @@
 import path from 'path';
 
 // packages
+import cors from 'cors';
 import express, { Request, Response, NextFunction } from 'express';
 import * as Sentry from '@sentry/node';
 
@@ -19,6 +20,11 @@ app.use(
 		verify: (req: any, res, buf) => {
 			req.rawBody = buf;
 		},
+	})
+);
+app.use(
+	cors({
+		origin: 'chrome-extension://*',
 	})
 );
 
