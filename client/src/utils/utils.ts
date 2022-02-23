@@ -3,8 +3,6 @@ import React, { RefObject, useEffect } from 'react';
 // packages
 import { DateTime } from 'luxon';
 
-import { Lead } from '@utils/interfaces/Lead';
-
 export const config = {
 	headers: {
 		'Content-Type': 'application/json',

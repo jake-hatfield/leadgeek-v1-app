@@ -2,7 +2,7 @@
 import path from 'path';
 
 // packages
-import cors from 'cors';
+// import cors from 'cors';
 import express, { Request, Response, NextFunction } from 'express';
 import * as Sentry from '@sentry/node';
 
@@ -22,11 +22,11 @@ app.use(
 		},
 	})
 );
-app.use(
-	cors({
-		origin: 'chrome-extension://*',
-	})
-);
+// app.use(
+// cors({
+// origin: 'chrome-extension://*',
+// })
+// );
 
 // define routes
 app.use('/api/auth', require('@routes/api/auth'));
