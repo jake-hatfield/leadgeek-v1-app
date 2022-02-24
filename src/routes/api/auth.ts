@@ -134,7 +134,7 @@ router.post(
 			jwt.sign(
 				payload,
 				jwtSecret,
-				{ expiresIn: 60 * 60 * 24 * 5 },
+				{ algorithm: 'HS256', expiresIn: 60 * 60 * 24 * 5 },
 				(err, token) => {
 					if (err) throw err;
 					return res.send({ message: 'Login success', token });
@@ -210,7 +210,10 @@ router.get(
 				jwt.sign(
 					payload,
 					jwtSecret,
-					{ expiresIn: 60 * 60 * 24 * 5 },
+					{
+						algorithm: 'HS256',
+						expiresIn: 60 * 60 * 24 * 5,
+					},
 					(error, token) => {
 						if (error) throw error;
 						const message = 'Surrogation successful';
