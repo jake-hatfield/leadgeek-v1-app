@@ -24,7 +24,10 @@ app.use(
 );
 app.use(
 	cors({
-		origin: 'chrome-extension://*',
+		origin: [
+			'chrome-extension://ehijibgpdpdfbdnijdgcnpdklamjdddb',
+			'http://localhost:8080',
+		],
 	})
 );
 
