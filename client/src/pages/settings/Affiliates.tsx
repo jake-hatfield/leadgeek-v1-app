@@ -59,7 +59,9 @@ const AffiliatesPage = () => {
 		(user?.role === 'affiliate' && user?.referrals.referrer.isReferrer) || false
 	);
 	const [lastPayout] = useState(calcNextPossiblePayoutDate(-1));
-	const [lgid] = useState(isAuthenticated && user?.referrals.referrer.lgid);
+	const [lgid, setLgid] = useState(
+		isAuthenticated && user?.referrals.referrer.lgid
+	);
 	const [modal, setModal] = useState(false);
 	const [nextPayout] = useState(calcNextPossiblePayoutDate(1));
 
@@ -71,10 +73,16 @@ const AffiliatesPage = () => {
 
 	// set affiliate status on load
 	useEffect(() => {
-		user?.referrals.referrer.isReferrer === true
-			? setIsAff(true)
-			: setIsAff(false);
-	}, [user?.referrals.referrer.isReferrer]);
+		if (
+			user?.referrals.referrer.isReferrer === true &&
+			user.referrals.referrer.lgid
+		) {
+			setIsAff(true);
+			setLgid(user?.referrals.referrer.lgid);
+		} else {
+			setIsAff(false);
+		}
+	}, [user?.referrals.referrer.isReferrer, user?.referrals.referrer.lgid]);
 
 	const handleAffPayments = useCallback(
 		async (
@@ -113,9 +121,13 @@ const AffiliatesPage = () => {
 						},
 					});
 				} else {
-					// dispatch({
-					// type: FINISHED_AFFILIATE_PAYMENTS_LOADING,
-					// });
+					setAffState({
+						...affState,
+						paymentHistory: {
+							...affState.paymentHistory,
+							status: 'idle',
+						},
+					});
 				}
 			} catch (error) {
 				console.log(error);
@@ -235,37 +247,42 @@ const AffiliatesPage = () => {
 		},
 		{
 			title: <span>PayPal email address</span>,
-			value: changePaypal ? (
-				<form onSubmit={(e) => onSubmit(e)} className='flex items-center'>
-					<input
-						name='paypalEmail'
-						type='email'
-						placeholder='Your new PayPal email'
-						required={true}
-						onChange={onChange}
-						className='w-full py-1 px-2 rounded-l-md input ring-purple focus:ring-inset'
-					/>
-					<button className='py-1 px-2 rounded-r-md cs-purple border-t border-r border-b border-purple-500 dark:border-purple-300 transition-main ring-purple'>
-						Update
-					</button>
-				</form>
-			) : (
-				<button
-					onClick={() => setChangePaypal(true)}
-					className={`font-semibold ${
-						isAuthenticated &&
-						(user?.referrals.referrer.paypalEmail || paypalEmail)
-							? 'link'
-							: 'text-red-400 hover:text-red-500'
-					} hover:text-gray-700 ring-gray rounded-lg transition-main`}
-				>
-					{isAuthenticated &&
-					(user?.referrals.referrer.paypalEmail || paypalEmail)
-						? paypalEmail || user?.referrals.referrer.paypalEmail
-						: 'Add PayPal email for payout'}
-				</button>
+			value: (
+				<p className='font-bold'>
+					{user?.referrals.referrer.paypalEmail || paypalEmail}
+				</p>
 			),
-			isInteractable: true,
+			// changePaypal ? (
+			// 	<form onSubmit={(e) => onSubmit(e)} className='flex items-center'>
+			// 		<input
+			// 			name='paypalEmail'
+			// 			type='email'
+			// 			placeholder='Your new PayPal email'
+			// 			required={true}
+			// 			onChange={onChange}
+			// 			className='w-full py-1 px-2 rounded-l-md input ring-purple focus:ring-inset'
+			// 		/>
+			// 		<button className='py-1 px-2 rounded-r-md cs-purple border-t border-r border-b border-purple-500 dark:border-purple-300 transition-main ring-purple'>
+			// 			Update
+			// 		</button>
+			// 	</form>
+			// ) : (
+			// 	<button
+			// 		onClick={() => setChangePaypal(true)}
+			// 		className={`font-semibold ${
+			// 			isAuthenticated &&
+			// 			(user?.referrals.referrer.paypalEmail || paypalEmail)
+			// 				? 'link'
+			// 				: 'text-red-400 hover:text-red-500'
+			// 		} hover:text-gray-700 ring-gray rounded-lg transition-main`}
+			// 	>
+			// 		{isAuthenticated &&
+			// 		(user?.referrals.referrer.paypalEmail || paypalEmail)
+			// 			? paypalEmail || user?.referrals.referrer.paypalEmail
+			// 			: 'Add PayPal email for payout'}
+			// 	</button>
+			// ),
+			isInteractable: false,
 			t: 'This is the PayPal email where your commission payments will be sent',
 			size: '',
 		},
