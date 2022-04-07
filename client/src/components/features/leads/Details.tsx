@@ -166,6 +166,8 @@ const Details: React.FC<DetailsProps> = ({
 
 	useEffect(() => {
 		const handleClickOutside = (e: any) => {
+			setShowComment(false);
+
 			if (newComment === comment) {
 				return;
 			}
@@ -177,7 +179,6 @@ const Details: React.FC<DetailsProps> = ({
 						leadId: currentLead._id,
 					})
 				);
-				setShowComment(false);
 			}
 		};
 		document.addEventListener('mousedown', handleClickOutside);
@@ -968,7 +969,7 @@ const Details: React.FC<DetailsProps> = ({
 						</div>
 					)}
 					<div className='h-screen overflow-x-hidden overflow-y-scroll minimal-scrollbar'>
-						<section className='mb-48 pl-6 pr-8'>
+						<section className='mb-80 pl-6 pr-8'>
 							<article className='flex justify-between mt-4 py-4 card-padding-x cs-light-300 card-200'>
 								<div className='w-2/5 h-56 z-10'>
 									<ReactImageMagnify
